@@ -11,7 +11,7 @@ interface BookRepository {
 
     suspend fun saveBook(book: Book)
 
-    suspend fun saveBooks(book: List<Book>)
+    suspend fun saveBooks(books: List<Book>)
 
     suspend fun deleteBook(id: Int)
 

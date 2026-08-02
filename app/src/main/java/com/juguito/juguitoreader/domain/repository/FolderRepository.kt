@@ -7,6 +7,8 @@ interface FolderRepository {
 
     fun getAllFolders(): Flow<List<Folder>>
 
+    suspend fun getFolderById(id: Int): Folder?
+
     suspend fun saveFolder(folder: Folder)
 
     suspend fun saveFolders(folders: List<Folder>)
