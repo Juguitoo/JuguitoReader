@@ -2,7 +2,7 @@ package com.juguito.juguitoreader.di
 
 import android.app.Application
 import androidx.room.Room
-import com.juguito.juguitoreader.data.local.JuguitoDatabase
+import com.juguito.juguitoreader.data.local.JuguitoReaderDatabase
 import com.juguito.juguitoreader.data.local.dao.BookDAO
 import com.juguito.juguitoreader.data.local.dao.FolderDAO
 import com.juguito.juguitoreader.data.local.dao.GenreDAO
@@ -18,10 +18,10 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideJuguitoDatabase(app: Application): JuguitoDatabase{
+    fun provideJuguitoDatabase(app: Application): JuguitoReaderDatabase {
         return Room.databaseBuilder(
             app,
-            JuguitoDatabase::class.java,
+            JuguitoReaderDatabase::class.java,
             "juguito_db"
         )
             .fallbackToDestructiveMigration(true).build()
@@ -29,19 +29,19 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideBookDao(database: JuguitoDatabase): BookDAO{
+    fun provideBookDao(database: JuguitoReaderDatabase): BookDAO{
         return database.bookDAO
     }
 
     @Provides
     @Singleton
-    fun provideFolderDao(database: JuguitoDatabase): FolderDAO{
+    fun provideFolderDao(database: JuguitoReaderDatabase): FolderDAO{
         return database.folderDAO
     }
 
     @Provides
     @Singleton
-    fun provideGenreDao(database: JuguitoDatabase): GenreDAO{
+    fun provideGenreDao(database: JuguitoReaderDatabase): GenreDAO{
         return database.genreDAO
     }
 }

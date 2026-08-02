@@ -25,7 +25,7 @@ import com.juguito.juguitoreader.data.local.entity.BookGenreCrossRef
 )
 
 @TypeConverters(RoomConverters::class)
-abstract class JuguitoDatabase : RoomDatabase() {
+abstract class JuguitoReaderDatabase : RoomDatabase() {
     abstract val bookDAO: BookDAO
     abstract val folderDAO: FolderDAO
     abstract val genreDAO: GenreDAO
