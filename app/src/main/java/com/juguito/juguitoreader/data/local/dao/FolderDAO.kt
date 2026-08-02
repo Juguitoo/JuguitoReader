@@ -11,17 +11,17 @@ import kotlinx.coroutines.flow.Flow
 interface FolderDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertFolder(folder: FolderEntity): Long
+    suspend fun insertFolders(folders: List<FolderEntity>): Long
 
     @Query("SELECT * FROM folders WHERE id = :idFolder")
     suspend fun getFolderById(idFolder: Int): FolderEntity
-
-    @Query("SELECT * FROM folders WHERE sync_status != 'SYNCED'")
-    suspend fun getUnsyncedFolders(): List<FolderEntity>
 
     @Query("SELECT * FROM folders")
     suspend fun getAllFolders(): Flow<List<FolderEntity>>
 
     @Query("DELETE FROM folders WHERE id = :folderId")
     suspend fun deleteFolderById(folderId: Int)
+
+    @Query("SELECT * FROM folders WHERE sync_status != 'SYNCED'")
+    suspend fun getUnsyncedFolders(): List<FolderEntity>
 }

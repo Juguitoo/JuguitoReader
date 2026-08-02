@@ -4,14 +4,12 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.juguito.juguitoreader.data.local.entity.FolderEntity
 import com.juguito.juguitoreader.data.local.entity.GenreEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface GenreDAO {
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertGenre(genre: GenreEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertGenres(genres: List<GenreEntity>)
@@ -21,4 +19,7 @@ interface GenreDAO {
 
     @Query("DELETE FROM genres WHERE id = :genreId")
     suspend fun deleteGenreById(genreId: Int)
+
+    @Query("SELECT * FROM genres WHERE sync_status != 'SYNCED'")
+    suspend fun getUnsyncedGenres(): List<GenreEntity>
 }

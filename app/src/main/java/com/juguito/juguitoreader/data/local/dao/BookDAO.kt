@@ -13,7 +13,7 @@ import com.juguito.juguitoreader.data.local.entity.BookWithDetails
 interface BookDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertBook(book: BookEntity): Long
+    suspend fun insertBooks(book: List<BookEntity>): Long
 
     @Query("SELECT * FROM books WHERE id = :bookId ")
     suspend fun getBookById(bookId: Int): BookEntity?
@@ -21,13 +21,13 @@ interface BookDAO {
     @Query("SELECT * FROM books")
     suspend fun getAllBooks(): Flow<List<BookEntity>>
 
-    @Query("SELECT * FROM books WHERE sync_status != 'SYNCED'")
-    suspend fun getUnsyncedBooks(): List<BookEntity>
-
     @Transaction
     @Query("SELECT * FROM books ")
     suspend fun getAllBooksWithDetails(): Flow<List<BookWithDetails>>
 
     @Query("DELETE FROM books WHERE id = :bookId")
     suspend fun deleteBookById(bookId: Int)
+
+    @Query("SELECT * FROM books WHERE sync_status != 'SYNCED'")
+    suspend fun getUnsyncedBooks(): List<BookEntity>
 }
