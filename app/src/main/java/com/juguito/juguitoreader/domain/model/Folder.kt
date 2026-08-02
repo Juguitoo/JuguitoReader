@@ -5,5 +5,6 @@ class Folder(
     val name: String,
     val colorHex: String,
     val description: String? = null,
-    val syncStatus: SyncStatus = SyncStatus.PENDING_CREATE
+    val syncStatus: SyncStatus = SyncStatus.PENDING_CREATE,
+    val createdAt: Long = System.currentTimeMillis()
 )

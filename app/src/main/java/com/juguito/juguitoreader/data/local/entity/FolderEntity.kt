@@ -17,5 +17,6 @@ data class FolderEntity(
     val name: String,
     val description: String? = null,
     @ColumnInfo(name = "color_hex") val colorHex: String,
-    @ColumnInfo(name = "sync_status") val syncStatus: SyncStatus = SyncStatus.PENDING_CREATE
+    @ColumnInfo(name = "sync_status") val syncStatus: SyncStatus = SyncStatus.PENDING_CREATE,
+    @ColumnInfo(name = "created_at") val createdAt: Long
 )

@@ -7,7 +7,8 @@ fun GenreEntity.toDomain(): Genre {
     return Genre(
         id = id,
         name = name,
-        syncStatus = syncStatus
+        syncStatus = syncStatus,
+        createdAt = createdAt
     )
 }
 
@@ -15,6 +16,7 @@ fun Genre.toEntity(): GenreEntity {
     return GenreEntity(
         id = id,
         name = name,
-        syncStatus = syncStatus
+        syncStatus = syncStatus,
+        createdAt = createdAt
     )
 }

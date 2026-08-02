@@ -14,5 +14,6 @@ class Book(
     val syncStatus: SyncStatus = SyncStatus.PENDING_CREATE,
 
     val folders: List<Folder> = emptyList(),
-    val genres: List<Genre> = emptyList()
+    val genres: List<Genre> = emptyList(),
+    val createdAt: Long = System.currentTimeMillis()
 )

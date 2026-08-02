@@ -19,7 +19,7 @@ class AddFolderUseCase @Inject constructor(
             repository.saveFolder(folder)
             Result.success(Unit)
         } catch (e: Exception){
-            return Result.failure(Exception("Error al guardar la carpeta: ${e.localizedMessage}"))
+            Result.failure(Exception("Error al guardar la carpeta: ${e.localizedMessage}"))
         }
 
     }

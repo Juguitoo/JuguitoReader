@@ -15,5 +15,6 @@ import com.juguito.juguitoreader.domain.model.SyncStatus
 data class GenreEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
-    @ColumnInfo(name = "sync_status") val syncStatus: SyncStatus = SyncStatus.PENDING_CREATE
+    @ColumnInfo(name = "sync_status") val syncStatus: SyncStatus = SyncStatus.PENDING_CREATE,
+    @ColumnInfo(name = "created_at") val createdAt: Long
 )

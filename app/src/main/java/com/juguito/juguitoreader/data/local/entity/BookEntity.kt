@@ -18,5 +18,6 @@ data class BookEntity(
     @ColumnInfo(name = "end_date") val endDate: Long? = null,
     @ColumnInfo(name = "cover_url") val coverUrl: String? = null,
     @ColumnInfo(name = "local_file_path") val localFilePath: String? = null,
-    @ColumnInfo(name = "sync_status") val syncStatus: SyncStatus = SyncStatus.PENDING_CREATE
+    @ColumnInfo(name = "sync_status") val syncStatus: SyncStatus = SyncStatus.PENDING_CREATE,
+    @ColumnInfo(name = "created_at") val createdAt: Long
     )
