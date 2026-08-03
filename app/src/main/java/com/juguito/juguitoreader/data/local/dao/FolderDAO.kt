@@ -19,6 +19,9 @@ interface FolderDAO {
     @Query("SELECT * FROM folders WHERE id = :idFolder")
     suspend fun getFolderById(idFolder: Int): FolderEntity?
 
+    @Query("SELECT * FROM folders WHERE name = :folderName")
+    suspend fun getFolderByName(folderName: String): FolderEntity?
+
     @Query("SELECT * FROM folders")
     fun getAllFolders(): Flow<List<FolderEntity>>
 

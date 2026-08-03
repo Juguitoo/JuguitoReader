@@ -20,6 +20,10 @@ class FolderRepositoryImpl @Inject constructor(
         return folderDAO.getFolderById(id)?.toDomain()
     }
 
+    override suspend fun getFolderByName(name: String): Folder? {
+        return folderDAO.getFolderByName(name)?.toDomain()
+    }
+
     override suspend fun saveFolder(folder: Folder) {
         folderDAO.insertFolder(folder.toEntity())
     }

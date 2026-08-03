@@ -16,6 +16,14 @@ class GenreRepositoryImpl @Inject constructor(
         return genreDAO.getAllGenres().map{ entities -> entities.map{ it.toDomain() } }
     }
 
+    override suspend fun getAllGenreNames(): List<String> {
+        return genreDAO.getAllGenreNames()
+    }
+
+    override suspend fun getGenreByName(name: String): Genre? {
+        return genreDAO.getGenreByName(name)?.toDomain()
+    }
+
     override suspend fun saveGenre(genre: Genre) {
         genreDAO.insertGenre(genre.toEntity())
     }

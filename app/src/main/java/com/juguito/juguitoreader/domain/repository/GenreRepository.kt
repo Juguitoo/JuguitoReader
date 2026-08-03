@@ -7,6 +7,10 @@ interface GenreRepository {
 
     fun getAllGenres(): Flow<List<Genre>>
 
+    suspend fun getAllGenreNames(): List<String>
+
+    suspend fun getGenreByName(name: String): Genre?
+
     suspend fun saveGenre(genre: Genre)
 
     suspend fun saveGenres(genres: List<Genre>)

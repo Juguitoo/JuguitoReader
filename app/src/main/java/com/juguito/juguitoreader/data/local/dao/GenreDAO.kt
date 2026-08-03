@@ -16,8 +16,14 @@ interface GenreDAO {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertGenres(genres: List<GenreEntity>)
 
+    @Query("SELECT * FROM folders WHERE name = :genreName")
+    suspend fun getGenreByName(genreName: String): GenreEntity?
+
     @Query("SELECT * FROM genres")
     fun getAllGenres(): Flow<List<GenreEntity>>
+
+    @Query("SELECT name FROM genres")
+    fun getAllGenreNames(): List<String>
 
     @Query("DELETE FROM genres WHERE id = :genreId")
     suspend fun deleteGenreById(genreId: Int)

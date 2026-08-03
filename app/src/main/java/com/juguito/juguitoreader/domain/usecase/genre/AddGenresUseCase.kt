@@ -14,9 +14,13 @@ class AddGenresUseCase @Inject constructor(
 
         val validGenres = mutableListOf<Genre>()
         val skippedGenres = mutableListOf<String>()
+        val existingGenreNames = repository.getAllGenreNames().map { it.lowercase() }.toSet()
 
         genres.forEach { genre ->
-            if (genre.name.isNotBlank() && genre.name.matches(validNameRegex)) {
+            val isFormatValid = genre.name.isNotBlank() && genre.name.matches(validNameRegex)
+            val isAlreadySaved = existingGenreNames.contains(genre.name.lowercase())
+
+            if (isFormatValid && !isAlreadySaved) {
                 validGenres.add(genre)
             } else {
                 skippedGenres.add(genre.name)
@@ -24,7 +28,7 @@ class AddGenresUseCase @Inject constructor(
         }
 
         if (validGenres.isEmpty() && skippedGenres.isNotEmpty()) {
-            return AddGenresResult.Error("Ningún género tenía un formato válido.")
+            return AddGenresResult.Error("Ningún género tenía un formato válido o estaban duplicados.")
         }
 
         return try {

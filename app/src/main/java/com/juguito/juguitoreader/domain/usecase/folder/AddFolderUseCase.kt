@@ -15,6 +15,11 @@ class AddFolderUseCase @Inject constructor(
             return Result.failure(Exception("El color de la carpeta no puede estar vacio."))
         }
 
+        val existingFolder = repository.getFolderByName(folder.name)
+        if (existingFolder != null) {
+            return Result.failure(Exception("Ya existe una carpeta llamada '${folder.name}'."))
+        }
+
         return try{
             repository.saveFolder(folder)
             Result.success(Unit)

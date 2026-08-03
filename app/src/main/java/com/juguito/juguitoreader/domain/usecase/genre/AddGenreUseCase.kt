@@ -13,6 +13,11 @@ class AddGenreUseCase @Inject constructor(
             return Result.failure(Exception("El nombre del género no puede estar vacio."))
         }
 
+        val existingGenre = repository.getGenreByName(genre.name)
+        if (existingGenre != null) {
+            return Result.failure(Exception("Ya existe un género llamado '${genre.name}'."))
+        }
+
         return try {
             repository.saveGenre(genre)
             Result.success(Unit)
