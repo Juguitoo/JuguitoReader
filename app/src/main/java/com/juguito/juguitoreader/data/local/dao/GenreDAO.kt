@@ -16,7 +16,7 @@ interface GenreDAO {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertGenres(genres: List<GenreEntity>)
 
-    @Query("SELECT * FROM folders WHERE name = :genreName")
+    @Query("SELECT * FROM genres WHERE name = :genreName")
     suspend fun getGenreByName(genreName: String): GenreEntity?
 
     @Query("SELECT * FROM genres")

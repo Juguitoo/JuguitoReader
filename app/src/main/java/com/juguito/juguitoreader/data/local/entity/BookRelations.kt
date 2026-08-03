@@ -7,14 +7,14 @@ import androidx.room.Junction
 import androidx.room.Relation
 
 @Entity(tableName = "book_folders",
-    primaryKeys = ["book_id, folder_id"])
+    primaryKeys = ["book_id", "folder_id"])
 data class BookFolderCrossRef(
     @ColumnInfo(name = "book_id") val bookId: Int,
     @ColumnInfo(name = "folder_id") val folderId: Int
 )
 
 @Entity(tableName = "book_genres",
-    primaryKeys = ["book_id, genre_id"])
+    primaryKeys = ["book_id", "genre_id"])
 data class BookGenreCrossRef(
     @ColumnInfo(name = "book_id") val bookId: Int,
     @ColumnInfo(name = "genre_id") val genreId: Int

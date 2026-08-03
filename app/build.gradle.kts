@@ -61,9 +61,11 @@ dependencies {
 
     // Supabase y Ktor
     implementation(libs.postgrest.kt)
-    implementation(libs.gotrue.kt)
+    implementation(libs.auth.kt)
     implementation(libs.ktor.client.android)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+
+    implementation(libs.androidx.compose.material.icons.extended)
 }

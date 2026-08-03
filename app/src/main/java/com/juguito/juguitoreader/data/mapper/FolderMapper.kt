@@ -9,16 +9,18 @@ fun FolderEntity.toDomain(): Folder {
         name = name,
         colorHex = colorHex,
         description = description,
-        syncStatus = syncStatus
+        syncStatus = syncStatus,
+        createdAt = createdAt
     )
 }
 
-fun Folder.toEntity(): FolderEntity{
+fun Folder.toEntity(): FolderEntity {
     return FolderEntity(
         id = id,
         name = name,
-        colorHex = colorHex,
         description = description,
-        syncStatus = syncStatus
+        colorHex = colorHex,
+        syncStatus = syncStatus,
+        createdAt = createdAt
     )
 }
