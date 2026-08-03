@@ -3,37 +3,25 @@ package com.juguito.juguitoreader.ui.folder.add
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,45 +39,77 @@ fun AddFolderScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Nueva Carpeta") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
-                    }
-                }
-            )
+            Surface(shadowElevation = 6.dp) {
+                TopAppBar(
+                    title = { 
+                        Text(
+                            "Nueva Carpeta",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontFamily = LoraFontFamily,
+                            fontWeight = FontWeight.Bold
+                        ) 
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack, 
+                                contentDescription = "Volver",
+                                tint = Color.White
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = Color.White
+                    )
+                )
+            }
         }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            Text(
+                text = "Personaliza tu carpeta",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
 
             OutlinedTextField(
                 value = state.name,
                 onValueChange = { viewModel.onEvent(AddFolderEvent.OnNameChanged(it)) },
-                label = { Text("Nombre *") },
+                label = { Text("Nombre") },
                 modifier = Modifier.fillMaxWidth(),
-                isError = state.errorMessage != null && state.name.isBlank()
+                isError = state.errorMessage != null && state.name.isBlank(),
+                shape = RoundedCornerShape(12.dp)
             )
 
             OutlinedTextField(
                 value = state.description,
                 onValueChange = { viewModel.onEvent(AddFolderEvent.OnDescriptionChanged(it)) },
-                label = { Text("Descripción") },
+                label = { Text("Descripción (opcional)") },
                 modifier = Modifier.fillMaxWidth(),
-                minLines = 3
+                minLines = 3,
+                shape = RoundedCornerShape(12.dp)
             )
 
-            Text(text = "Color de la carpeta", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Text(
+                text = "Color distintivo", 
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 folderColors.forEach { colorHex ->
                     val composeColor = Color(colorHex.toColorInt())
@@ -97,12 +117,12 @@ fun AddFolderScreen(
 
                     Box(
                         modifier = Modifier
-                            .size(48.dp)
+                            .size(44.dp)
                             .clip(CircleShape)
                             .background(composeColor)
                             .border(
                                 width = if (isSelected) 3.dp else 0.dp,
-                                color = if (isSelected) MaterialTheme.colorScheme.onSurface else Color.Transparent,
+                                color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
                                 shape = CircleShape
                             )
                             .clickable { viewModel.onEvent(AddFolderEvent.OnColorChanged(colorHex)) }
@@ -110,19 +130,29 @@ fun AddFolderScreen(
                 }
             }
 
-            // Error
             if (state.errorMessage != null) {
-                Text(text = state.errorMessage!!, color = MaterialTheme.colorScheme.error)
+                Text(
+                    text = state.errorMessage!!, 
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
 
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
                 onClick = { viewModel.onEvent(AddFolderEvent.OnSaveClick) },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.isLoading
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                enabled = !state.isLoading,
+                shape = RoundedCornerShape(16.dp)
             ) {
-                Text("Crear Carpeta")
+                if (state.isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
+                } else {
+                    Text("Crear Carpeta", style = MaterialTheme.typography.titleMedium)
+                }
             }
         }
     }
