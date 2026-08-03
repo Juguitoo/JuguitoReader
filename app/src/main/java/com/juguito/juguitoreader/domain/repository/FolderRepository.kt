@@ -11,7 +11,7 @@ interface FolderRepository {
 
     suspend fun getFolderByName(name: String): Folder?
 
-    suspend fun saveFolder(folder: Folder)
+    suspend fun saveFolder(folder: Folder): Long
 
     suspend fun saveFolders(folders: List<Folder>)
 

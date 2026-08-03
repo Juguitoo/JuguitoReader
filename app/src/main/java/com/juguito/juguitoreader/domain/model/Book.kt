@@ -4,6 +4,7 @@ class Book(
     val id: Int = 0,
     val title: String,
     val author: String,
+    val publisher: String? = null,
     val isPhysical: Boolean,
     val status: BookStatus = BookStatus.PENDING,
     val rating: Float = 0.0f,

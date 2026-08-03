@@ -37,6 +37,10 @@ android {
     }
 }
 
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 dependencies {
     // Las dependencias base de Android Studio (Version Catalog)
     implementation(platform(libs.androidx.compose.bom))
@@ -68,4 +72,5 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.hilt.navigation.compose)
 }

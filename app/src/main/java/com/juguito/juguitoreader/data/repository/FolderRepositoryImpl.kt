@@ -24,8 +24,8 @@ class FolderRepositoryImpl @Inject constructor(
         return folderDAO.getFolderByName(name)?.toDomain()
     }
 
-    override suspend fun saveFolder(folder: Folder) {
-        folderDAO.insertFolder(folder.toEntity())
+    override suspend fun saveFolder(folder: Folder): Long {
+        return folderDAO.insertFolder(folder.toEntity())
     }
 
     override suspend fun saveFolders(folders: List<Folder>) {

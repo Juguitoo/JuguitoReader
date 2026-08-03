@@ -11,7 +11,7 @@ interface GenreRepository {
 
     suspend fun getGenreByName(name: String): Genre?
 
-    suspend fun saveGenre(genre: Genre)
+    suspend fun saveGenre(genre: Genre): Long
 
     suspend fun saveGenres(genres: List<Genre>)
 

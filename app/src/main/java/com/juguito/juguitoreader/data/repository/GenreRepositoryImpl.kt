@@ -24,8 +24,8 @@ class GenreRepositoryImpl @Inject constructor(
         return genreDAO.getGenreByName(name)?.toDomain()
     }
 
-    override suspend fun saveGenre(genre: Genre) {
-        genreDAO.insertGenre(genre.toEntity())
+    override suspend fun saveGenre(genre: Genre): Long {
+        return genreDAO.insertGenre(genre.toEntity())
     }
 
     override suspend fun saveGenres(genres: List<Genre>) {

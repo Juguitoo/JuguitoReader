@@ -1,5 +1,6 @@
 package com.juguito.juguitoreader.data.local
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -20,8 +21,11 @@ import com.juguito.juguitoreader.data.local.entity.BookGenreCrossRef
         BookFolderCrossRef::class,
         BookGenreCrossRef::class
     ],
-    version = 1,
-    exportSchema = false
+    version = 2,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2)
+    ],
+    exportSchema = true
 )
 
 @TypeConverters(RoomConverters::class)

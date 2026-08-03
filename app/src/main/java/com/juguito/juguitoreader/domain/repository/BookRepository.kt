@@ -9,9 +9,11 @@ interface BookRepository {
 
     suspend fun getBookById(id: Int): Book?
 
-    suspend fun saveBook(book: Book)
+    suspend fun saveBook(book: Book): Long
 
     suspend fun saveBooks(books: List<Book>)
+
+    suspend fun addCrossReferences(bookId: Int, folderIds: List<Int>, genreIds: List<Int>)
 
     suspend fun deleteBook(id: Int)
 

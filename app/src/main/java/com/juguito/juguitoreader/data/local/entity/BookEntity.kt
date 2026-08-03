@@ -11,6 +11,7 @@ data class BookEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val title: String,
     val author: String,
+    val publisher: String? = null,
     @ColumnInfo(name = "is_physical") val isPhysical: Boolean,
     val status: BookStatus = BookStatus.PENDING,
     val rating: Float = 0.0f,
