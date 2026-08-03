@@ -3,6 +3,9 @@ package com.juguito.juguitoreader.ui.home
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -11,16 +14,35 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = hiltViewModel<HomeViewModel>() // Hilt inyecta el ViewModel aquí
+    onNavigateToAddBook: () -> Unit,
+    onOpenDrawer: () -> Unit,
+    viewModel: HomeViewModel = hiltViewModel<HomeViewModel>()
 ) {
     val state by viewModel.uiState.collectAsState()
 
-    Box(modifier = modifier.fillMaxSize().padding(16.dp)) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("JuguitoReader") },
+                navigationIcon = {
+                    IconButton(onClick = onOpenDrawer) {
+                        Icon(imageVector = Icons.Default.Menu, contentDescription = "Menú")
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+
+    Box(modifier = modifier
+        .fillMaxSize()
+        .padding(paddingValues)
+        .padding(16.dp)) {
         when {
             state.isLoading -> {
                 CircularProgressIndicator(
@@ -80,5 +102,14 @@ fun HomeScreen(
                 }
             }
         }
-    }
+
+        FloatingActionButton(
+            onClick = onNavigateToAddBook,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(imageVector = Icons.Default.Add, contentDescription = "Añadir libro")
+        }
+    }}
 }
