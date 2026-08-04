@@ -17,6 +17,8 @@ data class AddBookUiState(
     val localFilePath: String? = null,
     val folders: List<Folder> = emptyList(),
     val genres: List<Genre> = emptyList(),
+    val availableFolders: List<Folder> = emptyList(),
+    val availableGenres: List<Genre> = emptyList(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val isSaved: Boolean = false

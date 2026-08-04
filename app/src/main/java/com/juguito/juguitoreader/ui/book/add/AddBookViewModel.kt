@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.usecase.book.AddBookUseCase
+import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
+import com.juguito.juguitoreader.domain.usecase.genre.GetGenresUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,10 +15,33 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddBookViewModel @Inject constructor(
-    private val addBookUseCase: AddBookUseCase
+    private val addBookUseCase: AddBookUseCase,
+    private val getFoldersUseCase: GetFoldersUseCase,
+    private val getGenresUseCase: GetGenresUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AddBookUiState())
     val uiState: StateFlow<AddBookUiState> = _uiState.asStateFlow()
+
+    init {
+        loadAvailableData()
+    }
+
+    private fun loadAvailableData(){
+        viewModelScope.launch {
+            getFoldersUseCase().collect { foldersFromDb ->
+                _uiState.value = _uiState.value.copy(
+                    availableFolders = foldersFromDb
+                )
+            }
+        }
+        viewModelScope.launch {
+            getGenresUseCase().collect { genresFromDb ->
+                _uiState.value = _uiState.value.copy(
+                    availableGenres = genresFromDb
+                )
+            }
+        }
+    }
 
     fun onEvent(event: AddBookEvent) {
         when (event) {

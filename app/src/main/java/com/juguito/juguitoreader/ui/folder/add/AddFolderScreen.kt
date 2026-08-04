@@ -39,7 +39,10 @@ fun AddFolderScreen(
 
     Scaffold(
         topBar = {
-            Surface(shadowElevation = 6.dp) {
+            Surface(
+                shadowElevation = 6.dp,
+                modifier = Modifier.statusBarsPadding()
+            ) {
                 TopAppBar(
                     title = { 
                         Text(

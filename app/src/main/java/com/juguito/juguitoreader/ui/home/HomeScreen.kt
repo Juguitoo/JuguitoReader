@@ -31,7 +31,10 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            Surface(shadowElevation = 6.dp) {
+            Surface(
+                shadowElevation = 6.dp,
+                modifier = Modifier.statusBarsPadding()
+            ) {
                 CenterAlignedTopAppBar(
                     title = { 
                         Text(

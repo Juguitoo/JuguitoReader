@@ -45,7 +45,7 @@ class AddFolderViewModel @Inject constructor(
             val newFolder = Folder(
                 name = currentState.name,
                 description = currentState.description,
-                colorHex =  currentState.description
+                colorHex =  currentState.colorHex
             )
 
             val result = addFolderUseCase(newFolder)

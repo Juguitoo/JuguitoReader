@@ -1,5 +1,6 @@
 [versions]
 agp = "9.3.1"
+coilCompose = "2.7.0"
 coreKtx = "1.19.0"
 gotrueKt = "3.7.0"
 hiltAndroid = "2.60.1"
@@ -16,6 +17,8 @@ postgrestKt = "3.7.0"
 roomRuntime = "2.8.4"
 navigationCompose = "2.9.8"
 googleFonts = "1.11.4"
+runtime = "1.11.4"
+material3 = "1.4.0"
 
 [libraries]
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
@@ -25,6 +28,7 @@ androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref =
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 auth-kt = { module = "io.github.jan-tennert.supabase:auth-kt", version.ref = "gotrueKt" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -44,6 +48,8 @@ ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "k
 postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt", version.ref = "postgrestKt" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "googleFonts" }
+androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
