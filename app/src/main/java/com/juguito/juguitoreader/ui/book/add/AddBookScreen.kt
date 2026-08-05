@@ -68,10 +68,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.juguito.juguitoreader.ui.book.components.BookStatusDropdown
 import com.juguito.juguitoreader.ui.book.components.FolderMultiSelector
 import com.juguito.juguitoreader.ui.book.components.GenreHybridSelector
-import com.juguito.juguitoreader.ui.book.components.RatingNumberInput
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -229,24 +227,6 @@ fun AddBookScreen(
                 shape = RoundedCornerShape(12.dp)
             )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Box(modifier = Modifier.weight(0.6f)) {
-                    BookStatusDropdown(
-                        selectedStatus = state.status,
-                        onStatusSelected = { viewModel.onEvent(AddBookEvent.OnStatusChanged(it)) }
-                    )
-                }
-                Box(modifier = Modifier.weight(0.4f)) {
-                    RatingNumberInput(
-                        rating = state.rating,
-                        onRatingChanged = { viewModel.onEvent(AddBookEvent.OnRatingChanged(it)) }
-                    )
-                }
-            }
-
             GenreHybridSelector(
                 availableGenres = state.availableGenres,
                 selectedGenres = state.genres,
@@ -309,11 +289,10 @@ fun AddBookScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(IntrinsicSize.Min), // Permite que los hijos usen fillMaxHeight
+                    .height(IntrinsicSize.Min),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.Top
             ) {
-                // Portada a la izquierda (Altura completa)
                 Box(
                     modifier = Modifier
                         .width(110.dp)
@@ -351,7 +330,6 @@ fun AddBookScreen(
                         .fillMaxHeight(),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    // Selector de Archivo
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth()

@@ -8,6 +8,7 @@ class Book(
     val isPhysical: Boolean,
     val status: BookStatus = BookStatus.PENDING,
     val rating: Float = 0.0f,
+    val comment: String? = null,
     val startDate: Long? = null,
     val endDate: Long? = null,
     val coverUrl: String? = null,

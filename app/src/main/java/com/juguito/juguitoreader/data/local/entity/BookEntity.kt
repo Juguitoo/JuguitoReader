@@ -15,6 +15,7 @@ data class BookEntity(
     @ColumnInfo(name = "is_physical") val isPhysical: Boolean,
     val status: BookStatus = BookStatus.PENDING,
     val rating: Float = 0.0f,
+    val comment: String? = null,
     @ColumnInfo(name = "start_date") val startDate: Long? = null,
     @ColumnInfo(name = "end_date") val endDate: Long? = null,
     @ColumnInfo(name = "cover_url") val coverUrl: String? = null,

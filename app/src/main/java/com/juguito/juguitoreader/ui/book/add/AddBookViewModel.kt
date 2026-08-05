@@ -63,18 +63,6 @@ class AddBookViewModel @Inject constructor(
             is AddBookEvent.OnIsPhysicalChanged -> {
                 _uiState.value = _uiState.value.copy(isPhysical = event.isPhysical)
             }
-            is AddBookEvent.OnStatusChanged -> {
-                _uiState.value = _uiState.value.copy(status = event.status)
-            }
-            is AddBookEvent.OnRatingChanged -> {
-                _uiState.value = _uiState.value.copy(rating = event.rating)
-            }
-            is AddBookEvent.OnStartDateChanged -> {
-                _uiState.value = _uiState.value.copy(startDate = event.startDate)
-            }
-            is AddBookEvent.OnEndDateChanged -> {
-                _uiState.value = _uiState.value.copy(endDate = event.endDate)
-            }
             is AddBookEvent.OnCoverUrlChanged -> {
                 _uiState.value = _uiState.value.copy(coverUrl = event.coverUrl)
             }
@@ -107,10 +95,6 @@ class AddBookViewModel @Inject constructor(
                 author = currentState.author,
                 publisher = currentState.publisher,
                 isPhysical = currentState.isPhysical,
-                status = currentState.status,
-                rating = currentState.rating,
-                startDate = currentState.startDate,
-                endDate = currentState.endDate,
                 coverUrl = currentState.coverUrl,
                 localFilePath = currentState.localFilePath,
                 folders = currentState.folders,
