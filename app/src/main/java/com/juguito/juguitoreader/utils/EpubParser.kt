@@ -93,7 +93,7 @@ object EpubParser {
                         while (entry != null) {
                             if (entry.name == fullCoverZipPath) {
                                 val coverFile = File(
-                                    context.cacheDir,
+                                    context.filesDir,
                                     "cover_${System.currentTimeMillis()}.jpg"
                                 )
                                 coverFile.outputStream().use { output ->

@@ -2,16 +2,10 @@ package com.juguito.juguitoreader.ui.book.add
 
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.model.Genre
+import com.juguito.juguitoreader.ui.book.state.BookDraftState
 
 data class AddBookUiState(
-    val title: String = "",
-    val author: String = "",
-    val publisher: String = "",
-    val isPhysical: Boolean = false,
-    val coverUrl: String? = null,
-    val localFilePath: String? = null,
-    val folders: List<Folder> = emptyList(),
-    val genres: List<Genre> = emptyList(),
+    val bookDraft: BookDraftState = BookDraftState(),
 
     val availableFolders: List<Folder> = emptyList(),
     val availableGenres: List<Genre> = emptyList(),

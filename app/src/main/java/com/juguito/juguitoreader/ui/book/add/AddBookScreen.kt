@@ -29,6 +29,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.UploadFile
@@ -71,6 +72,7 @@ import coil.compose.AsyncImage
 import com.juguito.juguitoreader.ui.book.components.FolderMultiSelector
 import com.juguito.juguitoreader.ui.book.components.GenreHybridSelector
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
+import com.juguito.juguitoreader.utils.FileUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,10 +81,11 @@ fun AddBookScreen(
     viewModel: AddBookViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
-
     val context = LocalContext.current
 
     var showImportDialog by remember { mutableStateOf(false) }
+    var showImageSourceDialog by remember { mutableStateOf(false) }
+    var tempCameraUri by remember { mutableStateOf<android.net.Uri?>(null) }
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -93,12 +96,23 @@ fun AddBookScreen(
         }
     )
 
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { success ->
+            if (success) {
+                tempCameraUri?.let {
+                    viewModel.onEvent(AddBookEvent.OnCoverUrlChanged(it.toString()))
+                }
+            }
+        }
+    )
+
     val basicDocumentLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
         onResult = { uri ->
             uri?.let {
                 context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                viewModel.onEvent(AddBookEvent.OnImportEpub(it))
+                viewModel.onEvent(AddBookEvent.OnLocalFilePathChanged(it.toString()))
             }
         }
     )
@@ -134,6 +148,32 @@ fun AddBookScreen(
             dismissButton = {
                 TextButton(onClick = { showImportDialog = false }) {
                     Text("Cancelar")
+                }
+            }
+        )
+    }
+
+    if (showImageSourceDialog) {
+        AlertDialog(
+            onDismissRequest = { showImageSourceDialog = false },
+            title = { Text("Seleccionar portada") },
+            text = { Text("¿Cómo quieres añadir la imagen?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showImageSourceDialog = false
+                    photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                }) {
+                    Text("Galería")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showImageSourceDialog = false
+                    val uri = FileUtils.getTempImageUri(context)
+                    tempCameraUri = uri
+                    cameraLauncher.launch(uri)
+                }) {
+                    Text("Cámara")
                 }
             }
         )
@@ -203,16 +243,16 @@ fun AddBookScreen(
             )
 
             OutlinedTextField(
-                value = state.title,
+                value = state.bookDraft.title,
                 onValueChange = { viewModel.onEvent(AddBookEvent.OnTitleChanged(it)) },
                 label = { Text("Título") },
                 modifier = Modifier.fillMaxWidth(),
-                isError = state.errorMessage != null && state.title.isBlank(),
+                isError = state.errorMessage != null && state.bookDraft.title.isBlank(),
                 shape = RoundedCornerShape(12.dp)
             )
 
             OutlinedTextField(
-                value = state.author,
+                value = state.bookDraft.author,
                 onValueChange = { viewModel.onEvent(AddBookEvent.OnAuthorChanged(it)) },
                 label = { Text("Autor") },
                 modifier = Modifier.fillMaxWidth(),
@@ -220,7 +260,7 @@ fun AddBookScreen(
             )
 
             OutlinedTextField(
-                value = state.publisher,
+                value = state.bookDraft.publisher,
                 onValueChange = { viewModel.onEvent(AddBookEvent.OnPublisherChanged(it)) },
                 label = { Text("Editorial") },
                 modifier = Modifier.fillMaxWidth(),
@@ -229,7 +269,7 @@ fun AddBookScreen(
 
             GenreHybridSelector(
                 availableGenres = state.availableGenres,
-                selectedGenres = state.genres,
+                selectedGenres = state.bookDraft.genres,
                 onGenresChanged = { viewModel.onEvent(AddBookEvent.OnGenresChanged(it)) }
             )
 
@@ -257,7 +297,7 @@ fun AddBookScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Checkbox(
-                        checked = state.isPhysical,
+                        checked = state.bookDraft.isPhysical,
                         onCheckedChange = { viewModel.onEvent(AddBookEvent.OnIsPhysicalChanged(it)) }
                     )
                     Text(
@@ -269,7 +309,7 @@ fun AddBookScreen(
 
             FolderMultiSelector(
                 availableFolders = state.availableFolders,
-                selectedFolders = state.folders,
+                selectedFolders = state.bookDraft.folders,
                 onFoldersChanged = { viewModel.onEvent(AddBookEvent.OnFoldersChanged(it)) }
             )
 
@@ -298,9 +338,9 @@ fun AddBookScreen(
                         .width(110.dp)
                         .fillMaxHeight()
                 ) {
-                    if (!state.coverUrl.isNullOrBlank()) {
+                    if (!state.bookDraft.coverUrl.isNullOrBlank()) {
                         AsyncImage(
-                            model = state.coverUrl,
+                            model = state.bookDraft.coverUrl,
                             contentDescription = "Portada seleccionada",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
@@ -356,7 +396,7 @@ fun AddBookScreen(
                                 color = MaterialTheme.colorScheme.onSurface
                             )
 
-                            val fileName = getFileNameFromUri(context, state.localFilePath)
+                            val fileName = getFileNameFromUri(context, state.bookDraft.localFilePath)
                             Text(
                                 text = fileName,
                                 style = MaterialTheme.typography.bodySmall,
@@ -367,30 +407,37 @@ fun AddBookScreen(
 
                             Spacer(modifier = Modifier.height(8.dp))
 
-                            OutlinedButton(
-                                onClick = {
-                                    basicDocumentLauncher.launch(arrayOf("application/epub+zip", "application/pdf"))
-                                },
-                                modifier = Modifier.height(30.dp),
-                                shape = RoundedCornerShape(8.dp),
-                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
-                                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.secondary),
-                                contentPadding = PaddingValues(horizontal = 32.dp, vertical = 0.dp)
-                            ) {
-                                Text(
-                                    text = if (state.localFilePath == null) "Seleccionar" else "Cambiar",
-                                    style = MaterialTheme.typography.labelMedium
-                                )
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                OutlinedButton(
+                                    onClick = {
+                                        basicDocumentLauncher.launch(arrayOf("application/epub+zip", "application/pdf"))
+                                    },
+                                    modifier = Modifier.height(30.dp).weight(1f),
+                                    shape = RoundedCornerShape(8.dp),
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
+                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.secondary),
+                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp)
+                                ) {
+                                    Text(
+                                        text = if (state.bookDraft.localFilePath == null) "Seleccionar" else "Cambiar",
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                }
+                                
+                                if (state.bookDraft.localFilePath != null) {
+                                    IconButton(
+                                        onClick = { viewModel.onEvent(AddBookEvent.OnLocalFilePathChanged(null)) },
+                                        modifier = Modifier.size(30.dp)
+                                    ) {
+                                        Icon(Icons.Default.Delete, contentDescription = "Quitar archivo", tint = MaterialTheme.colorScheme.error)
+                                    }
+                                }
                             }
                         }
                     }
 
                     Button(
-                        onClick = {
-                            photoPickerLauncher.launch(
-                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                            )
-                        },
+                        onClick = { showImageSourceDialog = true },
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth()
@@ -398,7 +445,7 @@ fun AddBookScreen(
                         Icon(Icons.Default.Image, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            if (state.coverUrl == null) "Añadir portada" else "Cambiar portada",
+                            if (state.bookDraft.coverUrl == null) "Añadir portada" else "Cambiar portada",
                             style = MaterialTheme.typography.labelMedium
                         )
                     }

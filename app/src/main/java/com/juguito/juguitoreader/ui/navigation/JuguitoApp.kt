@@ -18,10 +18,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.juguito.juguitoreader.ui.book.add.AddBookScreen
+import com.juguito.juguitoreader.ui.book.detail.BookDetailScreen
 import com.juguito.juguitoreader.ui.folder.add.AddFolderScreen
 import com.juguito.juguitoreader.ui.home.HomeScreen
 import com.juguito.juguitoreader.ui.theme.AppTheme
@@ -143,6 +146,9 @@ fun JuguitoApp(
                         onOpenDrawer = { scope.launch { drawerState.open() } },
                         onNavigateToAddBook = {
                             navController.navigate("add_book")
+                        },
+                        onNavigateToBookDetail = { bookId ->
+                            navController.navigate("book_detail/$bookId")
                         }
                     )
                 }
@@ -157,6 +163,17 @@ fun JuguitoApp(
 
                 composable(route = "add_folder") {
                     AddFolderScreen(
+                        onNavigateBack = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
+
+                composable(
+                    route = "book_detail/{bookId}",
+                    arguments = listOf(navArgument("bookId") { type = NavType.IntType })
+                ) {
+                    BookDetailScreen(
                         onNavigateBack = {
                             navController.popBackStack()
                         }

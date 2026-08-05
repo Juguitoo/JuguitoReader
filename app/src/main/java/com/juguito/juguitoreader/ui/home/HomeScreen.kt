@@ -3,8 +3,11 @@ package com.juguito.juguitoreader.ui.home
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,16 +25,25 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DoneAll
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.UploadFile
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -44,10 +56,14 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -68,11 +84,37 @@ import kotlin.math.absoluteValue
 fun HomeScreen(
     modifier: Modifier = Modifier,
     onNavigateToAddBook: () -> Unit,
+    onNavigateToBookDetail: (Int) -> Unit,
     onOpenDrawer: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel<HomeViewModel>()
 ) {
     val homeState by viewModel.homeUiState.collectAsState()
     val context = LocalContext.current
+    var bookToDelete by remember { mutableStateOf<Book?>(null) }
+
+    if (bookToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { bookToDelete = null },
+            title = { Text("Eliminar libro") },
+            text = { Text("¿Estás seguro de que quieres eliminar '${bookToDelete?.title}'? Esta acción no se puede deshacer.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        bookToDelete?.let { viewModel.deleteBook(it.id) }
+                        bookToDelete = null
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Eliminar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { bookToDelete = null }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 
     val documentPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
@@ -183,7 +225,9 @@ fun HomeScreen(
 
                         BookCarousel(
                             books = homeState.recentBooks,
-                            onBookClick = { /* Navegar a detalles */ }
+                            onBookClick = onNavigateToBookDetail,
+                            onDeleteBook = { bookToDelete = it },
+                            onReadBook = { /* TODO: Implementar lector */ }
                         )
 
                         Spacer(modifier = Modifier.height(32.dp))
@@ -233,10 +277,13 @@ fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BookCarousel(
     books: List<Book>,
-    onBookClick: (Int) -> Unit
+    onBookClick: (Int) -> Unit,
+    onDeleteBook: (Book) -> Unit,
+    onReadBook: (Book) -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { books.size })
 
@@ -247,6 +294,8 @@ fun BookCarousel(
         modifier = Modifier.fillMaxWidth()
     ) { page ->
         val book = books[page]
+        var showMenu by remember { mutableStateOf(false) }
+
         Card(
             modifier = Modifier
                 .graphicsLayer {
@@ -268,33 +317,131 @@ fun BookCarousel(
                 }
                 .fillMaxWidth()
                 .aspectRatio(0.7f)
-                .clickable { onBookClick(book.id) },
+                .combinedClickable(
+                    onClick = { onBookClick(book.id) },
+                    onLongClick = { showMenu = true }
+                ),
             shape = RoundedCornerShape(16.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
-            if (book.coverUrl != null) {
-                AsyncImage(
-                    model = book.coverUrl,
-                    contentDescription = book.title,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = book.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                        modifier = Modifier.padding(16.dp)
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (book.coverUrl != null) {
+                    AsyncImage(
+                        model = book.coverUrl,
+                        contentDescription = book.title,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
                     )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = book.title,
+                            style = MaterialTheme.typography.titleLarge,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                }
+
+                // Icono de opciones
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp),
+                    color = Color.Black.copy(alpha = 0.3f),
+                    shape = CircleShape
+                ) {
+                    IconButton(
+                        onClick = { showMenu = true },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "Opciones",
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+
+                // Overlay del Menú (Sobrepuesto a la portada)
+                if (showMenu) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.7f))
+                            .clickable { showMenu = false },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            MenuOverlayItem(
+                                icon = Icons.AutoMirrored.Filled.MenuBook,
+                                label = "Leer",
+                                onClick = {
+                                    showMenu = false
+                                    onReadBook(book)
+                                }
+                            )
+                            MenuOverlayItem(
+                                icon = Icons.Default.Info,
+                                label = "Detalles",
+                                onClick = {
+                                    showMenu = false
+                                    onBookClick(book.id)
+                                }
+                            )
+                            MenuOverlayItem(
+                                icon = Icons.Default.Delete,
+                                label = "Eliminar",
+                                color = MaterialTheme.colorScheme.error,
+                                onClick = {
+                                    showMenu = false
+                                    onDeleteBook(book)
+                                }
+                            )
+                            
+                            IconButton(onClick = { showMenu = false }) {
+                                Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.White)
+                            }
+                        }
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun MenuOverlayItem(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    color: Color = Color.White
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable { onClick() }
+    ) {
+        Surface(
+            shape = CircleShape,
+            color = color.copy(alpha = 0.2f),
+            modifier = Modifier.size(56.dp),
+            border = BorderStroke(1.dp, color.copy(alpha = 0.5f))
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(imageVector = icon, contentDescription = null, tint = color, modifier = Modifier.size(28.dp))
+            }
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(text = label, color = color, style = MaterialTheme.typography.labelMedium)
     }
 }
 
@@ -311,7 +458,7 @@ fun StatsSection(
         StatCard(
             title = "Libros en biblioteca",
             value = statsUiState.totalBooks.toString(),
-            icon = Icons.Default.Menu,
+            icon = Icons.Default.LibraryBooks,
             color = MaterialTheme.colorScheme.primaryContainer
         )
         StatCard(

@@ -23,21 +23,23 @@ import com.juguito.juguitoreader.domain.model.BookStatus
 fun BookStatusDropdown(
     selectedStatus: BookStatus,
     onStatusSelected: (BookStatus) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded },
+        expanded = expanded && enabled,
+        onExpandedChange = { if (enabled) expanded = !expanded },
         modifier = modifier
     ) {
         OutlinedTextField(
             value = selectedStatus.displayName,
             onValueChange = {},
             readOnly = true,
+            enabled = enabled,
             label = { Text("Estado de lectura") },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            trailingIcon = { if (enabled) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
             shape = RoundedCornerShape(12.dp)
         )

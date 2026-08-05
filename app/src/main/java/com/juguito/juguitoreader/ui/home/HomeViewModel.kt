@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.BookStatus
+import com.juguito.juguitoreader.domain.usecase.book.DeleteBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +21,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val application: Application,
     private val getBooksUseCase: GetBooksUseCase,
-    private val importBookFromUriUseCase: ImportBookFromUriUseCase
+    private val importBookFromUriUseCase: ImportBookFromUriUseCase,
+    private val deleteBookUseCase: DeleteBookUseCase
 ) : ViewModel() {
 
     private val _homeUiState = MutableStateFlow(HomeUiState())
@@ -69,6 +71,12 @@ class HomeViewModel @Inject constructor(
                     errorMessage = "Error al importar el libro: ${exception.localizedMessage}"
                 )
             }
+        }
+    }
+
+    fun deleteBook(bookId: Int) {
+        viewModelScope.launch {
+            deleteBookUseCase(bookId)
         }
     }
 }

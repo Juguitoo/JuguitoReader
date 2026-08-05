@@ -8,6 +8,7 @@ import com.juguito.juguitoreader.domain.usecase.book.AddBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBookFromEpubUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
 import com.juguito.juguitoreader.domain.usecase.genre.GetGenresUseCase
+import com.juguito.juguitoreader.utils.FileUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import androidx.core.net.toUri
 
 @HiltViewModel
 class AddBookViewModel @Inject constructor(
@@ -52,28 +54,51 @@ class AddBookViewModel @Inject constructor(
     fun onEvent(event: AddBookEvent) {
         when (event) {
             is AddBookEvent.OnTitleChanged -> {
-                _uiState.value = _uiState.value.copy(title = event.title)
+                _uiState.value = _uiState.value.copy(
+                    bookDraft = _uiState.value.bookDraft.copy(title = event.title)
+                )
             }
             is AddBookEvent.OnAuthorChanged -> {
-                _uiState.value = _uiState.value.copy(author = event.author)
+                _uiState.value = _uiState.value.copy(
+                    bookDraft = _uiState.value.bookDraft.copy(author = event.author)
+                )
             }
             is AddBookEvent.OnPublisherChanged -> {
-                _uiState.value = _uiState.value.copy(publisher = event.publisher)
+                _uiState.value = _uiState.value.copy(
+                    bookDraft = _uiState.value.bookDraft.copy(publisher = event.publisher)
+                )
             }
             is AddBookEvent.OnIsPhysicalChanged -> {
-                _uiState.value = _uiState.value.copy(isPhysical = event.isPhysical)
+                _uiState.value = _uiState.value.copy(
+                    bookDraft = _uiState.value.bookDraft.copy(isPhysical = event.isPhysical)
+                )
             }
             is AddBookEvent.OnCoverUrlChanged -> {
-                _uiState.value = _uiState.value.copy(coverUrl = event.coverUrl)
+                viewModelScope.launch {
+                    val permanentPath = withContext(Dispatchers.IO) {
+                        FileUtils.saveImageToInternalStorage(application, event.coverUrl.toUri())
+                    }
+                    if (permanentPath != null) {
+                        _uiState.value = _uiState.value.copy(
+                            bookDraft = _uiState.value.bookDraft.copy(coverUrl = permanentPath)
+                        )
+                    }
+                }
             }
             is AddBookEvent.OnLocalFilePathChanged -> {
-                _uiState.value = _uiState.value.copy(localFilePath = event.localFilePath)
+                _uiState.value = _uiState.value.copy(
+                    bookDraft = _uiState.value.bookDraft.copy(localFilePath = event.localFilePath)
+                )
             }
             is AddBookEvent.OnFoldersChanged -> {
-                _uiState.value = _uiState.value.copy(folders = event.folders)
+                _uiState.value = _uiState.value.copy(
+                    bookDraft = _uiState.value.bookDraft.copy(folders = event.folders)
+                )
             }
             is AddBookEvent.OnGenresChanged -> {
-                _uiState.value = _uiState.value.copy(genres = event.genres)
+                _uiState.value = _uiState.value.copy(
+                    bookDraft = _uiState.value.bookDraft.copy(genres = event.genres)
+                )
             }
             is AddBookEvent.OnImportEpub -> {
                 importEpubData(event.uri)
@@ -86,19 +111,20 @@ class AddBookViewModel @Inject constructor(
 
     private fun saveBook() {
         val currentState = _uiState.value
+        val draft = currentState.bookDraft
 
         _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
         viewModelScope.launch {
             val newBook = Book(
-                title = currentState.title,
-                author = currentState.author,
-                publisher = currentState.publisher,
-                isPhysical = currentState.isPhysical,
-                coverUrl = currentState.coverUrl,
-                localFilePath = currentState.localFilePath,
-                folders = currentState.folders,
-                genres = currentState.genres,
+                title = draft.title,
+                author = draft.author,
+                publisher = draft.publisher,
+                isPhysical = draft.isPhysical,
+                coverUrl = draft.coverUrl,
+                localFilePath = draft.localFilePath,
+                folders = draft.folders,
+                genres = draft.genres,
             )
 
             val result = addBookUseCase(newBook)
@@ -127,14 +153,17 @@ class AddBookViewModel @Inject constructor(
                 getBookFromEpubUseCase(application, uri)
             }
             
+            val currentDraft = _uiState.value.bookDraft
             _uiState.value = _uiState.value.copy(
                 isLoading = false,
-                title = book.title.ifBlank { _uiState.value.title },
-                author = book.author.ifBlank { _uiState.value.author },
-                publisher = book.publisher ?: _uiState.value.publisher,
-                coverUrl = book.coverUrl ?: _uiState.value.coverUrl,
-                localFilePath = book.localFilePath,
-                genres = (book.genres + _uiState.value.genres).distinctBy { it.name.lowercase() }
+                bookDraft = currentDraft.copy(
+                    title = book.title.ifBlank { currentDraft.title },
+                    author = book.author.ifBlank { currentDraft.author },
+                    publisher = book.publisher ?: currentDraft.publisher,
+                    coverUrl = book.coverUrl ?: currentDraft.coverUrl,
+                    localFilePath = book.localFilePath,
+                    genres = (book.genres + currentDraft.genres).distinctBy { it.name.lowercase() }
+                )
             )
         }
     }
