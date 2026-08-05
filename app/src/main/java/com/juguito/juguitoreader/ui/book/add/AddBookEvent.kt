@@ -17,6 +17,7 @@ sealed interface AddBookEvent {
     data class OnLocalFilePathChanged(val localFilePath: String): AddBookEvent
     data class OnFoldersChanged(val folders: List<Folder>): AddBookEvent
     data class OnGenresChanged(val genres: List<Genre>): AddBookEvent
+    data class OnImportEpub(val uri: android.net.Uri): AddBookEvent
 
     data object OnSaveClick: AddBookEvent
 }

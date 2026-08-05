@@ -8,7 +8,22 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -17,14 +32,30 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.UploadFile
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,19 +65,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.juguito.juguitoreader.ui.theme.LoraFontFamily
-import androidx.core.net.toUri
-import com.juguito.juguitoreader.domain.model.Genre
 import com.juguito.juguitoreader.ui.book.components.BookStatusDropdown
 import com.juguito.juguitoreader.ui.book.components.FolderMultiSelector
 import com.juguito.juguitoreader.ui.book.components.GenreHybridSelector
 import com.juguito.juguitoreader.ui.book.components.RatingNumberInput
-import com.juguito.juguitoreader.utils.EpubParser
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,7 +82,6 @@ fun AddBookScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
 
-    val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
     var showImportDialog by remember { mutableStateOf(false) }
@@ -75,17 +100,7 @@ fun AddBookScreen(
         onResult = { uri ->
             uri?.let {
                 context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                viewModel.onEvent(AddBookEvent.OnLocalFilePathChanged(it.toString()))
-
-                scope.launch(Dispatchers.IO) {
-                    val metadata = EpubParser.extractMetadata(context, it)
-
-                    withContext(Dispatchers.Main) {
-                        if (!metadata.coverUrl.isNullOrBlank()) {
-                            viewModel.onEvent(AddBookEvent.OnCoverUrlChanged(metadata.coverUrl))
-                        }
-                    }
-                }
+                viewModel.onEvent(AddBookEvent.OnImportEpub(it))
             }
         }
     )
@@ -95,35 +110,7 @@ fun AddBookScreen(
         onResult = { uri ->
             uri?.let {
                 context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                viewModel.onEvent(AddBookEvent.OnLocalFilePathChanged(it.toString()))
-
-                scope.launch(Dispatchers.IO) {
-                    val metadata = EpubParser.extractMetadata(context, it)
-
-                    withContext(Dispatchers.Main) {
-                        if (!metadata.title.isNullOrBlank()) {
-                            viewModel.onEvent(AddBookEvent.OnTitleChanged(metadata.title))
-                        }
-                        if (!metadata.author.isNullOrBlank()) {
-                            viewModel.onEvent(AddBookEvent.OnAuthorChanged(metadata.author))
-                        }
-                        if (!metadata.publisher.isNullOrBlank()) {
-                            viewModel.onEvent(AddBookEvent.OnPublisherChanged(metadata.publisher))
-                        }
-                        if (metadata.genres.isNotEmpty()) {
-                            val newGenres = state.genres + metadata.genres.map { genreName ->
-                                Genre(
-                                    name = genreName
-                                )
-                            }
-                            val uniqueGenres = newGenres.distinctBy { it.name.lowercase() }
-                            viewModel.onEvent(AddBookEvent.OnGenresChanged(uniqueGenres))
-                        }
-                        if (!metadata.coverUrl.isNullOrBlank()) {
-                            viewModel.onEvent(AddBookEvent.OnCoverUrlChanged(metadata.coverUrl))
-                        }
-                    }
-                }
+                viewModel.onEvent(AddBookEvent.OnImportEpub(it))
             }
         }
     )

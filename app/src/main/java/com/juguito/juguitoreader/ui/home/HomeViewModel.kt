@@ -1,8 +1,13 @@
 package com.juguito.juguitoreader.ui.home
 
+import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.domain.model.BookStatus
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
+import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,37 +18,57 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val getBooksUseCase: GetBooksUseCase
+    private val application: Application,
+    private val getBooksUseCase: GetBooksUseCase,
+    private val importBookFromUriUseCase: ImportBookFromUriUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(HomeUiState())
+    private val _homeUiState = MutableStateFlow(HomeUiState())
 
-    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+    val homeUiState: StateFlow<HomeUiState> = _homeUiState.asStateFlow()
 
     init {
-        loadRecentBooks()
-    }
-
-    private fun loadRecentBooks() {
-
         viewModelScope.launch {
-
-            _uiState.value = _uiState.value.copy(isLoading = true)
-
             getBooksUseCase()
                 .catch { exception ->
-                    _uiState.value = _uiState.value.copy(
+                    _homeUiState.value = _homeUiState.value.copy(
                         isLoading = false,
                         errorMessage = "Error al cargar los libros: ${exception.localizedMessage}"
                     )
                 }
                 .collect { books ->
-                    _uiState.value = _uiState.value.copy(
+                    val filteredBooks = books.sortedWith(
+                        compareByDescending<Book> { it.status == BookStatus.READING }
+                            .thenByDescending { it.createdAt }
+                    ).take(10)
+
+                    val newStats = StatsUiState(
+                        totalBooks = books.size,
+                        readingBooks = books.count { it.status == BookStatus.READING },
+                        finishedBooks = books.count {it.status == BookStatus.FINISHED},
+                    )
+
+                    _homeUiState.value = _homeUiState.value.copy(
                         isLoading = false,
-                        recentBooks = books.sortedByDescending { it.createdAt }.take(5),
+                        recentBooks = filteredBooks,
+                        stats = newStats,
                         errorMessage = null
                     )
                 }
+        }
+    }
+
+    fun importBook(uri: Uri) {
+        viewModelScope.launch {
+            _homeUiState.value = _homeUiState.value.copy(isLoading = true)
+            val result = importBookFromUriUseCase(application, uri)
+            
+            result.onFailure { exception ->
+                _homeUiState.value = _homeUiState.value.copy(
+                    isLoading = false,
+                    errorMessage = "Error al importar el libro: ${exception.localizedMessage}"
+                )
+            }
         }
     }
 }

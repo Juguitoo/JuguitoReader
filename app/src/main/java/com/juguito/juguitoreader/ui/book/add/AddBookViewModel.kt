@@ -1,23 +1,29 @@
 package com.juguito.juguitoreader.ui.book.add
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.usecase.book.AddBookUseCase
+import com.juguito.juguitoreader.domain.usecase.book.GetBookFromEpubUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
 import com.juguito.juguitoreader.domain.usecase.genre.GetGenresUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class AddBookViewModel @Inject constructor(
+    private val application: Application,
     private val addBookUseCase: AddBookUseCase,
     private val getFoldersUseCase: GetFoldersUseCase,
-    private val getGenresUseCase: GetGenresUseCase
+    private val getGenresUseCase: GetGenresUseCase,
+    private val getBookFromEpubUseCase: GetBookFromEpubUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AddBookUiState())
     val uiState: StateFlow<AddBookUiState> = _uiState.asStateFlow()
@@ -81,6 +87,9 @@ class AddBookViewModel @Inject constructor(
             is AddBookEvent.OnGenresChanged -> {
                 _uiState.value = _uiState.value.copy(genres = event.genres)
             }
+            is AddBookEvent.OnImportEpub -> {
+                importEpubData(event.uri)
+            }
             AddBookEvent.OnSaveClick -> {
                 saveBook()
             }
@@ -123,6 +132,25 @@ class AddBookViewModel @Inject constructor(
                         errorMessage = exception.localizedMessage
                     )
                 }
+            )
+        }
+    }
+
+    private fun importEpubData(uri: android.net.Uri) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            val book = withContext(Dispatchers.IO) {
+                getBookFromEpubUseCase(application, uri)
+            }
+            
+            _uiState.value = _uiState.value.copy(
+                isLoading = false,
+                title = book.title.ifBlank { _uiState.value.title },
+                author = book.author.ifBlank { _uiState.value.author },
+                publisher = book.publisher ?: _uiState.value.publisher,
+                coverUrl = book.coverUrl ?: _uiState.value.coverUrl,
+                localFilePath = book.localFilePath,
+                genres = (book.genres + _uiState.value.genres).distinctBy { it.name.lowercase() }
             )
         }
     }
