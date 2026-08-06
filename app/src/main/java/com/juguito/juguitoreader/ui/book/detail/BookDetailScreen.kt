@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.juguito.juguitoreader.domain.model.BookStatus
 import com.juguito.juguitoreader.ui.book.components.BookStatusDropdown
 import com.juguito.juguitoreader.ui.book.components.FolderMultiSelector
 import com.juguito.juguitoreader.ui.book.components.GenreHybridSelector
@@ -508,7 +507,6 @@ fun RegistryTab(
                 dateMillis = state.endDate,
                 onClick = onShowEndDatePicker,
                 modifier = Modifier.weight(1f),
-                enabled = state.status == BookStatus.FINISHED
             )
         }
 
@@ -531,7 +529,7 @@ fun RegistryTab(
         ) {
             Icon(Icons.Default.Save, contentDescription = null)
             Spacer(Modifier.width(8.dp))
-            Text("Guardar cambios en lectura")
+            Text("Guardar cambios de registro")
         }
     }
 }

@@ -22,8 +22,11 @@ fun RegistryFilterSheet(
     onDismiss: () -> Unit,
     onClearFilters: () -> Unit
 ) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
+        sheetState = sheetState,
         dragHandle = { BottomSheetDefaults.DragHandle() }
     ) {
         Column(
@@ -124,16 +127,6 @@ fun RegistryFilterSheet(
                 onClick = { onCriteriaChanged(currentCriteria.copy(sortBy = SortOption.SERIES_ORDER_ASC)) },
                 label = { Text("Orden en la saga") }
             )
-
-            Spacer(Modifier.height(8.dp))
-
-            Button(
-                onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text("Ver resultados")
-            }
         }
     }
 }

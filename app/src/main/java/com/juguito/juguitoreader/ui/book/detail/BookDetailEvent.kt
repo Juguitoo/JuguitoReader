@@ -18,8 +18,8 @@ sealed interface BookDetailEvent {
     data class OnGenresChanged(val genres: List<Genre>): BookDetailEvent
     data class OnImportEpub(val uri: Uri): BookDetailEvent
 
-    data class OnStartDateChanged(val startDate: Long): BookDetailEvent
-    data class OnEndDateChanged(val endDate: Long): BookDetailEvent
+    data class OnStartDateChanged(val startDate: Long?): BookDetailEvent
+    data class OnEndDateChanged(val endDate: Long?): BookDetailEvent
     data class OnRatingChanged(val rating: Float): BookDetailEvent
     data class OnCommentChanged(val comment: String): BookDetailEvent
     data class OnStatusChanged(val status: BookStatus): BookDetailEvent

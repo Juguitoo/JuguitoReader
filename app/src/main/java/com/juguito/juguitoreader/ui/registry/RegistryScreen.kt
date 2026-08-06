@@ -51,7 +51,7 @@ private val TotalTableWidth = ColLibroWidth + ColEstadoWidth + ColNotaWidth + (C
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistryScreen(
-    onNavigateBack: () -> Unit,
+    onOpenDrawer: () -> Unit,
     onNavigateToAddBook: () -> Unit,
     onNavigateToBookDetail: (Int) -> Unit,
     viewModel: RegistryViewModel = hiltViewModel()
@@ -95,7 +95,7 @@ fun RegistryScreen(
                         )
                     } else {
                         Text(
-                            "Registro de Lectura",
+                            "Registro",
                             style = MaterialTheme.typography.titleLarge,
                             fontFamily = LoraFontFamily,
                             fontWeight = FontWeight.Bold
@@ -108,8 +108,8 @@ fun RegistryScreen(
                             Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Cerrar búsqueda")
                         }
                     } else {
-                        IconButton(onClick = onNavigateBack) {
-                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+                        IconButton(onClick = onOpenDrawer) {
+                            Icon(imageVector = Icons.Default.Menu, contentDescription = "Abrir menú")
                         }
                     }
                 },
@@ -241,17 +241,33 @@ fun TableHeaderItem(
     currentSort: SortOption? = null,
     onSortClick: (SortOption) -> Unit = {}
 ) {
-    val isSorting = sortOption != null && (currentSort == sortOption || (sortOption == SortOption.TITLE_ASC && currentSort == SortOption.TITLE_DESC) || (sortOption == SortOption.RATING_DESC && currentSort == SortOption.RATING_ASC))
-    
+    val isSorting = when (sortOption) {
+        SortOption.TITLE_ASC -> currentSort == SortOption.TITLE_ASC || currentSort == SortOption.TITLE_DESC
+        SortOption.RATING_DESC -> currentSort == SortOption.RATING_DESC || currentSort == SortOption.RATING_ASC
+        SortOption.CREATED_AT_DESC -> currentSort == SortOption.CREATED_AT_DESC || currentSort == SortOption.CREATED_AT_ASC
+        else -> false
+    }
+
     Box(
         modifier = Modifier
             .width(width)
             .height(48.dp)
             .then(if (sortOption != null) Modifier.clickable {
-                val nextSort = when {
-                    currentSort == SortOption.TITLE_ASC && sortOption == SortOption.TITLE_ASC -> SortOption.TITLE_DESC
-                    currentSort == SortOption.RATING_DESC && sortOption == SortOption.RATING_DESC -> SortOption.RATING_ASC
-                    currentSort == SortOption.CREATED_AT_DESC && sortOption == SortOption.CREATED_AT_DESC -> SortOption.CREATED_AT_ASC
+                val nextSort = when (sortOption) {
+                    SortOption.TITLE_ASC -> when (currentSort) {
+                        SortOption.TITLE_ASC -> SortOption.TITLE_DESC
+                        SortOption.TITLE_DESC -> SortOption.CREATED_AT_DESC
+                        else -> SortOption.TITLE_ASC
+                    }
+                    SortOption.RATING_DESC -> when (currentSort) {
+                        SortOption.RATING_DESC -> SortOption.RATING_ASC
+                        SortOption.RATING_ASC -> SortOption.CREATED_AT_DESC
+                        else -> SortOption.RATING_DESC
+                    }
+                    SortOption.CREATED_AT_DESC -> when (currentSort) {
+                        SortOption.CREATED_AT_DESC -> SortOption.CREATED_AT_ASC
+                        else -> SortOption.CREATED_AT_DESC
+                    }
                     else -> sortOption
                 }
                 onSortClick(nextSort)
@@ -412,15 +428,13 @@ fun RegistryRow(
         VerticalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
 
         // 5. Fin
-        val endEnabled = book.status == BookStatus.FINISHED
         Box(
-            modifier = Modifier.width(ColFechaWidth).fillMaxHeight().then(if(endEnabled) Modifier.clickable { showEndDatePicker = true } else Modifier).padding(horizontal = 12.dp),
+            modifier = Modifier.width(ColFechaWidth).fillMaxHeight().clickable { showEndDatePicker = true }.padding(horizontal = 12.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = formatDate(book.endDate),
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (endEnabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                style = MaterialTheme.typography.bodyMedium
             )
         }
         VerticalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)

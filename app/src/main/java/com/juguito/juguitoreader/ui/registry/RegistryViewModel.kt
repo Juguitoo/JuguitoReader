@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.BookCriteria
+import com.juguito.juguitoreader.domain.model.BookStatus
 import com.juguito.juguitoreader.domain.model.applyCriteria
 import com.juguito.juguitoreader.domain.model.copy
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
@@ -63,7 +64,12 @@ class RegistryViewModel @Inject constructor(
                 updateBookField(event.bookId) { it.copy(startDate = event.startDate) }
             }
             is RegistryEvent.OnEndDateChanged -> {
-                updateBookField(event.bookId) { it.copy(endDate = event.endDate) }
+                updateBookField(event.bookId) { 
+                    it.copy(
+                        endDate = event.endDate,
+                        status = if (event.endDate != null) BookStatus.FINISHED else it.status
+                    )
+                }
             }
             is RegistryEvent.OnCommentChanged -> {
                 updateBookField(event.bookId) { it.copy(comment = event.comment) }

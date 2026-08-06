@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.domain.model.BookStatus
 import com.juguito.juguitoreader.domain.usecase.book.GetBookByIdUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBookFromEpubUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
@@ -175,7 +176,10 @@ class BookDetailViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(startDate = event.startDate)
             }
             is BookDetailEvent.OnEndDateChanged -> {
-                _uiState.value = _uiState.value.copy(endDate = event.endDate)
+                _uiState.value = _uiState.value.copy(
+                    endDate = event.endDate,
+                    status = if (event.endDate != null) BookStatus.FINISHED else _uiState.value.status
+                )
             }
             is BookDetailEvent.OnRatingChanged -> {
                 _uiState.value = _uiState.value.copy(rating = event.rating)
