@@ -7,6 +7,8 @@ data class BookDraftState(
     val title: String = "",
     val author: String = "",
     val publisher: String = "",
+    val series: String = "",
+    val seriesOrder: String = "",
     val isPhysical: Boolean = false,
     val coverUrl: String? = null,
     val localFilePath: String? = null,

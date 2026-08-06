@@ -68,6 +68,8 @@ class BookDetailViewModel @Inject constructor(
                         title = book.title,
                         author = book.author,
                         publisher = book.publisher ?: "",
+                        series = book.series ?: "",
+                        seriesOrder = book.seriesOrder?.let { if (it % 1.0 == 0.0) it.toInt().toString() else it.toString() } ?: "",
                         isPhysical = book.isPhysical,
                         coverUrl = book.coverUrl,
                         localFilePath = book.localFilePath,
@@ -104,6 +106,16 @@ class BookDetailViewModel @Inject constructor(
             is BookDetailEvent.OnPublisherChanged -> {
                 _uiState.value = _uiState.value.copy(
                     bookDraft = _uiState.value.bookDraft.copy(publisher = event.publisher)
+                )
+            }
+            is BookDetailEvent.OnSeriesChanged -> {
+                _uiState.value = _uiState.value.copy(
+                    bookDraft = _uiState.value.bookDraft.copy(series = event.series)
+                )
+            }
+            is BookDetailEvent.OnSeriesOrderChanged -> {
+                _uiState.value = _uiState.value.copy(
+                    bookDraft = _uiState.value.bookDraft.copy(seriesOrder = event.seriesOrder)
                 )
             }
             is BookDetailEvent.OnIsPhysicalChanged -> {
@@ -185,6 +197,8 @@ class BookDetailViewModel @Inject constructor(
                                 title = book.title,
                                 author = book.author,
                                 publisher = book.publisher ?: "",
+                                series = book.series ?: "",
+                                seriesOrder = book.seriesOrder?.let { if (it % 1.0 == 0.0) it.toInt().toString() else it.toString() } ?: "",
                                 isPhysical = book.isPhysical,
                                 coverUrl = book.coverUrl,
                                 localFilePath = book.localFilePath,
@@ -227,6 +241,8 @@ class BookDetailViewModel @Inject constructor(
                     title = book.title.ifBlank { currentDraft.title },
                     author = book.author.ifBlank { currentDraft.author },
                     publisher = book.publisher ?: currentDraft.publisher,
+                    series = book.series ?: currentDraft.series,
+                    seriesOrder = book.seriesOrder?.let { if (it % 1.0 == 0.0) it.toInt().toString() else it.toString() } ?: currentDraft.seriesOrder,
                     coverUrl = book.coverUrl ?: currentDraft.coverUrl,
                     localFilePath = book.localFilePath,
                     genres = (book.genres + currentDraft.genres).distinctBy { it.name.lowercase() }
@@ -249,6 +265,8 @@ class BookDetailViewModel @Inject constructor(
                 title = draft.title,
                 author = draft.author,
                 publisher = draft.publisher,
+                series = draft.series,
+                seriesOrder = draft.seriesOrder.toDoubleOrNull(),
                 isPhysical = draft.isPhysical,
                 status = state.status,
                 rating = state.rating ?: 0f,

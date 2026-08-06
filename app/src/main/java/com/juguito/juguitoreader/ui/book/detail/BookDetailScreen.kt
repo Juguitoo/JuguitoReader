@@ -11,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -25,11 +26,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.juguito.juguitoreader.domain.model.BookStatus
+import com.juguito.juguitoreader.ui.book.add.AddBookEvent
 import com.juguito.juguitoreader.ui.book.components.BookStatusDropdown
 import com.juguito.juguitoreader.ui.book.components.FolderMultiSelector
 import com.juguito.juguitoreader.ui.book.components.GenreHybridSelector
@@ -155,6 +158,7 @@ fun BookDetailScreen(
     }
 
     Scaffold(
+        modifier = Modifier.imePadding(),
         topBar = {
             TopAppBar(
                 title = {
@@ -211,7 +215,7 @@ fun BookDetailScreen(
                     Tab(
                         selected = state.selectedTab == 1,
                         onClick = { viewModel.onEvent(BookDetailEvent.OnTabChanged(1)) },
-                        text = { Text("Lectura") }
+                        text = { Text("Registro") }
                     )
                 }
 
@@ -226,7 +230,7 @@ fun BookDetailScreen(
                             }
                         )
                     } else {
-                        ReadingJournalTab(
+                        RegistryTab(
                             state = state,
                             onEvent = viewModel::onEvent,
                             onShowStartDatePicker = { showStartDatePicker = true },
@@ -316,6 +320,24 @@ fun BookInfoTab(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
+            Row (
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ){
+                OutlinedTextField(
+                    value = state.bookDraft.series,
+                    onValueChange = { onEvent(BookDetailEvent.OnSeriesChanged(it)) },
+                    label = { Text("Saga del libro") },
+                    shape = RoundedCornerShape(12.dp)
+                )
+                OutlinedTextField( // Se puede limitar a 4 digitos como mucho?
+                    value = state.bookDraft.seriesOrder,
+                    onValueChange = { onEvent(BookDetailEvent.OnSeriesOrderChanged(it)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    label = { Text("#") },
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
 
             GenreHybridSelector(
                 availableGenres = state.availableGenres,
@@ -385,6 +407,9 @@ fun BookInfoTab(
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(text = draft.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                     Text(text = "de ${draft.author}", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.secondary)
+                    if (draft.series.isNotBlank()) {
+                        Text(text = "Saga: ${draft.series}, Volumen ${draft.seriesOrder}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary )
+                    }
                     if (draft.publisher.isNotBlank()) {
                         Text(text = draft.publisher, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
@@ -447,7 +472,7 @@ fun BookInfoTab(
 }
 
 @Composable
-fun ReadingJournalTab(
+fun RegistryTab(
     state: BookDetailUiState,
     onEvent: (BookDetailEvent) -> Unit,
     onShowStartDatePicker: () -> Unit,

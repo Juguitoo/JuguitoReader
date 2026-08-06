@@ -12,6 +12,8 @@ data class BookEntity(
     val title: String,
     val author: String,
     val publisher: String? = null,
+    val series: String? = null,
+    @ColumnInfo(name = "series_order") val seriesOrder: Double? = null,
     @ColumnInfo(name = "is_physical") val isPhysical: Boolean,
     val status: BookStatus = BookStatus.PENDING,
     val rating: Float = 0.0f,

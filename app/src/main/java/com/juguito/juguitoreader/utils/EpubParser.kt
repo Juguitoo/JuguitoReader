@@ -11,6 +11,7 @@ data class EpubMetaData(
     val title: String?,
     val author: String?,
     val series: String?,
+    val seriesOrder: Double?,
     val genres: List<String>,
     val publisher: String?,
     val coverUrl: String?
@@ -21,6 +22,7 @@ object EpubParser {
         var title: String? = null
         var author: String? = null
         var series: String? = null
+        var seriesOrder: Double? = null
         val genres = mutableListOf<String>()
         var publisher: String? = null
         var coverId: String? = null
@@ -59,6 +61,8 @@ object EpubParser {
 
                                         if (nameAttr == "calibre:series") {
                                             series = contentAttr
+                                        } else if (nameAttr == "calibre:series_index") {
+                                            seriesOrder = contentAttr.toDoubleOrNull()
                                         } else if (nameAttr == "cover") {
                                             coverId = contentAttr
                                         }
@@ -111,6 +115,14 @@ object EpubParser {
                 e.printStackTrace()
             }
         }
-        return EpubMetaData(title, author, series, genres, publisher, coverUrl)
+        return EpubMetaData(
+            title = title,
+            author = author,
+            series = series,
+            seriesOrder = seriesOrder,
+            genres = genres,
+            publisher = publisher,
+            coverUrl = coverUrl
+        )
     }
 }

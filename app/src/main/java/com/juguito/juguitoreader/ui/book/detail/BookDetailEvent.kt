@@ -9,6 +9,8 @@ sealed interface BookDetailEvent {
     data class OnTitleChanged(val title: String): BookDetailEvent
     data class OnAuthorChanged(val author: String): BookDetailEvent
     data class OnPublisherChanged(val publisher: String): BookDetailEvent
+    data class OnSeriesChanged(val series: String): BookDetailEvent
+    data class OnSeriesOrderChanged(val seriesOrder: String): BookDetailEvent
     data class OnIsPhysicalChanged(val isPhysical: Boolean): BookDetailEvent
     data class OnCoverUrlChanged(val coverUrl: String): BookDetailEvent
     data class OnLocalFilePathChanged(val localFilePath: String?): BookDetailEvent

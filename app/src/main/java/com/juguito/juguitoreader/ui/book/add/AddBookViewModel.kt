@@ -68,6 +68,16 @@ class AddBookViewModel @Inject constructor(
                     bookDraft = _uiState.value.bookDraft.copy(publisher = event.publisher)
                 )
             }
+            is AddBookEvent.OnSeriesChanged -> {
+                _uiState.value = _uiState.value.copy(
+                    bookDraft = _uiState.value.bookDraft.copy(series = event.series)
+                )
+            }
+            is AddBookEvent.OnSeriesOrderChanged -> {
+                _uiState.value = _uiState.value.copy(
+                    bookDraft = _uiState.value.bookDraft.copy(seriesOrder = event.seriesOrder)
+                )
+            }
             is AddBookEvent.OnIsPhysicalChanged -> {
                 _uiState.value = _uiState.value.copy(
                     bookDraft = _uiState.value.bookDraft.copy(isPhysical = event.isPhysical)
@@ -120,6 +130,8 @@ class AddBookViewModel @Inject constructor(
                 title = draft.title,
                 author = draft.author,
                 publisher = draft.publisher,
+                series = draft.series,
+                seriesOrder = draft.seriesOrder.toDoubleOrNull(),
                 isPhysical = draft.isPhysical,
                 coverUrl = draft.coverUrl,
                 localFilePath = draft.localFilePath,
@@ -160,6 +172,8 @@ class AddBookViewModel @Inject constructor(
                     title = book.title.ifBlank { currentDraft.title },
                     author = book.author.ifBlank { currentDraft.author },
                     publisher = book.publisher ?: currentDraft.publisher,
+                    series = book.series ?: currentDraft.series,
+                    seriesOrder = book.seriesOrder?.let { if (it % 1.0 == 0.0) it.toInt().toString() else it.toString() } ?: currentDraft.seriesOrder,
                     coverUrl = book.coverUrl ?: currentDraft.coverUrl,
                     localFilePath = book.localFilePath,
                     genres = (book.genres + currentDraft.genres).distinctBy { it.name.lowercase() }

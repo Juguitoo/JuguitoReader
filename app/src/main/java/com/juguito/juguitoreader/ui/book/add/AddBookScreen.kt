@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -65,6 +66,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -266,6 +268,25 @@ fun AddBookScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
+
+            Row (
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ){
+                OutlinedTextField(
+                    value = state.bookDraft.series,
+                    onValueChange = { viewModel.onEvent(AddBookEvent.OnSeriesChanged(it)) },
+                    label = { Text("Saga del libro") },
+                    shape = RoundedCornerShape(12.dp)
+                )
+                OutlinedTextField( // Se puede limitar a 4 digitos como mucho?
+                    value = state.bookDraft.seriesOrder,
+                    onValueChange = { viewModel.onEvent(AddBookEvent.OnSeriesOrderChanged(it)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    label = { Text("#") },
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
 
             GenreHybridSelector(
                 availableGenres = state.availableGenres,

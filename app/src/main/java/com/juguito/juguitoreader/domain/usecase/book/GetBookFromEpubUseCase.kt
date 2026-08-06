@@ -5,18 +5,23 @@ import android.net.Uri
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.Genre
 import com.juguito.juguitoreader.utils.EpubParser
+import com.juguito.juguitoreader.utils.FileUtils
 import javax.inject.Inject
 
 class GetBookFromEpubUseCase @Inject constructor() {
     operator fun invoke(context: Context, uri: Uri): Book {
         val metadata = EpubParser.extractMetadata(context, uri)
+        val internalPath = FileUtils.saveBookToInternalStorage(context, uri)
+        
         return Book(
             title = metadata.title ?: "",
             author = metadata.author ?: "",
             publisher = metadata.publisher,
+            series = metadata.series,
+            seriesOrder = metadata.seriesOrder,
             isPhysical = false,
             coverUrl = metadata.coverUrl,
-            localFilePath = uri.toString(),
+            localFilePath = internalPath ?: uri.toString(),
             genres = metadata.genres.map { Genre(name = it) }
         )
     }
