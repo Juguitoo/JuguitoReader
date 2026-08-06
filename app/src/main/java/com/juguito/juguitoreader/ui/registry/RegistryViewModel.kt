@@ -3,6 +3,8 @@ package com.juguito.juguitoreader.ui.registry
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.domain.model.BookCriteria
+import com.juguito.juguitoreader.domain.model.applyCriteria
 import com.juguito.juguitoreader.domain.model.copy
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
@@ -29,7 +31,6 @@ class RegistryViewModel @Inject constructor(
 
     private fun loadData() {
         viewModelScope.launch {
-
             _uiState.value = _uiState.value.copy(isLoading = true)
 
             getBooksUseCase()
@@ -40,9 +41,11 @@ class RegistryViewModel @Inject constructor(
                     )
                 }
                 .collect { books ->
+                    val filtered = books.applyCriteria(_uiState.value.criteria)
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        books = books
+                        books = books,
+                        filteredBooks = filtered
                     )
                 }
         }
@@ -63,13 +66,43 @@ class RegistryViewModel @Inject constructor(
                 updateBookField(event.bookId) { it.copy(endDate = event.endDate) }
             }
             is RegistryEvent.OnCommentChanged -> {
-                updateBookField(event.bookId) {it.copy(comment = event.comment)}
+                updateBookField(event.bookId) { it.copy(comment = event.comment) }
+            }
+            
+            // Eventos de Filtrado
+            is RegistryEvent.OnSearchTextChanged -> {
+                val newCriteria = _uiState.value.criteria.copy(searchText = event.text)
+                updateCriteria(newCriteria)
+            }
+            is RegistryEvent.OnToggleSearch -> {
+                _uiState.value = _uiState.value.copy(
+                    isSearchExpanded = event.expanded,
+                    criteria = if (!event.expanded) _uiState.value.criteria.copy(searchText = "") else _uiState.value.criteria
+                )
+                if (!event.expanded) updateCriteria(_uiState.value.criteria)
+            }
+            is RegistryEvent.OnShowFilterSheet -> {
+                _uiState.value = _uiState.value.copy(showFilterSheet = event.show)
+            }
+            is RegistryEvent.OnCriteriaChanged -> {
+                updateCriteria(event.criteria)
+            }
+            RegistryEvent.OnClearFilters -> {
+                updateCriteria(BookCriteria())
             }
         }
     }
 
+    private fun updateCriteria(criteria: BookCriteria) {
+        val filtered = _uiState.value.books.applyCriteria(criteria)
+        _uiState.value = _uiState.value.copy(
+            criteria = criteria,
+            filteredBooks = filtered
+        )
+    }
+
     private fun updateBookField(bookId: Int, updateLogic: (Book) -> Book) {
-        val book = _uiState.value.books.find {it.id == bookId} ?: return
+        val book = _uiState.value.books.find { it.id == bookId } ?: return
         val updatedBook = updateLogic(book)
 
         viewModelScope.launch {

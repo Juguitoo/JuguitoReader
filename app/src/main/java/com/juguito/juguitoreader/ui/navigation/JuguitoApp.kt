@@ -211,6 +211,9 @@ fun JuguitoApp(
                         },
                         onNavigateToAddBook = {
                             navController.navigate("add_book")
+                        },
+                        onNavigateToBookDetail = { bookId ->
+                            navController.navigate("book_detail/$bookId")
                         }
                     )
                 }

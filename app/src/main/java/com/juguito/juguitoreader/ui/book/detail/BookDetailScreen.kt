@@ -32,7 +32,6 @@ import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.juguito.juguitoreader.domain.model.BookStatus
-import com.juguito.juguitoreader.ui.book.add.AddBookEvent
 import com.juguito.juguitoreader.ui.book.components.BookStatusDropdown
 import com.juguito.juguitoreader.ui.book.components.FolderMultiSelector
 import com.juguito.juguitoreader.ui.book.components.GenreHybridSelector

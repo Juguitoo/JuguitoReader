@@ -40,7 +40,9 @@ fun BookStatusDropdown(
             enabled = enabled,
             label = { Text("Estado de lectura") },
             trailingIcon = { if (enabled) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
+            modifier = Modifier
+                .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = enabled)
+                .fillMaxWidth(),
             shape = RoundedCornerShape(12.dp)
         )
         ExposedDropdownMenu(

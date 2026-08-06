@@ -1,0 +1,139 @@
+package com.juguito.juguitoreader.ui.registry
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.juguito.juguitoreader.domain.model.BookCriteria
+import com.juguito.juguitoreader.domain.model.BookStatus
+import com.juguito.juguitoreader.domain.model.SortOption
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+fun RegistryFilterSheet(
+    currentCriteria: BookCriteria,
+    availableSeries: List<String>,
+    onCriteriaChanged: (BookCriteria) -> Unit,
+    onDismiss: () -> Unit,
+    onClearFilters: () -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        dragHandle = { BottomSheetDefaults.DragHandle() }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Filtrar libros", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                TextButton(onClick = onClearFilters) { Text("Limpiar filtros") }
+            }
+
+            // Estado de lectura
+            Text("Estado de lectura", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                BookStatus.entries.forEach { status ->
+                    val isChecked = currentCriteria.statuses.contains(status)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable {
+                            val newStatuses = if (isChecked) {
+                                currentCriteria.statuses - status
+                            } else {
+                                currentCriteria.statuses + status
+                            }
+                            onCriteriaChanged(currentCriteria.copy(statuses = newStatuses))
+                        }
+                    ) {
+                        Checkbox(
+                            checked = isChecked,
+                            onCheckedChange = null
+                        )
+                        Text(
+                            text = status.displayName,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
+                }
+            }
+
+            // Saga
+            if (availableSeries.isNotEmpty()) {
+                Text("Saga / Serie", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                var expanded by remember { mutableStateOf(false) }
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded }
+                ) {
+                    OutlinedTextField(
+                        value = currentCriteria.series ?: "Todas las sagas",
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        modifier = Modifier
+                            .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
+                            .fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Todas las sagas") },
+                            onClick = {
+                                onCriteriaChanged(currentCriteria.copy(series = null))
+                                expanded = false
+                            }
+                        )
+                        availableSeries.forEach { series ->
+                            DropdownMenuItem(
+                                text = { Text(series) },
+                                onClick = {
+                                    onCriteriaChanged(currentCriteria.copy(series = series))
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+            
+            // Ordenación específica
+            Text("Otros filtros", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            FilterChip(
+                selected = currentCriteria.sortBy == SortOption.SERIES_ORDER_ASC,
+                onClick = { onCriteriaChanged(currentCriteria.copy(sortBy = SortOption.SERIES_ORDER_ASC)) },
+                label = { Text("Orden en la saga") }
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            Button(
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Ver resultados")
+            }
+        }
+    }
+}

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -35,6 +36,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.BookStatus
+import com.juguito.juguitoreader.domain.model.SortOption
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import java.text.SimpleDateFormat
 import java.util.*
@@ -51,40 +53,87 @@ private val TotalTableWidth = ColLibroWidth + ColEstadoWidth + ColNotaWidth + (C
 fun RegistryScreen(
     onNavigateBack: () -> Unit,
     onNavigateToAddBook: () -> Unit,
+    onNavigateToBookDetail: (Int) -> Unit,
     viewModel: RegistryViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
 
+    if (state.showFilterSheet) {
+        RegistryFilterSheet(
+            currentCriteria = state.criteria,
+            availableSeries = state.availableSeries,
+            onCriteriaChanged = { viewModel.onEvent(RegistryEvent.OnCriteriaChanged(it)) },
+            onDismiss = { viewModel.onEvent(RegistryEvent.OnShowFilterSheet(false)) },
+            onClearFilters = { viewModel.onEvent(RegistryEvent.OnClearFilters) }
+        )
+    }
+
     Scaffold(
+        modifier = Modifier.imePadding(),
         topBar = {
             TopAppBar(
                 modifier = Modifier.statusBarsPadding(),
                 title = {
-                    Text(
-                        "Registro de Lectura",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontFamily = LoraFontFamily,
-                        fontWeight = FontWeight.Bold
-                    )
+                    if (state.isSearchExpanded) {
+                        TextField(
+                            value = state.criteria.searchText,
+                            onValueChange = { viewModel.onEvent(RegistryEvent.OnSearchTextChanged(it)) },
+                            placeholder = { Text("Buscar libro, autor o saga...", fontSize = 14.sp) },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                disabledContainerColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White,
+                                cursorColor = Color.White
+                            ),
+                            singleLine = true,
+                            textStyle = MaterialTheme.typography.bodyLarge
+                        )
+                    } else {
+                        Text(
+                            "Registro de Lectura",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontFamily = LoraFontFamily,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+                    if (state.isSearchExpanded) {
+                        IconButton(onClick = { viewModel.onEvent(RegistryEvent.OnToggleSearch(false)) }) {
+                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Cerrar búsqueda")
+                        }
+                    } else {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+                        }
                     }
                 },
                 actions = {
+                    if (!state.isSearchExpanded) {
+                        IconButton(onClick = { viewModel.onEvent(RegistryEvent.OnToggleSearch(true)) }) {
+                            Icon(imageVector = Icons.Default.Search, contentDescription = "Buscar")
+                        }
+                    }
+                    IconButton(onClick = { viewModel.onEvent(RegistryEvent.OnShowFilterSheet(true)) }) {
+                        val isFiltered = state.criteria.statuses.isNotEmpty() || state.criteria.series != null
+                        BadgedBox(badge = { if (isFiltered) Badge() }) {
+                            Icon(imageVector = Icons.Default.FilterList, contentDescription = "Filtros")
+                        }
+                    }
                     IconButton(onClick = onNavigateToAddBook) {
-                        Icon(
-                            imageVector = Icons.Default.Add, 
-                            contentDescription = "Añadir Libro",
-                            tint = Color.White
-                        )
+                        Icon(imageVector = Icons.Default.Add, contentDescription = "Añadir Libro")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
+                    navigationIconContentColor = Color.White,
+                    actionIconContentColor = Color.White
                 )
             )
         }
@@ -97,36 +146,62 @@ fun RegistryScreen(
 
                 Box(modifier = Modifier.horizontalScroll(horizontalScrollState)) {
                     Column(modifier = Modifier.width(TotalTableWidth)) {
+                        // Header Row con Ordenación
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                         ) {
-                            TableHeaderItem("Libro", ColLibroWidth)
+                            TableHeaderItem(
+                                text = "Libro",
+                                width = ColLibroWidth,
+                                sortOption = SortOption.TITLE_ASC,
+                                currentSort = state.criteria.sortBy,
+                                onSortClick = { viewModel.onEvent(RegistryEvent.OnCriteriaChanged(state.criteria.copy(sortBy = it))) }
+                            )
                             VerticalDivider(modifier = Modifier.height(48.dp), thickness = 0.5.dp)
-                            TableHeaderItem("Estado", ColEstadoWidth)
+                            TableHeaderItem(text = "Estado", width = ColEstadoWidth)
                             VerticalDivider(modifier = Modifier.height(48.dp), thickness = 0.5.dp)
-                            TableHeaderItem("Nota", ColNotaWidth)
+                            TableHeaderItem(
+                                text = "Nota",
+                                width = ColNotaWidth,
+                                sortOption = SortOption.RATING_DESC,
+                                currentSort = state.criteria.sortBy,
+                                onSortClick = { viewModel.onEvent(RegistryEvent.OnCriteriaChanged(state.criteria.copy(sortBy = it))) }
+                            )
                             VerticalDivider(modifier = Modifier.height(48.dp), thickness = 0.5.dp)
-                            TableHeaderItem("Inicio", ColFechaWidth)
+                            TableHeaderItem(
+                                text = "Inicio",
+                                width = ColFechaWidth,
+                                sortOption = SortOption.CREATED_AT_DESC,
+                                currentSort = state.criteria.sortBy,
+                                onSortClick = { viewModel.onEvent(RegistryEvent.OnCriteriaChanged(state.criteria.copy(sortBy = it))) }
+                            )
                             VerticalDivider(modifier = Modifier.height(48.dp), thickness = 0.5.dp)
-                            TableHeaderItem("Fin", ColFechaWidth)
+                            TableHeaderItem(text = "Fin", width = ColFechaWidth)
                             VerticalDivider(modifier = Modifier.height(48.dp), thickness = 0.5.dp)
-                            TableHeaderItem("Comentario", ColComentarioWidth)
+                            TableHeaderItem(text = "Comentario", width = ColComentarioWidth)
                         }
                         HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
 
-                        LazyColumn(modifier = Modifier.fillMaxSize()) {
-                            items(state.books) { book ->
-                                RegistryRow(
-                                    book = book,
-                                    onEvent = viewModel::onEvent
-                                )
-                                HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
-                            }
-                            
-                            item {
-                                GhostRow(onClick = onNavigateToAddBook)
+                        if (state.filteredBooks.isEmpty()) {
+                            EmptyRegistryState(TotalTableWidth)
+                        } else {
+                            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                                items(state.filteredBooks) { book ->
+                                    RegistryRow(
+                                        book = book,
+                                        onEvent = viewModel::onEvent,
+                                        onEditClick = { onNavigateToBookDetail(book.id) }
+                                    )
+                                    HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                                }
+
+                                if (!state.isSearchExpanded && state.criteria.statuses.isEmpty() && state.criteria.series == null) {
+                                    item {
+                                        GhostRow(onClick = onNavigateToAddBook)
+                                    }
+                                }
                             }
                         }
                     }
@@ -137,26 +212,90 @@ fun RegistryScreen(
 }
 
 @Composable
-fun TableHeaderItem(text: String, width: Dp) {
+fun EmptyRegistryState(width: Dp) {
+    Column(
+        modifier = Modifier.width(width).padding(vertical = 60.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.SearchOff,
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
+        )
+        Spacer(Modifier.height(16.dp))
+        Text(
+            text = "No se encontraron libros con estos filtros",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+fun TableHeaderItem(
+    text: String,
+    width: Dp,
+    sortOption: SortOption? = null,
+    currentSort: SortOption? = null,
+    onSortClick: (SortOption) -> Unit = {}
+) {
+    val isSorting = sortOption != null && (currentSort == sortOption || (sortOption == SortOption.TITLE_ASC && currentSort == SortOption.TITLE_DESC) || (sortOption == SortOption.RATING_DESC && currentSort == SortOption.RATING_ASC))
+    
     Box(
-        modifier = Modifier.width(width).height(48.dp).padding(horizontal = 12.dp),
+        modifier = Modifier
+            .width(width)
+            .height(48.dp)
+            .then(if (sortOption != null) Modifier.clickable {
+                val nextSort = when {
+                    currentSort == SortOption.TITLE_ASC && sortOption == SortOption.TITLE_ASC -> SortOption.TITLE_DESC
+                    currentSort == SortOption.RATING_DESC && sortOption == SortOption.RATING_DESC -> SortOption.RATING_ASC
+                    currentSort == SortOption.CREATED_AT_DESC && sortOption == SortOption.CREATED_AT_DESC -> SortOption.CREATED_AT_ASC
+                    else -> sortOption
+                }
+                onSortClick(nextSort)
+            } else Modifier)
+            .padding(horizontal = 12.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = text.uppercase(),
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            letterSpacing = 1.sp,
-            fontSize = 14.sp
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = text.uppercase(),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                color = if (isSorting) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                letterSpacing = 1.sp,
+                fontSize = 13.sp
+            )
+            if (sortOption != null) {
+                val icon = when {
+                    currentSort == SortOption.TITLE_ASC && sortOption == SortOption.TITLE_ASC -> Icons.Default.ArrowUpward
+                    currentSort == SortOption.TITLE_DESC && sortOption == SortOption.TITLE_ASC -> Icons.Default.ArrowDownward
+                    currentSort == SortOption.RATING_DESC && sortOption == SortOption.RATING_DESC -> Icons.Default.ArrowDownward
+                    currentSort == SortOption.RATING_ASC && sortOption == SortOption.RATING_DESC -> Icons.Default.ArrowUpward
+                    currentSort == SortOption.CREATED_AT_DESC && sortOption == SortOption.CREATED_AT_DESC -> Icons.Default.ArrowDownward
+                    currentSort == SortOption.CREATED_AT_ASC && sortOption == SortOption.CREATED_AT_DESC -> Icons.Default.ArrowUpward
+                    else -> null
+                }
+                if (icon != null) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp).padding(start = 4.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
     }
 }
 
 @Composable
 fun RegistryRow(
     book: Book,
-    onEvent: (RegistryEvent) -> Unit
+    onEvent: (RegistryEvent) -> Unit,
+    onEditClick: () -> Unit
 ) {
     var showStartDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
@@ -198,28 +337,55 @@ fun RegistryRow(
             modifier = Modifier.width(ColLibroWidth).fillMaxHeight().padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (book.coverUrl != null) {
-                AsyncImage(
-                    model = book.coverUrl,
-                    contentDescription = null,
-                    modifier = Modifier.size(45.dp, 65.dp).clip(RoundedCornerShape(4.dp)),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Surface(
-                    modifier = Modifier.size(45.dp, 65.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    shape = RoundedCornerShape(4.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(Icons.Default.Image, contentDescription = null, modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
+            Box(modifier = Modifier.size(45.dp, 65.dp)) {
+                if (book.coverUrl != null) {
+                    AsyncImage(
+                        model = book.coverUrl,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(4.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        shape = RoundedCornerShape(4.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(Icons.Default.Image, contentDescription = null, modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                        }
                     }
                 }
+                
+                IconButton(
+                    onClick = onEditClick,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .offset(x = 8.dp, y = 8.dp)
+                        .size(28.dp)
+                        .background(MaterialTheme.colorScheme.secondary, CircleShape)
+                        .padding(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Editar",
+                        tint = MaterialTheme.colorScheme.onSecondary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
             }
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(20.dp))
             Column {
                 Text(book.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, maxLines = 2)
                 Text(book.author, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (!book.series.isNullOrBlank()) {
+                    Text(
+                        text = "${book.series} #${book.seriesOrder?.let { if (it % 1.0 == 0.0) it.toInt() else it } ?: "?"}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
         }
         VerticalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
@@ -305,13 +471,19 @@ fun GhostRow(onClick: () -> Unit) {
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(contentAlignment = Alignment.Center) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(28.dp)
-            )
+        Surface(
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+            modifier = Modifier.size(48.dp)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
         }
         Spacer(Modifier.width(16.dp))
         Text(
