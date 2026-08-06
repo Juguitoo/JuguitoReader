@@ -1,0 +1,416 @@
+package com.juguito.juguitoreader.ui.registry
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import coil.compose.AsyncImage
+import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.domain.model.BookStatus
+import com.juguito.juguitoreader.ui.theme.LoraFontFamily
+import java.text.SimpleDateFormat
+import java.util.*
+
+private val ColLibroWidth = 280.dp
+private val ColEstadoWidth = 160.dp
+private val ColNotaWidth = 80.dp
+private val ColFechaWidth = 140.dp
+private val ColComentarioWidth = 350.dp
+private val TotalTableWidth = ColLibroWidth + ColEstadoWidth + ColNotaWidth + (ColFechaWidth * 2) + ColComentarioWidth + 10.dp
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RegistryScreen(
+    onNavigateBack: () -> Unit,
+    onNavigateToAddBook: () -> Unit,
+    viewModel: RegistryViewModel = hiltViewModel()
+) {
+    val state by viewModel.uiState.collectAsState()
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                modifier = Modifier.statusBarsPadding(),
+                title = {
+                    Text(
+                        "Registro de Lectura",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontFamily = LoraFontFamily,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onNavigateToAddBook) {
+                        Icon(
+                            imageVector = Icons.Default.Add, 
+                            contentDescription = "Añadir Libro",
+                            tint = Color.White
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
+            )
+        }
+    ) { paddingValues ->
+        Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+            if (state.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else {
+                val horizontalScrollState = rememberScrollState()
+
+                Box(modifier = Modifier.horizontalScroll(horizontalScrollState)) {
+                    Column(modifier = Modifier.width(TotalTableWidth)) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                        ) {
+                            TableHeaderItem("Libro", ColLibroWidth)
+                            VerticalDivider(modifier = Modifier.height(48.dp), thickness = 0.5.dp)
+                            TableHeaderItem("Estado", ColEstadoWidth)
+                            VerticalDivider(modifier = Modifier.height(48.dp), thickness = 0.5.dp)
+                            TableHeaderItem("Nota", ColNotaWidth)
+                            VerticalDivider(modifier = Modifier.height(48.dp), thickness = 0.5.dp)
+                            TableHeaderItem("Inicio", ColFechaWidth)
+                            VerticalDivider(modifier = Modifier.height(48.dp), thickness = 0.5.dp)
+                            TableHeaderItem("Fin", ColFechaWidth)
+                            VerticalDivider(modifier = Modifier.height(48.dp), thickness = 0.5.dp)
+                            TableHeaderItem("Comentario", ColComentarioWidth)
+                        }
+                        HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
+
+                        LazyColumn(modifier = Modifier.fillMaxSize()) {
+                            items(state.books) { book ->
+                                RegistryRow(
+                                    book = book,
+                                    onEvent = viewModel::onEvent
+                                )
+                                HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                            }
+                            
+                            item {
+                                GhostRow(onClick = onNavigateToAddBook)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun TableHeaderItem(text: String, width: Dp) {
+    Box(
+        modifier = Modifier.width(width).height(48.dp).padding(horizontal = 12.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text.uppercase(),
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            letterSpacing = 1.sp,
+            fontSize = 14.sp
+        )
+    }
+}
+
+@Composable
+fun RegistryRow(
+    book: Book,
+    onEvent: (RegistryEvent) -> Unit
+) {
+    var showStartDatePicker by remember { mutableStateOf(false) }
+    var showEndDatePicker by remember { mutableStateOf(false) }
+
+    var localComment by remember { mutableStateOf(book.comment ?: "") }
+    val focusRequester = remember { FocusRequester() }
+    var isFocused by remember { mutableStateOf(false) }
+
+    LaunchedEffect(book.comment) {
+        if (!isFocused) {
+            localComment = book.comment ?: ""
+        }
+    }
+
+    if (showStartDatePicker) {
+        RegistryDatePickerDialog(
+            initialDate = book.startDate,
+            onDateSelected = { onEvent(RegistryEvent.OnStartDateChanged(book.id, it)) },
+            onDismiss = { showStartDatePicker = false }
+        )
+    }
+
+    if (showEndDatePicker) {
+        RegistryDatePickerDialog(
+            initialDate = book.endDate,
+            onDateSelected = { onEvent(RegistryEvent.OnEndDateChanged(book.id, it)) },
+            onDismiss = { showEndDatePicker = false }
+        )
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(100.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // 1. Portada + Titulo
+        Row(
+            modifier = Modifier.width(ColLibroWidth).fillMaxHeight().padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (book.coverUrl != null) {
+                AsyncImage(
+                    model = book.coverUrl,
+                    contentDescription = null,
+                    modifier = Modifier.size(45.dp, 65.dp).clip(RoundedCornerShape(4.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Surface(
+                    modifier = Modifier.size(45.dp, 65.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = RoundedCornerShape(4.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(Icons.Default.Image, contentDescription = null, modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                    }
+                }
+            }
+            Spacer(Modifier.width(12.dp))
+            Column {
+                Text(book.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, maxLines = 2)
+                Text(book.author, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        VerticalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+
+        // 2. Estado
+        Box(modifier = Modifier.width(ColEstadoWidth).fillMaxHeight(), contentAlignment = Alignment.Center) {
+            RegistryStatusPicker(book.status) { onEvent(RegistryEvent.OnStatusChanged(book.id, it)) }
+        }
+        VerticalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+
+        // 3. Nota
+        Box(modifier = Modifier.width(ColNotaWidth).fillMaxHeight(), contentAlignment = Alignment.Center) {
+            RegistryRatingInput(book.rating) { onEvent(RegistryEvent.OnRatingChanged(book.id, it)) }
+        }
+        VerticalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+
+        // 4. Inicio
+        Box(
+            modifier = Modifier.width(ColFechaWidth).fillMaxHeight().clickable { showStartDatePicker = true }.padding(horizontal = 12.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(formatDate(book.startDate), style = MaterialTheme.typography.bodyMedium)
+        }
+        VerticalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+
+        // 5. Fin
+        val endEnabled = book.status == BookStatus.FINISHED
+        Box(
+            modifier = Modifier.width(ColFechaWidth).fillMaxHeight().then(if(endEnabled) Modifier.clickable { showEndDatePicker = true } else Modifier).padding(horizontal = 12.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = formatDate(book.endDate),
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (endEnabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+            )
+        }
+        VerticalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+
+        // 6. Comentario
+        Box(modifier = Modifier
+            .width(ColComentarioWidth)
+            .fillMaxHeight()
+            .clickable { focusRequester.requestFocus() }
+            .padding(12.dp)) {
+            BasicTextField(
+                value = localComment,
+                onValueChange = { localComment = it },
+                textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester)
+                    .onFocusChanged { focusState ->
+                        isFocused = focusState.isFocused
+                        if (!focusState.isFocused && localComment != (book.comment ?: "")) {
+                            onEvent(RegistryEvent.OnCommentChanged(book.id, localComment))
+                        }
+                    }
+                    .verticalScroll(rememberScrollState()),
+                decorationBox = { innerTextField ->
+                    if (localComment.isEmpty()) {
+                        Text(
+                            "Escribe un comentario...",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                        )
+                    }
+                    innerTextField()
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun GhostRow(onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(80.dp)
+            .clickable { onClick() }
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+        Spacer(Modifier.width(16.dp))
+        Text(
+            text = "Pulsa aquí para añadir un nuevo libro...",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+fun RegistryStatusPicker(status: BookStatus, onStatusSelected: (BookStatus) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        TextButton(onClick = { expanded = true }) {
+            Text(status.displayName, style = MaterialTheme.typography.bodyMedium)
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            BookStatus.entries.forEach { statusOption ->
+                DropdownMenuItem(
+                    text = { Text(statusOption.displayName, style = MaterialTheme.typography.bodyMedium) },
+                    onClick = {
+                        onStatusSelected(statusOption)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun RegistryRatingInput(rating: Float, onRatingChanged: (Float) -> Unit) {
+    var textValue by remember(rating) { mutableStateOf(if (rating == 0f) "" else rating.toString()) }
+
+    val color = when {
+        rating == 0f -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+        rating < 5f -> Color(0xFFE57373) // Rojo
+        rating < 7f -> Color(0xFFFFB74D) // Naranja
+        rating < 9f -> Color(0xFF81C784) // Verde
+        else -> Color(0xFF1DA1F2) // Azul
+    }
+
+    BasicTextField(
+        value = textValue,
+        onValueChange = { newValue ->
+            val clean = newValue.replace(',', '.')
+            if (clean.isEmpty() || (clean.toFloatOrNull() != null && clean.toFloat() in 0f..10f) || clean.matches(Regex("^[0-9]*\\.?[0-9]*$"))) {
+                textValue = clean
+                clean.toFloatOrNull()?.let { onRatingChanged(it) }
+            }
+        },
+        textStyle = MaterialTheme.typography.bodyMedium.copy(
+            fontWeight = FontWeight.Bold,
+            color = color,
+            textAlign = TextAlign.Center
+        ),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+        modifier = Modifier.width(45.dp),
+        decorationBox = { innerTextField ->
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .background(color.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
+                    .padding(vertical = 4.dp, horizontal = 8.dp)
+            ) {
+                if (textValue.isEmpty()) {
+                    Text("-", style = MaterialTheme.typography.bodyMedium, color = color)
+                }
+                innerTextField()
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RegistryDatePickerDialog(
+    initialDate: Long?,
+    onDateSelected: (Long) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialDate ?: System.currentTimeMillis())
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = {
+                datePickerState.selectedDateMillis?.let { onDateSelected(it) }
+                onDismiss()
+            }) { Text("Aceptar") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
+    ) { DatePicker(state = datePickerState) }
+}
+
+private fun formatDate(millis: Long?): String {
+    if (millis == null) return "-"
+    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    sdf.timeZone = TimeZone.getTimeZone("UTC")
+    return sdf.format(Date(millis))
+}

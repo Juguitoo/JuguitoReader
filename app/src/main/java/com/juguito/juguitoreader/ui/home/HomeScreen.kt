@@ -88,7 +88,7 @@ fun HomeScreen(
     onOpenDrawer: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel<HomeViewModel>()
 ) {
-    val homeState by viewModel.homeUiState.collectAsState()
+    val homeState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     var bookToDelete by remember { mutableStateOf<Book?>(null) }
 

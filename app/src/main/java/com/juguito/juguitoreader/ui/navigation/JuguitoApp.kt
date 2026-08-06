@@ -21,12 +21,14 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.juguito.juguitoreader.ui.book.add.AddBookScreen
 import com.juguito.juguitoreader.ui.book.detail.BookDetailScreen
 import com.juguito.juguitoreader.ui.folder.add.AddFolderScreen
 import com.juguito.juguitoreader.ui.home.HomeScreen
+import com.juguito.juguitoreader.ui.registry.RegistryScreen
 import com.juguito.juguitoreader.ui.theme.AppTheme
 import com.juguito.juguitoreader.ui.theme.ThemeViewModel
 import kotlinx.coroutines.launch
@@ -40,6 +42,9 @@ fun JuguitoApp(
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
     val currentTheme by themeViewModel.currentTheme.collectAsState()
+
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStackEntry?.destination?.route
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -56,8 +61,27 @@ fun JuguitoApp(
                 DrawerItem(
                     label = "Inicio",
                     icon = Icons.Default.Home,
-                    selected = true,
-                    onClick = { scope.launch { drawerState.close() } }
+                    selected = currentRoute == "home",
+                    onClick = { 
+                        scope.launch { 
+                            drawerState.close()
+                            navController.navigate("home") {
+                                popUpTo("home") { inclusive = true }
+                            }
+                        } 
+                    }
+                )
+
+                DrawerItem(
+                    label = "Registro",
+                    icon = Icons.Default.AppRegistration,
+                    selected = currentRoute == "registry",
+                    onClick = { 
+                        scope.launch { 
+                            drawerState.close()
+                            navController.navigate("registry")
+                        } 
+                    }
                 )
 
                 DrawerItem(
@@ -176,6 +200,17 @@ fun JuguitoApp(
                     BookDetailScreen(
                         onNavigateBack = {
                             navController.popBackStack()
+                        }
+                    )
+                }
+
+                composable (route = "registry") {
+                    RegistryScreen(
+                        onNavigateBack = {
+                            navController.popBackStack()
+                        },
+                        onNavigateToAddBook = {
+                            navController.navigate("add_book")
                         }
                     )
                 }

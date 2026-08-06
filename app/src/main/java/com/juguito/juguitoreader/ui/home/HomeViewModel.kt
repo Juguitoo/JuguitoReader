@@ -25,15 +25,15 @@ class HomeViewModel @Inject constructor(
     private val deleteBookUseCase: DeleteBookUseCase
 ) : ViewModel() {
 
-    private val _homeUiState = MutableStateFlow(HomeUiState())
+    private val _uiState = MutableStateFlow(HomeUiState())
 
-    val homeUiState: StateFlow<HomeUiState> = _homeUiState.asStateFlow()
+    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
             getBooksUseCase()
                 .catch { exception ->
-                    _homeUiState.value = _homeUiState.value.copy(
+                    _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         errorMessage = "Error al cargar los libros: ${exception.localizedMessage}"
                     )
@@ -50,7 +50,7 @@ class HomeViewModel @Inject constructor(
                         finishedBooks = books.count {it.status == BookStatus.FINISHED},
                     )
 
-                    _homeUiState.value = _homeUiState.value.copy(
+                    _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         recentBooks = filteredBooks,
                         stats = newStats,
@@ -62,11 +62,11 @@ class HomeViewModel @Inject constructor(
 
     fun importBook(uri: Uri) {
         viewModelScope.launch {
-            _homeUiState.value = _homeUiState.value.copy(isLoading = true)
+            _uiState.value = _uiState.value.copy(isLoading = true)
             val result = importBookFromUriUseCase(application, uri)
             
             result.onFailure { exception ->
-                _homeUiState.value = _homeUiState.value.copy(
+                _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     errorMessage = "Error al importar el libro: ${exception.localizedMessage}"
                 )

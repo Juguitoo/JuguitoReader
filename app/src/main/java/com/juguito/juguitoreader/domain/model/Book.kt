@@ -19,3 +19,40 @@ class Book(
     val genres: List<Genre> = emptyList(),
     val createdAt: Long = System.currentTimeMillis()
 )
+
+fun Book.copy(
+    title: String = this.title,
+    author: String = this.author,
+    publisher: String? = this.publisher,
+    isPhysical: Boolean = this.isPhysical,
+    status: BookStatus = this.status,
+    rating: Float = this.rating,
+    comment: String? = this.comment,
+    startDate: Long? = this.startDate,
+    endDate: Long? = this.endDate,
+    coverUrl: String? = this.coverUrl,
+    localFilePath: String? = this.localFilePath,
+    syncStatus: SyncStatus = this.syncStatus,
+    folders: List<Folder> = this.folders,
+    genres: List<Genre> = this.genres,
+    createdAt: Long = this.createdAt
+): Book {
+    return Book(
+        id = this.id,
+        title = title,
+        author = author,
+        publisher = publisher,
+        isPhysical = isPhysical,
+        status = status,
+        rating = rating,
+        comment = comment,
+        startDate = startDate,
+        endDate = endDate,
+        coverUrl = coverUrl,
+        localFilePath = localFilePath,
+        syncStatus = syncStatus,
+        folders = folders,
+        genres = genres,
+        createdAt = createdAt
+    )
+}
