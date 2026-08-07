@@ -8,7 +8,6 @@ import javax.inject.Inject
 class GetGenresUseCase @Inject constructor(
     private val repository: GenreRepository
 ) {
-
     operator fun invoke(): Flow<List<Genre>> {
         return repository.getAllGenres()
     }

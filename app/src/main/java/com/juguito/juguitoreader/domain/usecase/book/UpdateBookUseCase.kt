@@ -35,7 +35,7 @@ class UpdateBookUseCase @Inject constructor(
 
             Result.success(Unit)
         } catch (e: Exception) {
-            Result.failure(Exception("Error al guardar el libro: ${e.localizedMessage}"))
+            Result.failure(Exception("Error al actualizar el libro: ${e.localizedMessage}"))
         }
     }
 }
