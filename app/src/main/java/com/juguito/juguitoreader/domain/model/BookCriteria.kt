@@ -1,5 +1,7 @@
 package com.juguito.juguitoreader.domain.model
 
+import com.juguito.juguitoreader.domain.enums.BookStatus
+
 data class BookCriteria(
     val searchText: String = "",
     val statuses: Set<BookStatus> = emptySet(),

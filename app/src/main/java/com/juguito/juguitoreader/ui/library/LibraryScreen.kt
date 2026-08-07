@@ -29,7 +29,7 @@ import androidx.core.graphics.toColorInt
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.juguito.juguitoreader.domain.model.Book
-import com.juguito.juguitoreader.domain.model.BookStatus
+import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 

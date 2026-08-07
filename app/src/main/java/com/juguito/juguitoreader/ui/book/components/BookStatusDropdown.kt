@@ -16,7 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.juguito.juguitoreader.domain.model.BookStatus
+import com.juguito.juguitoreader.domain.enums.BookStatus
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

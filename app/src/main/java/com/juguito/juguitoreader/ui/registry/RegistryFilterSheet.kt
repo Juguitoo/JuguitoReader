@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.juguito.juguitoreader.domain.model.BookCriteria
-import com.juguito.juguitoreader.domain.model.BookStatus
+import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.SortOption
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)

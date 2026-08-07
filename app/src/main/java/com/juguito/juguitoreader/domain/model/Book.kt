@@ -1,5 +1,8 @@
 package com.juguito.juguitoreader.domain.model
 
+import com.juguito.juguitoreader.domain.enums.BookStatus
+import com.juguito.juguitoreader.domain.enums.SyncStatus
+
 class Book(
     val id: Int = 0,
     val title: String,

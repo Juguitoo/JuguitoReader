@@ -1,7 +1,7 @@
 package com.juguito.juguitoreader.ui.registry
 
 import com.juguito.juguitoreader.domain.model.BookCriteria
-import com.juguito.juguitoreader.domain.model.BookStatus
+import com.juguito.juguitoreader.domain.enums.BookStatus
 
 sealed interface RegistryEvent{
     // Edición directa

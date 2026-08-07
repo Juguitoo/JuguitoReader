@@ -1,4 +1,4 @@
-package com.juguito.juguitoreader.domain.model
+package com.juguito.juguitoreader.domain.enums
 
 enum class SyncStatus(val displayName: String) {
     SYNCED("Sincronizado"),

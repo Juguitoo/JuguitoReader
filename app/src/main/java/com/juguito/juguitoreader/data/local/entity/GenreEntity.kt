@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.juguito.juguitoreader.domain.model.SyncStatus
+import com.juguito.juguitoreader.domain.enums.SyncStatus
 
 @Entity(
     tableName = "genres",

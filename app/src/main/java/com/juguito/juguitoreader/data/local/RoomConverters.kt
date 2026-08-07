@@ -1,8 +1,8 @@
 package com.juguito.juguitoreader.data.local
 
 import androidx.room.TypeConverter
-import com.juguito.juguitoreader.domain.model.BookStatus
-import com.juguito.juguitoreader.domain.model.SyncStatus
+import com.juguito.juguitoreader.domain.enums.BookStatus
+import com.juguito.juguitoreader.domain.enums.SyncStatus
 
 class RoomConverters {
 

@@ -1,7 +1,7 @@
 package com.juguito.juguitoreader.ui.book.detail
 
 import android.net.Uri
-import com.juguito.juguitoreader.domain.model.BookStatus
+import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.model.Genre
 

@@ -1,5 +1,7 @@
 package com.juguito.juguitoreader.domain.model
 
+import com.juguito.juguitoreader.domain.enums.SyncStatus
+
 class Folder(
     val id: Int = 0,
     val name: String,

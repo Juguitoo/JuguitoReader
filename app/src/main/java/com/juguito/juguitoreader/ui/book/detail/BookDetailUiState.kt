@@ -1,7 +1,7 @@
 package com.juguito.juguitoreader.ui.book.detail
 
 import com.juguito.juguitoreader.domain.model.Book
-import com.juguito.juguitoreader.domain.model.BookStatus
+import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.model.Genre
 import com.juguito.juguitoreader.ui.book.state.BookDraftState
