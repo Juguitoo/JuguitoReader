@@ -28,6 +28,7 @@ import com.juguito.juguitoreader.ui.book.add.AddBookScreen
 import com.juguito.juguitoreader.ui.book.detail.BookDetailScreen
 import com.juguito.juguitoreader.ui.folder.add.AddFolderScreen
 import com.juguito.juguitoreader.ui.home.HomeScreen
+import com.juguito.juguitoreader.ui.library.LibraryScreen
 import com.juguito.juguitoreader.ui.registry.RegistryScreen
 import com.juguito.juguitoreader.ui.theme.AppTheme
 import com.juguito.juguitoreader.ui.theme.ThemeViewModel
@@ -87,7 +88,13 @@ fun JuguitoApp(
                 DrawerItem(
                     label = "Biblioteca",
                     icon = Icons.Default.AutoStories,
-                    onClick = { scope.launch { drawerState.close() } }
+                    selected = currentRoute == "library",
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("library")
+                        }
+                    }
                 )
 
                 DrawerItem(
@@ -210,6 +217,15 @@ fun JuguitoApp(
                         onNavigateToAddBook = {
                             navController.navigate("add_book")
                         },
+                        onNavigateToBookDetail = { bookId ->
+                            navController.navigate("book_detail/$bookId")
+                        }
+                    )
+                }
+
+                composable (route = "library") {
+                    LibraryScreen(
+                        onOpenDrawer = { scope.launch { drawerState.open() } },
                         onNavigateToBookDetail = { bookId ->
                             navController.navigate("book_detail/$bookId")
                         }
