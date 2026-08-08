@@ -207,9 +207,9 @@ object EpubParser {
                             var navMapOpen = false
                             while (eventType != XmlPullParser.END_DOCUMENT) {
                                 if (eventType == XmlPullParser.START_TAG) {
-                                    when (parser.name) {
-                                        "navMap" -> navMapOpen = true
-                                        "navPoint" -> if (navMapOpen) chaptersTree.add(parseNavPoint(parser, tocDir))
+                                    if (parser.name == "navMap") navMapOpen = true
+                                    else if (navMapOpen && parser.name == "navPoint") {
+                                        chaptersTree.add(parseNavPoint(parser, tocDir))
                                     }
                                 } else if (eventType == XmlPullParser.END_TAG && parser.name == "navMap") {
                                     break
@@ -281,19 +281,18 @@ object EpubParser {
         var title = ""
         var href = ""
         val children = mutableListOf<EpubNavElement>()
-        var eventType = parser.eventType
+        var eventType = parser.next()
 
         try {
-            while (eventType != XmlPullParser.END_DOCUMENT) {
+            while (!(eventType == XmlPullParser.END_TAG && parser.name == "navPoint")) {
                 if (eventType == XmlPullParser.START_TAG) {
                     when (parser.name) {
                         "text" -> title = parser.nextText()
                         "content" -> href = tocDir + (parser.getAttributeValue(null, "src") ?: "")
                         "navPoint" -> children.add(parseNavPoint(parser, tocDir))
                     }
-                } else if (eventType == XmlPullParser.END_TAG && parser.name == "navPoint") {
-                    break
                 }
+                if (eventType == XmlPullParser.END_DOCUMENT) break
                 eventType = parser.next()
             }
         } catch (e: Exception) {

@@ -3,9 +3,11 @@ package com.juguito.juguitoreader.di
 import com.juguito.juguitoreader.data.repository.BookRepositoryImpl
 import com.juguito.juguitoreader.data.repository.FolderRepositoryImpl
 import com.juguito.juguitoreader.data.repository.GenreRepositoryImpl
+import com.juguito.juguitoreader.data.repository.ReadingProgressRepositoryImpl
 import com.juguito.juguitoreader.domain.repository.BookRepository
 import com.juguito.juguitoreader.domain.repository.FolderRepository
 import com.juguito.juguitoreader.domain.repository.GenreRepository
+import com.juguito.juguitoreader.domain.repository.ReadingProgressRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -33,4 +35,10 @@ abstract class RepositoryModule {
     abstract fun bindGenreRepository(
         genreRepositoryImpl: GenreRepositoryImpl
     ): GenreRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindReadingProgressRepository(
+        readingProgressRepositoryImpl: ReadingProgressRepositoryImpl
+    ): ReadingProgressRepository
 }

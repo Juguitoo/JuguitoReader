@@ -6,6 +6,7 @@ import com.juguito.juguitoreader.data.local.JuguitoReaderDatabase
 import com.juguito.juguitoreader.data.local.dao.BookDAO
 import com.juguito.juguitoreader.data.local.dao.FolderDAO
 import com.juguito.juguitoreader.data.local.dao.GenreDAO
+import com.juguito.juguitoreader.data.local.dao.ReadingProgressDAO
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -43,5 +44,11 @@ object DatabaseModule {
     @Singleton
     fun provideGenreDao(database: JuguitoReaderDatabase): GenreDAO{
         return database.genreDAO
+    }
+
+    @Provides
+    @Singleton
+    fun provideReadingProgressDao(database: JuguitoReaderDatabase): ReadingProgressDAO {
+        return database.readingProgressDAO
     }
 }

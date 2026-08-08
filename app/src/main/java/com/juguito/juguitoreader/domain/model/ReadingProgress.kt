@@ -6,3 +6,17 @@ class ReadingProgress (
     val scrollPosition: Int,
     val lastReadAt: Long
 )
+
+fun ReadingProgress.copy(
+    bookId: Int = this.bookId,
+    lastChapterIndex: Int = this.lastChapterIndex,
+    scrollPosition: Int = this.scrollPosition,
+    lastReadAt: Long = this.lastReadAt
+): ReadingProgress {
+    return ReadingProgress(
+        bookId = bookId,
+        lastChapterIndex = lastChapterIndex,
+        scrollPosition = scrollPosition,
+        lastReadAt = lastReadAt
+    )
+}

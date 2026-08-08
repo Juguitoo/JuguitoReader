@@ -4,13 +4,15 @@ import android.content.Context
 import com.juguito.juguitoreader.domain.model.EpubContent
 import com.juguito.juguitoreader.domain.repository.BookRepository
 import com.juguito.juguitoreader.utils.EpubParser
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.IOException
 import javax.inject.Inject
 
 class ParseEpubUseCase @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val bookRepository: BookRepository
 ) {
-    suspend operator fun invoke(context: Context, bookId: Int, localFilePath: String): Result<EpubContent> {
+    suspend operator fun invoke(bookId: Int, localFilePath: String): Result<EpubContent> {
         bookRepository.getBookById(bookId) ?: return Result.failure(Exception("El libro del fichero epub no existe."))
 
         return try {

@@ -37,7 +37,7 @@ import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 @Composable
 fun LibraryScreen(
     onOpenDrawer: () -> Unit,
-    onNavigateToBookDetail: (Int) -> Unit,
+    onNavigateToReadBook: (Int) -> Unit,
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -144,7 +144,7 @@ fun LibraryScreen(
                         items(state.filteredBooks) { book ->
                             BookGridItem(
                                 book = book,
-                                onClick = { onNavigateToBookDetail(book.id) }
+                                onClick = { onNavigateToReadBook(book.id) }
                             )
                         }
                     }

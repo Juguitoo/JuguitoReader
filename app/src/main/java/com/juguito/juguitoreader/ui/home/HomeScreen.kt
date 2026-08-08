@@ -85,6 +85,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     onNavigateToAddBook: () -> Unit,
     onNavigateToBookDetail: (Int) -> Unit,
+    onNavigateToReadBook: (Int) -> Unit,
     onOpenDrawer: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel<HomeViewModel>()
 ) {
@@ -227,7 +228,7 @@ fun HomeScreen(
                             books = homeState.recentBooks,
                             onBookClick = onNavigateToBookDetail,
                             onDeleteBook = { bookToDelete = it },
-                            onReadBook = { /* TODO: Implementar lector */ }
+                            onReadBook = onNavigateToReadBook
                         )
 
                         Spacer(modifier = Modifier.height(32.dp))
@@ -283,7 +284,7 @@ fun BookCarousel(
     books: List<Book>,
     onBookClick: (Int) -> Unit,
     onDeleteBook: (Book) -> Unit,
-    onReadBook: (Book) -> Unit
+    onReadBook: (Int) -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { books.size })
 
@@ -387,7 +388,7 @@ fun BookCarousel(
                                 label = "Leer",
                                 onClick = {
                                     showMenu = false
-                                    onReadBook(book)
+                                    onReadBook(book.id)
                                 }
                             )
                             MenuOverlayItem(

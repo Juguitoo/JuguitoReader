@@ -29,6 +29,7 @@ import com.juguito.juguitoreader.ui.book.detail.BookDetailScreen
 import com.juguito.juguitoreader.ui.folder.add.AddFolderScreen
 import com.juguito.juguitoreader.ui.home.HomeScreen
 import com.juguito.juguitoreader.ui.library.LibraryScreen
+import com.juguito.juguitoreader.ui.reader.ReaderScreen
 import com.juguito.juguitoreader.ui.registry.RegistryScreen
 import com.juguito.juguitoreader.ui.theme.AppTheme
 import com.juguito.juguitoreader.ui.theme.ThemeViewModel
@@ -49,6 +50,7 @@ fun JuguitoApp(
 
     ModalNavigationDrawer(
         drawerState = drawerState,
+        gesturesEnabled = currentRoute != "reader/{bookId}",
         drawerContent = {
             ModalDrawerSheet(
                 modifier = Modifier.fillMaxWidth(0.75f),
@@ -180,23 +182,22 @@ fun JuguitoApp(
                         },
                         onNavigateToBookDetail = { bookId ->
                             navController.navigate("book_detail/$bookId")
+                        },
+                        onNavigateToReadBook = { bookId ->
+                            navController.navigate("reader/$bookId")
                         }
                     )
                 }
 
                 composable(route = "add_book") {
                     AddBookScreen(
-                        onNavigateBack = {
-                            navController.popBackStack()
-                        }
+                        onNavigateBack = { navController.popBackStack() }
                     )
                 }
 
                 composable(route = "add_folder") {
                     AddFolderScreen(
-                        onNavigateBack = {
-                            navController.popBackStack()
-                        }
+                        onNavigateBack = { navController.popBackStack() }
                     )
                 }
 
@@ -205,9 +206,7 @@ fun JuguitoApp(
                     arguments = listOf(navArgument("bookId") { type = NavType.IntType })
                 ) {
                     BookDetailScreen(
-                        onNavigateBack = {
-                            navController.popBackStack()
-                        }
+                        onNavigateBack = { navController.popBackStack() }
                     )
                 }
 
@@ -226,9 +225,18 @@ fun JuguitoApp(
                 composable (route = "library") {
                     LibraryScreen(
                         onOpenDrawer = { scope.launch { drawerState.open() } },
-                        onNavigateToBookDetail = { bookId ->
-                            navController.navigate("book_detail/$bookId")
+                        onNavigateToReadBook = { bookId ->
+                            navController.navigate("reader/$bookId")
                         }
+                    )
+                }
+
+                composable (
+                    route = "reader/{bookId}",
+                    arguments = listOf(navArgument("bookId") { type = NavType.IntType })
+                ) {
+                    ReaderScreen(
+                        onNavigateBack = { navController.popBackStack() }
                     )
                 }
             }
