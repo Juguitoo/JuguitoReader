@@ -2,26 +2,24 @@ package com.juguito.juguitoreader.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Paleta "Juguito" - Frutal Profesional
-val TealPrimary = Color(0xFF008080)
-val TealDark = Color(0xFF004D4D)
-val TealLight = Color(0xFFE0F2F2)
-val TealStatus = Color(0xFF003333) // Barra de estado profesional para Juguito
+// Paleta "Juguito"
+val JuguitoPrimary = Color(0xFFFF7F50) // Coral vibrante
+val JuguitoPrimaryContainer = Color(0xFFFFDAB9) // Melocotón suave
+val JuguitoOnPrimaryContainer = Color(0xFF8B3A00)
+val JuguitoSecondary = Color(0xFFFFB347) // Naranja pastel
+val JuguitoBackground = Color(0xFFF9F4E8) // Tono sepia/crema cálido
+val JuguitoOnBackground = Color(0xFF1A1C1E)
 
-val CoralAccent = Color(0xFFFF7F50)
-val CoralDark = Color(0xFFE6673D)
+// Paleta "Pastel"
+val PastelPink = Color(0xFFF48FB1) // Rosa pastel
+val PastelPinkContainer = Color(0xFFFCE4EC)
+val PastelPurple = Color(0xFFCE93D8) // Morado/Lavanda
+val PastelPurpleContainer = Color(0xFFF3E5F5)
+val PastelCoral = Color(0xFFFFAB91) // Coral pastel
+val PastelText = Color(0xFF4A444B)
+val PastelBackground = Color(0xFFFFF9FB) // Blanco rosado muy suave
 
-// Fondos y Textos
-val PaperBackground = Color(0xFFF9F4E8) // Tono sepia/crema cálido
-val DeepNavy = Color(0xFF1A1C1E)
-val SoftGray = Color(0xFF74777F)
-val SurfaceVariant = Color(0xFFDEE3EB)
-
-// Colores de soporte
-val ErrorRed = Color(0xFFBA1A1A)
-val SuccessGreen = Color(0xFF2E7D32)
-
-// Paleta "Neon" - Refinada
+// Paleta "Neon"
 val NeonBackground = Color(0xFF050505) // Negro profundo
 val NeonSurface = Color(0xFF121212)
 val NeonPrimary = Color(0xFF9D00FF) // Morado Eléctrico
@@ -29,10 +27,9 @@ val NeonSecondary = Color(0xFF00E5FF) // Turquesa Neón
 val NeonAccent = Color(0xFFFF00D4) // Rosa Neón
 val NeonText = Color(0xFFF2F2F2)
 
-// Mantenemos los de sistema por si acaso
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// Colores de soporte comunes
+val ErrorRed = Color(0xFFBA1A1A)
+val SuccessGreen = Color(0xFF2E7D32)
+val DeepNavy = Color(0xFF1A1C1E)
+val SoftGray = Color(0xFF74777F)
+val SurfaceVariant = Color(0xFFDEE3EB)

@@ -147,6 +147,12 @@ fun JuguitoApp(
                         modifier = Modifier.weight(1f)
                     )
                     ThemeOption(
+                        label = "Pastel",
+                        selected = currentTheme == AppTheme.PASTEL,
+                        onClick = { themeViewModel.setTheme(AppTheme.PASTEL) },
+                        modifier = Modifier.weight(1f)
+                    )
+                    ThemeOption(
                         label = "Neón",
                         selected = currentTheme == AppTheme.NEON,
                         onClick = { themeViewModel.setTheme(AppTheme.NEON) },
