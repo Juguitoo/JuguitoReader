@@ -280,7 +280,7 @@ fun ReaderContent(
                     shadowElevation = 8.dp
                 ) {
                     Row(
-                        modifier = Modifier.padding(16.dp).navigationBarsPadding(),
+                        modifier = Modifier.padding(6.dp).navigationBarsPadding(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -294,7 +294,7 @@ fun ReaderContent(
                             Text(text = "Capítulo ${state.currentChapterIndex + 1} de ${state.epubContent.spine.size}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
                             LinearProgressIndicator(
                                 progress = { (state.currentChapterIndex + 1).toFloat() / state.epubContent.spine.size },
-                                modifier = Modifier.width(120.dp).padding(top = 8.dp).clip(CircleShape),
+                                modifier = Modifier.width(120.dp).padding(top = 6.dp).clip(CircleShape),
                                 color = Color.White,
                                 trackColor = Color.White.copy(alpha = 0.3f)
                             )

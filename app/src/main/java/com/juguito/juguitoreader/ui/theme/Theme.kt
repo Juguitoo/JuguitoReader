@@ -98,8 +98,16 @@ fun JuguitoReaderTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = 
-                (colorScheme != NeonColorScheme && colorScheme != SystemDarkColorScheme)
+            val insetsController = WindowCompat.getInsetsController(window, view)
+
+            val isLight = colorScheme == JuguitoColorScheme || colorScheme == PastelColorScheme
+
+            insetsController.isAppearanceLightStatusBars = isLight
+            insetsController.isAppearanceLightNavigationBars = isLight
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                window.isNavigationBarContrastEnforced = false
+            }
         }
     }
 
