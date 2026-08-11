@@ -83,16 +83,33 @@ class ReaderViewModel @Inject constructor(
             is ReaderEvent.OnChapterSelected -> {
                 updateChapter(currentState, event.index)
             }
-            ReaderEvent.OnNextChapter -> {
+            is ReaderEvent.OnNextChapter -> {
                 updateChapter(currentState, currentState.currentChapterIndex + 1)
             }
-            ReaderEvent.OnPreviousChapter -> {
+            is ReaderEvent.OnPreviousChapter -> {
                 updateChapter(currentState, currentState.currentChapterIndex - 1)
             }
-            ReaderEvent.OnToggleControls -> {
+            is ReaderEvent.OnToggleControls -> {
+                _uiState.value = currentState.copy(isControlsVisible = !currentState.isControlsVisible)
+            }
+            is ReaderEvent.OnTextZoomChanged -> {
+                _uiState.value = currentState.copy(textZoom = event.zoom)
+            }
+            is ReaderEvent.OnThemeChanged -> {
+                _uiState.value = currentState.copy(theme = event.theme)
+            }
+            is ReaderEvent.OnScrollPositionChanged -> {
+                val updatedProgress = currentState.readingProgress.copy(scrollPosition = event.scrollPosition, lastReadAt = System.currentTimeMillis())
                 _uiState.value = currentState.copy(
-                    isControlsVisible = !currentState.isControlsVisible
+                    readingProgress = updatedProgress
                 )
+
+                viewModelScope.launch {
+                    updateReadingProgressUseCase.invoke(updatedProgress)
+                }
+            }
+            is ReaderEvent.OnTimeRemainingChanged -> {
+                _uiState.value = currentState.copy(timeRemaining = event.minutes)
             }
         }
     }
@@ -104,6 +121,7 @@ class ReaderViewModel @Inject constructor(
 
         val updatedProgress = currentState.readingProgress.copy(
             lastChapterIndex = newIndex,
+            scrollPosition = 0,
             lastReadAt = System.currentTimeMillis()
         )
 
