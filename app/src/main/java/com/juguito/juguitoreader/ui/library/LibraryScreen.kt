@@ -83,7 +83,7 @@ fun LibraryScreen(
                         )
                     } else {
                         Text(
-                            text = state.selectedFolder?.name ?: "Mi Biblioteca",
+                            text = state.selectedFolder?.name ?: "Todos los libros",
                             style = MaterialTheme.typography.titleLarge,
                             fontFamily = LoraFontFamily,
                             fontWeight = FontWeight.Bold

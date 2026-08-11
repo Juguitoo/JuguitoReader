@@ -99,12 +99,6 @@ fun JuguitoApp(
                     }
                 )
 
-                DrawerItem(
-                    label = "Estadísticas",
-                    icon = Icons.Default.BarChart,
-                    onClick = { scope.launch { drawerState.close() } }
-                )
-
                 HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp))
 
                 Text(
@@ -112,6 +106,17 @@ fun JuguitoApp(
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(start = 28.dp, bottom = 8.dp)
+                )
+
+                DrawerItem(
+                    label = "Añadir Libro",
+                    icon = Icons.Default.Book,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("add_book")
+                        }
+                    }
                 )
 
                 DrawerItem(

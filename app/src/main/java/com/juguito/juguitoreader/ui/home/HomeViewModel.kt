@@ -4,16 +4,17 @@ import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.usecase.book.DeleteBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
+import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgressesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,6 +22,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val application: Application,
     private val getBooksUseCase: GetBooksUseCase,
+    private val getReadingProgressesUseCase: GetReadingProgressesUseCase,
     private val importBookFromUriUseCase: ImportBookFromUriUseCase,
     private val deleteBookUseCase: DeleteBookUseCase
 ) : ViewModel() {
@@ -31,32 +33,40 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getBooksUseCase()
-                .catch { exception ->
+            _uiState.value = _uiState.value.copy(isLoading = true)
+
+            combine(
+                getBooksUseCase(),
+                getReadingProgressesUseCase()
+            ) { books, progresses ->
+
+                val newStats = StatsUiState(
+                    totalBooks = books.size,
+                    readingBooks = books.count { it.status == BookStatus.READING },
+                    finishedBooks = books.count { it.status == BookStatus.FINISHED },
+                )
+
+                val progressMap = progresses.associateBy { it.bookId }
+                val recentBooks = books.filter { book ->
+                        progressMap.containsKey(book.id)
+                    }.sortedByDescending { book ->
+                        progressMap[book.id]?.lastReadAt ?: book.createdAt
+                    }.take(5)
+
+                _uiState.value.copy(
+                    isLoading = false,
+                    recentBooks = recentBooks,
+                    stats = newStats,
+                    errorMessage = null
+                )
+            }.catch { exception ->
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        errorMessage = "Error al cargar los libros: ${exception.localizedMessage}"
+                        errorMessage = "Error al cargar los datos: ${exception.localizedMessage}"
                     )
-                }
-                .collect { books ->
-                    val filteredBooks = books.sortedWith(
-                        compareByDescending<Book> { it.status == BookStatus.READING }
-                            .thenByDescending { it.createdAt }
-                    ).take(10)
-
-                    val newStats = StatsUiState(
-                        totalBooks = books.size,
-                        readingBooks = books.count { it.status == BookStatus.READING },
-                        finishedBooks = books.count {it.status == BookStatus.FINISHED},
-                    )
-
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        recentBooks = filteredBooks,
-                        stats = newStats,
-                        errorMessage = null
-                    )
-                }
+            }.collect { newState ->
+                    _uiState.value = newState
+            }
         }
     }
 

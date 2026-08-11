@@ -331,7 +331,7 @@ fun BookCarousel(
                         model = book.coverUrl,
                         contentDescription = book.title,
                         modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.FillBounds
                     )
                 } else {
                     Box(
