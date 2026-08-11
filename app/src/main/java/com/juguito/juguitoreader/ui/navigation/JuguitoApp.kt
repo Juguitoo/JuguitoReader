@@ -1,5 +1,8 @@
 package com.juguito.juguitoreader.ui.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -184,6 +187,8 @@ fun JuguitoApp(
             NavHost(
                 navController = navController,
                 startDestination = "home",
+                enterTransition = { fadeIn(animationSpec = tween(300)) },
+                exitTransition = { fadeOut(animationSpec = tween(300)) }
             ) {
                 composable(route = "home") {
                     HomeScreen(

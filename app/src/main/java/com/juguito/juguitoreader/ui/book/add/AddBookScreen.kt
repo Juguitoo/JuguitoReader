@@ -1,7 +1,6 @@
 package com.juguito.juguitoreader.ui.book.add
 
 import android.content.Intent
-import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -68,13 +67,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.juguito.juguitoreader.ui.book.components.FolderMultiSelector
 import com.juguito.juguitoreader.ui.book.components.GenreHybridSelector
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import com.juguito.juguitoreader.utils.FileUtils
+import com.juguito.juguitoreader.utils.FileUtils.getFileNameFromUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -502,29 +501,4 @@ fun AddBookScreen(
             }
         }
     }
-}
-
-private fun getFileNameFromUri(context: android.content.Context, uriString: String?): String {
-    if (uriString.isNullOrBlank()) return "Ningún archivo seleccionado"
-
-    val uri = uriString.toUri()
-    var result: String? = null
-
-    if (uri.scheme == "content") {
-        val cursor = context.contentResolver.query(uri, null, null, null, null)
-        cursor?.use {
-            if (it.moveToFirst()) {
-                val index = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                if (index != -1) {
-                    result = it.getString(index)
-                }
-            }
-        }
-    }
-
-    if (result == null) {
-        result = uri.path?.substringAfterLast('/')
-    }
-
-    return result ?: "Archivo desconocido"
 }

@@ -226,7 +226,7 @@ fun HomeScreen(
 
                         BookCarousel(
                             books = homeState.recentBooks,
-                            onBookClick = onNavigateToBookDetail,
+                            onBookDetails = onNavigateToBookDetail,
                             onDeleteBook = { bookToDelete = it },
                             onReadBook = onNavigateToReadBook
                         )
@@ -282,7 +282,7 @@ fun HomeScreen(
 @Composable
 fun BookCarousel(
     books: List<Book>,
-    onBookClick: (Int) -> Unit,
+    onBookDetails: (Int) -> Unit,
     onDeleteBook: (Book) -> Unit,
     onReadBook: (Int) -> Unit
 ) {
@@ -319,7 +319,7 @@ fun BookCarousel(
                 .fillMaxWidth()
                 .aspectRatio(0.7f)
                 .combinedClickable(
-                    onClick = { onBookClick(book.id) },
+                    onClick = { onReadBook(book.id) },
                     onLongClick = { showMenu = true }
                 ),
             shape = RoundedCornerShape(16.dp),
@@ -396,7 +396,7 @@ fun BookCarousel(
                                 label = "Detalles",
                                 onClick = {
                                     showMenu = false
-                                    onBookClick(book.id)
+                                    onBookDetails(book.id)
                                 }
                             )
                             MenuOverlayItem(
