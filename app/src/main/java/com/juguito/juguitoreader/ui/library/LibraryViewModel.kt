@@ -2,8 +2,9 @@ package com.juguito.juguitoreader.ui.library
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.domain.model.copy
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
+import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
     private val getBooksUseCase: GetBooksUseCase,
-    private val getFoldersUseCase: GetFoldersUseCase
+    private val getFoldersUseCase: GetFoldersUseCase,
+    private val updateBookUseCase: UpdateBookUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LibraryUiState())
@@ -62,12 +64,16 @@ class LibraryViewModel @Inject constructor(
                     searchText = event.searchText?.trim() ?: ""
                 )
             }
+            is LibraryEvent.OnStatusChanged -> {
+                updateBookStatus(event.bookId, event.newStatus)
+            }
         }
     }
 
-    fun readBook(book: Book) {
-
+    private fun updateBookStatus(bookId: Int, newStatus: com.juguito.juguitoreader.domain.enums.BookStatus) {
+        val book = _uiState.value.allBooks.find { it.id == bookId } ?: return
+        viewModelScope.launch {
+            updateBookUseCase(book.copy(status = newStatus))
+        }
     }
-
-
 }

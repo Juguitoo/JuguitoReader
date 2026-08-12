@@ -1,7 +1,8 @@
 package com.juguito.juguitoreader.ui.library
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -38,6 +39,7 @@ import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 fun LibraryScreen(
     onOpenDrawer: () -> Unit,
     onNavigateToReadBook: (Int) -> Unit,
+    onNavigateToBookDetail: (Int) -> Unit,
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -135,7 +137,7 @@ fun LibraryScreen(
                     EmptyLibraryState(modifier = Modifier.align(Alignment.Center))
                 } else {
                     LazyVerticalGrid(
-                        columns = GridCells.Adaptive(minSize = 120.dp),
+                        columns = GridCells.Adaptive(minSize = 90.dp),
                         contentPadding = PaddingValues(16.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -144,7 +146,11 @@ fun LibraryScreen(
                         items(state.filteredBooks) { book ->
                             BookGridItem(
                                 book = book,
-                                onClick = { onNavigateToReadBook(book.id) }
+                                onClick = { onNavigateToReadBook(book.id) },
+                                onDetailClick = { onNavigateToBookDetail(book.id) },
+                                onStatusChange = { newStatus -> 
+                                    viewModel.onEvent(LibraryEvent.OnStatusChanged(book.id, newStatus))
+                                }
                             )
                         }
                     }
@@ -281,12 +287,23 @@ fun AllFoldersSheet(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BookGridItem(book: Book, onClick: () -> Unit) {
+fun BookGridItem(
+    book: Book, 
+    onClick: () -> Unit,
+    onDetailClick: () -> Unit,
+    onStatusChange: (BookStatus) -> Unit
+) {
+    var showMenu by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
-            .width(120.dp)
-            .clickable { onClick() }
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = { showMenu = true }
+            )
     ) {
         Box(modifier = Modifier.fillMaxWidth().aspectRatio(0.7f)) {
             Card(
@@ -324,6 +341,45 @@ fun BookGridItem(book: Book, onClick: () -> Unit) {
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
             )
+
+            // Menú contextual
+            DropdownMenu(
+                expanded = showMenu,
+                onDismissRequest = { showMenu = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Detalles") },
+                    onClick = {
+                        showMenu = false
+                        onDetailClick()
+                    },
+                    leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) }
+                )
+                
+                HorizontalDivider()
+                
+                Text(
+                    "Cambiar estado",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                )
+                
+                BookStatus.entries.forEach { status ->
+                    DropdownMenuItem(
+                        text = { Text(status.displayName) },
+                        onClick = {
+                            showMenu = false
+                            onStatusChange(status)
+                        },
+                        leadingIcon = {
+                            if (book.status == status) {
+                                Icon(Icons.Default.Check, contentDescription = null)
+                            }
+                        }
+                    )
+                }
+            }
         }
         
         Spacer(modifier = Modifier.height(10.dp))

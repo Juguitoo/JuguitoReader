@@ -29,8 +29,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.juguito.juguitoreader.ui.book.add.AddBookScreen
 import com.juguito.juguitoreader.ui.book.detail.BookDetailScreen
-import com.juguito.juguitoreader.ui.folder.add.AddFolderScreen
+import com.juguito.juguitoreader.ui.folder.editor.FolderEditorScreen
 import com.juguito.juguitoreader.ui.home.HomeScreen
+import com.juguito.juguitoreader.ui.management.ManagementScreen
 import com.juguito.juguitoreader.ui.library.LibraryScreen
 import com.juguito.juguitoreader.ui.reader.ReaderScreen
 import com.juguito.juguitoreader.ui.registry.RegistryScreen
@@ -109,6 +110,18 @@ fun JuguitoApp(
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(start = 28.dp, bottom = 8.dp)
+                )
+
+                DrawerItem(
+                    label = "Gestor de Contenido",
+                    icon = Icons.Default.Category,
+                    selected = currentRoute == "management",
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("management")
+                        }
+                    }
                 )
 
                 DrawerItem(
@@ -211,9 +224,24 @@ fun JuguitoApp(
                     )
                 }
 
-                composable(route = "add_folder") {
-                    AddFolderScreen(
+                composable(
+                    route = "add_folder?folderId={folderId}",
+                    arguments = listOf(navArgument("folderId") {
+                        type = NavType.IntType
+                        defaultValue = 0
+                    })
+                ) {
+                    FolderEditorScreen(
                         onNavigateBack = { navController.popBackStack() }
+                    )
+                }
+
+                composable(route = "management") {
+                    ManagementScreen(
+                        onNavigateBack = { navController.popBackStack() },
+                        onNavigateToEditFolder = { folderId ->
+                            navController.navigate("add_folder?folderId=$folderId")
+                        }
                     )
                 }
 
@@ -243,6 +271,9 @@ fun JuguitoApp(
                         onOpenDrawer = { scope.launch { drawerState.open() } },
                         onNavigateToReadBook = { bookId ->
                             navController.navigate("reader/$bookId")
+                        },
+                        onNavigateToBookDetail = { bookId ->
+                            navController.navigate("book_detail/$bookId")
                         }
                     )
                 }

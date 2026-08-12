@@ -1,4 +1,4 @@
-package com.juguito.juguitoreader.ui.folder.add
+package com.juguito.juguitoreader.ui.folder.editor
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,9 +25,9 @@ import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddFolderScreen(
+fun FolderEditorScreen(
     onNavigateBack: () -> Unit,
-    viewModel: AddFolderViewModel = hiltViewModel()
+    viewModel: FolderEditorViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
 
@@ -46,7 +46,7 @@ fun AddFolderScreen(
                 TopAppBar(
                     title = { 
                         Text(
-                            if (state.isEditing) "Editar carpeta" else "Nueva carpeta",
+                            if (state.isEditing) "Editar Carpeta" else "Nueva Carpeta",
                             style = MaterialTheme.typography.titleLarge,
                             fontFamily = LoraFontFamily,
                             fontWeight = FontWeight.Bold
@@ -85,7 +85,7 @@ fun AddFolderScreen(
 
             OutlinedTextField(
                 value = state.name,
-                onValueChange = { viewModel.onEvent(AddFolderEvent.OnNameChanged(it)) },
+                onValueChange = { viewModel.onEvent(FolderEditorEvent.OnNameChanged(it)) },
                 label = { Text("Nombre") },
                 modifier = Modifier.fillMaxWidth(),
                 isError = state.errorMessage != null && state.name.isBlank(),
@@ -94,7 +94,7 @@ fun AddFolderScreen(
 
             OutlinedTextField(
                 value = state.description,
-                onValueChange = { viewModel.onEvent(AddFolderEvent.OnDescriptionChanged(it)) },
+                onValueChange = { viewModel.onEvent(FolderEditorEvent.OnDescriptionChanged(it)) },
                 label = { Text("Descripción (opcional)") },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 3,
@@ -128,7 +128,7 @@ fun AddFolderScreen(
                                 color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
                                 shape = CircleShape
                             )
-                            .clickable { viewModel.onEvent(AddFolderEvent.OnColorChanged(colorHex)) }
+                            .clickable { viewModel.onEvent(FolderEditorEvent.OnColorChanged(colorHex)) }
                     )
                 }
             }
@@ -144,7 +144,7 @@ fun AddFolderScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { viewModel.onEvent(AddFolderEvent.OnSaveClick) },
+                onClick = { viewModel.onEvent(FolderEditorEvent.OnSaveClick) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),

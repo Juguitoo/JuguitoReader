@@ -1,4 +1,4 @@
-package com.juguito.juguitoreader.ui.folder.add
+package com.juguito.juguitoreader.ui.folder.editor
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -15,15 +15,15 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AddFolderViewModel @Inject constructor(
+class FolderEditorViewModel @Inject constructor(
     private val addFolderUseCase: AddFolderUseCase,
     private val updateFolderUseCase: UpdateFolderUseCase,
     private val getFolderByIdUseCase: GetFolderByIdUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(AddFolderUiState())
-    val uiState: StateFlow<AddFolderUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(FolderEditorUiState())
+    val uiState: StateFlow<FolderEditorUiState> = _uiState.asStateFlow()
 
     private var currentFolderId: Int = 0
 
@@ -49,18 +49,18 @@ class AddFolderViewModel @Inject constructor(
         }
     }
 
-    fun onEvent(event: AddFolderEvent) {
+    fun onEvent(event: FolderEditorEvent) {
         when (event) {
-            is AddFolderEvent.OnNameChanged -> {
+            is FolderEditorEvent.OnNameChanged -> {
                 _uiState.value = _uiState.value.copy(name = event.name)
             }
-            is AddFolderEvent.OnColorChanged -> {
+            is FolderEditorEvent.OnColorChanged -> {
                 _uiState.value = _uiState.value.copy(colorHex = event.colorHex)
             }
-            is AddFolderEvent.OnDescriptionChanged -> {
+            is FolderEditorEvent.OnDescriptionChanged -> {
                 _uiState.value = _uiState.value.copy(description = event.description)
             }
-            AddFolderEvent.OnSaveClick -> {
+            FolderEditorEvent.OnSaveClick -> {
                 saveFolder()
             }
         }

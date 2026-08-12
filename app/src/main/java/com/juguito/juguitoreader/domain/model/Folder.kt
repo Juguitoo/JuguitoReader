@@ -10,3 +10,20 @@ class Folder(
     val syncStatus: SyncStatus = SyncStatus.PENDING_CREATE,
     val createdAt: Long = System.currentTimeMillis()
 )
+
+fun Folder.copy(
+    name: String = this.name,
+    colorHex: String = this.colorHex,
+    description: String? = this.description,
+    syncStatus: SyncStatus = this.syncStatus,
+    createdAt: Long = this.createdAt
+): Folder {
+    return Folder(
+        id = this.id,
+        name = name,
+        colorHex = colorHex,
+        description = description,
+        syncStatus = syncStatus,
+        createdAt = createdAt
+    )
+}

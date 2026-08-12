@@ -1,6 +1,6 @@
-package com.juguito.juguitoreader.ui.folder.add
+package com.juguito.juguitoreader.ui.folder.editor
 
-data class AddFolderUiState(
+data class FolderEditorUiState(
     val name: String = "",
     val colorHex: String = "#EF5350",
     val description: String = "",

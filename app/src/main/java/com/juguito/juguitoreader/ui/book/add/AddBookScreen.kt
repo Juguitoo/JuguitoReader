@@ -195,7 +195,7 @@ fun AddBookScreen(
                 TopAppBar(
                     title = { 
                         Text(
-                            "Nuevo Libro",
+                            "Nuevo libro",
                             style = MaterialTheme.typography.titleLarge,
                             fontFamily = LoraFontFamily,
                             fontWeight = FontWeight.Bold

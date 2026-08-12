@@ -24,9 +24,9 @@ import com.juguito.juguitoreader.data.local.entity.ReadingProgressEntity
         BookFolderCrossRef::class,
         BookGenreCrossRef::class
     ],
-    version = 5,
+    version = 6,
     autoMigrations = [
-        AutoMigration(from = 4, to = 5)
+        AutoMigration(from = 5, to = 6)
     ],
     exportSchema = true
 )

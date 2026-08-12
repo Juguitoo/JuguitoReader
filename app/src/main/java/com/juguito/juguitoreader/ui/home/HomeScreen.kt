@@ -218,7 +218,7 @@ fun HomeScreen(
                             .padding(bottom = 24.dp)
                     ) {
                         Text(
-                            text = "Tus lecturas",
+                            text = "Lecturas recientes",
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
