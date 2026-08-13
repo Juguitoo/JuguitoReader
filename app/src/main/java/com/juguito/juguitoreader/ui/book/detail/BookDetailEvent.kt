@@ -28,4 +28,6 @@ sealed interface BookDetailEvent {
     data class OnTabChanged(val tab: Int): BookDetailEvent
 
     data object OnSaveClick: BookDetailEvent
+
+    data object OnDeleteClick: BookDetailEvent
 }

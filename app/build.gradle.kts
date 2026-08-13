@@ -42,6 +42,11 @@ ksp {
 }
 
 dependencies {
+    val composeBom = platform(libs.androidx.compose.bom)
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
+    debugImplementation(composeBom)
+
     // Las dependencias base de Android Studio (Version Catalog)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)

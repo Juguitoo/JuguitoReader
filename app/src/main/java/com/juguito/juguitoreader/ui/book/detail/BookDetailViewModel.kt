@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import androidx.core.net.toUri
+import com.juguito.juguitoreader.domain.usecase.book.DeleteBookUseCase
 
 @HiltViewModel
 class BookDetailViewModel @Inject constructor(
@@ -31,6 +32,7 @@ class BookDetailViewModel @Inject constructor(
     private val getBookFromEpubUseCase: GetBookFromEpubUseCase,
     private val getFoldersUseCase: GetFoldersUseCase,
     private val getGenresUseCase: GetGenresUseCase,
+    private val deleteBookUseCase: DeleteBookUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -192,7 +194,6 @@ class BookDetailViewModel @Inject constructor(
             }
             is BookDetailEvent.OnEditModeChanged -> {
                 if (!event.mode) {
-                    // Cancelar: restaurar datos originales
                     val book = _uiState.value.book
                     if (book != null) {
                         _uiState.value = _uiState.value.copy(
@@ -225,8 +226,19 @@ class BookDetailViewModel @Inject constructor(
             is BookDetailEvent.OnTabChanged -> {
                 _uiState.value = _uiState.value.copy(selectedTab = event.tab)
             }
-            BookDetailEvent.OnSaveClick -> {
+            is BookDetailEvent.OnSaveClick -> {
                 saveChanges()
+            }
+
+            is BookDetailEvent.OnDeleteClick -> {
+                val currentBook = _uiState.value.book
+                if (currentBook != null) {
+                    viewModelScope.launch {
+                        _uiState.value = _uiState.value.copy(isLoading = true)
+                        deleteBookUseCase(currentBook.id)
+                        _uiState.value = _uiState.value.copy(isLoading = false)
+                    }
+                }
             }
         }
     }

@@ -7,20 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -42,6 +29,7 @@ import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
@@ -51,6 +39,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
@@ -272,6 +261,7 @@ fun BookDetailScreen(
                         BookInfoTab(
                             state = state,
                             onEvent = viewModel::onEvent,
+                            onNavigateBack = onNavigateBack,
                             onPickCover = { showImageSourceDialog = true },
                             onPickFile = {
                                 documentPickerLauncher.launch(arrayOf("application/epub+zip", "application/pdf"))
@@ -295,6 +285,7 @@ fun BookDetailScreen(
 fun BookInfoTab(
     state: BookDetailUiState,
     onEvent: (BookDetailEvent) -> Unit,
+    onNavigateBack: () -> Unit,
     onPickCover: () -> Unit,
     onPickFile: () -> Unit
 ) {
@@ -377,7 +368,7 @@ fun BookInfoTab(
                     label = { Text("Saga del libro") },
                     shape = RoundedCornerShape(12.dp)
                 )
-                OutlinedTextField( // Se puede limitar a 4 digitos como mucho?
+                OutlinedTextField(
                     value = state.bookDraft.seriesOrder,
                     onValueChange = { onEvent(BookDetailEvent.OnSeriesOrderChanged(it)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -514,6 +505,22 @@ fun BookInfoTab(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+            OutlinedButton(
+                onClick = {
+                    onEvent(BookDetailEvent.OnDeleteClick)
+                    onNavigateBack()
+                          },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(Icons.Default.Delete, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("Eliminar este libro permanentemente")
             }
         }
     }

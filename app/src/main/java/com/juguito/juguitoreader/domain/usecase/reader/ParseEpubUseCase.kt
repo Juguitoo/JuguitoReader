@@ -19,6 +19,8 @@ class ParseEpubUseCase @Inject constructor(
             Result.success(EpubParser.extractFullContent(context, bookId, localFilePath))
         } catch (ioException: IOException) {
             return Result.failure(Exception(ioException.localizedMessage))
+        } catch (securityException: SecurityException) {
+            return Result.failure(Exception(securityException.localizedMessage))
         } catch (e: Exception) {
             e.printStackTrace()
             return Result.failure(Exception("Ha ocurrido un error al extraer los datos del fichero epub. Intentalo de nuevo reemplazando el fichero epub por otro distinto."))
