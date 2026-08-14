@@ -49,7 +49,7 @@ class ReaderViewModel @Inject constructor(
 
                 var progress = getReadingProgressByIdUseCase.invoke(bookId)
                 if (progress == null) {
-                    val newProgress = ReadingProgress(bookId, 0, 0, System.currentTimeMillis())
+                    val newProgress = ReadingProgress(bookId, 0, 0f, System.currentTimeMillis())
                     addReadingProgressUseCase.invoke(newProgress)
                     progress = newProgress
                 }
@@ -121,7 +121,7 @@ class ReaderViewModel @Inject constructor(
 
         val updatedProgress = currentState.readingProgress.copy(
             lastChapterIndex = newIndex,
-            scrollPosition = 0,
+            scrollPosition = 0f,
             lastReadAt = System.currentTimeMillis()
         )
 

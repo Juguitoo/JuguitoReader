@@ -252,7 +252,7 @@ fun ReaderContent(
 
                         addJavascriptInterface(object : Any() {
                             @JavascriptInterface
-                            fun reportScrollPosition(y: Int) {
+                            fun reportScrollPosition(y: Float) {
                                 onEvent(ReaderEvent.OnScrollPositionChanged(y))
                             }
                             @JavascriptInterface
@@ -339,14 +339,22 @@ fun ReaderContent(
                                         AndroidBridge.reportTimeRemaining(minutesLeft);
                                     }
                 
-                                    window.scrollTo(0, ${currentScrollY.value});
-                                    setTimeout(updateReadingTime, 500);
+                                    var scrollableHeight = document.body.scrollHeight - window.innerHeight;
+                                    var targetPos = ${currentScrollY.value};
+                                    if (targetPos > 1.1) {
+                                        window.scrollTo(0, targetPos);
+                                    } else if (scrollableHeight > 0) {
+                                        window.scrollTo(0, scrollableHeight * targetPos);
+                                    }
                                     
                                     var scrollTimeout;
                                     window.onscroll = function() {
                                         clearTimeout(scrollTimeout);
                                         scrollTimeout = setTimeout(function() {
-                                            AndroidBridge.reportScrollPosition(window.scrollY);
+                                            var scrollableHeight = document.body.scrollHeight - window.innerHeight;
+                                            var scrollPercent = scrollableHeight > 0 ? (window.scrollY / scrollableHeight) : 0;
+                                            scrollPercent = Math.max(0, Math.min(1, scrollPercent));
+                                            AndroidBridge.reportScrollPosition(scrollPercent);
                                             updateReadingTime();
                                         }, 500); 
                                     }
@@ -416,7 +424,22 @@ fun ReaderContent(
                     if (webView.url != state.currentChapterUrl) {
                         webView.loadUrl(state.currentChapterUrl)
                     }
-                    webView.settings.textZoom = state.textZoom
+                    if (webView.settings.textZoom != state.textZoom) {
+                        webView.settings.textZoom = state.textZoom
+
+                        val restoreScrollScript = """
+                            setTimeout(function() {
+                                var scrollableHeight = document.body.scrollHeight - window.innerHeight;
+                                var targetPos = ${state.readingProgress.scrollPosition};
+                                if (targetPos > 1.1) {
+                                    window.scrollTo(0, targetPos);
+                                } else if (scrollableHeight > 0) {
+                                    window.scrollTo(0, scrollableHeight * targetPos);
+                                }
+                            }, 100);
+                        """.trimIndent()
+                        webView.evaluateJavascript(restoreScrollScript, null)
+                    }
                     val themeScript = """
                         document.documentElement.style.setProperty('background-color', '${state.theme.bgColor}', 'important');
                         document.body.style.setProperty('background-color', '${state.theme.bgColor}', 'important');

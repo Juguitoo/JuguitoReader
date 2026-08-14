@@ -25,7 +25,9 @@ object DatabaseModule {
             JuguitoReaderDatabase::class.java,
             "juguito_db"
         )
-            .fallbackToDestructiveMigration(true).build()
+            .addMigrations(JuguitoReaderDatabase.MIGRATION_6_7)
+            .fallbackToDestructiveMigration(false)
+            .build()
     }
 
     @Provides
