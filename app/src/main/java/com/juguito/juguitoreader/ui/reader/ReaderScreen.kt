@@ -170,9 +170,7 @@ fun ReaderContent(
     val activity = context as? Activity
 
     var bottomBarMode by remember { mutableStateOf(BottomBarMode.DEFAULT) }
-    var brightness by remember {
-        mutableFloatStateOf(activity?.window?.attributes?.screenBrightness?.takeIf { it >= 0f } ?: 0.5f)
-    }
+    var brightness by remember(state.brightness) { mutableFloatStateOf(state.brightness) }
     var overscrollDelta by remember { mutableFloatStateOf(0f) }
 
     LaunchedEffect(brightness) {
@@ -239,7 +237,8 @@ fun ReaderContent(
         }
     ) {
         val currentScrollY = rememberUpdatedState(state.readingProgress.scrollPosition)
-        Box(modifier = Modifier.fillMaxSize().background(Color(0xFFEEE7D7))) {
+        val currentState = rememberUpdatedState(state)
+        Box(modifier = Modifier.fillMaxSize().background(Color(state.theme.bgColor.toColorInt()))) {
             AndroidView(
                 modifier = Modifier.fillMaxSize().systemBarsPadding().padding(vertical = 24.dp),
                 factory = { ctx ->
@@ -248,7 +247,7 @@ fun ReaderContent(
                             ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.MATCH_PARENT
                         )
-                        setBackgroundColor(android.graphics.Color.WHITE)
+                        setBackgroundColor(state.theme.bgColor.toColorInt())
 
                         addJavascriptInterface(object : Any() {
                             @JavascriptInterface
@@ -284,8 +283,8 @@ fun ReaderContent(
                                 """.trimIndent()
                                 val css = """
                                     html, body {
-                                        background-color: #EEE7D7 !important;
-                                        color: #1A1A1A !important;
+                                        background-color: ${currentState.value.theme.bgColor} !important;
+                                        color: ${currentState.value.theme.textColor} !important;
                                         margin: 0 !important;
                                         padding: 0 !important;
                                         max-width: 100% !important;
@@ -592,7 +591,10 @@ fun ReaderContent(
                                 Icon(Icons.Default.LightMode, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Slider(
                                     value = brightness,
-                                    onValueChange = { brightness = it },
+                                    onValueChange = {
+                                        brightness = it
+                                        onEvent(ReaderEvent.OnBrightnessChanged(it))
+                                    },
                                     valueRange = 0.05f..1.0f,
                                     modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
                                     thumb = { Box(modifier = Modifier.size(16.dp).background(Color.White, CircleShape)) },

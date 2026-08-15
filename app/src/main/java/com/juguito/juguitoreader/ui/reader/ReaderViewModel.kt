@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.juguito.juguitoreader.domain.model.ReadingProgress
 import com.juguito.juguitoreader.domain.model.copy
+import com.juguito.juguitoreader.domain.repository.SettingsRepository
 import com.juguito.juguitoreader.domain.usecase.book.GetBookByIdUseCase
 import com.juguito.juguitoreader.domain.usecase.reader.ParseEpubUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.AddReadingProgressUseCase
@@ -12,8 +13,11 @@ import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgre
 import com.juguito.juguitoreader.domain.usecase.readingProgress.UpdateReadingProgressUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,11 +28,32 @@ class ReaderViewModel @Inject constructor(
     private val updateReadingProgressUseCase: UpdateReadingProgressUseCase,
     private val addReadingProgressUseCase: AddReadingProgressUseCase,
     private val parseEpubUseCase: ParseEpubUseCase,
+    private val settingsRepository: SettingsRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<ReaderUiState>(ReaderUiState.Loading)
-    val uiState: StateFlow<ReaderUiState> = _uiState.asStateFlow()
+    private val _internalState = MutableStateFlow<ReaderUiState>(ReaderUiState.Loading)
+    val uiState: StateFlow<ReaderUiState> = combine(
+        _internalState,
+        settingsRepository.textZoomFlow,
+        settingsRepository.readerThemeFlow,
+        settingsRepository.readerBrightnessFlow
+    ) { state, zoom, themeStr, brightness ->
+        if (state is ReaderUiState.Success) {
+            val theme = runCatching { ReaderTheme.valueOf(themeStr) }.getOrDefault(ReaderTheme.SEPIA)
+            state.copy(
+                textZoom = zoom,
+                theme = theme,
+                brightness = brightness
+            )
+        } else {
+            state
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ReaderUiState.Loading
+    )
 
     private val bookId: Int = checkNotNull(savedStateHandle["bookId"])
 
@@ -37,10 +62,16 @@ class ReaderViewModel @Inject constructor(
     }
 
     private fun loadData() {
-        _uiState.value = ReaderUiState.Loading
+        _internalState.value = ReaderUiState.Loading
 
         viewModelScope.launch {
             try {
+                val themeStr = settingsRepository.readerThemeFlow.first()
+                val zoom = settingsRepository.textZoomFlow.first()
+                val brightness = settingsRepository.readerBrightnessFlow.first()
+                val initialTheme = runCatching { ReaderTheme.valueOf(themeStr) }.getOrDefault(ReaderTheme.SEPIA)
+
+
                 val book = getBookByIdUseCase.invoke(bookId)
                     ?: throw Exception("El libro que se está intentando leer no existe.")
 
@@ -57,26 +88,29 @@ class ReaderViewModel @Inject constructor(
                 val parseResult = parseEpubUseCase.invoke(bookId, localPath)
                 parseResult.fold(
                     onSuccess = { content ->
-                        _uiState.value = ReaderUiState.Success(
+                        _internalState.value = ReaderUiState.Success(
                             book = book,
                             epubContent = content,
                             readingProgress = progress,
                             currentChapterIndex = progress.lastChapterIndex,
-                            isControlsVisible = true
+                            isControlsVisible = true,
+                            textZoom = zoom,
+                            theme = initialTheme,
+                            brightness = brightness
                         )
                     },
                     onFailure = { exception ->
-                        _uiState.value = ReaderUiState.Error(exception.localizedMessage ?: "Error desconocido.")
+                        _internalState.value = ReaderUiState.Error(exception.localizedMessage ?: "Error desconocido.")
                     }
                 )
             } catch (e: Exception) {
-                _uiState.value = ReaderUiState.Error(e.localizedMessage ?: "Error al cargar los datos.")
+                _internalState.value = ReaderUiState.Error(e.localizedMessage ?: "Error al cargar los datos.")
             }
         }
     }
 
     fun onEvent(event: ReaderEvent) {
-        val currentState = _uiState.value
+        val currentState = _internalState.value
         if (currentState !is ReaderUiState.Success) return
 
         when (event) {
@@ -90,26 +124,29 @@ class ReaderViewModel @Inject constructor(
                 updateChapter(currentState, currentState.currentChapterIndex - 1)
             }
             is ReaderEvent.OnToggleControls -> {
-                _uiState.value = currentState.copy(isControlsVisible = !currentState.isControlsVisible)
+                _internalState.value = currentState.copy(isControlsVisible = !currentState.isControlsVisible)
             }
             is ReaderEvent.OnTextZoomChanged -> {
-                _uiState.value = currentState.copy(textZoom = event.zoom)
+                _internalState.value = currentState.copy(textZoom = event.zoom)
+                viewModelScope.launch { settingsRepository.saveTextZoom(event.zoom) }
             }
             is ReaderEvent.OnThemeChanged -> {
-                _uiState.value = currentState.copy(theme = event.theme)
+                _internalState.value = currentState.copy(theme = event.theme)
+                viewModelScope.launch { settingsRepository.saveReaderTheme(event.theme.name) }
+            }
+            is ReaderEvent.OnBrightnessChanged -> {
+                _internalState.value = currentState.copy(brightness = event.brightness)
+                viewModelScope.launch { settingsRepository.saveReaderBrightness(event.brightness) }
             }
             is ReaderEvent.OnScrollPositionChanged -> {
                 val updatedProgress = currentState.readingProgress.copy(scrollPosition = event.scrollPosition, lastReadAt = System.currentTimeMillis())
-                _uiState.value = currentState.copy(
-                    readingProgress = updatedProgress
-                )
-
+                _internalState.value = currentState.copy(readingProgress = updatedProgress)
                 viewModelScope.launch {
                     updateReadingProgressUseCase.invoke(updatedProgress)
                 }
             }
             is ReaderEvent.OnTimeRemainingChanged -> {
-                _uiState.value = currentState.copy(timeRemaining = event.minutes)
+                _internalState.value = currentState.copy(timeRemaining = event.minutes)
             }
         }
     }
@@ -125,7 +162,7 @@ class ReaderViewModel @Inject constructor(
             lastReadAt = System.currentTimeMillis()
         )
 
-        _uiState.value = currentState.copy(
+        _internalState.value = currentState.copy(
             currentChapterIndex = newIndex,
             readingProgress = updatedProgress
         )

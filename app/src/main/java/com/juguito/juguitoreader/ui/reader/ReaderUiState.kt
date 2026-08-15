@@ -21,6 +21,7 @@ sealed interface ReaderUiState {
         val isControlsVisible: Boolean = false,
         val textZoom: Int = 100,
         val theme: ReaderTheme = ReaderTheme.SEPIA,
+        val brightness: Float = 0.5f,
         val timeRemaining: Int? = null
     ): ReaderUiState {
         val currentChapterUrl: String

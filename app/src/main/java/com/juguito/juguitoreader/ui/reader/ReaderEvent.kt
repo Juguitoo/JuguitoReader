@@ -8,5 +8,7 @@ sealed interface ReaderEvent {
     data class OnTextZoomChanged(val zoom: Int): ReaderEvent
     data class OnThemeChanged(val theme: ReaderTheme): ReaderEvent
     data class OnScrollPositionChanged(val scrollPosition: Float): ReaderEvent
-    data class OnTimeRemainingChanged(val minutes: Int) : ReaderEvent
+    data class OnTimeRemainingChanged(val minutes: Int): ReaderEvent
+
+    data class OnBrightnessChanged(val brightness: Float): ReaderEvent
 }
