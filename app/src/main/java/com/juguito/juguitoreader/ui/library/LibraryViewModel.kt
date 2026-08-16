@@ -1,68 +1,97 @@
 package com.juguito.juguitoreader.ui.library
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.juguito.juguitoreader.domain.enums.BookStatus
+import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.model.copy
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
+import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val getBooksUseCase: GetBooksUseCase,
     private val getFoldersUseCase: GetFoldersUseCase,
-    private val updateBookUseCase: UpdateBookUseCase
+    private val updateBookUseCase: UpdateBookUseCase,
+    private val importBookFromUriUseCase: ImportBookFromUriUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(LibraryUiState())
-    val uiState: StateFlow<LibraryUiState> = _uiState.asStateFlow()
+    private val _searchText = MutableStateFlow("")
+    private val _selectedFolder = MutableStateFlow<Folder?>(null)
+    private val _internalState = MutableStateFlow<LibraryUiState>(LibraryUiState.Loading)
+    val uiState: StateFlow<LibraryUiState> = _internalState.asStateFlow()
 
     init {
         loadData()
     }
 
     private fun loadData() {
-        _uiState.value = _uiState.value.copy(isLoading = true)
+        _internalState.value = LibraryUiState.Loading
 
         viewModelScope.launch {
             combine(
                 getFoldersUseCase(),
-                getBooksUseCase()
-            ) { folders, books ->
-                _uiState.value = _uiState.value.copy(
+                getBooksUseCase(),
+                _searchText,
+                _selectedFolder
+            ) { folders, books, query, currentFolder->
+
+                val filteredBooks = books.filter { book ->
+                    val matchesText = query.isBlank() ||
+                            book.title.contains(query, ignoreCase = true) ||
+                            book.author.contains(query, ignoreCase = true) ||
+                            (book.series?.contains(query, ignoreCase = true) ?: false)
+
+                    val matchesFolder = currentFolder == null || book.folders.any {it.id == currentFolder.id}
+
+                    matchesText && matchesFolder
+                }
+
+                LibraryUiState.Success(
                     folders = folders,
-                    allBooks = books,
-                    isLoading = false
-                )
+                    filteredBooks = filteredBooks,
+                    allBooks = books
+                ) as LibraryUiState
             }.catch { error ->
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    errorMessage = error.localizedMessage
+                emit (
+                    LibraryUiState.Error(
+                        error = "Ha ocurrido un error al cargar los libros ${error.localizedMessage}"
+                    )
                 )
-            }.collect()
+            }.collect { newState ->
+                _internalState.value = newState
+            }
         }
     }
 
     fun onEvent(event: LibraryEvent) {
+        val currentState = _internalState.value
+        if (currentState !is LibraryUiState.Success) return
+
         when (event) {
             is LibraryEvent.OnSelectedFolderChanged -> {
-                _uiState.value = _uiState.value.copy(
+                _internalState.value = currentState.copy(
                     selectedFolder = event.selectedFolder
-                )
+                ) as LibraryUiState
             }
             is LibraryEvent.OnSearchTextChanged -> {
-                _uiState.value = _uiState.value.copy(
+                _internalState.value = currentState.copy(
                     searchText = event.searchText?.trim() ?: ""
-                )
+                ) as LibraryUiState
             }
             is LibraryEvent.OnStatusChanged -> {
                 updateBookStatus(event.bookId, event.newStatus)
@@ -70,10 +99,30 @@ class LibraryViewModel @Inject constructor(
         }
     }
 
-    private fun updateBookStatus(bookId: Int, newStatus: com.juguito.juguitoreader.domain.enums.BookStatus) {
-        val book = _uiState.value.allBooks.find { it.id == bookId } ?: return
+    private fun updateBookStatus(bookId: Int, newStatus: BookStatus) {
+        val currentState = _internalState.value
+        if (currentState !is LibraryUiState.Success) return
+
+        val book = currentState.allBooks.find { it.id == bookId } ?: return
         viewModelScope.launch {
             updateBookUseCase(book.copy(status = newStatus))
         }
+    }
+
+    fun importBook(uri: Uri) {
+        _internalState.value = LibraryUiState.Loading
+        viewModelScope.launch {
+            val result = importBookFromUriUseCase(context, uri)
+
+            result.onFailure { exception ->
+                _internalState.value = LibraryUiState.Error(
+                    error = "Error al cargar los datos: ${exception.localizedMessage}"
+                )
+            }
+        }
+    }
+
+    fun dismissError(){
+        loadData()
     }
 }
