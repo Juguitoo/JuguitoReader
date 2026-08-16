@@ -15,6 +15,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 
 @HiltViewModel
 class ManagementViewModel @Inject constructor(
@@ -27,6 +30,9 @@ class ManagementViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(ManagementUiState())
     val uiState: StateFlow<ManagementUiState> = _uiState.asStateFlow()
+
+    private val _effect = Channel<UiEffect>()
+    val effect = _effect.receiveAsFlow()
 
     init {
         loadFolders()
@@ -112,8 +118,9 @@ class ManagementViewModel @Inject constructor(
             
             result.onSuccess {
                 _uiState.value = _uiState.value.copy(genreToEdit = null, newGenreName = "")
-            }.onFailure {
-                _uiState.value = _uiState.value.copy(errorMessage = it.message)
+            }.onFailure { exception ->
+                exception.printStackTrace()
+                _effect.send(UiEffect.ShowSnackbar("Error al actualizar el género."))
             }
         }
     }

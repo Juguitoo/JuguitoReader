@@ -49,12 +49,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -74,7 +76,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.juguito.juguitoreader.ui.book.components.FolderMultiSelector
 import com.juguito.juguitoreader.ui.book.components.GenreHybridSelector
+import com.juguito.juguitoreader.ui.common.ObserveAsEvents
 import com.juguito.juguitoreader.ui.common.components.DialogOptionCard
+import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.JuguitoDialog
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import com.juguito.juguitoreader.utils.FileUtils
@@ -84,6 +88,7 @@ import com.juguito.juguitoreader.utils.FileUtils.getFileNameFromUri
 @Composable
 fun AddBookScreen(
     onNavigateBack: () -> Unit,
+    onBookSavedSuccessfully: () -> Unit,
     viewModel: AddBookViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -186,17 +191,36 @@ fun AddBookScreen(
         )
     }
 
-    LaunchedEffect(state.isSaved) {
-        if (state.isSaved) {
-            onNavigateBack()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    ObserveAsEvents(viewModel.effect) { effect ->
+        when (effect) {
+            is UiEffect.ShowSnackbar -> {
+                snackbarHostState.showSnackbar(effect.message)
+            }
+            is UiEffect.NavigateBack -> {
+                onBookSavedSuccessfully()
+            }
+            else -> Unit
         }
     }
 
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    shape = RoundedCornerShape(12.dp),
+                    containerColor = MaterialTheme.colorScheme.inverseSurface,
+                    contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                    actionColor = MaterialTheme.colorScheme.primary
+                )
+            }
+        },
         topBar = {
             Surface(
                 shadowElevation = 6.dp,
-                modifier = Modifier.background(Color.Transparent).statusBarsPadding()
+                modifier = Modifier.background(Color.Transparent).statusBarsPadding(),
             ) {
                 TopAppBar(
                     title = { 
@@ -254,7 +278,6 @@ fun AddBookScreen(
                 onValueChange = { viewModel.onEvent(AddBookEvent.OnTitleChanged(it)) },
                 label = { Text("Título") },
                 modifier = Modifier.fillMaxWidth(),
-                isError = state.errorMessage != null && state.bookDraft.title.isBlank(),
                 shape = RoundedCornerShape(12.dp)
             )
 
@@ -476,14 +499,6 @@ fun AddBookScreen(
                         )
                     }
                 }
-            }
-
-            if (state.errorMessage != null) {
-                Text(
-                    text = state.errorMessage!!,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyMedium
-                )
             }
 
             Spacer(modifier = Modifier.weight(1f))

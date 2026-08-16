@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.UploadFile
@@ -23,10 +24,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +46,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.ui.common.ObserveAsEvents
+import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.EmptyLibraryView
 import com.juguito.juguitoreader.ui.components.ErrorView
 import com.juguito.juguitoreader.ui.components.JuguitoDialog
@@ -52,6 +59,8 @@ import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
+    snackbarMessage: String?,
+    onClearSnackbarMessage: () -> Unit,
     onNavigateToAddBook: () -> Unit,
     onNavigateToBookDetail: (Int) -> Unit,
     onNavigateToReadBook: (Int) -> Unit,
@@ -61,6 +70,23 @@ fun HomeScreen(
     val homeState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     var bookToDelete by remember { mutableStateOf<Book?>(null) }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(snackbarMessage) {
+        snackbarMessage?.let { message ->
+            snackbarHostState.showSnackbar(message)
+            onClearSnackbarMessage()
+        }
+    }
+
+    ObserveAsEvents(viewModel.effect) { effect ->
+        when (effect) {
+            is UiEffect.ShowSnackbar -> {
+                snackbarHostState.showSnackbar(effect.message)
+            }
+            else -> Unit
+        }
+    }
 
     if (bookToDelete != null) {
         JuguitoDialog(
@@ -88,6 +114,17 @@ fun HomeScreen(
     )
 
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    shape = RoundedCornerShape(12.dp),
+                    containerColor = MaterialTheme.colorScheme.inverseSurface,
+                    contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                    actionColor = MaterialTheme.colorScheme.primary
+                )
+            }
+        },
         topBar = {
             Surface(
                 shadowElevation = 6.dp,

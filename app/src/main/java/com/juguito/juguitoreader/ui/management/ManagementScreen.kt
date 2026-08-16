@@ -34,17 +34,42 @@ import androidx.core.graphics.toColorInt
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.model.Genre
+import com.juguito.juguitoreader.ui.common.ObserveAsEvents
+import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
+import com.juguito.juguitoreader.ui.components.JuguitoDialog
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManagementScreen(
+    managementMessage: String? = null,
+    onClearManagementMessage: () -> Unit,
     onNavigateBack: () -> Unit,
     onNavigateToEditFolder: (Int) -> Unit,
     viewModel: ManagementViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
     val focusRequester = remember { FocusRequester() }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(managementMessage) {
+        managementMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            onClearManagementMessage()
+        }
+    }
+
+    var folderToDelete by remember { mutableStateOf<Folder?>(null) }
+    var genreToDelete by remember { mutableStateOf<Genre?>(null) }
+
+    ObserveAsEvents(viewModel.effect) { effect ->
+        when (effect) {
+            is UiEffect.ShowSnackbar -> {
+                snackbarHostState.showSnackbar(effect.message)
+            }
+            else -> Unit
+        }
+    }
 
     LaunchedEffect(state.isSearchActive) {
         if (state.isSearchActive) {
@@ -52,7 +77,48 @@ fun ManagementScreen(
         }
     }
 
+    if (folderToDelete != null) {
+        JuguitoDialog(
+            onDismissRequest = { folderToDelete = null },
+            title = "Eliminar carpeta",
+            message = "¿Estás seguro de que quieres eliminar la carpeta '${folderToDelete?.name}'? Los libros no se borrarán, solo se quitarán de esta carpeta.",
+            confirmButtonText = "Eliminar",
+            onConfirm = {
+                folderToDelete?.let { viewModel.onEvent(ManagementEvent.OnDeleteFolder(it.id)) }
+                folderToDelete = null
+            },
+            dismissButtonText = "Cancelar",
+            isDestructive = true
+        )
+    }
+
+    if (genreToDelete != null) {
+        JuguitoDialog(
+            onDismissRequest = { genreToDelete = null },
+            title = "Eliminar género",
+            message = "¿Estás seguro de que quieres eliminar el género '${genreToDelete?.name}'?",
+            confirmButtonText = "Eliminar",
+            onConfirm = {
+                genreToDelete?.let { viewModel.onEvent(ManagementEvent.OnDeleteGenre(it.id)) }
+                genreToDelete = null
+            },
+            dismissButtonText = "Cancelar",
+            isDestructive = true
+        )
+    }
+
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    shape = RoundedCornerShape(12.dp),
+                    containerColor = MaterialTheme.colorScheme.inverseSurface,
+                    contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                    actionColor = MaterialTheme.colorScheme.primary
+                )
+            }
+        },
         topBar = {
             Surface(
                 shadowElevation = 6.dp,
@@ -155,7 +221,7 @@ fun ManagementScreen(
                 0 -> FolderList(
                     folders = filteredFolders,
                     onEdit = { onNavigateToEditFolder(it.id) },
-                    onDelete = { viewModel.onEvent(ManagementEvent.OnDeleteFolder(it.id)) }
+                    onDelete = { folderToDelete = it }
                 )
                 1 -> GenreList(
                     genres = filteredGenres,
@@ -165,7 +231,7 @@ fun ManagementScreen(
                     onUpdateConfirm = { viewModel.onEvent(ManagementEvent.OnUpdateGenreConfirm) },
                     onCancelEdit = { viewModel.onEvent(ManagementEvent.OnCancelEditGenre) },
                     onEdit = { viewModel.onEvent(ManagementEvent.OnEditGenreClick(it)) },
-                    onDelete = { viewModel.onEvent(ManagementEvent.OnDeleteGenre(it.id)) }
+                    onDelete = { genreToDelete = it }
                 )
             }
         }

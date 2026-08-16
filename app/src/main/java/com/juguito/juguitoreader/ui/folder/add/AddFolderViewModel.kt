@@ -1,53 +1,29 @@
 package com.juguito.juguitoreader.ui.folder.add
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.usecase.folder.AddFolderUseCase
-import com.juguito.juguitoreader.domain.usecase.folder.GetFolderByIdUseCase
-import com.juguito.juguitoreader.domain.usecase.folder.UpdateFolderUseCase
+import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AddFolderViewModel @Inject constructor(
-    private val addFolderUseCase: AddFolderUseCase,
-    private val updateFolderUseCase: UpdateFolderUseCase,
-    private val getFolderByIdUseCase: GetFolderByIdUseCase,
-    savedStateHandle: SavedStateHandle
+    private val addFolderUseCase: AddFolderUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddFolderUiState())
     val uiState: StateFlow<AddFolderUiState> = _uiState.asStateFlow()
 
-    private var currentFolderId: Int = 0
-
-    init {
-        val folderId: Int? = savedStateHandle["folderId"]
-        if (folderId != null && folderId != 0) {
-            currentFolderId = folderId
-            loadFolder(folderId)
-        }
-    }
-
-    private fun loadFolder(id: Int) {
-        viewModelScope.launch {
-            val folder = getFolderByIdUseCase(id)
-            if (folder != null) {
-                _uiState.value = _uiState.value.copy(
-                    name = folder.name,
-                    description = folder.description ?: "",
-                    colorHex = folder.colorHex,
-                    isEditing = true
-                )
-            }
-        }
-    }
+    private val _effect = Channel<UiEffect>()
+    val effect = _effect.receiveAsFlow()
 
     fun onEvent(event: AddFolderEvent) {
         when (event) {
@@ -69,34 +45,34 @@ class AddFolderViewModel @Inject constructor(
     private fun saveFolder() {
         val currentState = _uiState.value
 
-        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+        if (currentState.name.isBlank()) {
+            viewModelScope.launch {
+                _effect.send(UiEffect.ShowSnackbar("El nombre de la carpeta no puede estar vacío."))
+            }
+            return
+        }
+
+        _uiState.value = _uiState.value.copy(isLoading = true)
 
         viewModelScope.launch {
             val folder = Folder(
-                id = currentFolderId,
+                id = 0,
                 name = currentState.name,
                 description = currentState.description,
                 colorHex =  currentState.colorHex
             )
 
-            val result = if (currentFolderId == 0) {
-                addFolderUseCase(folder)
-            } else {
-                updateFolderUseCase(folder)
-            }
+            val result = addFolderUseCase(folder)
 
             result.fold(
                 onSuccess = {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        isSaved = true
-                    )
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    _effect.send(UiEffect.NavigateBack)
                 },
                 onFailure = { exception ->
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = exception.localizedMessage
-                    )
+                    exception.printStackTrace()
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    _effect.send(UiEffect.ShowSnackbar("Error al crear la carpeta"))
                 }
             )
         }

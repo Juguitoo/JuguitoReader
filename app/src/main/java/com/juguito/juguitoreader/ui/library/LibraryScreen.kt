@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells.*
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -20,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.juguito.juguitoreader.ui.common.ObserveAsEvents
+import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.EmptyLibraryView
 import com.juguito.juguitoreader.ui.components.ErrorView
 import com.juguito.juguitoreader.ui.library.LibraryEvent.*
@@ -81,7 +84,28 @@ fun LibraryScreen(
         )
     }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    ObserveAsEvents(viewModel.effect) { effect ->
+        when (effect) {
+            is UiEffect.ShowSnackbar -> {
+                snackbarHostState.showSnackbar(effect.message)
+            }
+            else -> Unit
+        }
+    }
+
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    shape = RoundedCornerShape(12.dp),
+                    containerColor = MaterialTheme.colorScheme.inverseSurface,
+                    contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                    actionColor = MaterialTheme.colorScheme.primary
+                )
+            }
+        },
         modifier = Modifier.imePadding(),
         topBar = {
             TopAppBar(

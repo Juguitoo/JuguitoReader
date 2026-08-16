@@ -10,9 +10,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,23 +21,46 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.juguito.juguitoreader.ui.common.ObserveAsEvents
+import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddFolderScreen(
     onNavigateBack: () -> Unit,
+    onFolderSavedSuccessfully: () -> Unit,
     viewModel: AddFolderViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    ObserveAsEvents(viewModel.effect) { effect ->
+        when (effect) {
+            is UiEffect.ShowSnackbar -> {
+                snackbarHostState.showSnackbar(effect.message)
+            }
+            is UiEffect.NavigateBack -> {
+                onFolderSavedSuccessfully()
+            }
+            else -> Unit
+        }
+    }
 
     val folderColors = listOf("#EF5350", "#AB47BC", "#42A5F5", "#66BB6A", "#FFA726", "#8D6E63")
 
-    LaunchedEffect(state.isSaved) {
-        if (state.isSaved) onNavigateBack()
-    }
-
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    shape = RoundedCornerShape(12.dp),
+                    containerColor = MaterialTheme.colorScheme.inverseSurface,
+                    contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                    actionColor = MaterialTheme.colorScheme.primary
+                )
+            }
+        },
         topBar = {
             Surface(
                 shadowElevation = 6.dp,
@@ -46,7 +69,7 @@ fun AddFolderScreen(
                 TopAppBar(
                     title = { 
                         Text(
-                            if (state.isEditing) "Editar carpeta" else "Nueva carpeta",
+                            "Nueva carpeta",
                             style = MaterialTheme.typography.titleLarge,
                             fontFamily = LoraFontFamily,
                             fontWeight = FontWeight.Bold
@@ -88,7 +111,6 @@ fun AddFolderScreen(
                 onValueChange = { viewModel.onEvent(AddFolderEvent.OnNameChanged(it)) },
                 label = { Text("Nombre") },
                 modifier = Modifier.fillMaxWidth(),
-                isError = state.errorMessage != null && state.name.isBlank(),
                 shape = RoundedCornerShape(12.dp)
             )
 
@@ -133,14 +155,6 @@ fun AddFolderScreen(
                 }
             }
 
-            if (state.errorMessage != null) {
-                Text(
-                    text = state.errorMessage!!, 
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
@@ -154,7 +168,7 @@ fun AddFolderScreen(
                 if (state.isLoading) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
                 } else {
-                    Text(if (state.isEditing) "Guardar Cambios" else "Crear Carpeta", style = MaterialTheme.typography.titleMedium)
+                    Text("Crear Carpeta", style = MaterialTheme.typography.titleMedium)
                 }
             }
         }

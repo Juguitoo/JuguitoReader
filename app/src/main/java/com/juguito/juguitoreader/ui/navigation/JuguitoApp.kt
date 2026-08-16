@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -29,6 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.juguito.juguitoreader.ui.book.add.AddBookScreen
 import com.juguito.juguitoreader.ui.book.detail.BookDetailScreen
+import com.juguito.juguitoreader.ui.folder.add.AddFolderScreen
 import com.juguito.juguitoreader.ui.folder.editor.FolderEditorScreen
 import com.juguito.juguitoreader.ui.home.HomeScreen
 import com.juguito.juguitoreader.ui.management.ManagementScreen
@@ -203,8 +205,17 @@ fun JuguitoApp(
                 enterTransition = { fadeIn(animationSpec = tween(300)) },
                 exitTransition = { fadeOut(animationSpec = tween(300)) }
             ) {
-                composable(route = "home") {
+                composable(route = "home") { backStackEntry ->
+                    val savedStateHandle = backStackEntry.savedStateHandle
+                    val snackbarMessage by savedStateHandle
+                        .getStateFlow<String?>("snackbar_result", null)
+                        .collectAsState()
+
                     HomeScreen(
+                        snackbarMessage = snackbarMessage,
+                        onClearSnackbarMessage = {
+                            savedStateHandle.remove<String>("snackbar_result")
+                        },
                         onOpenDrawer = { scope.launch { drawerState.open() } },
                         onNavigateToAddBook = {
                             navController.navigate("add_book")
@@ -220,27 +231,50 @@ fun JuguitoApp(
 
                 composable(route = "add_book") {
                     AddBookScreen(
-                        onNavigateBack = { navController.popBackStack() }
+                        onNavigateBack = { navController.popBackStack() },
+                        onBookSavedSuccessfully = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
+
+                composable(route = "add_folder") {
+                    AddFolderScreen(
+                        onNavigateBack = { navController.popBackStack() },
+                        onFolderSavedSuccessfully = {
+                            navController.popBackStack()
+                        }
                     )
                 }
 
                 composable(
-                    route = "add_folder?folderId={folderId}",
+                    route = "edit_folder/{folderId}",
                     arguments = listOf(navArgument("folderId") {
                         type = NavType.IntType
-                        defaultValue = 0
                     })
                 ) {
                     FolderEditorScreen(
-                        onNavigateBack = { navController.popBackStack() }
+                        onNavigateBack = { navController.popBackStack() },
+                        onFolderUpdatedSuccessfully = {
+                            navController.popBackStack()
+                        }
                     )
                 }
 
-                composable(route = "management") {
+                composable(route = "management") { backStackEntry ->
+                    val savedStateHandle = backStackEntry.savedStateHandle
+                    val snackbarMessage by savedStateHandle
+                        .getStateFlow<String?>("snackbar_result", null)
+                        .collectAsState()
+
                     ManagementScreen(
+                        managementMessage = snackbarMessage,
+                        onClearManagementMessage = {
+                            savedStateHandle.remove<String>("snackbar_result")
+                        },
                         onNavigateBack = { navController.popBackStack() },
                         onNavigateToEditFolder = { folderId ->
-                            navController.navigate("add_folder?folderId=$folderId")
+                            navController.navigate("edit_folder/$folderId")
                         }
                     )
                 }
@@ -250,7 +284,7 @@ fun JuguitoApp(
                     arguments = listOf(navArgument("bookId") { type = NavType.IntType })
                 ) {
                     BookDetailScreen(
-                        onNavigateBack = { navController.popBackStack() }
+                        onNavigateBack = { navController.popBackStack() },
                     )
                 }
 

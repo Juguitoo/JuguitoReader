@@ -1,6 +1,7 @@
 package com.juguito.juguitoreader.ui.book.add
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.juguito.juguitoreader.domain.model.Book
@@ -18,6 +19,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import androidx.core.net.toUri
+import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.receiveAsFlow
 
 @HiltViewModel
 class AddBookViewModel @Inject constructor(
@@ -30,20 +35,33 @@ class AddBookViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(AddBookUiState())
     val uiState: StateFlow<AddBookUiState> = _uiState.asStateFlow()
 
+    private val _effect = Channel<UiEffect>()
+    val effect = _effect.receiveAsFlow()
+
     init {
         loadAvailableData()
     }
 
     private fun loadAvailableData(){
         viewModelScope.launch {
-            getFoldersUseCase().collect { foldersFromDb ->
+            getFoldersUseCase()
+                .catch { error ->
+                    error.printStackTrace()
+                    _effect.send(UiEffect.ShowSnackbar("No se pudieron cargar tus carpetas."))
+                }
+                .collect { foldersFromDb ->
                 _uiState.value = _uiState.value.copy(
                     availableFolders = foldersFromDb
                 )
             }
         }
         viewModelScope.launch {
-            getGenresUseCase().collect { genresFromDb ->
+            getGenresUseCase()
+                .catch { error ->
+                    error.printStackTrace()
+                    _effect.send(UiEffect.ShowSnackbar("No se pudieron cargar tus géneros."))
+                }
+                .collect { genresFromDb ->
                 _uiState.value = _uiState.value.copy(
                     availableGenres = genresFromDb
                 )
@@ -74,9 +92,11 @@ class AddBookViewModel @Inject constructor(
                 )
             }
             is AddBookEvent.OnSeriesOrderChanged -> {
-                _uiState.value = _uiState.value.copy(
-                    bookDraft = _uiState.value.bookDraft.copy(seriesOrder = event.seriesOrder)
-                )
+                if (event.seriesOrder.length <= 4 && event.seriesOrder.all { it.isDigit() }) {
+                    _uiState.value = _uiState.value.copy(
+                        bookDraft = _uiState.value.bookDraft.copy(seriesOrder = event.seriesOrder)
+                    )
+                }
             }
             is AddBookEvent.OnIsPhysicalChanged -> {
                 _uiState.value = _uiState.value.copy(
@@ -123,7 +143,20 @@ class AddBookViewModel @Inject constructor(
         val currentState = _uiState.value
         val draft = currentState.bookDraft
 
-        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+        if (draft.title.isBlank()) {
+            viewModelScope.launch {
+                _effect.send(UiEffect.ShowSnackbar("El título no puede estar vacío."))
+            }
+            return
+        }
+        if (draft.author.isBlank()) {
+            viewModelScope.launch {
+                _effect.send(UiEffect.ShowSnackbar("El autor no puede estar vacío."))
+            }
+            return
+        }
+
+        _uiState.value = _uiState.value.copy(isLoading = true)
 
         viewModelScope.launch {
             val newBook = Book(
@@ -143,42 +176,55 @@ class AddBookViewModel @Inject constructor(
 
             result.fold(
                 onSuccess = {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        isSaved = true
-                    )
+                    _effect.send(UiEffect.NavigateBack)
                 },
                 onFailure = { exception ->
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = exception.localizedMessage
+                    exception.printStackTrace()
+                    _effect.send(
+                        UiEffect.ShowSnackbar(
+                            message = "Error al guardar el libro."
+                        )
                     )
                 }
             )
         }
     }
 
-    private fun importEpubData(uri: android.net.Uri) {
+    private fun importEpubData(uri: Uri) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            val book = withContext(Dispatchers.IO) {
-                getBookFromEpubUseCase(application, uri)
-            }
-            
-            val currentDraft = _uiState.value.bookDraft
-            _uiState.value = _uiState.value.copy(
-                isLoading = false,
-                bookDraft = currentDraft.copy(
-                    title = book.title.ifBlank { currentDraft.title },
-                    author = book.author.ifBlank { currentDraft.author },
-                    publisher = book.publisher ?: currentDraft.publisher,
-                    series = book.series ?: currentDraft.series,
-                    seriesOrder = book.seriesOrder?.let { if (it % 1.0 == 0.0) it.toInt().toString() else it.toString() } ?: currentDraft.seriesOrder,
-                    coverUrl = book.coverUrl ?: currentDraft.coverUrl,
-                    localFilePath = book.localFilePath,
-                    genres = (book.genres + currentDraft.genres).distinctBy { it.name.lowercase() }
+            runCatching {
+                _uiState.value = _uiState.value.copy(isLoading = true)
+                val book = withContext(Dispatchers.IO) {
+                    getBookFromEpubUseCase(application, uri)
+                }
+
+                val currentDraft = _uiState.value.bookDraft
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    bookDraft = currentDraft.copy(
+                        title = book.title.ifBlank { currentDraft.title },
+                        author = book.author.ifBlank { currentDraft.author },
+                        publisher = book.publisher ?: currentDraft.publisher,
+                        series = book.series ?: currentDraft.series,
+                        seriesOrder = book.seriesOrder?.let { if (it % 1.0 == 0.0) it.toInt().toString() else it.toString() } ?: currentDraft.seriesOrder,
+                        coverUrl = book.coverUrl ?: currentDraft.coverUrl,
+                        localFilePath = book.localFilePath,
+                        genres = (book.genres + currentDraft.genres).distinctBy { it.name.lowercase() }
+                    )
                 )
-            )
+            }.onSuccess {
+                _effect.send(
+                    UiEffect.ShowSnackbar(
+                        message = "Datos importados correctamente."
+                    )
+                )
+            }.onFailure {
+                _effect.send(
+                    UiEffect.ShowSnackbar(
+                        message = "Error al importar los datos."
+                    )
+                )
+            }
         }
     }
 }

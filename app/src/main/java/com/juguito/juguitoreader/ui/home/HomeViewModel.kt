@@ -9,13 +9,16 @@ import com.juguito.juguitoreader.domain.usecase.book.DeleteBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgressesUseCase
+import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,8 +32,10 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _internalState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
-
     val uiState: StateFlow<HomeUiState> = _internalState.asStateFlow()
+
+    private val _effect = Channel<UiEffect>()
+    val effect = _effect.receiveAsFlow()
 
     init {
         loadData()
@@ -86,11 +91,11 @@ class HomeViewModel @Inject constructor(
         _internalState.value = HomeUiState.Loading
         viewModelScope.launch {
             val result = importBookFromUriUseCase(context, uri)
-            
-            result.onFailure { exception ->
-                _internalState.value = HomeUiState.Error(
-                    message = "Error al cargar los datos: ${exception.localizedMessage}"
-                )
+
+            result.onSuccess {
+            }.onFailure { exception ->
+                exception.printStackTrace()
+                _effect.send(UiEffect.ShowSnackbar("Error al importar los datos."))
             }
         }
     }
