@@ -7,7 +7,21 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -15,6 +29,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -25,8 +40,8 @@ import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -71,6 +86,8 @@ import com.juguito.juguitoreader.ui.book.components.BookStatusDropdown
 import com.juguito.juguitoreader.ui.book.components.FolderMultiSelector
 import com.juguito.juguitoreader.ui.book.components.GenreHybridSelector
 import com.juguito.juguitoreader.ui.book.components.RatingNumberInput
+import com.juguito.juguitoreader.ui.common.components.DialogOptionCard
+import com.juguito.juguitoreader.ui.components.JuguitoDialog
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import com.juguito.juguitoreader.utils.FileUtils
 import com.juguito.juguitoreader.utils.FileUtils.getFileNameFromUri
@@ -169,26 +186,38 @@ fun BookDetailScreen(
     }
 
     if (showImageSourceDialog) {
-        AlertDialog(
+        JuguitoDialog(
             onDismissRequest = { showImageSourceDialog = false },
-            title = { Text("Seleccionar portada") },
-            text = { Text("¿Cómo quieres añadir la imagen?") },
-            confirmButton = {
-                TextButton(onClick = {
-                    showImageSourceDialog = false
-                    photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                }) {
-                    Text("Galería")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    showImageSourceDialog = false
-                    val uri = FileUtils.getTempImageUri(context)
-                    tempCameraUri = uri
-                    cameraLauncher.launch(uri)
-                }) {
-                    Text("Cámara")
+            icon = Icons.Default.AddPhotoAlternate,
+            title = "Seleccionar portada",
+            message = "¿Cómo quieres añadir la imagen para el libro?",
+            dismissButtonText = "Cancelar",
+            content = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    DialogOptionCard(
+                        title = "Elegir de la galería",
+                        icon = Icons.Default.PhotoLibrary,
+                        onClick = {
+                            showImageSourceDialog = false
+                            photoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        }
+                    )
+
+                    DialogOptionCard(
+                        title = "Tomar una foto",
+                        icon = Icons.Default.PhotoCamera,
+                        onClick = {
+                            showImageSourceDialog = false
+                            val uri = FileUtils.getTempImageUri(context)
+                            tempCameraUri = uri
+                            cameraLauncher.launch(uri)
+                        }
+                    )
                 }
             }
         )

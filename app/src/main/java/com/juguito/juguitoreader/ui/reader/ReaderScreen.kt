@@ -45,8 +45,6 @@ import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -92,6 +90,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.juguito.juguitoreader.domain.model.EpubNavElement
+import com.juguito.juguitoreader.ui.components.JuguitoDialog
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import kotlinx.coroutines.launch
 
@@ -145,13 +144,13 @@ fun ReaderLoading() {
 
 @Composable
 fun ReaderError(message: String, onDismiss: () -> Unit) {
-    AlertDialog(
+    JuguitoDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Error al abrir el libro") },
-        text = { Text(message) },
-        confirmButton = {
-            Button(onClick = onDismiss) { Text("Aceptar") }
-        }
+        title = "Error al abrir el libro",
+        message = message,
+        confirmButtonText = "Aceptar",
+        onConfirm = onDismiss,
+        isDestructive = true
     )
 }
 

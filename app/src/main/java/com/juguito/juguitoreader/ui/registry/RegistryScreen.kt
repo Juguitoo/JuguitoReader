@@ -581,17 +581,58 @@ fun RegistryDatePickerDialog(
     onDateSelected: (Long) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialDate ?: System.currentTimeMillis())
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = initialDate ?: System.currentTimeMillis()
+    )
+
     DatePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = {
-                datePickerState.selectedDateMillis?.let { onDateSelected(it) }
-                onDismiss()
-            }) { Text("Aceptar") }
+            Button(
+                onClick = {
+                    datePickerState.selectedDateMillis?.let { onDateSelected(it) }
+                    onDismiss()
+                },
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.padding(end = 12.dp, bottom = 8.dp)
+            ) {
+                Text("Aceptar")
+            }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
-    ) { DatePicker(state = datePickerState) }
+        dismissButton = {
+            OutlinedButton(
+                onClick = onDismiss,
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.padding(bottom = 8.dp)
+            ) {
+                Text("Cancelar")
+            }
+        },
+        shape = RoundedCornerShape(24.dp),
+        colors = DatePickerDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        DatePicker(
+            state = datePickerState,
+            colors = DatePickerDefaults.colors(
+                containerColor = MaterialTheme.colorScheme.surface,
+                titleContentColor = MaterialTheme.colorScheme.primary,
+                headlineContentColor = MaterialTheme.colorScheme.onSurface,
+                weekdayContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                subheadContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                yearContentColor = MaterialTheme.colorScheme.onSurface,
+                currentYearContentColor = MaterialTheme.colorScheme.primary,
+                selectedYearContainerColor = MaterialTheme.colorScheme.primary,
+                selectedYearContentColor = Color.White,
+                dayContentColor = MaterialTheme.colorScheme.onSurface,
+                selectedDayContainerColor = MaterialTheme.colorScheme.primary,
+                selectedDayContentColor = Color.White,
+                todayDateBorderColor = MaterialTheme.colorScheme.primary,
+                todayContentColor = MaterialTheme.colorScheme.primary
+            )
+        )
+    }
 }
 
 private fun formatDate(millis: Long?): String {

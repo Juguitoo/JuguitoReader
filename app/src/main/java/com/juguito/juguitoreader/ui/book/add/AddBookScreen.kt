@@ -1,6 +1,7 @@
 package com.juguito.juguitoreader.ui.book.add
 
 import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -29,11 +30,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.UploadFile
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -48,7 +51,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -66,11 +68,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.juguito.juguitoreader.ui.book.components.FolderMultiSelector
 import com.juguito.juguitoreader.ui.book.components.GenreHybridSelector
+import com.juguito.juguitoreader.ui.common.components.DialogOptionCard
+import com.juguito.juguitoreader.ui.components.JuguitoDialog
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import com.juguito.juguitoreader.utils.FileUtils
 import com.juguito.juguitoreader.utils.FileUtils.getFileNameFromUri
@@ -86,7 +91,7 @@ fun AddBookScreen(
 
     var showImportDialog by remember { mutableStateOf(false) }
     var showImageSourceDialog by remember { mutableStateOf(false) }
-    var tempCameraUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -129,52 +134,53 @@ fun AddBookScreen(
     )
 
     if (showImportDialog) {
-        AlertDialog(
+        JuguitoDialog(
             onDismissRequest = { showImportDialog = false },
-            icon = { Icon(Icons.Default.Download, contentDescription = null) },
-            title = { Text(text = "Importar libro") },
-            text = {
-                Text(text = "¿Deseas seleccionar un archivo EPUB para extraer sus datos automáticamente? Esto sobrescribirá el título, autor y cualquier otro dato que ya hayas rellenado.")
+            icon = Icons.Default.Download,
+            title = "Importar libro",
+            message = "¿Deseas seleccionar un archivo EPUB para extraer sus datos automáticamente? Esto sobrescribirá el título, autor y cualquier otro dato que ya hayas rellenado.",
+            confirmButtonText = "Importar",
+            onConfirm = {
+                showImportDialog = false
+                documentPickerLauncher.launch(arrayOf("application/epub+zip", "application/pdf"))
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showImportDialog = false
-                        documentPickerLauncher.launch(arrayOf("application/epub+zip", "application/pdf"))
-                    }
-                ) {
-                    Text("Importar")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showImportDialog = false }) {
-                    Text("Cancelar")
-                }
-            }
+            dismissButtonText = "Cancelar",
         )
     }
 
     if (showImageSourceDialog) {
-        AlertDialog(
+        JuguitoDialog(
             onDismissRequest = { showImageSourceDialog = false },
-            title = { Text("Seleccionar portada") },
-            text = { Text("¿Cómo quieres añadir la imagen?") },
-            confirmButton = {
-                TextButton(onClick = {
-                    showImageSourceDialog = false
-                    photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                }) {
-                    Text("Galería")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    showImageSourceDialog = false
-                    val uri = FileUtils.getTempImageUri(context)
-                    tempCameraUri = uri
-                    cameraLauncher.launch(uri)
-                }) {
-                    Text("Cámara")
+            icon = Icons.Default.AddPhotoAlternate,
+            title = "Seleccionar portada",
+            message = "¿Cómo quieres añadir la imagen para el libro?",
+            dismissButtonText = "Cancelar",
+            content = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    DialogOptionCard(
+                        title = "Elegir de la galería",
+                        icon = Icons.Default.PhotoLibrary,
+                        onClick = {
+                            showImageSourceDialog = false
+                            photoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        }
+                    )
+
+                    DialogOptionCard(
+                        title = "Tomar una foto",
+                        icon = Icons.Default.PhotoCamera,
+                        onClick = {
+                            showImageSourceDialog = false
+                            val uri = FileUtils.getTempImageUri(context)
+                            tempCameraUri = uri
+                            cameraLauncher.launch(uri)
+                        }
+                    )
                 }
             }
         )
@@ -422,7 +428,7 @@ fun AddBookScreen(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 maxLines = 1,
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                textAlign = TextAlign.Center
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
