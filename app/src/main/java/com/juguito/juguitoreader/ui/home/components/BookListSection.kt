@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.ui.common.components.ActionBookCard
 
 @Composable
 fun BookListSection(

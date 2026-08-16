@@ -5,7 +5,13 @@ import com.juguito.juguitoreader.domain.model.Folder
 
 sealed interface LibraryUiState {
     data object Loading: LibraryUiState
-    data class Error(val error: String): LibraryUiState
+    data class Error(val message: String): LibraryUiState
+    data class Empty(
+        val folders: List<Folder> = emptyList(),
+        val selectedFolder: Folder? = null,
+        val searchText: String = ""
+    ) : LibraryUiState
+
     data class Success(
         val allBooks: List<Book> = emptyList(),
         val filteredBooks: List<Book>,

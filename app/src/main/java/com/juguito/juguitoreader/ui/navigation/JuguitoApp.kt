@@ -269,6 +269,9 @@ fun JuguitoApp(
                 composable (route = "library") {
                     LibraryScreen(
                         onOpenDrawer = { scope.launch { drawerState.open() } },
+                        onNavigateToAddBook = {
+                            navController.navigate("add_book")
+                        },
                         onNavigateToReadBook = { bookId ->
                             navController.navigate("reader/$bookId")
                         },

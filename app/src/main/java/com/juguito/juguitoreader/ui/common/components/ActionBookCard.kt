@@ -1,4 +1,4 @@
-package com.juguito.juguitoreader.ui.home.components
+package com.juguito.juguitoreader.ui.common.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable

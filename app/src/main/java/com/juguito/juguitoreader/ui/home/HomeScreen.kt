@@ -4,27 +4,19 @@ import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.LibraryBooks
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.UploadFile
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -52,7 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.juguito.juguitoreader.domain.model.Book
-import com.juguito.juguitoreader.ui.home.components.ActionBookCard
+import com.juguito.juguitoreader.ui.components.EmptyLibraryView
+import com.juguito.juguitoreader.ui.components.ErrorView
 import com.juguito.juguitoreader.ui.home.components.BookListSection
 import com.juguito.juguitoreader.ui.home.components.StatsSection
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
@@ -162,97 +155,18 @@ fun HomeScreen(
                     )
                 }
                 is HomeUiState.Error -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(32.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Warning,
-                            contentDescription = "Error",
-                            modifier = Modifier.size(64.dp),
-                            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Algo ha salido mal",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = state.message,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Button(
-                            onClick = { viewModel.dismissError() },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.error
-                            )
-                        ) {
-                            Text("Reintentar")
-                        }
-                    }
+                    ErrorView(
+                        message = state.message,
+                        onRetry = { viewModel.dismissError() }
+                    )
                 }
                 is HomeUiState.Empty -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.LibraryBooks,
-                            contentDescription = null,
-                            modifier = Modifier.size(80.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Tu biblioteca está vacía",
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Añade tu primer libro para empezar",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                        )
-                        Spacer(modifier = Modifier.height(40.dp))
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(24.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            ActionBookCard(
-                                title = "Nuevo",
-                                icon = Icons.Default.Add,
-                                width = 120.dp,
-                                onClick = onNavigateToAddBook
-                            )
-                            ActionBookCard(
-                                title = "Importar",
-                                icon = Icons.Default.UploadFile,
-                                width = 120.dp,
-                                onClick = {
-                                    documentPickerLauncher.launch(
-                                        arrayOf(
-                                            "application/epub+zip",
-                                            "application/pdf"
-                                        )
-                                    )
-                                }
-                            )
+                    EmptyLibraryView(
+                        onNavigateToAddBook = onNavigateToAddBook,
+                        onImportClick = {
+                            documentPickerLauncher.launch(arrayOf("application/epub+zip", "application/pdf"))
                         }
-                    }
+                    )
                 }
                 is HomeUiState.Success -> {
                     LazyColumn(

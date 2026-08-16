@@ -48,7 +48,15 @@ class LibraryViewModel @Inject constructor(
                 getBooksUseCase(),
                 _searchText,
                 _selectedFolder
-            ) { folders, books, query, currentFolder->
+            ) { folders, books, query, currentFolder ->
+
+                if (books.isEmpty()) {
+                    return@combine LibraryUiState.Empty(
+                        folders = folders,
+                        selectedFolder = currentFolder,
+                        searchText = query
+                    ) as LibraryUiState
+                }
 
                 val filteredBooks = books.filter { book ->
                     val matchesText = query.isBlank() ||
@@ -71,7 +79,7 @@ class LibraryViewModel @Inject constructor(
             }.catch { error ->
                 emit (
                     LibraryUiState.Error(
-                        error = "Ha ocurrido un error al cargar los libros ${error.localizedMessage}"
+                        message = "Ha ocurrido un error al cargar los libros ${error.localizedMessage}"
                     )
                 )
             }.collect { newState ->
@@ -81,9 +89,6 @@ class LibraryViewModel @Inject constructor(
     }
 
     fun onEvent(event: LibraryEvent) {
-        val currentState = _internalState.value
-        if (currentState !is LibraryUiState.Success) return
-
         when (event) {
             is LibraryEvent.OnSelectedFolderChanged -> {
                 _selectedFolder.value = event.selectedFolder
@@ -114,7 +119,7 @@ class LibraryViewModel @Inject constructor(
 
             result.onFailure { exception ->
                 _internalState.value = LibraryUiState.Error(
-                    error = "Error al cargar los datos: ${exception.localizedMessage}"
+                    message = "Error al cargar los datos: ${exception.localizedMessage}"
                 )
             }
         }
