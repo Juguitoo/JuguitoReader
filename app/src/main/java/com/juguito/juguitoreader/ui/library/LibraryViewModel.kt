@@ -64,7 +64,9 @@ class LibraryViewModel @Inject constructor(
                 LibraryUiState.Success(
                     folders = folders,
                     filteredBooks = filteredBooks,
-                    allBooks = books
+                    allBooks = books,
+                    selectedFolder = currentFolder,
+                    searchText = query
                 ) as LibraryUiState
             }.catch { error ->
                 emit (
@@ -84,14 +86,10 @@ class LibraryViewModel @Inject constructor(
 
         when (event) {
             is LibraryEvent.OnSelectedFolderChanged -> {
-                _internalState.value = currentState.copy(
-                    selectedFolder = event.selectedFolder
-                ) as LibraryUiState
+                _selectedFolder.value = event.selectedFolder
             }
             is LibraryEvent.OnSearchTextChanged -> {
-                _internalState.value = currentState.copy(
-                    searchText = event.searchText?.trim() ?: ""
-                ) as LibraryUiState
+                _searchText.value = event.searchText?.trim() ?: ""
             }
             is LibraryEvent.OnStatusChanged -> {
                 updateBookStatus(event.bookId, event.newStatus)

@@ -1,5 +1,8 @@
 package com.juguito.juguitoreader.ui.library
 
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -21,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -29,8 +33,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.enums.BookStatus
+import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 
@@ -43,15 +47,27 @@ fun LibraryScreen(
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
     var isSearchVisible by remember { mutableStateOf(false) }
     var showAllFoldersSheet by remember { mutableStateOf(false) }
 
-    if (showAllFoldersSheet) {
+    val documentPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri ->
+            uri?.let {
+                context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                viewModel.importBook(it)
+            }
+        }
+    )
+
+    if (showAllFoldersSheet && state is LibraryUiState.Success) {
+        val successState = state as LibraryUiState.Success
         AllFoldersSheet(
-            folders = state.folders,
-            selectedFolder = state.selectedFolder,
-            onFolderSelected = { 
-                viewModel.onEvent(LibraryEvent.OnSelectedFolderChanged(it))
+            folders = successState.folders,
+            selectedFolder = successState.selectedFolder,
+            onFolderSelected = { folder ->
+                viewModel.onEvent(LibraryEvent.OnSelectedFolderChanged(folder))
                 showAllFoldersSheet = false
             },
             onDismiss = { showAllFoldersSheet = false }
@@ -65,10 +81,11 @@ fun LibraryScreen(
                 modifier = Modifier.statusBarsPadding(),
                 title = {
                     if (isSearchVisible) {
+                        val currentSearch = (state as? LibraryUiState.Success)?.searchText ?: ""
                         TextField(
-                            value = state.searchText,
+                            value = currentSearch,
                             onValueChange = { viewModel.onEvent(LibraryEvent.OnSearchTextChanged(it)) },
-                            placeholder = { Text("Buscar en mi biblioteca...", fontSize = 14.sp, color = Color.White) },
+                            placeholder = { Text("Buscar en mi biblioteca...", fontSize = 14.sp, color = Color.White.copy(alpha = 0.7f)) },
                             modifier = Modifier.fillMaxWidth(),
                             colors = TextFieldDefaults.colors(
                                 focusedContainerColor = Color.Transparent,
@@ -84,8 +101,9 @@ fun LibraryScreen(
                             textStyle = MaterialTheme.typography.bodyLarge
                         )
                     } else {
+                        val folderName = (state as? LibraryUiState.Success)?.selectedFolder?.name ?: "Todos los libros"
                         Text(
-                            text = state.selectedFolder?.name ?: "Todos los libros",
+                            text = folderName,
                             style = MaterialTheme.typography.titleLarge,
                             fontFamily = LoraFontFamily,
                             fontWeight = FontWeight.Bold
@@ -93,10 +111,19 @@ fun LibraryScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = if (isSearchVisible) { { isSearchVisible = false; viewModel.onEvent(LibraryEvent.OnSearchTextChanged("")) } } else onOpenDrawer) {
+                    IconButton(
+                        onClick = {
+                            if (isSearchVisible) {
+                                isSearchVisible = false
+                                viewModel.onEvent(LibraryEvent.OnSearchTextChanged(""))
+                            } else {
+                                onOpenDrawer()
+                            }
+                        }
+                    ) {
                         Icon(
                             imageVector = if (isSearchVisible) Icons.AutoMirrored.Filled.ArrowBack else Icons.Default.Menu,
-                            contentDescription = null
+                            contentDescription = if (isSearchVisible) "Volver" else "Menú"
                         )
                     }
                 },
@@ -104,6 +131,22 @@ fun LibraryScreen(
                     if (!isSearchVisible) {
                         IconButton(onClick = { isSearchVisible = true }) {
                             Icon(Icons.Default.Search, contentDescription = "Buscar")
+                        }
+                        IconButton(onClick = {
+                            documentPickerLauncher.launch(arrayOf("application/epub+zip", "application/pdf"))
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.UploadFile,
+                                contentDescription = "Importar libro",
+                                tint = Color.White
+                            )
+                        }
+                    } else {
+                        val currentSearch = (state as? LibraryUiState.Success)?.searchText ?: ""
+                        if (currentSearch.isNotEmpty()) {
+                            IconButton(onClick = { viewModel.onEvent(LibraryEvent.OnSearchTextChanged("")) }) {
+                                Icon(Icons.Default.Close, contentDescription = "Limpiar búsqueda")
+                            }
                         }
                     }
                 },
@@ -116,42 +159,100 @@ fun LibraryScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // 1. Selector de Carpetas con botón de expansión
-            FolderSelectorRow(
-                folders = state.folders,
-                selectedFolder = state.selectedFolder,
-                onFolderSelected = { viewModel.onEvent(LibraryEvent.OnSelectedFolderChanged(it)) },
-                onExpandClick = { showAllFoldersSheet = true }
-            )
+            when (val uiState = state) {
+                is LibraryUiState.Loading -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
 
-            // 2. Grid de Libros
-            Box(modifier = Modifier.fillMaxSize()) {
-                if (state.isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                } else if (state.filteredBooks.isEmpty()) {
-                    EmptyLibraryState(modifier = Modifier.align(Alignment.Center))
-                } else {
-                    LazyVerticalGrid(
-                        columns = GridCells.Adaptive(minSize = 90.dp),
-                        contentPadding = PaddingValues(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(24.dp),
-                        modifier = Modifier.fillMaxSize()
+                is LibraryUiState.Error -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        items(state.filteredBooks) { book ->
-                            BookGridItem(
-                                book = book,
-                                onClick = { onNavigateToReadBook(book.id) },
-                                onDetailClick = { onNavigateToBookDetail(book.id) },
-                                onStatusChange = { newStatus -> 
-                                    viewModel.onEvent(LibraryEvent.OnStatusChanged(book.id, newStatus))
-                                }
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = "Error",
+                            modifier = Modifier.size(64.dp),
+                            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Algo ha salido mal",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = uiState.error,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Button(
+                            onClick = { viewModel.dismissError() },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error
                             )
+                        ) {
+                            Text("Reintentar")
+                        }
+                    }
+                }
+
+                is LibraryUiState.Success -> {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        FolderSelectorRow(
+                            folders = uiState.folders,
+                            selectedFolder = uiState.selectedFolder,
+                            onFolderSelected = { folder ->
+                                viewModel.onEvent(LibraryEvent.OnSelectedFolderChanged(folder))
+                            },
+                            onExpandClick = { showAllFoldersSheet = true }
+                        )
+
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            if (uiState.filteredBooks.isEmpty()) {
+                                EmptyLibraryState(
+                                    isSearching = uiState.searchText.isNotBlank(),
+                                    hasFolderSelected = uiState.selectedFolder != null,
+                                    onImportClick = {
+                                        documentPickerLauncher.launch(arrayOf("application/epub+zip", "application/pdf"))
+                                    },
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            } else {
+                                LazyVerticalGrid(
+                                    columns = GridCells.Adaptive(minSize = 90.dp),
+                                    contentPadding = PaddingValues(16.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
+                                    items(uiState.filteredBooks, key = { it.id }) { book ->
+                                        BookGridItem(
+                                            book = book,
+                                            onClick = { onNavigateToReadBook(book.id) },
+                                            onDetailClick = { onNavigateToBookDetail(book.id) },
+                                            onStatusChange = { newStatus ->
+                                                viewModel.onEvent(LibraryEvent.OnStatusChanged(book.id, newStatus))
+                                            }
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -184,7 +285,7 @@ fun FolderSelectorRow(
                 tint = MaterialTheme.colorScheme.primary
             )
         }
-        
+
         VerticalDivider(modifier = Modifier.height(24.dp), thickness = 1.dp)
 
         LazyRow(
@@ -200,10 +301,10 @@ fun FolderSelectorRow(
                     shape = CircleShape
                 )
             }
-            items(folders) { folder ->
+            items(folders, key = { it.id }) { folder ->
                 val isSelected = selectedFolder?.id == folder.id
                 val color = Color(folder.colorHex.toColorInt())
-                
+
                 FilterChip(
                     selected = isSelected,
                     onClick = { onFolderSelected(folder) },
@@ -252,7 +353,7 @@ fun AllFoldersSheet(
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
-            
+
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -264,7 +365,7 @@ fun AllFoldersSheet(
                     label = { Text("Todos los libros") },
                     shape = RoundedCornerShape(12.dp)
                 )
-                
+
                 folders.forEach { folder ->
                     val isSelected = selectedFolder?.id == folder.id
                     val color = Color(folder.colorHex.toColorInt())
@@ -290,7 +391,7 @@ fun AllFoldersSheet(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BookGridItem(
-    book: Book, 
+    book: Book,
     onClick: () -> Unit,
     onDetailClick: () -> Unit,
     onStatusChange: (BookStatus) -> Unit
@@ -334,15 +435,12 @@ fun BookGridItem(
                     }
                 }
             }
-            
-            // Badge de Estado superpuesto (Banner inferior)
+
             StatusBadge(
                 status = book.status,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
+                modifier = Modifier.align(Alignment.BottomCenter)
             )
 
-            // Menú contextual
             DropdownMenu(
                 expanded = showMenu,
                 onDismissRequest = { showMenu = false }
@@ -355,16 +453,16 @@ fun BookGridItem(
                     },
                     leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) }
                 )
-                
+
                 HorizontalDivider()
-                
+
                 Text(
                     "Cambiar estado",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
                 )
-                
+
                 BookStatus.entries.forEach { status ->
                     DropdownMenuItem(
                         text = { Text(status.displayName) },
@@ -381,9 +479,9 @@ fun BookGridItem(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(10.dp))
-        
+
         Text(
             text = book.title,
             style = MaterialTheme.typography.bodyMedium,
@@ -407,7 +505,7 @@ fun StatusBadge(status: BookStatus, modifier: Modifier = Modifier) {
         BookStatus.READING -> MaterialTheme.colorScheme.primary
         BookStatus.FINISHED -> Color(0xFF4CAF50)
         BookStatus.DROPPED -> MaterialTheme.colorScheme.error
-        BookStatus.PENDING -> return // No badge for pending
+        BookStatus.PENDING -> return
     }
 
     Surface(
@@ -431,22 +529,41 @@ fun StatusBadge(status: BookStatus, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun EmptyLibraryState(modifier: Modifier = Modifier) {
+fun EmptyLibraryState(
+    isSearching: Boolean,
+    hasFolderSelected: Boolean,
+    onImportClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
-        modifier = modifier,
+        modifier = modifier.padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
-            imageVector = Icons.Default.Folder,
+            imageVector = if (isSearching) Icons.Default.SearchOff else Icons.Default.Folder,
             contentDescription = null,
             modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+            tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            "No hay libros en esta carpeta",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.outline
+            text = when {
+                isSearching -> "No se encontraron libros que coincidan"
+                hasFolderSelected -> "No hay libros en esta carpeta"
+                else -> "Tu biblioteca está vacía"
+            },
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+
+        if (!isSearching && !hasFolderSelected) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = onImportClick) {
+                Icon(Icons.Default.UploadFile, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Importar primer libro")
+            }
+        }
     }
 }
