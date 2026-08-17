@@ -13,7 +13,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -32,6 +35,7 @@ import com.juguito.juguitoreader.ui.book.add.AddBookScreen
 import com.juguito.juguitoreader.ui.book.detail.BookDetailScreen
 import com.juguito.juguitoreader.ui.folder.add.AddFolderScreen
 import com.juguito.juguitoreader.ui.folder.editor.FolderEditorScreen
+import com.juguito.juguitoreader.ui.genre.AddGenreDialog
 import com.juguito.juguitoreader.ui.home.HomeScreen
 import com.juguito.juguitoreader.ui.management.ManagementScreen
 import com.juguito.juguitoreader.ui.library.LibraryScreen
@@ -53,6 +57,14 @@ fun JuguitoApp(
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
+
+    var showAddGenreDialog by remember { mutableStateOf(false) }
+
+    if (showAddGenreDialog) {
+        AddGenreDialog(
+            onDismissRequest = {showAddGenreDialog = false},
+        )
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -115,7 +127,7 @@ fun JuguitoApp(
                 )
 
                 DrawerItem(
-                    label = "Gestor de Contenido",
+                    label = "Gestor de contenido",
                     icon = Icons.Default.Category,
                     selected = currentRoute == "management",
                     onClick = {
@@ -127,7 +139,7 @@ fun JuguitoApp(
                 )
 
                 DrawerItem(
-                    label = "Añadir Libro",
+                    label = "Crear libro",
                     icon = Icons.Default.Book,
                     onClick = {
                         scope.launch {
@@ -138,13 +150,22 @@ fun JuguitoApp(
                 )
 
                 DrawerItem(
-                    label = "Añadir Carpeta",
+                    label = "Crear carpeta",
                     icon = Icons.Default.CreateNewFolder,
                     onClick = {
                         scope.launch {
                             drawerState.close()
                             navController.navigate("add_folder")
                         }
+                    }
+                )
+
+                DrawerItem(
+                    label = "Crear género",
+                    icon = Icons.Default.Category,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        showAddGenreDialog = true
                     }
                 )
 
@@ -250,8 +271,9 @@ fun JuguitoApp(
                 composable(
                     route = "edit_folder/{folderId}",
                     arguments = listOf(navArgument("folderId") {
-                        type = NavType.IntType
-                    })
+                            type = NavType.IntType
+                        }
+                    )
                 ) {
                     FolderEditorScreen(
                         onNavigateBack = { navController.popBackStack() },
@@ -275,6 +297,9 @@ fun JuguitoApp(
                         onNavigateBack = { navController.popBackStack() },
                         onNavigateToEditFolder = { folderId ->
                             navController.navigate("edit_folder/$folderId")
+                        },
+                        onNavigateToAddFolder = {
+                            navController.navigate("add_folder")
                         }
                     )
                 }

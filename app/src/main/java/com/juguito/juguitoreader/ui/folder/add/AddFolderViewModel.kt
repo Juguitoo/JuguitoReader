@@ -72,7 +72,7 @@ class AddFolderViewModel @Inject constructor(
                 onFailure = { exception ->
                     exception.printStackTrace()
                     _uiState.value = _uiState.value.copy(isLoading = false)
-                    _effect.send(UiEffect.ShowSnackbar("Error al crear la carpeta"))
+                    _effect.send(UiEffect.ShowSnackbar(exception.message ?: "Error al crear la carpeta."))
                 }
             )
         }

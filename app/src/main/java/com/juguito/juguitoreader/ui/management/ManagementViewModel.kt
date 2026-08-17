@@ -78,17 +78,17 @@ class ManagementViewModel @Inject constructor(
             is ManagementEvent.OnSearchQueryChanged -> {
                 _uiState.value = _uiState.value.copy(searchQuery = event.query)
             }
-            ManagementEvent.OnToggleSearch -> {
+            is ManagementEvent.OnToggleSearch -> {
                 val isSearchActive = !_uiState.value.isSearchActive
                 _uiState.value = _uiState.value.copy(
                     isSearchActive = isSearchActive,
                     searchQuery = if (!isSearchActive) "" else _uiState.value.searchQuery
                 )
             }
-            ManagementEvent.OnCancelEditGenre -> {
+            is ManagementEvent.OnCancelEditGenre -> {
                 _uiState.value = _uiState.value.copy(genreToEdit = null, newGenreName = "")
             }
-            ManagementEvent.OnUpdateGenreConfirm -> {
+            is ManagementEvent.OnUpdateGenreConfirm -> {
                 updateGenre()
             }
         }
@@ -120,7 +120,7 @@ class ManagementViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(genreToEdit = null, newGenreName = "")
             }.onFailure { exception ->
                 exception.printStackTrace()
-                _effect.send(UiEffect.ShowSnackbar("Error al actualizar el género."))
+                _effect.send(UiEffect.ShowSnackbar(exception.message ?: "Error al actualizar el género."))
             }
         }
     }

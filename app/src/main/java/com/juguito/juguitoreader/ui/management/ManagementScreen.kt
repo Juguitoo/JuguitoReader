@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
@@ -37,6 +38,7 @@ import com.juguito.juguitoreader.domain.model.Genre
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.JuguitoDialog
+import com.juguito.juguitoreader.ui.genre.AddGenreDialog
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,6 +48,7 @@ fun ManagementScreen(
     onClearManagementMessage: () -> Unit,
     onNavigateBack: () -> Unit,
     onNavigateToEditFolder: (Int) -> Unit,
+    onNavigateToAddFolder: () -> Unit,
     viewModel: ManagementViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -61,6 +64,7 @@ fun ManagementScreen(
 
     var folderToDelete by remember { mutableStateOf<Folder?>(null) }
     var genreToDelete by remember { mutableStateOf<Genre?>(null) }
+    var showAddGenreDialog by remember { mutableStateOf(false) }
 
     ObserveAsEvents(viewModel.effect) { effect ->
         when (effect) {
@@ -104,6 +108,12 @@ fun ManagementScreen(
             },
             dismissButtonText = "Cancelar",
             isDestructive = true
+        )
+    }
+
+    if (showAddGenreDialog) {
+        AddGenreDialog(
+            onDismissRequest = { showAddGenreDialog = false }
         )
     }
 
@@ -182,6 +192,9 @@ fun ManagementScreen(
                             IconButton(onClick = { viewModel.onEvent(ManagementEvent.OnToggleSearch) }) {
                                 Icon(Icons.Default.Search, contentDescription = "Buscar", tint = Color.White)
                             }
+                        }
+                        IconButton(onClick = { if (state.selectedTab == 0) {onNavigateToAddFolder()} else {showAddGenreDialog = true} }) {
+                            Icon(Icons.Default.Add, contentDescription = "Crear", tint = Color.White)
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
