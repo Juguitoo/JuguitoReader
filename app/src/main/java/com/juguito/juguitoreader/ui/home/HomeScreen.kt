@@ -25,8 +25,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -50,7 +52,6 @@ import com.juguito.juguitoreader.ui.common.ObserveAsEvents
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.EmptyLibraryView
 import com.juguito.juguitoreader.ui.components.ErrorView
-import com.juguito.juguitoreader.ui.components.JuguitoDialog
 import com.juguito.juguitoreader.ui.home.components.BookListSection
 import com.juguito.juguitoreader.ui.home.components.StatsSection
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
@@ -82,25 +83,32 @@ fun HomeScreen(
     ObserveAsEvents(viewModel.effect) { effect ->
         when (effect) {
             is UiEffect.ShowSnackbar -> {
-                snackbarHostState.showSnackbar(effect.message)
+                val result = snackbarHostState.showSnackbar(
+                    message = effect.message,
+                    actionLabel = effect.actionLabel,
+                    duration = SnackbarDuration.Short
+                )
+
+                when (result) {
+                    SnackbarResult.ActionPerformed -> {
+                        viewModel.onEvent(HomeEvent.OnUndoDeleteClick)
+                    }
+                    SnackbarResult.Dismissed -> {
+                        if (effect.actionLabel == "Deshacer") {
+                            viewModel.onEvent(HomeEvent.OnDeleteConfirmed)
+                        }
+                    }
+                }
             }
             else -> Unit
         }
     }
 
     if (bookToDelete != null) {
-        JuguitoDialog(
-            onDismissRequest = { bookToDelete = null },
-            title = "Eliminar libro",
-            message = "¿Estás seguro de que quieres eliminar '${bookToDelete?.title}'? Esta acción no se puede deshacer.",
-            confirmButtonText = "Eliminar",
-            onConfirm = {
-                bookToDelete?.let { viewModel.deleteBook(it.id) }
-                bookToDelete = null
-            },
-            dismissButtonText = "Cancelar",
-            isDestructive = true
-        )
+        bookToDelete?.let {
+            viewModel.onEvent(HomeEvent.OnDeleteBookClick(it))
+        }
+        bookToDelete = null
     }
 
     val documentPickerLauncher = rememberLauncherForActivityResult(
@@ -108,7 +116,7 @@ fun HomeScreen(
         onResult = { uri ->
             uri?.let {
                 context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                viewModel.importBook(it)
+                viewModel.onEvent(HomeEvent.OnImportBook(it))
             }
         }
     )
@@ -183,7 +191,7 @@ fun HomeScreen(
                 is HomeUiState.Error -> {
                     ErrorView(
                         message = state.message,
-                        onRetry = { viewModel.dismissError() }
+                        onRetry = { viewModel.onEvent(HomeEvent.OnDismissError) }
                     )
                 }
                 is HomeUiState.Empty -> {

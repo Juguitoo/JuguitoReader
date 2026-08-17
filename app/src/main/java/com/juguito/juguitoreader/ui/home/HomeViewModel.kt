@@ -4,12 +4,16 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.juguito.juguitoreader.common.ActionUndoManager
 import com.juguito.juguitoreader.domain.enums.BookStatus
+import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.domain.usecase.book.AddBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.DeleteBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgressesUseCase
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
+import com.juguito.juguitoreader.utils.FileUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
@@ -28,7 +32,8 @@ class HomeViewModel @Inject constructor(
     private val getBooksUseCase: GetBooksUseCase,
     private val getReadingProgressesUseCase: GetReadingProgressesUseCase,
     private val importBookFromUriUseCase: ImportBookFromUriUseCase,
-    private val deleteBookUseCase: DeleteBookUseCase
+    private val deleteBookUseCase: DeleteBookUseCase,
+    private val addBookUseCase: AddBookUseCase
 ) : ViewModel() {
 
     private val _internalState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
@@ -36,6 +41,8 @@ class HomeViewModel @Inject constructor(
 
     private val _effect = Channel<UiEffect>()
     val effect = _effect.receiveAsFlow()
+
+    private val bookUndoManager = ActionUndoManager<Book>()
 
     init {
         loadData()
@@ -87,6 +94,24 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun onEvent(event: HomeEvent) {
+        when (event) {
+            is HomeEvent.OnDeleteBookClick -> {deleteBook(event.book)}
+            is HomeEvent.OnDeleteConfirmed -> {
+                viewModelScope.launch { bookUndoManager.confirmPending() }
+            }
+            is HomeEvent.OnUndoDeleteClick -> {
+                viewModelScope.launch { bookUndoManager.undoPending() }
+            }
+            is HomeEvent.OnDismissError -> {
+                viewModelScope.launch { dismissError() }
+            }
+            is HomeEvent.OnImportBook -> {
+                importBook(event.uri)
+            }
+        }
+    }
+
     fun importBook(uri: Uri) {
         _internalState.value = HomeUiState.Loading
         viewModelScope.launch {
@@ -104,9 +129,44 @@ class HomeViewModel @Inject constructor(
         loadData()
     }
 
-    fun deleteBook(bookId: Int) {
+    fun deleteBook(book: Book) {
         viewModelScope.launch {
-            deleteBookUseCase(bookId)
+            bookUndoManager.executeAction(
+                item = book,
+                immediateAction = { item ->
+                    val result = deleteBookUseCase(item.id)
+                    result.fold(
+                        onSuccess = {
+                            _effect.send(
+                                UiEffect.ShowSnackbar(
+                                    message = "Libro eliminado.",
+                                    actionLabel = "Deshacer"
+                                )
+                            )
+                            true
+                        },
+                        onFailure = { error ->
+                            _effect.send(
+                                UiEffect.ShowSnackbar(
+                                    message = error.message ?: "Error al eliminar el libro."
+                                )
+                            )
+                            false
+                        }
+                    )
+                },
+                onConfirm = { item ->
+                    item.coverUrl?.let { path ->
+                        FileUtils.deleteFileFromInternalStorage(context, path)
+                    }
+                    item.localFilePath?.let { path ->
+                        FileUtils.deleteFileFromInternalStorage(context, path)
+                    }
+                },
+                onUndo = {item ->
+                    addBookUseCase(item)
+                }
+            )
         }
     }
 }

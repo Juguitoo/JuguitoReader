@@ -81,7 +81,7 @@ fun ManagementScreen(
         JuguitoDialog(
             onDismissRequest = { folderToDelete = null },
             title = "Eliminar carpeta",
-            message = "¿Estás seguro de que quieres eliminar la carpeta '${folderToDelete?.name}'? Los libros no se borrarán, solo se quitarán de esta carpeta.",
+            message = "¿Estás seguro de que quieres eliminar la carpeta '${folderToDelete?.name}'? Los libros no se borrarán, solo se quitarán de esta carpeta.\n Esta acción no se puede deshacer.",
             confirmButtonText = "Eliminar",
             onConfirm = {
                 folderToDelete?.let { viewModel.onEvent(ManagementEvent.OnDeleteFolder(it.id)) }
@@ -96,7 +96,7 @@ fun ManagementScreen(
         JuguitoDialog(
             onDismissRequest = { genreToDelete = null },
             title = "Eliminar género",
-            message = "¿Estás seguro de que quieres eliminar el género '${genreToDelete?.name}'?",
+            message = "¿Estás seguro de que quieres eliminar el género '${genreToDelete?.name}'? Los libros con este género dejaran de tenerlo asignado.\n Esta acción no se puede deshacer.",
             confirmButtonText = "Eliminar",
             onConfirm = {
                 genreToDelete?.let { viewModel.onEvent(ManagementEvent.OnDeleteGenre(it.id)) }
@@ -204,7 +204,7 @@ fun ManagementScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            TabRow(selectedTabIndex = state.selectedTab) {
+            PrimaryTabRow(selectedTabIndex = state.selectedTab) {
                 Tab(
                     selected = state.selectedTab == 0,
                     onClick = { viewModel.onEvent(ManagementEvent.OnTabSelected(0)) },
