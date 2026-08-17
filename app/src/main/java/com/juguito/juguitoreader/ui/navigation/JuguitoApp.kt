@@ -4,12 +4,41 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.AppRegistration
+import androidx.compose.material.icons.filled.AutoStories
+import androidx.compose.material.icons.filled.CreateNewFolder
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LibraryAdd
+import androidx.compose.material.icons.filled.NewLabel
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Widgets
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.InputChip
+import androidx.compose.material3.InputChipDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,8 +66,8 @@ import com.juguito.juguitoreader.ui.folder.add.AddFolderScreen
 import com.juguito.juguitoreader.ui.folder.editor.FolderEditorScreen
 import com.juguito.juguitoreader.ui.genre.AddGenreDialog
 import com.juguito.juguitoreader.ui.home.HomeScreen
-import com.juguito.juguitoreader.ui.management.ManagementScreen
 import com.juguito.juguitoreader.ui.library.LibraryScreen
+import com.juguito.juguitoreader.ui.management.ManagementScreen
 import com.juguito.juguitoreader.ui.reader.ReaderScreen
 import com.juguito.juguitoreader.ui.registry.RegistryScreen
 import com.juguito.juguitoreader.ui.theme.AppTheme
@@ -128,7 +157,7 @@ fun JuguitoApp(
 
                 DrawerItem(
                     label = "Gestor de contenido",
-                    icon = Icons.Default.Category,
+                    icon = Icons.Default.Widgets,
                     selected = currentRoute == "management",
                     onClick = {
                         scope.launch {
@@ -140,7 +169,7 @@ fun JuguitoApp(
 
                 DrawerItem(
                     label = "Crear libro",
-                    icon = Icons.Default.Book,
+                    icon = Icons.Default.LibraryAdd,
                     onClick = {
                         scope.launch {
                             drawerState.close()
@@ -162,7 +191,7 @@ fun JuguitoApp(
 
                 DrawerItem(
                     label = "Crear género",
-                    icon = Icons.Default.Category,
+                    icon = Icons.Default.NewLabel,
                     onClick = {
                         scope.launch { drawerState.close() }
                         showAddGenreDialog = true

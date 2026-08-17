@@ -3,7 +3,7 @@ package com.juguito.juguitoreader.ui.genre
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -31,7 +31,7 @@ fun AddGenreDialog(
 
     JuguitoDialog(
         onDismissRequest = onDismissRequest,
-        icon = Icons.Default.Category,
+        icon = Icons.AutoMirrored.Filled.Label,
         title = "Nuevo Género",
         message = "Escribe el nombre del nuevo género para tu biblioteca.",
         confirmButtonText = "Crear",
