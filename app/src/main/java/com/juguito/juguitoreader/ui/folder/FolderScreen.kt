@@ -1,8 +1,7 @@
-package com.juguito.juguitoreader.ui.folder.editor
+package com.juguito.juguitoreader.ui.folder
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,10 +13,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,36 +44,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
+import com.juguito.juguitoreader.ui.folder.components.FolderColorTonePicker
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FolderEditorScreen(
+fun FolderScreen(
     onNavigateBack: () -> Unit,
-    onFolderUpdatedSuccessfully: () -> Unit,
-    viewModel: FolderEditorViewModel = hiltViewModel()
+    onFolderSavedSuccessfully: () -> Unit,
+    viewModel: FolderViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val scrollState = rememberScrollState()
 
     ObserveAsEvents(viewModel.effect) { effect ->
         when (effect) {
-            is UiEffect.ShowSnackbar -> {
-                snackbarHostState.showSnackbar(effect.message)
-            }
-            is UiEffect.NavigateBack -> {
-                onFolderUpdatedSuccessfully()
-            }
+            is UiEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message)
+            is UiEffect.NavigateBack -> onFolderSavedSuccessfully()
             else -> Unit
         }
     }
-
-    val folderColors = listOf("#EF5350", "#AB47BC", "#42A5F5", "#66BB6A", "#FFA726", "#8D6E63")
 
     Scaffold(
         snackbarHost = {
@@ -80,29 +80,28 @@ fun FolderEditorScreen(
                     snackbarData = data,
                     shape = RoundedCornerShape(12.dp),
                     containerColor = MaterialTheme.colorScheme.inverseSurface,
-                    contentColor = MaterialTheme.colorScheme.inverseOnSurface,
-                    actionColor = MaterialTheme.colorScheme.primary
+                    contentColor = MaterialTheme.colorScheme.inverseOnSurface
                 )
             }
         },
         topBar = {
             Surface(
-                shadowElevation = 6.dp,
+                shadowElevation = 4.dp,
                 modifier = Modifier.statusBarsPadding()
             ) {
                 TopAppBar(
-                    title = { 
+                    title = {
                         Text(
-                            "Editar Carpeta",
+                            text = if (state.isEditing) "Editar Carpeta" else "Nueva Carpeta",
                             style = MaterialTheme.typography.titleLarge,
                             fontFamily = LoraFontFamily,
                             fontWeight = FontWeight.Bold
-                        ) 
+                        )
                     },
                     navigationIcon = {
                         IconButton(onClick = onNavigateBack) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack, 
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Volver",
                                 tint = Color.White
                             )
@@ -120,79 +119,101 @@ fun FolderEditorScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .verticalScroll(scrollState)
                 .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Text(
-                text = "Personaliza tu carpeta",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            OutlinedTextField(
-                value = state.name,
-                onValueChange = { viewModel.onEvent(FolderEditorEvent.OnNameChanged(it)) },
-                label = { Text("Nombre") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            OutlinedTextField(
-                value = state.description,
-                onValueChange = { viewModel.onEvent(FolderEditorEvent.OnDescriptionChanged(it)) },
-                label = { Text("Descripción (opcional)") },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 3,
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Text(
-                text = "Color distintivo", 
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                folderColors.forEach { colorHex ->
-                    val composeColor = Color(colorHex.toColorInt())
-                    val isSelected = state.colorHex == colorHex
-
-                    Box(
-                        modifier = Modifier
-                            .size(44.dp)
-                            .clip(CircleShape)
-                            .background(composeColor)
-                            .border(
-                                width = if (isSelected) 3.dp else 0.dp,
-                                color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
-                                shape = CircleShape
-                            )
-                            .clickable { viewModel.onEvent(FolderEditorEvent.OnColorChanged(colorHex)) }
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color(state.colorHex.toColorInt()).copy(alpha = 0.18f))
+                        .border(
+                            width = 1.dp,
+                            color = Color(state.colorHex.toColorInt()).copy(alpha = 0.35f),
+                            shape = RoundedCornerShape(16.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Folder,
+                        contentDescription = null,
+                        tint = Color(state.colorHex.toColorInt()),
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = state.name.ifBlank { if (state.isEditing) "Modificar carpeta" else "Nueva carpeta" },
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = state.description.ifBlank { "Sin descripción" },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
 
+            OutlinedTextField(
+                value = state.name,
+                onValueChange = { viewModel.onEvent(FolderEvent.OnNameChanged(it)) },
+                label = { Text("Nombre") },
+                isError = state.nameError != null,
+                supportingText = state.nameError?.let { { Text(it) } },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+            )
+
+            OutlinedTextField(
+                value = state.description,
+                onValueChange = { viewModel.onEvent(FolderEvent.OnDescriptionChanged(it)) },
+                label = { Text("Descripción (opcional)") },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 3,
+                maxLines = 5,
+                shape = RoundedCornerShape(12.dp),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+            )
+
+            FolderColorTonePicker(
+                selectedColorHex = state.colorHex,
+                onColorSelected = { viewModel.onEvent(FolderEvent.OnColorChanged(it)) }
+            )
+
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { viewModel.onEvent(FolderEditorEvent.OnSaveClick) },
+                onClick = { viewModel.onEvent(FolderEvent.OnSaveClick) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
+                    .height(54.dp),
                 enabled = !state.isLoading,
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(14.dp)
             ) {
                 if (state.isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        strokeWidth = 2.5.dp
+                    )
                 } else {
-                    Text("Guardar Cambios", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = if (state.isEditing) "Guardar Cambios" else "Crear Carpeta",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }

@@ -62,8 +62,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.juguito.juguitoreader.ui.book.add.AddBookScreen
 import com.juguito.juguitoreader.ui.book.detail.BookDetailScreen
-import com.juguito.juguitoreader.ui.folder.add.AddFolderScreen
-import com.juguito.juguitoreader.ui.folder.editor.FolderEditorScreen
+import com.juguito.juguitoreader.ui.folder.FolderScreen
 import com.juguito.juguitoreader.ui.genre.AddGenreDialog
 import com.juguito.juguitoreader.ui.home.HomeScreen
 import com.juguito.juguitoreader.ui.library.LibraryScreen
@@ -289,9 +288,12 @@ fun JuguitoApp(
                 }
 
                 composable(route = "add_folder") {
-                    AddFolderScreen(
+                    FolderScreen(
                         onNavigateBack = { navController.popBackStack() },
                         onFolderSavedSuccessfully = {
+                            navController.previousBackStackEntry
+                                ?.savedStateHandle
+                                ?.set("snackbar_result", "Carpeta creada con éxito")
                             navController.popBackStack()
                         }
                     )
@@ -299,14 +301,14 @@ fun JuguitoApp(
 
                 composable(
                     route = "edit_folder/{folderId}",
-                    arguments = listOf(navArgument("folderId") {
-                            type = NavType.IntType
-                        }
-                    )
+                    arguments = listOf(navArgument("folderId") { type = NavType.IntType })
                 ) {
-                    FolderEditorScreen(
+                    FolderScreen(
                         onNavigateBack = { navController.popBackStack() },
-                        onFolderUpdatedSuccessfully = {
+                        onFolderSavedSuccessfully = {
+                            navController.previousBackStackEntry
+                                ?.savedStateHandle
+                                ?.set("snackbar_result", "Carpeta actualizada")
                             navController.popBackStack()
                         }
                     )
