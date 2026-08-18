@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.juguito.juguitoreader.data.local.entity.FolderEntity
+import com.juguito.juguitoreader.data.local.entity.FolderWithCountEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -22,8 +23,14 @@ interface FolderDAO {
     @Query("SELECT * FROM folders WHERE name = :folderName")
     suspend fun getFolderByName(folderName: String): FolderEntity?
 
-    @Query("SELECT * FROM folders")
-    fun getAllFolders(): Flow<List<FolderEntity>>
+    @Query("""
+        SELECT 
+            f.*, 
+            (SELECT COUNT(*) FROM book_folders bg WHERE bg.folder_id = f.id) AS bookCount
+        FROM folders f
+        ORDER BY f.name ASC
+    """)
+    fun getFoldersWithBookCount(): Flow<List<FolderWithCountEntity>>
 
     @Query("DELETE FROM folders WHERE id = :folderId")
     suspend fun deleteFolderById(folderId: Int)

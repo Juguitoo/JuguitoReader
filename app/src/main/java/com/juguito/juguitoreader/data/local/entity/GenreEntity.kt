@@ -1,6 +1,7 @@
 package com.juguito.juguitoreader.data.local.entity
 
 import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -17,4 +18,9 @@ data class GenreEntity(
     val name: String,
     @ColumnInfo(name = "sync_status") val syncStatus: SyncStatus = SyncStatus.PENDING_CREATE,
     @ColumnInfo(name = "created_at") val createdAt: Long
+)
+
+data class GenreWithCountEntity(
+    @Embedded val genre: GenreEntity,
+    val bookCount: Int
 )

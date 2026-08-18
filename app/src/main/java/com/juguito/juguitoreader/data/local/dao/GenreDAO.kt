@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.juguito.juguitoreader.data.local.entity.GenreEntity
+import com.juguito.juguitoreader.data.local.entity.GenreWithCountEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -19,8 +20,14 @@ interface GenreDAO {
     @Query("SELECT * FROM genres WHERE name = :genreName")
     suspend fun getGenreByName(genreName: String): GenreEntity?
 
-    @Query("SELECT * FROM genres")
-    fun getAllGenres(): Flow<List<GenreEntity>>
+    @Query("""
+        SELECT 
+            g.*, 
+            (SELECT COUNT(*) FROM book_genres bg WHERE bg.genre_id = g.id) AS bookCount
+        FROM genres g
+        ORDER BY g.name ASC
+    """)
+    fun getGenresWithBookCount(): Flow<List<GenreWithCountEntity>>
 
     @Query("SELECT name FROM genres")
     fun getAllGenreNames(): List<String>

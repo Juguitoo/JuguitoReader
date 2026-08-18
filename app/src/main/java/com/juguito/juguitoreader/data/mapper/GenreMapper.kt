@@ -1,6 +1,7 @@
 package com.juguito.juguitoreader.data.mapper
 
 import com.juguito.juguitoreader.data.local.entity.GenreEntity
+import com.juguito.juguitoreader.data.local.entity.GenreWithCountEntity
 import com.juguito.juguitoreader.domain.model.Genre
 
 fun GenreEntity.toDomain(): Genre {
@@ -18,5 +19,15 @@ fun Genre.toEntity(): GenreEntity {
         name = name,
         syncStatus = syncStatus,
         createdAt = createdAt
+    )
+}
+
+fun GenreWithCountEntity.toDomain(): Genre {
+    return Genre(
+        id = genre.id,
+        name = genre.name,
+        bookCount = bookCount,
+        syncStatus = genre.syncStatus,
+        createdAt = genre.createdAt
     )
 }

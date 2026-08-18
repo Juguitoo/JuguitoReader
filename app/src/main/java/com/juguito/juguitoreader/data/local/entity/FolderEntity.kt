@@ -1,6 +1,7 @@
 package com.juguito.juguitoreader.data.local.entity
 
 import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -19,4 +20,9 @@ data class FolderEntity(
     @ColumnInfo(name = "color_hex") val colorHex: String,
     @ColumnInfo(name = "sync_status") val syncStatus: SyncStatus = SyncStatus.PENDING_CREATE,
     @ColumnInfo(name = "created_at") val createdAt: Long
+)
+
+data class FolderWithCountEntity(
+    @Embedded val folder: FolderEntity,
+    val bookCount: Int
 )

@@ -13,7 +13,9 @@ class GenreRepositoryImpl @Inject constructor(
     private val genreDAO: GenreDAO
 ): GenreRepository {
     override fun getAllGenres(): Flow<List<Genre>> {
-        return genreDAO.getAllGenres().map{ entities -> entities.map{ it.toDomain() } }
+        return genreDAO.getGenresWithBookCount().map { list ->
+            list.map { it.toDomain() }
+        }
     }
 
     override suspend fun getAllGenreNames(): List<String> {

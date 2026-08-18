@@ -8,12 +8,15 @@ import com.juguito.juguitoreader.domain.repository.FolderRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import kotlin.collections.map
 
 class FolderRepositoryImpl @Inject constructor(
     private val folderDAO: FolderDAO
 ): FolderRepository {
     override fun getAllFolders(): Flow<List<Folder>> {
-        return folderDAO.getAllFolders().map{ entities -> entities.map{ it.toDomain() } }
+        return folderDAO.getFoldersWithBookCount().map { list ->
+            list.map { it.toDomain() }
+        }
     }
 
     override suspend fun getFolderById(id: Int): Folder? {

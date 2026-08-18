@@ -8,16 +8,15 @@ import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
 import com.juguito.juguitoreader.domain.usecase.genre.DeleteGenreUseCase
 import com.juguito.juguitoreader.domain.usecase.genre.GetGenresUseCase
 import com.juguito.juguitoreader.domain.usecase.genre.UpdateGenreUseCase
+import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
 
 @HiltViewModel
 class ManagementViewModel @Inject constructor(
@@ -41,16 +40,16 @@ class ManagementViewModel @Inject constructor(
 
     private fun loadFolders() {
         viewModelScope.launch {
-            getFoldersUseCase().collectLatest { folders ->
-                _uiState.value = _uiState.value.copy(folders = folders)
+            getFoldersUseCase().collect { foldersList ->
+                _uiState.value = _uiState.value.copy(folders = foldersList)
             }
         }
     }
 
     private fun loadGenres() {
         viewModelScope.launch {
-            getGenresUseCase().collectLatest { genres ->
-                _uiState.value = _uiState.value.copy(genres = genres)
+            getGenresUseCase().collect { genresList ->
+                _uiState.value = _uiState.value.copy(genres = genresList)
             }
         }
     }
