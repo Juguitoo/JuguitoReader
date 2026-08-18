@@ -283,7 +283,8 @@ fun JuguitoApp(
                         onNavigateBack = { navController.popBackStack() },
                         onBookSavedSuccessfully = {
                             navController.popBackStack()
-                        }
+                        },
+                        onNavigateToAddBook = { navController.navigate("add_folder") }
                     )
                 }
 
@@ -329,9 +330,7 @@ fun JuguitoApp(
                         onNavigateToEditFolder = { folderId ->
                             navController.navigate("edit_folder/$folderId")
                         },
-                        onNavigateToAddFolder = {
-                            navController.navigate("add_folder")
-                        }
+                        onNavigateToAddFolder = { navController.navigate("add_folder") }
                     )
                 }
 
@@ -341,6 +340,7 @@ fun JuguitoApp(
                 ) {
                     BookDetailScreen(
                         onNavigateBack = { navController.popBackStack() },
+                        onNavigateToAddFolder = { navController.navigate("add_folder")}
                     )
                 }
 

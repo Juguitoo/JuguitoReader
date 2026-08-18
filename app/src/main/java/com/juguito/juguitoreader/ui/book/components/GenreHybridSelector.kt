@@ -1,27 +1,24 @@
 package com.juguito.juguitoreader.ui.book.components
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.InputChipDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,6 +50,7 @@ fun GenreHybridSelector(
     }
 
     val suggestionsScrollState = rememberScrollState()
+    val selectedScrollState = rememberScrollState()
 
     Column(modifier = modifier.fillMaxWidth()) {
         Text("Géneros", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
@@ -81,8 +79,8 @@ fun GenreHybridSelector(
         )
 
         if (selectedGenres.isNotEmpty()) {
-            FlowRow(
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp).horizontalScroll(selectedScrollState),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 selectedGenres.forEach { genre ->
@@ -124,8 +122,6 @@ fun GenreHybridSelector(
                         icon = { Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp)) }
                     )
                 }
-                // Espacio extra al final para que no quede pegado al borde al scrollear
-                Spacer(modifier = Modifier.width(16.dp))
             }
         }
     }

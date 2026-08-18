@@ -89,6 +89,7 @@ import com.juguito.juguitoreader.utils.FileUtils.getFileNameFromUri
 fun AddBookScreen(
     onNavigateBack: () -> Unit,
     onBookSavedSuccessfully: () -> Unit,
+    onNavigateToAddBook: () -> Unit,
     viewModel: AddBookViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -268,7 +269,7 @@ fun AddBookScreen(
         ) {
             Text(
                 text = "Detalles del libro",
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -306,7 +307,7 @@ fun AddBookScreen(
                     label = { Text("Saga del libro") },
                     shape = RoundedCornerShape(12.dp)
                 )
-                OutlinedTextField( // Se puede limitar a 4 digitos como mucho?
+                OutlinedTextField(
                     value = state.bookDraft.seriesOrder,
                     onValueChange = { viewModel.onEvent(AddBookEvent.OnSeriesOrderChanged(it)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -330,8 +331,14 @@ fun AddBookScreen(
 
             Text(
                 text = "Organización",
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Text(
+                text = "Formato",
+                style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary
             )
 
@@ -359,11 +366,11 @@ fun AddBookScreen(
             FolderMultiSelector(
                 availableFolders = state.availableFolders,
                 selectedFolders = state.bookDraft.folders,
-                onFoldersChanged = { viewModel.onEvent(AddBookEvent.OnFoldersChanged(it)) }
+                onFoldersChanged = { viewModel.onEvent(AddBookEvent.OnFoldersChanged(it)) },
+                onAddFolderClick = { onNavigateToAddBook() }
             )
 
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = 8.dp),
                 thickness = 1.dp,
                 color = MaterialTheme.colorScheme.outlineVariant
             )

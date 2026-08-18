@@ -52,6 +52,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.toColorInt
 import coil.compose.AsyncImage
 import com.juguito.juguitoreader.ui.book.detail.BookDetailEvent
 import com.juguito.juguitoreader.ui.book.detail.BookDetailUiState
@@ -63,7 +64,8 @@ fun BookInfoTab(
     onEvent: (BookDetailEvent) -> Unit,
     onPickCover: () -> Unit,
     onPickFile: () -> Unit,
-    onDeleteRequest: () -> Unit
+    onDeleteRequest: () -> Unit,
+    onAddFolderClick: () -> Unit
 ) {
     val context = LocalContext.current
     Column(
@@ -196,7 +198,8 @@ fun BookInfoTab(
             FolderMultiSelector(
                 availableFolders = state.availableFolders,
                 selectedFolders = draft.folders,
-                onFoldersChanged = { onEvent(BookDetailEvent.OnFoldersChanged(it)) }
+                onFoldersChanged = { onEvent(BookDetailEvent.OnFoldersChanged(it)) },
+                onAddFolderClick = {onAddFolderClick()}
             )
 
             Surface(
@@ -336,26 +339,13 @@ fun BookInfoTab(
                                 Icon(
                                     Icons.Default.Folder,
                                     contentDescription = null,
-                                    modifier = Modifier.size(18.dp)
+                                    modifier = Modifier.size(18.dp),
+                                    tint = Color(folder.colorHex.toColorInt())
                                 )
                             }
                         )
                     }
                 }
-            }
-
-            if (!draft.localFilePath.isNullOrBlank() && !draft.isPhysical) {
-                Text(
-                    text = "Archivo local",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold
-                )
-                val fileName = FileUtils.getFileNameFromUri(context, draft.localFilePath)
-                Text(
-                    text = fileName,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
             }
 
             Spacer(modifier = Modifier.height(24.dp))

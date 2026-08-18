@@ -65,6 +65,7 @@ import com.juguito.juguitoreader.utils.FileUtils
 @Composable
 fun BookDetailScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToAddFolder: () -> Unit,
     viewModel: BookDetailViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -306,7 +307,8 @@ fun BookDetailScreen(
                                             )
                                         )
                                     },
-                                    onDeleteRequest = { showDeleteDialog = true }
+                                    onDeleteRequest = { showDeleteDialog = true },
+                                    onAddFolderClick = { onNavigateToAddFolder() }
                                 )
                             } else {
                                 RegistryTab(
