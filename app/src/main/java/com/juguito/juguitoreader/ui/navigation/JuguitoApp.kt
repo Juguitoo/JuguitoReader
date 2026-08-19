@@ -288,7 +288,7 @@ fun JuguitoApp(
                         onBookSavedSuccessfully = {
                             navController.popBackStack()
                         },
-                        onNavigateToAddBook = { navController.navigate("add_folder") }
+                        onNavigateToAddFolder = { navController.navigate("add_folder") }
                     )
                 }
 

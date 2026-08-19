@@ -42,23 +42,57 @@ fun LibraryScreen(
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
     var isSearchVisible by remember { mutableStateOf(false) }
     var showAllFoldersSheet by remember { mutableStateOf(false) }
 
-    val currentSelectedFolder = when (val s = state) {
-        is LibraryUiState.Success -> s.selectedFolder
-        is LibraryUiState.Empty -> s.selectedFolder
+    LibraryContent(
+        state = state,
+        isSearchVisible = isSearchVisible,
+        showAllFoldersSheet = showAllFoldersSheet,
+        onToggleSearch = { isSearchVisible = it },
+        onShowAllFoldersSheet = { showAllFoldersSheet = it },
+        onOpenDrawer = onOpenDrawer,
+        onNavigateToAddBook = onNavigateToAddBook,
+        onNavigateToReadBook = onNavigateToReadBook,
+        onNavigateToBookDetail = onNavigateToBookDetail,
+        onEvent = viewModel::onEvent,
+        onImportBook = viewModel::importBook,
+        onDismissError = viewModel::dismissError,
+        effect = viewModel.effect
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LibraryContent(
+    state: LibraryUiState,
+    isSearchVisible: Boolean,
+    showAllFoldersSheet: Boolean,
+    onToggleSearch: (Boolean) -> Unit,
+    onShowAllFoldersSheet: (Boolean) -> Unit,
+    onOpenDrawer: () -> Unit,
+    onNavigateToAddBook: () -> Unit,
+    onNavigateToReadBook: (Int) -> Unit,
+    onNavigateToBookDetail: (Int) -> Unit,
+    onEvent: (LibraryEvent) -> Unit,
+    onImportBook: (android.net.Uri) -> Unit,
+    onDismissError: () -> Unit,
+    effect: kotlinx.coroutines.flow.Flow<UiEffect>
+) {
+    val context = LocalContext.current
+    val currentSelectedFolder = when (state) {
+        is LibraryUiState.Success -> state.selectedFolder
+        is LibraryUiState.Empty -> state.selectedFolder
         else -> null
     }
-    val currentSearchText = when (val s = state) {
-        is LibraryUiState.Success -> s.searchText
-        is LibraryUiState.Empty -> s.searchText
+    val currentSearchText = when (state) {
+        is LibraryUiState.Success -> state.searchText
+        is LibraryUiState.Empty -> state.searchText
         else -> ""
     }
-    val currentFolders = when (val s = state) {
-        is LibraryUiState.Success -> s.folders
-        is LibraryUiState.Empty -> s.folders
+    val currentFolders = when (state) {
+        is LibraryUiState.Success -> state.folders
+        is LibraryUiState.Empty -> state.folders
         else -> emptyList()
     }
 
@@ -67,7 +101,7 @@ fun LibraryScreen(
         onResult = { uri ->
             uri?.let {
                 context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                viewModel.importBook(it)
+                onImportBook(it)
             }
         }
     )
@@ -77,18 +111,18 @@ fun LibraryScreen(
             folders = currentFolders,
             selectedFolder = currentSelectedFolder,
             onFolderSelected = { folder ->
-                viewModel.onEvent(OnSelectedFolderChanged(folder))
-                showAllFoldersSheet = false
+                onEvent(OnSelectedFolderChanged(folder))
+                onShowAllFoldersSheet(false)
             },
-            onDismiss = { showAllFoldersSheet = false }
+            onDismiss = { onShowAllFoldersSheet(false) }
         )
     }
 
     val snackbarHostState = remember { SnackbarHostState() }
-    ObserveAsEvents(viewModel.effect) { effect ->
-        when (effect) {
+    ObserveAsEvents(effect) { uiEffect ->
+        when (uiEffect) {
             is UiEffect.ShowSnackbar -> {
-                snackbarHostState.showSnackbar(effect.message)
+                snackbarHostState.showSnackbar(uiEffect.message)
             }
             else -> Unit
         }
@@ -114,7 +148,7 @@ fun LibraryScreen(
                     if (isSearchVisible) {
                         TextField(
                             value = currentSearchText,
-                            onValueChange = { viewModel.onEvent(OnSearchTextChanged(it)) },
+                            onValueChange = { onEvent(OnSearchTextChanged(it)) },
                             placeholder = { Text("Buscar en mi biblioteca...", fontSize = 14.sp, color = Color.White.copy(alpha = 0.7f)) },
                             modifier = Modifier.fillMaxWidth(),
                             colors = TextFieldDefaults.colors(
@@ -144,8 +178,8 @@ fun LibraryScreen(
                     IconButton(
                         onClick = {
                             if (isSearchVisible) {
-                                isSearchVisible = false
-                                viewModel.onEvent(OnSearchTextChanged(""))
+                                onToggleSearch(false)
+                                onEvent(OnSearchTextChanged(""))
                             } else {
                                 onOpenDrawer()
                             }
@@ -159,7 +193,7 @@ fun LibraryScreen(
                 },
                 actions = {
                     if (!isSearchVisible) {
-                        IconButton(onClick = { isSearchVisible = true }) {
+                        IconButton(onClick = { onToggleSearch(true) }) {
                             Icon(Icons.Default.Search, contentDescription = "Buscar")
                         }
                         IconButton(onClick = {
@@ -174,7 +208,7 @@ fun LibraryScreen(
                     } else {
                         val currentSearch = (state as? LibraryUiState.Success)?.searchText ?: ""
                         if (currentSearch.isNotEmpty()) {
-                            IconButton(onClick = { viewModel.onEvent(OnSearchTextChanged("")) }) {
+                            IconButton(onClick = { onEvent(OnSearchTextChanged("")) }) {
                                 Icon(Icons.Default.Close, contentDescription = "Limpiar búsqueda")
                             }
                         }
@@ -205,7 +239,7 @@ fun LibraryScreen(
                 is LibraryUiState.Error -> {
                     ErrorView(
                         message = uiState.message,
-                        onRetry = { viewModel.dismissError() }
+                        onRetry = { onDismissError() }
                     )
                 }
 
@@ -215,9 +249,9 @@ fun LibraryScreen(
                             folders = uiState.folders,
                             selectedFolder = uiState.selectedFolder,
                             onFolderSelected = { folder ->
-                                viewModel.onEvent(OnSelectedFolderChanged(folder))
+                                onEvent(OnSelectedFolderChanged(folder))
                             },
-                            onExpandClick = { showAllFoldersSheet = true }
+                            onExpandClick = { onShowAllFoldersSheet(true) }
                         )
 
                         Box(modifier = Modifier.fillMaxSize()) {
@@ -240,7 +274,7 @@ fun LibraryScreen(
                                             onClick = { onNavigateToReadBook(book.id) },
                                             onDetailClick = { onNavigateToBookDetail(book.id) },
                                             onStatusChange = { newStatus ->
-                                                viewModel.onEvent(
+                                                onEvent(
                                                     OnStatusChanged(
                                                         book.id,
                                                         newStatus
@@ -261,9 +295,9 @@ fun LibraryScreen(
                             folders = uiState.folders,
                             selectedFolder = uiState.selectedFolder,
                             onFolderSelected = { folder ->
-                                viewModel.onEvent(OnSelectedFolderChanged(folder))
+                                onEvent(OnSelectedFolderChanged(folder))
                             },
-                            onExpandClick = { showAllFoldersSheet = true }
+                            onExpandClick = { onShowAllFoldersSheet(true) }
                         )
 
                         Box(modifier = Modifier.fillMaxSize()) {

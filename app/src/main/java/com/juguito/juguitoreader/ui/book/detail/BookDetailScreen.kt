@@ -69,8 +69,28 @@ fun BookDetailScreen(
     viewModel: BookDetailViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
 
+    BookDetailContent(
+        state = state,
+        onEvent = viewModel::onEvent,
+        onNavigateBack = onNavigateBack,
+        onNavigateToAddFolder = onNavigateToAddFolder,
+        onLoadBook = viewModel::loadBook,
+        effect = viewModel.effect
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BookDetailContent(
+    state: BookDetailUiState,
+    onEvent: (BookDetailEvent) -> Unit,
+    onNavigateBack: () -> Unit,
+    onNavigateToAddFolder: () -> Unit,
+    onLoadBook: () -> Unit,
+    effect: kotlinx.coroutines.flow.Flow<UiEffect>
+) {
+    val context = LocalContext.current
     var showStartDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
     var showImageSourceDialog by remember { mutableStateOf(false) }
@@ -81,7 +101,7 @@ fun BookDetailScreen(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
             uri?.let {
-                viewModel.onEvent(BookDetailEvent.OnCoverUrlChanged(it.toString()))
+                onEvent(BookDetailEvent.OnCoverUrlChanged(it.toString()))
             }
         }
     )
@@ -91,7 +111,7 @@ fun BookDetailScreen(
         onResult = { success ->
             if (success) {
                 tempCameraUri?.let {
-                    viewModel.onEvent(BookDetailEvent.OnCoverUrlChanged(it.toString()))
+                    onEvent(BookDetailEvent.OnCoverUrlChanged(it.toString()))
                 }
             }
         }
@@ -102,17 +122,17 @@ fun BookDetailScreen(
         onResult = { uri ->
             uri?.let {
                 context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                viewModel.onEvent(BookDetailEvent.OnLocalFilePathChanged(it.toString()))
+                onEvent(BookDetailEvent.OnLocalFilePathChanged(it.toString()))
             }
         }
     )
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    ObserveAsEvents(viewModel.effect) { effect ->
-        when (effect) {
+    ObserveAsEvents(effect) { uiEffect ->
+        when (uiEffect) {
             is UiEffect.ShowSnackbar -> {
-                snackbarHostState.showSnackbar(effect.message)
+                snackbarHostState.showSnackbar(uiEffect.message)
             }
             is UiEffect.NavigateBack -> {
                 onNavigateBack()
@@ -122,11 +142,10 @@ fun BookDetailScreen(
     }
 
     if (showStartDatePicker && state is BookDetailUiState.Success) {
-        val successState = state as BookDetailUiState.Success
         RegistryDatePickerDialog(
-            initialDate = successState.startDate,
+            initialDate = state.startDate,
             onDateSelected = {
-                viewModel.onEvent(BookDetailEvent.OnStartDateChanged(it))
+                onEvent(BookDetailEvent.OnStartDateChanged(it))
                 showStartDatePicker = false
             },
             onDismiss = { showStartDatePicker = false }
@@ -134,11 +153,10 @@ fun BookDetailScreen(
     }
 
     if (showEndDatePicker && state is BookDetailUiState.Success) {
-        val successState = state as BookDetailUiState.Success
         RegistryDatePickerDialog(
-            initialDate = successState.endDate,
+            initialDate = state.endDate,
             onDateSelected = {
-                viewModel.onEvent(BookDetailEvent.OnEndDateChanged(it))
+                onEvent(BookDetailEvent.OnEndDateChanged(it))
                 showEndDatePicker = false
             },
             onDismiss = { showEndDatePicker = false }
@@ -146,17 +164,16 @@ fun BookDetailScreen(
     }
 
     if (showDeleteDialog && state is BookDetailUiState.Success) {
-        val successState = state as BookDetailUiState.Success
         JuguitoDialog(
             onDismissRequest = { showDeleteDialog = false },
             icon = Icons.Default.Delete,
             title = "Eliminar libro",
-            message = "¿Estás seguro de que deseas eliminar '${successState.book.title}'? Esta acción no se puede deshacer.",
+            message = "¿Estás seguro de que deseas eliminar '${state.book.title}'? Esta acción no se puede deshacer.",
             confirmButtonText = "Eliminar",
             isDestructive = true,
             onConfirm = {
                 showDeleteDialog = false
-                viewModel.onEvent(BookDetailEvent.OnDeleteClick)
+                onEvent(BookDetailEvent.OnDeleteClick)
             }
         )
     }
@@ -213,8 +230,8 @@ fun BookDetailScreen(
         },
         modifier = Modifier.imePadding(),
         topBar = {
-            val titleText = when (val s = state) {
-                is BookDetailUiState.Success -> if (s.isEditMode) "Editar Libro" else s.bookDraft.title
+            val titleText = when (state) {
+                is BookDetailUiState.Success -> if (state.isEditMode) "Editar Libro" else state.bookDraft.title
                 else -> "Detalle del libro"
             }
             TopAppBar(
@@ -234,17 +251,16 @@ fun BookDetailScreen(
                     }
                 },
                 actions = {
-                    val s = state
-                    if (s is BookDetailUiState.Success) {
-                        if (s.isEditMode) {
-                            IconButton(onClick = { viewModel.onEvent(BookDetailEvent.OnEditModeChanged(false)) }) {
+                    if (state is BookDetailUiState.Success) {
+                        if (state.isEditMode) {
+                            IconButton(onClick = { onEvent(BookDetailEvent.OnEditModeChanged(false)) }) {
                                 Icon(imageVector = Icons.Default.Close, contentDescription = "Cancelar", tint = Color.White)
                             }
-                            IconButton(onClick = { viewModel.onEvent(BookDetailEvent.OnSaveClick) }) {
+                            IconButton(onClick = { onEvent(BookDetailEvent.OnSaveClick) }) {
                                 Icon(imageVector = Icons.Default.Check, contentDescription = "Guardar", tint = Color.White)
                             }
                         } else {
-                            IconButton(onClick = { viewModel.onEvent(BookDetailEvent.OnEditModeChanged(true)) }) {
+                            IconButton(onClick = { onEvent(BookDetailEvent.OnEditModeChanged(true)) }) {
                                 Icon(imageVector = Icons.Default.Edit, contentDescription = "Editar", tint = Color.White)
                             }
                         }
@@ -262,7 +278,7 @@ fun BookDetailScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            when (val uiState = state) {
+            when (state) {
                 is BookDetailUiState.Loading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
@@ -272,32 +288,32 @@ fun BookDetailScreen(
 
                 is BookDetailUiState.Error -> {
                     ErrorView(
-                        message = uiState.message,
-                        onRetry = { viewModel.loadBook() },
+                        message = state.message,
+                        onRetry = { onLoadBook() },
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
 
                 is BookDetailUiState.Success -> {
                     Column(modifier = Modifier.fillMaxSize()) {
-                        PrimaryTabRow(selectedTabIndex = uiState.selectedTab) {
+                        PrimaryTabRow(selectedTabIndex = state.selectedTab) {
                             Tab(
-                                selected = uiState.selectedTab == 0,
-                                onClick = { viewModel.onEvent(BookDetailEvent.OnTabChanged(0)) },
+                                selected = state.selectedTab == 0,
+                                onClick = { onEvent(BookDetailEvent.OnTabChanged(0)) },
                                 text = { Text("Información") }
                             )
                             Tab(
-                                selected = uiState.selectedTab == 1,
-                                onClick = { viewModel.onEvent(BookDetailEvent.OnTabChanged(1)) },
+                                selected = state.selectedTab == 1,
+                                onClick = { onEvent(BookDetailEvent.OnTabChanged(1)) },
                                 text = { Text("Registro") }
                             )
                         }
 
                         Box(modifier = Modifier.fillMaxSize()) {
-                            if (uiState.selectedTab == 0) {
+                            if (state.selectedTab == 0) {
                                 BookInfoTab(
-                                    state = uiState,
-                                    onEvent = viewModel::onEvent,
+                                    state = state,
+                                    onEvent = onEvent,
                                     onPickCover = { showImageSourceDialog = true },
                                     onPickFile = {
                                         documentPickerLauncher.launch(
@@ -312,8 +328,8 @@ fun BookDetailScreen(
                                 )
                             } else {
                                 RegistryTab(
-                                    state = uiState,
-                                    onEvent = viewModel::onEvent,
+                                    state = state,
+                                    onEvent = onEvent,
                                     onShowStartDatePicker = { showStartDatePicker = true },
                                     onShowEndDatePicker = { showEndDatePicker = true }
                                 )

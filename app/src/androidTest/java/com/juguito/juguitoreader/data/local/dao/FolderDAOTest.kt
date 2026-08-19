@@ -1,0 +1,83 @@
+package com.juguito.juguitoreader.data.local.dao
+
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.common.truth.Truth.assertThat
+import com.juguito.juguitoreader.data.local.JuguitoReaderDatabase
+import com.juguito.juguitoreader.data.local.entity.BookEntity
+import com.juguito.juguitoreader.data.local.entity.BookFolderCrossRef
+import com.juguito.juguitoreader.data.local.entity.FolderEntity
+import com.juguito.juguitoreader.domain.enums.SyncStatus
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@RunWith(AndroidJUnit4::class)
+class FolderDAOTest {
+
+    private lateinit var database: JuguitoReaderDatabase
+    private lateinit var folderDAO: FolderDAO
+
+    @Before
+    fun setup() {
+        database = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(),
+            JuguitoReaderDatabase::class.java
+        ).allowMainThreadQueries().build()
+        folderDAO = database.folderDAO
+    }
+
+    @After
+    fun teardown() {
+        database.close()
+    }
+
+    @Test
+    fun insertFolders_and_getById() = runBlocking {
+        val folders = listOf(
+            FolderEntity(id = 1, name = "F1", colorHex = "#000", createdAt = 0L),
+            FolderEntity(id = 2, name = "F2", colorHex = "#FFF", createdAt = 1L)
+        )
+        folderDAO.insertFolders(folders)
+        
+        assertThat(folderDAO.getFolderById(1)?.name).isEqualTo("F1")
+        assertThat(folderDAO.getFolderById(2)?.name).isEqualTo("F2")
+    }
+
+    @Test
+    fun getFoldersWithBookCount_returns_correct_count() = runBlocking {
+        val folder = FolderEntity(id = 1, name = "My Folder", colorHex = "#000", createdAt = 0L)
+        val book = BookEntity(id = 1, title = "B", author = "A", isPhysical = false, createdAt = 0L)
+        
+        folderDAO.insertFolder(folder)
+        database.bookDAO.insertBook(book)
+        database.bookDAO.insertBookFolderCrossRefs(listOf(BookFolderCrossRef(1, 1)))
+        
+        val result = folderDAO.getFoldersWithBookCount().first()
+        assertThat(result).hasSize(1)
+        assertThat(result[0].bookCount).isEqualTo(1)
+    }
+
+    @Test
+    fun getUnsyncedFolders_returns_only_unsynced() = runBlocking {
+        val f1 = FolderEntity(name = "S", colorHex = "#000", syncStatus = SyncStatus.SYNCED, createdAt = 0L)
+        val f2 = FolderEntity(name = "U", colorHex = "#000", syncStatus = SyncStatus.PENDING_CREATE, createdAt = 1L)
+        
+        folderDAO.insertFolders(listOf(f1, f2))
+        
+        val unsynced = folderDAO.getUnsyncedFolders()
+        assertThat(unsynced).hasSize(1)
+        assertThat(unsynced[0].name).isEqualTo("U")
+    }
+
+    @Test
+    fun deleteFolderById_removes_it() = runBlocking {
+        folderDAO.insertFolder(FolderEntity(id = 1, name = "F", colorHex = "#000", createdAt = 0L))
+        folderDAO.deleteFolderById(1)
+        assertThat(folderDAO.getFolderById(1)).isNull()
+    }
+}

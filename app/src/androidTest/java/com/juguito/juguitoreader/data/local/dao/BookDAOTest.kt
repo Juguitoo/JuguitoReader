@@ -1,0 +1,105 @@
+package com.juguito.juguitoreader.data.local.dao
+
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.common.truth.Truth.assertThat
+import com.juguito.juguitoreader.data.local.JuguitoReaderDatabase
+import com.juguito.juguitoreader.data.local.entity.BookEntity
+import com.juguito.juguitoreader.data.local.entity.BookFolderCrossRef
+import com.juguito.juguitoreader.data.local.entity.BookGenreCrossRef
+import com.juguito.juguitoreader.data.local.entity.FolderEntity
+import com.juguito.juguitoreader.data.local.entity.GenreEntity
+import com.juguito.juguitoreader.domain.enums.BookStatus
+import com.juguito.juguitoreader.domain.enums.SyncStatus
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@RunWith(AndroidJUnit4::class)
+class BookDAOTest {
+
+    private lateinit var database: JuguitoReaderDatabase
+    private lateinit var bookDAO: BookDAO
+
+    @Before
+    fun setup() {
+        database = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(),
+            JuguitoReaderDatabase::class.java
+        ).allowMainThreadQueries().build()
+        bookDAO = database.bookDAO
+    }
+
+    @After
+    fun teardown() {
+        database.close()
+    }
+
+    @Test
+    fun insertBook_returns_id() = runBlocking {
+        val book = BookEntity(
+            title = "Test Book",
+            author = "Test Author",
+            isPhysical = false,
+            status = BookStatus.PENDING,
+            createdAt = System.currentTimeMillis()
+        )
+        val id = bookDAO.insertBook(book)
+        assertThat(id).isGreaterThan(0)
+    }
+
+    @Test
+    fun getBookById_returns_correct_book_with_details() = runBlocking {
+        val book = BookEntity(id = 1, title = "T", author = "A", isPhysical = false, createdAt = 0L)
+        val genre = GenreEntity(id = 1, name = "G", createdAt = 0L)
+        val folder = FolderEntity(id = 1, name = "F", colorHex = "#000", createdAt = 0L)
+        
+        bookDAO.insertBook(book)
+        database.genreDAO.insertGenre(genre)
+        database.folderDAO.insertFolder(folder)
+        bookDAO.insertBookGenreCrossRefs(listOf(BookGenreCrossRef(1, 1)))
+        bookDAO.insertBookFolderCrossRefs(listOf(BookFolderCrossRef(1, 1)))
+        
+        val result = bookDAO.getBookById(1)
+        assertThat(result).isNotNull()
+        assertThat(result?.book?.title).isEqualTo("T")
+        assertThat(result?.genres).hasSize(1)
+        assertThat(result?.folders).hasSize(1)
+    }
+
+    @Test
+    fun deleteBookById_removes_book() = runBlocking {
+        val book = BookEntity(id = 1, title = "Delete", author = "A", isPhysical = false, createdAt = 0L)
+        bookDAO.insertBook(book)
+        bookDAO.deleteBookById(1)
+        
+        val result = bookDAO.getBookById(1)
+        assertThat(result).isNull()
+    }
+
+    @Test
+    fun getUnsyncedBooks_returns_only_unsynced() = runBlocking {
+        val syncedBook = BookEntity(title = "S", author = "A", isPhysical = false, syncStatus = SyncStatus.SYNCED, createdAt = 0L)
+        val unsyncedBook = BookEntity(title = "U", author = "A", isPhysical = false, syncStatus = SyncStatus.PENDING_CREATE, createdAt = 1L)
+        
+        bookDAO.insertBooks(listOf(syncedBook, unsyncedBook))
+        
+        val unsynced = bookDAO.getUnsyncedBooks()
+        assertThat(unsynced).hasSize(1)
+        assertThat(unsynced[0].title).isEqualTo("U")
+    }
+
+    @Test
+    fun getAllBooks_returns_flow_of_books() = runBlocking {
+        val book = BookEntity(title = "B", author = "A", isPhysical = false, createdAt = 0L)
+        bookDAO.insertBook(book)
+        
+        val books = bookDAO.getAllBooks().first()
+        assertThat(books).isNotEmpty()
+        assertThat(books[0].book.title).isEqualTo("B")
+    }
+}

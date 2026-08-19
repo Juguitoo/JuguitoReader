@@ -1,0 +1,69 @@
+package com.juguito.juguitoreader.domain.usecase.book
+
+import com.google.common.truth.Truth.assertThat
+import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.domain.repository.BookRepository
+import com.juguito.juguitoreader.domain.repository.FolderRepository
+import com.juguito.juguitoreader.domain.repository.GenreRepository
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
+import org.junit.Before
+import org.junit.Test
+
+class AddBookUseCaseTest {
+
+    private lateinit var addBookUseCase: AddBookUseCase
+    private val bookRepository = mockk<BookRepository>()
+    private val folderRepository = mockk<FolderRepository>()
+    private val genreRepository = mockk<GenreRepository>()
+
+    @Before
+    fun setup() {
+        addBookUseCase = AddBookUseCase(bookRepository, folderRepository, genreRepository)
+    }
+
+    @Test
+    fun `invoke with empty title returns failure`() = runBlocking {
+        val book = Book(title = "", author = "Author", isPhysical = false)
+        val result = addBookUseCase(book)
+        
+        assertThat(result.isFailure).isTrue()
+        assertThat(result.exceptionOrNull()?.message).contains("título")
+    }
+
+    @Test
+    fun `invoke with empty author returns failure`() = runBlocking {
+        val book = Book(title = "Title", author = "", isPhysical = false)
+        val result = addBookUseCase(book)
+        
+        assertThat(result.isFailure).isTrue()
+        assertThat(result.exceptionOrNull()?.message).contains("autor")
+    }
+
+    @Test
+    fun `invoke with valid book calls repository and returns success`() = runBlocking {
+        val book = Book(title = "Valid Title", author = "Valid Author", isPhysical = false)
+        
+        coEvery { bookRepository.saveBook(any()) } returns 1L
+        coEvery { bookRepository.addCrossReferences(any(), any(), any()) } returns Unit
+        
+        val result = addBookUseCase(book)
+        
+        assertThat(result.isSuccess).isTrue()
+        coVerify(exactly = 1) { bookRepository.saveBook(any()) }
+        coVerify(exactly = 1) { bookRepository.addCrossReferences(1, any(), any()) }
+    }
+
+    @Test
+    fun `invoke with exception in repository returns failure`() = runBlocking {
+        val book = Book(title = "Title", author = "Author", isPhysical = false)
+        coEvery { bookRepository.saveBook(any()) } throws Exception("DB Error")
+        
+        val result = addBookUseCase(book)
+        
+        assertThat(result.isFailure).isTrue()
+        assertThat(result.exceptionOrNull()?.message).contains("DB Error")
+    }
+}

@@ -89,12 +89,32 @@ import com.juguito.juguitoreader.utils.FileUtils.getFileNameFromUri
 fun AddBookScreen(
     onNavigateBack: () -> Unit,
     onBookSavedSuccessfully: () -> Unit,
-    onNavigateToAddBook: () -> Unit,
+    onNavigateToAddFolder: () -> Unit,
     viewModel: AddBookViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
 
+    AddBookContent(
+        state = state,
+        onEvent = viewModel::onEvent,
+        onNavigateBack = onNavigateBack,
+        onNavigateToAddFolder = onNavigateToAddFolder,
+        onBookSavedSuccessfully = onBookSavedSuccessfully,
+        effect = viewModel.effect
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddBookContent(
+    state: AddBookUiState,
+    onEvent: (AddBookEvent) -> Unit,
+    onNavigateBack: () -> Unit,
+    onNavigateToAddFolder: () -> Unit,
+    onBookSavedSuccessfully: () -> Unit,
+    effect: kotlinx.coroutines.flow.Flow<UiEffect>
+) {
+    val context = LocalContext.current
     var showImportDialog by remember { mutableStateOf(false) }
     var showImageSourceDialog by remember { mutableStateOf(false) }
     var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
@@ -103,7 +123,7 @@ fun AddBookScreen(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
             uri?.let {
-                viewModel.onEvent(AddBookEvent.OnCoverUrlChanged(it.toString()))
+                onEvent(AddBookEvent.OnCoverUrlChanged(it.toString()))
             }
         }
     )
@@ -113,7 +133,7 @@ fun AddBookScreen(
         onResult = { success ->
             if (success) {
                 tempCameraUri?.let {
-                    viewModel.onEvent(AddBookEvent.OnCoverUrlChanged(it.toString()))
+                    onEvent(AddBookEvent.OnCoverUrlChanged(it.toString()))
                 }
             }
         }
@@ -124,7 +144,7 @@ fun AddBookScreen(
         onResult = { uri ->
             uri?.let {
                 context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                viewModel.onEvent(AddBookEvent.OnLocalFilePathChanged(it.toString()))
+                onEvent(AddBookEvent.OnLocalFilePathChanged(it.toString()))
             }
         }
     )
@@ -134,7 +154,7 @@ fun AddBookScreen(
         onResult = { uri ->
             uri?.let {
                 context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                viewModel.onEvent(AddBookEvent.OnImportEpub(it))
+                onEvent(AddBookEvent.OnImportEpub(it))
             }
         }
     )
@@ -194,10 +214,10 @@ fun AddBookScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    ObserveAsEvents(viewModel.effect) { effect ->
-        when (effect) {
+    ObserveAsEvents(effect) { uiEffect ->
+        when (uiEffect) {
             is UiEffect.ShowSnackbar -> {
-                snackbarHostState.showSnackbar(effect.message)
+                snackbarHostState.showSnackbar(uiEffect.message)
             }
             is UiEffect.NavigateBack -> {
                 onBookSavedSuccessfully()
@@ -224,18 +244,18 @@ fun AddBookScreen(
                 modifier = Modifier.background(Color.Transparent).statusBarsPadding(),
             ) {
                 TopAppBar(
-                    title = { 
+                    title = {
                         Text(
                             "Nuevo libro",
                             style = MaterialTheme.typography.titleLarge,
                             fontFamily = LoraFontFamily,
                             fontWeight = FontWeight.Bold
-                        ) 
+                        )
                     },
                     navigationIcon = {
                         IconButton(onClick = onNavigateBack) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack, 
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Atrás",
                                 tint = Color.White
                             )
@@ -276,7 +296,7 @@ fun AddBookScreen(
 
             OutlinedTextField(
                 value = state.bookDraft.title,
-                onValueChange = { viewModel.onEvent(AddBookEvent.OnTitleChanged(it)) },
+                onValueChange = { onEvent(AddBookEvent.OnTitleChanged(it)) },
                 label = { Text("Título") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
@@ -284,7 +304,7 @@ fun AddBookScreen(
 
             OutlinedTextField(
                 value = state.bookDraft.author,
-                onValueChange = { viewModel.onEvent(AddBookEvent.OnAuthorChanged(it)) },
+                onValueChange = { onEvent(AddBookEvent.OnAuthorChanged(it)) },
                 label = { Text("Autor") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
@@ -292,7 +312,7 @@ fun AddBookScreen(
 
             OutlinedTextField(
                 value = state.bookDraft.publisher,
-                onValueChange = { viewModel.onEvent(AddBookEvent.OnPublisherChanged(it)) },
+                onValueChange = { onEvent(AddBookEvent.OnPublisherChanged(it)) },
                 label = { Text("Editorial") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
@@ -303,13 +323,13 @@ fun AddBookScreen(
             ){
                 OutlinedTextField(
                     value = state.bookDraft.series,
-                    onValueChange = { viewModel.onEvent(AddBookEvent.OnSeriesChanged(it)) },
+                    onValueChange = { onEvent(AddBookEvent.OnSeriesChanged(it)) },
                     label = { Text("Saga del libro") },
                     shape = RoundedCornerShape(12.dp)
                 )
                 OutlinedTextField(
                     value = state.bookDraft.seriesOrder,
-                    onValueChange = { viewModel.onEvent(AddBookEvent.OnSeriesOrderChanged(it)) },
+                    onValueChange = { onEvent(AddBookEvent.OnSeriesOrderChanged(it)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                     label = { Text("#") },
@@ -320,7 +340,7 @@ fun AddBookScreen(
             GenreHybridSelector(
                 availableGenres = state.availableGenres,
                 selectedGenres = state.bookDraft.genres,
-                onGenresChanged = { viewModel.onEvent(AddBookEvent.OnGenresChanged(it)) }
+                onGenresChanged = { onEvent(AddBookEvent.OnGenresChanged(it)) }
             )
 
             HorizontalDivider(
@@ -354,7 +374,7 @@ fun AddBookScreen(
                 ) {
                     Checkbox(
                         checked = state.bookDraft.isPhysical,
-                        onCheckedChange = { viewModel.onEvent(AddBookEvent.OnIsPhysicalChanged(it)) }
+                        onCheckedChange = { onEvent(AddBookEvent.OnIsPhysicalChanged(it)) }
                     )
                     Text(
                         text = "Libro en formato físico",
@@ -366,8 +386,8 @@ fun AddBookScreen(
             FolderMultiSelector(
                 availableFolders = state.availableFolders,
                 selectedFolders = state.bookDraft.folders,
-                onFoldersChanged = { viewModel.onEvent(AddBookEvent.OnFoldersChanged(it)) },
-                onAddFolderClick = { onNavigateToAddBook() }
+                onFoldersChanged = { onEvent(AddBookEvent.OnFoldersChanged(it)) },
+                onAddFolderClick = { onNavigateToAddFolder() }
             )
 
             HorizontalDivider(
@@ -445,7 +465,7 @@ fun AddBookScreen(
                                 modifier = Modifier.size(32.dp),
                                 tint = MaterialTheme.colorScheme.secondary
                             )
-                            
+
                             Text(
                                 text = "Archivo de lectura",
                                 style = MaterialTheme.typography.titleSmall,
@@ -479,10 +499,10 @@ fun AddBookScreen(
                                         style = MaterialTheme.typography.labelMedium
                                     )
                                 }
-                                
+
                                 if (state.bookDraft.localFilePath != null) {
                                     IconButton(
-                                        onClick = { viewModel.onEvent(AddBookEvent.OnLocalFilePathChanged(null)) },
+                                        onClick = { onEvent(AddBookEvent.OnLocalFilePathChanged(null)) },
                                         modifier = Modifier.size(30.dp)
                                     ) {
                                         Icon(Icons.Default.Delete, contentDescription = "Quitar archivo", tint = MaterialTheme.colorScheme.error)
@@ -511,7 +531,7 @@ fun AddBookScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { viewModel.onEvent(AddBookEvent.OnSaveClick) },
+                onClick = { onEvent(AddBookEvent.OnSaveClick) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),

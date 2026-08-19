@@ -58,13 +58,31 @@ fun RegistryScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
 
+    RegistryContent(
+        state = state,
+        onEvent = viewModel::onEvent,
+        onOpenDrawer = onOpenDrawer,
+        onNavigateToAddBook = onNavigateToAddBook,
+        onNavigateToBookDetail = onNavigateToBookDetail
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RegistryContent(
+    state: RegistryUiState,
+    onEvent: (RegistryEvent) -> Unit,
+    onOpenDrawer: () -> Unit,
+    onNavigateToAddBook: () -> Unit,
+    onNavigateToBookDetail: (Int) -> Unit
+) {
     if (state.showFilterSheet) {
         RegistryFilterSheet(
             currentCriteria = state.criteria,
             availableSeries = state.availableSeries,
-            onCriteriaChanged = { viewModel.onEvent(RegistryEvent.OnCriteriaChanged(it)) },
-            onDismiss = { viewModel.onEvent(RegistryEvent.OnShowFilterSheet(false)) },
-            onClearFilters = { viewModel.onEvent(RegistryEvent.OnClearFilters) }
+            onCriteriaChanged = { onEvent(RegistryEvent.OnCriteriaChanged(it)) },
+            onDismiss = { onEvent(RegistryEvent.OnShowFilterSheet(false)) },
+            onClearFilters = { onEvent(RegistryEvent.OnClearFilters) }
         )
     }
 
@@ -77,7 +95,7 @@ fun RegistryScreen(
                     if (state.isSearchExpanded) {
                         TextField(
                             value = state.criteria.searchText,
-                            onValueChange = { viewModel.onEvent(RegistryEvent.OnSearchTextChanged(it)) },
+                            onValueChange = { onEvent(RegistryEvent.OnSearchTextChanged(it)) },
                             placeholder = { Text("Buscar libro, autor o saga...", fontSize = 14.sp) },
                             modifier = Modifier.fillMaxWidth(),
                             colors = TextFieldDefaults.colors(
@@ -104,7 +122,7 @@ fun RegistryScreen(
                 },
                 navigationIcon = {
                     if (state.isSearchExpanded) {
-                        IconButton(onClick = { viewModel.onEvent(RegistryEvent.OnToggleSearch(false)) }) {
+                        IconButton(onClick = { onEvent(RegistryEvent.OnToggleSearch(false)) }) {
                             Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Cerrar búsqueda")
                         }
                     } else {
@@ -115,11 +133,11 @@ fun RegistryScreen(
                 },
                 actions = {
                     if (!state.isSearchExpanded) {
-                        IconButton(onClick = { viewModel.onEvent(RegistryEvent.OnToggleSearch(true)) }) {
+                        IconButton(onClick = { onEvent(RegistryEvent.OnToggleSearch(true)) }) {
                             Icon(imageVector = Icons.Default.Search, contentDescription = "Buscar")
                         }
                     }
-                    IconButton(onClick = { viewModel.onEvent(RegistryEvent.OnShowFilterSheet(true)) }) {
+                    IconButton(onClick = { onEvent(RegistryEvent.OnShowFilterSheet(true)) }) {
                         val isFiltered = state.criteria.statuses.isNotEmpty() || state.criteria.series != null
                         BadgedBox(badge = { if (isFiltered) Badge() }) {
                             Icon(imageVector = Icons.Default.FilterList, contentDescription = "Filtros")
@@ -157,7 +175,7 @@ fun RegistryScreen(
                                 width = ColLibroWidth,
                                 sortOption = SortOption.TITLE_ASC,
                                 currentSort = state.criteria.sortBy,
-                                onSortClick = { viewModel.onEvent(RegistryEvent.OnCriteriaChanged(state.criteria.copy(sortBy = it))) }
+                                onSortClick = { onEvent(RegistryEvent.OnCriteriaChanged(state.criteria.copy(sortBy = it))) }
                             )
                             VerticalDivider(modifier = Modifier.height(48.dp), thickness = 0.5.dp)
                             TableHeaderItem(text = "Estado", width = ColEstadoWidth)
@@ -167,7 +185,7 @@ fun RegistryScreen(
                                 width = ColNotaWidth,
                                 sortOption = SortOption.RATING_DESC,
                                 currentSort = state.criteria.sortBy,
-                                onSortClick = { viewModel.onEvent(RegistryEvent.OnCriteriaChanged(state.criteria.copy(sortBy = it))) }
+                                onSortClick = { onEvent(RegistryEvent.OnCriteriaChanged(state.criteria.copy(sortBy = it))) }
                             )
                             VerticalDivider(modifier = Modifier.height(48.dp), thickness = 0.5.dp)
                             TableHeaderItem(
@@ -175,7 +193,7 @@ fun RegistryScreen(
                                 width = ColFechaWidth,
                                 sortOption = SortOption.CREATED_AT_DESC,
                                 currentSort = state.criteria.sortBy,
-                                onSortClick = { viewModel.onEvent(RegistryEvent.OnCriteriaChanged(state.criteria.copy(sortBy = it))) }
+                                onSortClick = { onEvent(RegistryEvent.OnCriteriaChanged(state.criteria.copy(sortBy = it))) }
                             )
                             VerticalDivider(modifier = Modifier.height(48.dp), thickness = 0.5.dp)
                             TableHeaderItem(text = "Fin", width = ColFechaWidth)
@@ -191,7 +209,7 @@ fun RegistryScreen(
                                 items(state.filteredBooks) { book ->
                                     RegistryRow(
                                         book = book,
-                                        onEvent = viewModel::onEvent,
+                                        onEvent = onEvent,
                                         onEditClick = { onNavigateToBookDetail(book.id) }
                                     )
                                     HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
@@ -348,7 +366,6 @@ fun RegistryRow(
             .height(100.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // 1. Portada + Titulo
         Row(
             modifier = Modifier.width(ColLibroWidth).fillMaxHeight().padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -406,19 +423,16 @@ fun RegistryRow(
         }
         VerticalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
 
-        // 2. Estado
         Box(modifier = Modifier.width(ColEstadoWidth).fillMaxHeight(), contentAlignment = Alignment.Center) {
             RegistryStatusPicker(book.status) { onEvent(RegistryEvent.OnStatusChanged(book.id, it)) }
         }
         VerticalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
 
-        // 3. Nota
         Box(modifier = Modifier.width(ColNotaWidth).fillMaxHeight(), contentAlignment = Alignment.Center) {
             RegistryRatingInput(book.rating) { onEvent(RegistryEvent.OnRatingChanged(book.id, it)) }
         }
         VerticalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
 
-        // 4. Inicio
         Box(
             modifier = Modifier.width(ColFechaWidth).fillMaxHeight().clickable { showStartDatePicker = true }.padding(horizontal = 12.dp),
             contentAlignment = Alignment.Center
@@ -427,7 +441,6 @@ fun RegistryRow(
         }
         VerticalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
 
-        // 5. Fin
         Box(
             modifier = Modifier.width(ColFechaWidth).fillMaxHeight().clickable { showEndDatePicker = true }.padding(horizontal = 12.dp),
             contentAlignment = Alignment.Center
@@ -439,7 +452,6 @@ fun RegistryRow(
         }
         VerticalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
 
-        // 6. Comentario
         Box(modifier = Modifier
             .width(ColComentarioWidth)
             .fillMaxHeight()

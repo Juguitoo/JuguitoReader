@@ -69,9 +69,45 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val homeState by viewModel.uiState.collectAsState()
+
+    HomeContent(
+        modifier = modifier,
+        state = homeState,
+        snackbarMessage = snackbarMessage,
+        onClearSnackbarMessage = onClearSnackbarMessage,
+        onNavigateToAddBook = onNavigateToAddBook,
+        onNavigateToBookDetail = onNavigateToBookDetail,
+        onNavigateToReadBook = onNavigateToReadBook,
+        onOpenDrawer = onOpenDrawer,
+        onEvent = viewModel::onEvent,
+        effect = viewModel.effect
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeContent(
+    modifier: Modifier = Modifier,
+    state: HomeUiState,
+    snackbarMessage: String?,
+    onClearSnackbarMessage: () -> Unit,
+    onNavigateToAddBook: () -> Unit,
+    onNavigateToBookDetail: (Int) -> Unit,
+    onNavigateToReadBook: (Int) -> Unit,
+    onOpenDrawer: () -> Unit,
+    onEvent: (HomeEvent) -> Unit,
+    effect: kotlinx.coroutines.flow.Flow<UiEffect>
+) {
     val context = LocalContext.current
     var bookToDelete by remember { mutableStateOf<Book?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
+
+    if (bookToDelete != null) {
+        bookToDelete?.let {
+            onEvent(HomeEvent.OnDeleteBookClick(it))
+        }
+        bookToDelete = null
+    }
 
     LaunchedEffect(snackbarMessage) {
         snackbarMessage?.let { message ->
@@ -80,22 +116,22 @@ fun HomeScreen(
         }
     }
 
-    ObserveAsEvents(viewModel.effect) { effect ->
-        when (effect) {
+    ObserveAsEvents(effect) { uiEffect ->
+        when (uiEffect) {
             is UiEffect.ShowSnackbar -> {
                 val result = snackbarHostState.showSnackbar(
-                    message = effect.message,
-                    actionLabel = effect.actionLabel,
+                    message = uiEffect.message,
+                    actionLabel = uiEffect.actionLabel,
                     duration = SnackbarDuration.Short
                 )
 
                 when (result) {
                     SnackbarResult.ActionPerformed -> {
-                        viewModel.onEvent(HomeEvent.OnUndoDeleteClick)
+                        onEvent(HomeEvent.OnUndoDeleteClick)
                     }
                     SnackbarResult.Dismissed -> {
-                        if (effect.actionLabel == "Deshacer") {
-                            viewModel.onEvent(HomeEvent.OnDeleteConfirmed)
+                        if (uiEffect.actionLabel == "Deshacer") {
+                            onEvent(HomeEvent.OnDeleteConfirmed)
                         }
                     }
                 }
@@ -104,19 +140,12 @@ fun HomeScreen(
         }
     }
 
-    if (bookToDelete != null) {
-        bookToDelete?.let {
-            viewModel.onEvent(HomeEvent.OnDeleteBookClick(it))
-        }
-        bookToDelete = null
-    }
-
     val documentPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
         onResult = { uri ->
             uri?.let {
                 context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                viewModel.onEvent(HomeEvent.OnImportBook(it))
+                onEvent(HomeEvent.OnImportBook(it))
             }
         }
     )
@@ -181,7 +210,7 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            when (val state = homeState) {
+            when (val homeUiState = state) {
                 is HomeUiState.Loading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
@@ -190,8 +219,8 @@ fun HomeScreen(
                 }
                 is HomeUiState.Error -> {
                     ErrorView(
-                        message = state.message,
-                        onRetry = { viewModel.onEvent(HomeEvent.OnDismissError) }
+                        message = homeUiState.message,
+                        onRetry = { onEvent(HomeEvent.OnDismissError) }
                     )
                 }
                 is HomeUiState.Empty -> {
@@ -210,8 +239,8 @@ fun HomeScreen(
                         item {
                             Column(modifier = Modifier.fillMaxWidth()) {
 
-                                val hasReading = state.readingBooks.isNotEmpty()
-                                val hasPending = state.pendingBooks.isNotEmpty()
+                                val hasReading = homeUiState.readingBooks.isNotEmpty()
+                                val hasPending = homeUiState.pendingBooks.isNotEmpty()
 
                                 if (!hasReading && !hasPending) {
                                     BookListSection(

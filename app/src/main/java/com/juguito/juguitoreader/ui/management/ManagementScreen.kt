@@ -91,6 +91,31 @@ fun ManagementScreen(
     viewModel: ManagementViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+
+    ManagementContent(
+        state = state,
+        onEvent = viewModel::onEvent,
+        managementMessage = managementMessage,
+        onClearManagementMessage = onClearManagementMessage,
+        onNavigateBack = onNavigateBack,
+        onNavigateToEditFolder = onNavigateToEditFolder,
+        onNavigateToAddFolder = onNavigateToAddFolder,
+        effect = viewModel.effect
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ManagementContent(
+    state: ManagementUiState,
+    onEvent: (ManagementEvent) -> Unit,
+    managementMessage: String?,
+    onClearManagementMessage: () -> Unit,
+    onNavigateBack: () -> Unit,
+    onNavigateToEditFolder: (Int) -> Unit,
+    onNavigateToAddFolder: () -> Unit,
+    effect: kotlinx.coroutines.flow.Flow<UiEffect>
+) {
     val focusRequester = remember { FocusRequester() }
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -105,10 +130,10 @@ fun ManagementScreen(
     var genreToDelete by remember { mutableStateOf<Genre?>(null) }
     var showAddGenreDialog by remember { mutableStateOf(false) }
 
-    ObserveAsEvents(viewModel.effect) { effect ->
-        when (effect) {
+    ObserveAsEvents(effect) { uiEffect ->
+        when (uiEffect) {
             is UiEffect.ShowSnackbar -> {
-                snackbarHostState.showSnackbar(effect.message)
+                snackbarHostState.showSnackbar(uiEffect.message)
             }
             else -> Unit
         }
@@ -127,7 +152,7 @@ fun ManagementScreen(
             message = "¿Estás seguro de que quieres eliminar la carpeta '${folderToDelete?.name}'? Los libros no se borrarán, solo se quitarán de esta carpeta.\n Esta acción no se puede deshacer.",
             confirmButtonText = "Eliminar",
             onConfirm = {
-                folderToDelete?.let { viewModel.onEvent(ManagementEvent.OnDeleteFolder(it.id)) }
+                folderToDelete?.let { onEvent(ManagementEvent.OnDeleteFolder(it.id)) }
                 folderToDelete = null
             },
             dismissButtonText = "Cancelar",
@@ -142,7 +167,7 @@ fun ManagementScreen(
             message = "¿Estás seguro de que quieres eliminar el género '${genreToDelete?.name}'? Los libros con este género dejaran de tenerlo asignado.\n Esta acción no se puede deshacer.",
             confirmButtonText = "Eliminar",
             onConfirm = {
-                genreToDelete?.let { viewModel.onEvent(ManagementEvent.OnDeleteGenre(it.id)) }
+                genreToDelete?.let { onEvent(ManagementEvent.OnDeleteGenre(it.id)) }
                 genreToDelete = null
             },
             dismissButtonText = "Cancelar",
@@ -178,13 +203,13 @@ fun ManagementScreen(
                         if (state.isSearchActive) {
                             TextField(
                                 value = state.searchQuery,
-                                onValueChange = { viewModel.onEvent(ManagementEvent.OnSearchQueryChanged(it)) },
-                                placeholder = { 
+                                onValueChange = { onEvent(ManagementEvent.OnSearchQueryChanged(it)) },
+                                placeholder = {
                                     Text(
-                                        "Buscar...", 
+                                        "Buscar...",
                                         color = Color.White.copy(alpha = 0.7f),
                                         style = MaterialTheme.typography.bodyLarge
-                                    ) 
+                                    )
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -213,7 +238,7 @@ fun ManagementScreen(
                     },
                     navigationIcon = {
                         IconButton(onClick = if (state.isSearchActive) {
-                            { viewModel.onEvent(ManagementEvent.OnToggleSearch) }
+                            { onEvent(ManagementEvent.OnToggleSearch) }
                         } else onNavigateBack) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -224,11 +249,11 @@ fun ManagementScreen(
                     },
                     actions = {
                         if (state.isSearchActive) {
-                            IconButton(onClick = { viewModel.onEvent(ManagementEvent.OnSearchQueryChanged("")) }) {
+                            IconButton(onClick = { onEvent(ManagementEvent.OnSearchQueryChanged("")) }) {
                                 Icon(Icons.Default.Close, contentDescription = "Limpiar", tint = Color.White)
                             }
                         } else {
-                            IconButton(onClick = { viewModel.onEvent(ManagementEvent.OnToggleSearch) }) {
+                            IconButton(onClick = { onEvent(ManagementEvent.OnToggleSearch) }) {
                                 Icon(Icons.Default.Search, contentDescription = "Buscar", tint = Color.White)
                             }
                         }
@@ -259,12 +284,12 @@ fun ManagementScreen(
             PrimaryTabRow(selectedTabIndex = state.selectedTab) {
                 Tab(
                     selected = state.selectedTab == 0,
-                    onClick = { viewModel.onEvent(ManagementEvent.OnTabSelected(0)) },
+                    onClick = { onEvent(ManagementEvent.OnTabSelected(0)) },
                     text = { Text("Carpetas") }
                 )
                 Tab(
                     selected = state.selectedTab == 1,
-                    onClick = { viewModel.onEvent(ManagementEvent.OnTabSelected(1)) },
+                    onClick = { onEvent(ManagementEvent.OnTabSelected(1)) },
                     text = { Text("Géneros") }
                 )
             }
@@ -279,10 +304,10 @@ fun ManagementScreen(
                     genres = filteredGenres,
                     genreToEditId = state.genreToEdit?.id,
                     editName = state.newGenreName,
-                    onGenreNameChanged = { viewModel.onEvent(ManagementEvent.OnGenreNameChanged(it)) },
-                    onUpdateConfirm = { viewModel.onEvent(ManagementEvent.OnUpdateGenreConfirm) },
-                    onCancelEdit = { viewModel.onEvent(ManagementEvent.OnCancelEditGenre) },
-                    onEdit = { viewModel.onEvent(ManagementEvent.OnEditGenreClick(it)) },
+                    onGenreNameChanged = { onEvent(ManagementEvent.OnGenreNameChanged(it)) },
+                    onUpdateConfirm = { onEvent(ManagementEvent.OnUpdateGenreConfirm) },
+                    onCancelEdit = { onEvent(ManagementEvent.OnCancelEditGenre) },
+                    onEdit = { onEvent(ManagementEvent.OnEditGenreClick(it)) },
                     onDelete = { genreToDelete = it }
                 )
             }
