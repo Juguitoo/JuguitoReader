@@ -7,9 +7,11 @@ interface SettingsRepository {
     val readerThemeFlow: Flow<String>
     val appThemeFlow: Flow<String>
     val readerBrightnessFlow: Flow<Float>
+    val languageFlow: Flow<String>
 
     suspend fun saveTextZoom(textZoom: Int)
     suspend fun saveReaderTheme(readerTheme: String)
     suspend fun saveAppTheme(appTheme: String)
     suspend fun saveReaderBrightness(readerBrightness: Float)
+    suspend fun saveLanguage(language: String)
 }

@@ -69,6 +69,7 @@ import com.juguito.juguitoreader.ui.library.LibraryScreen
 import com.juguito.juguitoreader.ui.management.ManagementScreen
 import com.juguito.juguitoreader.ui.reader.ReaderScreen
 import com.juguito.juguitoreader.ui.registry.RegistryScreen
+import com.juguito.juguitoreader.ui.settings.SettingsScreen
 import com.juguito.juguitoreader.ui.theme.AppTheme
 import com.juguito.juguitoreader.ui.theme.ThemeViewModel
 import kotlinx.coroutines.launch
@@ -237,7 +238,10 @@ fun JuguitoApp(
                 DrawerItem(
                     label = "Ajustes",
                     icon = Icons.Default.Settings,
-                    onClick = { scope.launch { drawerState.close() } }
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        navController.navigate("settings")
+                    }
                 )
                 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -377,6 +381,14 @@ fun JuguitoApp(
                 ) {
                     ReaderScreen(
                         onNavigateBack = { navController.popBackStack() }
+                    )
+                }
+                
+                composable (
+                    route = "settings"
+                ) {
+                    SettingsScreen(
+                        onNavigateBack = { navController.popBackStack() },
                     )
                 }
             }

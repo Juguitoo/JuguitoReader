@@ -13,3 +13,8 @@ enum class BookStatus(val displayName: String) {
     FINISHED("Finalizado"),
     DROPPED("Abandonado")
 }
+
+enum class Language(val displayName: String) {
+    SPANISH("Español"),
+    ENGLISH("Inglés")
+}

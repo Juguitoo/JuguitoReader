@@ -26,12 +26,14 @@ class SettingsRepositoryImpl @Inject constructor(
         val READER_THEME = stringPreferencesKey("reader_theme")
         val APP_THEME = stringPreferencesKey("app_theme")
         val READER_BRIGHTNESS = floatPreferencesKey("reader_brightness")
+        val LANGUAGE = stringPreferencesKey("language")
     }
 
     override val textZoomFlow: Flow<Int> = context.dataStore.data.map { it[TEXT_ZOOM] ?: 100 }
     override val readerThemeFlow: Flow<String> = context.dataStore.data.map { it[READER_THEME] ?: "SEPIA" }
     override val appThemeFlow: Flow<String> = context.dataStore.data.map { it[APP_THEME] ?: "JUGUITO" }
     override val readerBrightnessFlow: Flow<Float> = context.dataStore.data.map { it[READER_BRIGHTNESS] ?: 0.5f }
+    override val languageFlow: Flow<String> = context.dataStore.data.map { it[LANGUAGE] ?: "SPANISH" }
 
     override suspend fun saveTextZoom(textZoom: Int) {
         context.dataStore.edit { it[TEXT_ZOOM] = textZoom }
@@ -47,5 +49,9 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override suspend fun saveReaderBrightness(readerBrightness: Float) {
         context.dataStore.edit { it[READER_BRIGHTNESS] = readerBrightness }
+    }
+
+    override suspend fun saveLanguage(language: String) {
+        context.dataStore.edit { it[LANGUAGE] = language }
     }
 }

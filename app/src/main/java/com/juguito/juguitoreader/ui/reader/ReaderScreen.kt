@@ -545,127 +545,166 @@ fun ReaderContent(
                     Column(
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp).navigationBarsPadding()
                     ) {
-                        if (bottomBarMode == BottomBarMode.FONT_SIZE) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth().height(48.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                IconButton(onClick = { bottomBarMode = BottomBarMode.DEFAULT }) {
-                                    Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.White)
-                                }
-                                Icon(Icons.Default.FormatSize, contentDescription = null, modifier = Modifier.size(16.dp))
-                                Slider(
-                                    value = state.textZoom.toFloat(),
-                                    onValueChange = { onEvent(ReaderEvent.OnTextZoomChanged(it.toInt())) },
-                                    valueRange = 50f..200f,
-                                    modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
-                                    thumb = {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(16.dp)
-                                                .background(Color.White, CircleShape)
-                                        )
-                                    },
-                                    track = { positions ->
-                                        SliderDefaults.Track(
-                                            colors = SliderDefaults.colors(
-                                                activeTrackColor = Color.White,
-                                                inactiveTrackColor = Color.White.copy(alpha = 0.3f)
-                                            ),
-                                            sliderState = positions,
-                                            modifier = Modifier.height(2.dp)
-                                        )
+                        when (bottomBarMode) {
+                            BottomBarMode.FONT_SIZE -> {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    IconButton(onClick = { bottomBarMode = BottomBarMode.DEFAULT }) {
+                                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.White)
                                     }
-                                )
-                                Icon(Icons.Default.FormatSize, contentDescription = null, modifier = Modifier.size(24.dp))
-                            }
-                        } else if (bottomBarMode == BottomBarMode.BRIGHTNESS) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth().height(48.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                IconButton(onClick = { bottomBarMode = BottomBarMode.DEFAULT }) {
-                                    Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.White)
-                                }
-                                Icon(Icons.Default.LightMode, contentDescription = null, modifier = Modifier.size(18.dp))
-                                Slider(
-                                    value = brightness,
-                                    onValueChange = {
-                                        brightness = it
-                                        onEvent(ReaderEvent.OnBrightnessChanged(it))
-                                    },
-                                    valueRange = 0.05f..1.0f,
-                                    modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
-                                    thumb = { Box(modifier = Modifier.size(16.dp).background(Color.White, CircleShape)) },
-                                    track = { positions ->
-                                        SliderDefaults.Track(
-                                            colors = SliderDefaults.colors(activeTrackColor = Color.White, inactiveTrackColor = Color.White.copy(alpha = 0.3f)),
-                                            sliderState = positions,
-                                            modifier = Modifier.height(2.dp)
-                                        )
-                                    }
-                                )
-                                Icon(Icons.Default.LightMode, contentDescription = null, modifier = Modifier.size(24.dp))
-                            }
-                        } else {
-                            Row(
-                                modifier = Modifier.fillMaxWidth().height(48.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    IconButton(
-                                        onClick = { onEvent(ReaderEvent.OnPreviousChapter) },
-                                        enabled = state.currentChapterIndex > 0,
-                                        colors = IconButtonDefaults.iconButtonColors(
-                                            contentColor = Color.White,
-                                            disabledContentColor = Color.White.copy(alpha = 0.4f)
-                                        )
-                                    ) {
-                                        Icon(Icons.Default.ChevronLeft, contentDescription = "Anterior", modifier = Modifier.size(32.dp))
-                                    }
-
-                                    IconButton(onClick = { bottomBarMode = BottomBarMode.FONT_SIZE }) {
-                                        Icon(Icons.Default.FormatSize, contentDescription = "Tamaño de letra")
-                                    }
-
-                                    IconButton(onClick = { bottomBarMode = BottomBarMode.BRIGHTNESS }) {
-                                        Icon(Icons.Default.LightMode, contentDescription = "Brillo")
-                                    }
-                                }
-
-                                // Bloque Central: Progreso
-                                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = "${state.currentChapterIndex + 1} / ${state.epubContent.spine.size}",
-                                        style = MaterialTheme.typography.labelLarge,
-                                        fontWeight = FontWeight.Bold
+                                    Icon(
+                                        Icons.Default.FormatSize,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
                                     )
-                                    LinearProgressIndicator(
-                                        progress = { (state.currentChapterIndex + 1).toFloat() / state.epubContent.spine.size },
-                                        modifier = Modifier.width(120.dp).padding(top = 4.dp).clip(CircleShape).height(4.dp),
-                                        color = Color.White,
-                                        trackColor = Color.White.copy(alpha = 0.3f)
+                                    Slider(
+                                        value = state.textZoom.toFloat(),
+                                        onValueChange = { onEvent(ReaderEvent.OnTextZoomChanged(it.toInt())) },
+                                        valueRange = 50f..200f,
+                                        modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
+                                        thumb = {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(16.dp)
+                                                    .background(Color.White, CircleShape)
+                                            )
+                                        },
+                                        track = { positions ->
+                                            SliderDefaults.Track(
+                                                colors = SliderDefaults.colors(
+                                                    activeTrackColor = Color.White,
+                                                    inactiveTrackColor = Color.White.copy(alpha = 0.3f)
+                                                ),
+                                                sliderState = positions,
+                                                modifier = Modifier.height(2.dp)
+                                            )
+                                        }
+                                    )
+                                    Icon(
+                                        Icons.Default.FormatSize,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(24.dp)
                                     )
                                 }
+                            }
+                            BottomBarMode.BRIGHTNESS -> {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    IconButton(onClick = { bottomBarMode = BottomBarMode.DEFAULT }) {
+                                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.White)
+                                    }
+                                    Icon(
+                                        Icons.Default.LightMode,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Slider(
+                                        value = brightness,
+                                        onValueChange = {
+                                            brightness = it
+                                            onEvent(ReaderEvent.OnBrightnessChanged(it))
+                                        },
+                                        valueRange = 0.05f..1.0f,
+                                        modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
+                                        thumb = {
+                                            Box(
+                                                modifier = Modifier.size(16.dp).background(Color.White, CircleShape)
+                                            )
+                                        },
+                                        track = { positions ->
+                                            SliderDefaults.Track(
+                                                colors = SliderDefaults.colors(
+                                                    activeTrackColor = Color.White,
+                                                    inactiveTrackColor = Color.White.copy(alpha = 0.3f)
+                                                ),
+                                                sliderState = positions,
+                                                modifier = Modifier.height(2.dp)
+                                            )
+                                        }
+                                    )
+                                    Icon(
+                                        Icons.Default.LightMode,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                            }
+                            else -> {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        IconButton(
+                                            onClick = { onEvent(ReaderEvent.OnPreviousChapter) },
+                                            enabled = state.currentChapterIndex > 0,
+                                            colors = IconButtonDefaults.iconButtonColors(
+                                                contentColor = Color.White,
+                                                disabledContentColor = Color.White.copy(alpha = 0.4f)
+                                            )
+                                        ) {
+                                            Icon(
+                                                Icons.Default.ChevronLeft,
+                                                contentDescription = "Anterior",
+                                                modifier = Modifier.size(32.dp)
+                                            )
+                                        }
 
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    IconButton(onClick = {
-                                        val nextThemeIndex = (state.theme.ordinal + 1) % ReaderTheme.entries.size
-                                        onEvent(ReaderEvent.OnThemeChanged(ReaderTheme.entries[nextThemeIndex]))
-                                    }) {
-                                        Icon(Icons.Default.Palette, contentDescription = "Cambiar tema")
+                                        IconButton(onClick = { bottomBarMode = BottomBarMode.FONT_SIZE }) {
+                                            Icon(Icons.Default.FormatSize, contentDescription = "Tamaño de letra")
+                                        }
+
+                                        IconButton(onClick = { bottomBarMode = BottomBarMode.BRIGHTNESS }) {
+                                            Icon(Icons.Default.LightMode, contentDescription = "Brillo")
+                                        }
                                     }
 
-                                    IconButton(
-                                        onClick = { onEvent(ReaderEvent.OnNextChapter) },
-                                        enabled = state.currentChapterIndex < state.epubContent.spine.size - 1,
-                                        colors = IconButtonDefaults.iconButtonColors(
-                                            contentColor = Color.White,
-                                            disabledContentColor = Color.White.copy(alpha = 0.4f)
-                                        )
+                                    // Bloque Central: Progreso
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        modifier = Modifier.weight(1f)
                                     ) {
-                                        Icon(Icons.Default.ChevronRight, contentDescription = "Siguiente", modifier = Modifier.size(32.dp))
+                                        Text(
+                                            text = "${state.currentChapterIndex + 1} / ${state.epubContent.spine.size}",
+                                            style = MaterialTheme.typography.labelLarge,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        LinearProgressIndicator(
+                                            progress = { (state.currentChapterIndex + 1).toFloat() / state.epubContent.spine.size },
+                                            modifier = Modifier.width(120.dp).padding(top = 4.dp).clip(CircleShape)
+                                                .height(4.dp),
+                                            color = Color.White,
+                                            trackColor = Color.White.copy(alpha = 0.3f)
+                                        )
+                                    }
+
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        IconButton(onClick = {
+                                            val nextThemeIndex = (state.theme.ordinal + 1) % ReaderTheme.entries.size
+                                            onEvent(ReaderEvent.OnThemeChanged(ReaderTheme.entries[nextThemeIndex]))
+                                        }) {
+                                            Icon(Icons.Default.Palette, contentDescription = "Cambiar tema")
+                                        }
+
+                                        IconButton(
+                                            onClick = { onEvent(ReaderEvent.OnNextChapter) },
+                                            enabled = state.currentChapterIndex < state.epubContent.spine.size - 1,
+                                            colors = IconButtonDefaults.iconButtonColors(
+                                                contentColor = Color.White,
+                                                disabledContentColor = Color.White.copy(alpha = 0.4f)
+                                            )
+                                        ) {
+                                            Icon(
+                                                Icons.Default.ChevronRight,
+                                                contentDescription = "Siguiente",
+                                                modifier = Modifier.size(32.dp)
+                                            )
+                                        }
                                     }
                                 }
                             }
