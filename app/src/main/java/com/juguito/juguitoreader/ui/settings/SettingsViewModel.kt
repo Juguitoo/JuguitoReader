@@ -18,6 +18,12 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
+    private data class ReadingPrefs(
+        val language: String,
+        val autoStart: Boolean,
+        val autoFinish: Boolean,
+        val prompt: Boolean
+    )
     private val themeAndZoomFlow = combine(
         settingsRepository.appThemeFlow,
         settingsRepository.readerThemeFlow,
@@ -29,22 +35,24 @@ class SettingsViewModel @Inject constructor(
     private val readingPrefsFlow = combine(
         settingsRepository.languageFlow,
         settingsRepository.autoStartReadingFlow,
-        settingsRepository.autoFinishReadingFlow
-    ) { language, autoStart, autoFinish ->
-        Triple(language, autoStart, autoFinish)
+        settingsRepository.autoFinishReadingFlow,
+        settingsRepository.promptStatusChangeFlow
+    ) { language, autoStart, autoFinish, promptStatusChangeFlow->
+        ReadingPrefs(language, autoStart, autoFinish, promptStatusChangeFlow)
     }
 
     val uiState: StateFlow<SettingsUiState> = combine(
         themeAndZoomFlow,
         readingPrefsFlow
-    ) { (appThemeStr, readerThemeStr, textZoom), (languageStr, autoStart, autoFinish) ->
+    ) { (appThemeStr, readerThemeStr, textZoom), prefs ->
         SettingsUiState(
             appTheme = runCatching { AppTheme.valueOf(appThemeStr) }.getOrDefault(AppTheme.JUGUITO),
             readerTheme = runCatching { ReaderTheme.valueOf(readerThemeStr) }.getOrDefault(ReaderTheme.SEPIA),
             textZoom = textZoom,
-            language = runCatching { Language.valueOf(languageStr) }.getOrDefault(Language.SPANISH),
-            autoStart = autoStart,
-            autoFinish = autoFinish,
+            language = runCatching { Language.valueOf(prefs.language) }.getOrDefault(Language.SPANISH),
+            autoStart = prefs.autoStart,
+            autoFinish = prefs.autoFinish,
+            promptStatusChange = prefs.prompt,
             isLoading = false
         )
     }.stateIn(
@@ -70,9 +78,16 @@ class SettingsViewModel @Inject constructor(
                 }
                 is SettingsEvent.OnAutoPendingToReadingChanged -> {
                     settingsRepository.saveAutoStartReading(event.enable)
+
+                    if (event.enable) {
+                        settingsRepository.savePromptStatusChange(false)
+                    }
                 }
                 is SettingsEvent.OnAutoFinishChanged -> {
                     settingsRepository.saveAutoFinishReading(event.enable)
+                }
+                is SettingsEvent.OnPromptStatusChangeChanged -> {
+                    settingsRepository.savePromptStatusChange(event.enable)
                 }
             }
         }

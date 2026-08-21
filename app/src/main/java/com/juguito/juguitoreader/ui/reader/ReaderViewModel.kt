@@ -3,20 +3,25 @@ package com.juguito.juguitoreader.ui.reader
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.ReadingProgress
 import com.juguito.juguitoreader.domain.model.copy
 import com.juguito.juguitoreader.domain.repository.SettingsRepository
 import com.juguito.juguitoreader.domain.usecase.book.GetBookByIdUseCase
+import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
 import com.juguito.juguitoreader.domain.usecase.reader.ParseEpubUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.AddReadingProgressUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgressByIdUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.UpdateReadingProgressUseCase
+import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,6 +32,7 @@ class ReaderViewModel @Inject constructor(
     private val getReadingProgressByIdUseCase: GetReadingProgressByIdUseCase,
     private val updateReadingProgressUseCase: UpdateReadingProgressUseCase,
     private val addReadingProgressUseCase: AddReadingProgressUseCase,
+    private val updateBookUseCase: UpdateBookUseCase,
     private val parseEpubUseCase: ParseEpubUseCase,
     private val settingsRepository: SettingsRepository,
     savedStateHandle: SavedStateHandle
@@ -55,7 +61,11 @@ class ReaderViewModel @Inject constructor(
         initialValue = ReaderUiState.Loading
     )
 
+    private val _effect = Channel<UiEffect>()
+    val effect = _effect.receiveAsFlow()
+
     private val bookId: Int = checkNotNull(savedStateHandle["bookId"])
+    private var initialPercentage: Int = -1
 
     init {
         loadData()
@@ -87,6 +97,7 @@ class ReaderViewModel @Inject constructor(
                             addReadingProgressUseCase.invoke(newProgress)
                             progress = newProgress
                         }
+                        initialPercentage = progress.percentage
 
                         _internalState.value = ReaderUiState.Success(
                             book = book,
@@ -151,6 +162,13 @@ class ReaderViewModel @Inject constructor(
             is ReaderEvent.OnTimeRemainingChanged -> {
                 _internalState.value = currentState.copy(timeRemaining = event.minutes)
             }
+
+            is ReaderEvent.OnBackRequested -> {
+                handleBackRequest(currentState)
+            }
+            is ReaderEvent.OnStatusPromptResult -> {
+                handlePromptResult(currentState, event.changeToReading)
+            }
         }
     }
 
@@ -172,6 +190,32 @@ class ReaderViewModel @Inject constructor(
 
         viewModelScope.launch {
             updateReadingProgressUseCase.invoke(updatedProgress)
+        }
+    }
+
+    private fun handleBackRequest(currentState: ReaderUiState.Success) {
+        val currentPercentage = currentState.readingProgress.percentage
+        val sessionDelta = currentPercentage - initialPercentage
+
+        viewModelScope.launch {
+            val shouldPrompt = settingsRepository.promptStatusChangeFlow.first()
+            val autoStart = settingsRepository.autoStartReadingFlow.first()
+            if (currentState.book.status == BookStatus.PENDING && sessionDelta >= 15 && !autoStart && shouldPrompt) {
+                _internalState.value = currentState.copy(showStatusPrompt = true)
+            } else {
+                _effect.send(UiEffect.NavigateBack)
+            }
+        }
+    }
+
+    private fun handlePromptResult(currentState: ReaderUiState.Success, changeToReading: Boolean) {
+        _internalState.value = currentState.copy(showStatusPrompt = false)
+
+        viewModelScope.launch {
+            if (changeToReading) {
+                updateBookUseCase.invoke(currentState.book.copy(status = BookStatus.READING))
+            }
+            _effect.send(UiEffect.NavigateBack)
         }
     }
 }

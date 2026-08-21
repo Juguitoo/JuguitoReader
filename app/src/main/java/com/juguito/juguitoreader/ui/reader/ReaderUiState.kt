@@ -22,7 +22,8 @@ sealed interface ReaderUiState {
         val textZoom: Int = 100,
         val theme: ReaderTheme = ReaderTheme.SEPIA,
         val brightness: Float = 0.5f,
-        val timeRemaining: Int? = null
+        val timeRemaining: Int? = null,
+        val showStatusPrompt: Boolean = false
     ): ReaderUiState {
         val currentChapterUrl: String
             get() = "file://${epubContent.baseDir}/${epubContent.spine[currentChapterIndex]}"

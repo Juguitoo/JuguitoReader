@@ -38,6 +38,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
@@ -90,6 +91,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.juguito.juguitoreader.domain.model.EpubNavElement
+import com.juguito.juguitoreader.ui.common.ObserveAsEvents
+import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.JuguitoDialog
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import kotlinx.coroutines.launch
@@ -102,6 +105,13 @@ fun ReaderScreen(
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val activity = context as? Activity
+
+    ObserveAsEvents(viewModel.effect) { uiEffect ->
+        when (uiEffect) {
+            is UiEffect.NavigateBack -> onNavigateBack()
+            else -> Unit
+        }
+    }
 
     DisposableEffect(Unit) {
         activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -129,8 +139,7 @@ fun ReaderScreen(
         is ReaderUiState.Error -> ReaderError(currentState.message, onNavigateBack)
         is ReaderUiState.Success -> ReaderContent(
             state = currentState,
-            onEvent = viewModel::onEvent,
-            onNavigateBack = onNavigateBack
+            onEvent = viewModel::onEvent
         )
     }
 }
@@ -159,8 +168,7 @@ enum class BottomBarMode { DEFAULT, FONT_SIZE, BRIGHTNESS }
 @Composable
 fun ReaderContent(
     state: ReaderUiState.Success,
-    onEvent: (ReaderEvent) -> Unit,
-    onNavigateBack: () -> Unit
+    onEvent: (ReaderEvent) -> Unit
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -184,10 +192,15 @@ fun ReaderContent(
         if (!state.isControlsVisible) bottomBarMode = BottomBarMode.DEFAULT
     }
 
-    BackHandler(enabled = drawerState.isOpen) {
-        scope.launch { drawerState.close() }
+    BackHandler(enabled = true) {
+        if (drawerState.isOpen) {
+            scope.launch { drawerState.close() }
+        } else if (state.isControlsVisible) {
+            onEvent(ReaderEvent.OnToggleControls)
+        } else {
+            onEvent(ReaderEvent.OnBackRequested)
+        }
     }
-
     ModalNavigationDrawer(
         drawerState = drawerState,
         gesturesEnabled = false,
@@ -197,7 +210,9 @@ fun ReaderContent(
                 drawerContainerColor = MaterialTheme.colorScheme.surface
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(24.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -216,7 +231,9 @@ fun ReaderContent(
                 val activeChapterFileName = remember(state.currentChapterIndex, state.epubContent.spine) {
                     state.epubContent.spine.getOrNull(state.currentChapterIndex)?.substringAfterLast("/") ?: ""
                 }
-                LazyColumn(modifier = Modifier.fillMaxSize().padding(top = 8.dp)) {
+                LazyColumn(modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 8.dp)) {
                     items(state.epubContent.chaptersTree) { chapter ->
                         CollapsibleIndexItem(
                             element = chapter,
@@ -237,9 +254,14 @@ fun ReaderContent(
     ) {
         val currentScrollY = rememberUpdatedState(state.readingProgress.scrollPosition)
         val currentState = rememberUpdatedState(state)
-        Box(modifier = Modifier.fillMaxSize().background(Color(state.theme.bgColor.toColorInt()))) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .background(Color(state.theme.bgColor.toColorInt()))) {
             AndroidView(
-                modifier = Modifier.fillMaxSize().systemBarsPadding().padding(vertical = 24.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .systemBarsPadding()
+                    .padding(vertical = 24.dp),
                 factory = { ctx ->
                     WebView(ctx).apply {
                         layoutParams = ViewGroup.LayoutParams(
@@ -466,7 +488,9 @@ fun ReaderContent(
                 visible = overscrollDelta < -20f,
                 enter = fadeIn() + slideInVertically(initialOffsetY = { -it }),
                 exit = fadeOut() + slideOutVertically(targetOffsetY = { -it }),
-                modifier = Modifier.align(Alignment.TopCenter).padding(top = 48.dp)
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 48.dp)
             ) {
                 val progress = (-overscrollDelta / 80f).coerceIn(0f, 1f)
 
@@ -479,7 +503,9 @@ fun ReaderContent(
                         Icon(
                             imageVector = Icons.Default.ArrowUpward,
                             contentDescription = null,
-                            modifier = Modifier.size(20.dp).rotate(if (progress >= 1f) 180f else 0f),
+                            modifier = Modifier
+                                .size(20.dp)
+                                .rotate(if (progress >= 1f) 180f else 0f),
                             tint = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -496,7 +522,9 @@ fun ReaderContent(
                 visible = overscrollDelta > 20f,
                 enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
                 exit = fadeOut() + slideOutVertically(targetOffsetY = { it }),
-                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 48.dp)
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 48.dp)
             ) {
                 val progress = (overscrollDelta / 80f).coerceIn(0f, 1f)
 
@@ -509,7 +537,9 @@ fun ReaderContent(
                         Icon(
                             imageVector = Icons.Default.ArrowDownward,
                             contentDescription = null,
-                            modifier = Modifier.size(20.dp).rotate(if (progress >= 1f) 180f else 0f),
+                            modifier = Modifier
+                                .size(20.dp)
+                                .rotate(if (progress >= 1f) 180f else 0f),
                             tint = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -530,7 +560,7 @@ fun ReaderContent(
                 TopAppBar(
                     title = { Text(text = state.book.title, style = MaterialTheme.typography.titleLarge, maxLines = 1, fontWeight = FontWeight.Bold) },
                     navigationIcon = {
-                        IconButton(onClick = onNavigateBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) }
+                        IconButton(onClick = { onEvent(ReaderEvent.OnBackRequested) }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) }
                     },
                     actions = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) { Icon(Icons.Default.Menu, contentDescription = "Índice") }
@@ -557,12 +587,16 @@ fun ReaderContent(
                     shadowElevation = 8.dp
                 ) {
                     Column(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp).navigationBarsPadding()
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .navigationBarsPadding()
                     ) {
                         when (bottomBarMode) {
                             BottomBarMode.FONT_SIZE -> {
                                 Row(
-                                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(48.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     IconButton(onClick = { bottomBarMode = BottomBarMode.DEFAULT }) {
@@ -577,7 +611,9 @@ fun ReaderContent(
                                         value = state.textZoom.toFloat(),
                                         onValueChange = { onEvent(ReaderEvent.OnTextZoomChanged(it.toInt())) },
                                         valueRange = 50f..200f,
-                                        modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(horizontal = 12.dp),
                                         thumb = {
                                             Box(
                                                 modifier = Modifier
@@ -605,7 +641,9 @@ fun ReaderContent(
                             }
                             BottomBarMode.BRIGHTNESS -> {
                                 Row(
-                                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(48.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     IconButton(onClick = { bottomBarMode = BottomBarMode.DEFAULT }) {
@@ -623,10 +661,14 @@ fun ReaderContent(
                                             onEvent(ReaderEvent.OnBrightnessChanged(it))
                                         },
                                         valueRange = 0.05f..1.0f,
-                                        modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(horizontal = 12.dp),
                                         thumb = {
                                             Box(
-                                                modifier = Modifier.size(16.dp).background(Color.White, CircleShape)
+                                                modifier = Modifier
+                                                    .size(16.dp)
+                                                    .background(Color.White, CircleShape)
                                             )
                                         },
                                         track = { positions ->
@@ -649,7 +691,9 @@ fun ReaderContent(
                             }
                             else -> {
                                 Row(
-                                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(48.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
@@ -690,7 +734,10 @@ fun ReaderContent(
                                         )
                                         LinearProgressIndicator(
                                             progress = { (state.currentChapterIndex + 1).toFloat() / state.epubContent.spine.size },
-                                            modifier = Modifier.width(120.dp).padding(top = 4.dp).clip(CircleShape)
+                                            modifier = Modifier
+                                                .width(120.dp)
+                                                .padding(top = 4.dp)
+                                                .clip(CircleShape)
                                                 .height(4.dp),
                                             color = Color.White,
                                             trackColor = Color.White.copy(alpha = 0.3f)
@@ -761,6 +808,18 @@ fun ReaderContent(
                     }
                 }
             }
+
+            if (state.showStatusPrompt) {
+                JuguitoDialog(
+                    onDismissRequest = { onEvent(ReaderEvent.OnStatusPromptResult(false)) },
+                    icon = Icons.Default.AutoStories,
+                    title = "¿Quieres cambiar el estado?",
+                    message = "Has avanzado bastante en esta lectura. El libro actual tiene el estado 'Pendiente'.\n¿Quieres mover el libro a tu lista de 'Leyendo'?",
+                    confirmButtonText = "Sí, cambiar",
+                    dismissButtonText = "Dejar igual",
+                    onConfirm = { onEvent(ReaderEvent.OnStatusPromptResult(true)) }
+                )
+            }
         }
     }
 }
@@ -799,7 +858,10 @@ fun CollapsibleIndexItem(
                     Box(
                         modifier = Modifier
                             .size(6.dp)
-                            .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f), CircleShape)
+                            .background(
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                                CircleShape
+                            )
                     )
                     Spacer(Modifier.width(12.dp))
                 }

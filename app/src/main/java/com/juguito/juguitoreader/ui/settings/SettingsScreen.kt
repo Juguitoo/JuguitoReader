@@ -187,10 +187,11 @@ fun SettingsScreen(
             SettingsSection(title = "Automatizaciones") {
                 SettingsSwitchRow(
                     icon = Icons.Default.BookmarkAdded,
-                    title = "Estado 'Leyendo'",
-                    subtitle = "Mueve el libro de 'Pendiente' a 'Leyendo' al abrirlo.",
+                    title = "Cambiar a 'Leyendo'",
+                    subtitle = "Pasa automáticamente un libro 'Pendiente' a 'Leyendo' al abrirlo.",
                     checked = state.autoStart,
-                    onCheckedChange = { viewModel.onEvent(SettingsEvent.OnAutoPendingToReadingChanged(it)) }
+                    onCheckedChange = { viewModel.onEvent(SettingsEvent.OnAutoPendingToReadingChanged(it)) },
+                    enabled = true
                 )
 
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
@@ -200,7 +201,19 @@ fun SettingsScreen(
                     title = "Marcar como 'Terminado'",
                     subtitle = "Completa el libro al llegar al 100% de la lectura.",
                     checked = state.autoFinish,
-                    onCheckedChange = { viewModel.onEvent(SettingsEvent.OnAutoFinishChanged(it)) }
+                    onCheckedChange = { viewModel.onEvent(SettingsEvent.OnAutoFinishChanged(it)) },
+                    enabled = true
+                )
+
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+                SettingsSwitchRow(
+                    icon = Icons.Default.AutoStories,
+                    title = "Sugerir cambio a 'Leyendo'",
+                    subtitle = "Pregunta si deseas cambiar el estado al avanzar un 15% de una sentada.",
+                    checked = state.promptStatusChange,
+                    onCheckedChange = { viewModel.onEvent(SettingsEvent.OnPromptStatusChangeChanged(it)) },
+                    enabled = !state.autoStart
                 )
             }
 /*

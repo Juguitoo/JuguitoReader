@@ -79,6 +79,7 @@ import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.JuguitoDialog
 import com.juguito.juguitoreader.ui.genre.AddGenreDialog
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
+import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -114,7 +115,7 @@ fun ManagementContent(
     onNavigateBack: () -> Unit,
     onNavigateToEditFolder: (Int) -> Unit,
     onNavigateToAddFolder: () -> Unit,
-    effect: kotlinx.coroutines.flow.Flow<UiEffect>
+    effect: Flow<UiEffect>
 ) {
     val focusRequester = remember { FocusRequester() }
     val snackbarHostState = remember { SnackbarHostState() }

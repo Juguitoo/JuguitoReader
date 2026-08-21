@@ -30,6 +30,7 @@ class SettingsRepositoryImpl @Inject constructor(
         val LANGUAGE = stringPreferencesKey("language")
         val AUTO_START_READING = booleanPreferencesKey("auto_start_reading")
         val AUTO_FINISH_READING = booleanPreferencesKey("auto_finish_reading")
+        val PROMPT_STATUS_CHANGE = booleanPreferencesKey("prompt_status_change")
     }
 
     override val textZoomFlow: Flow<Int> = context.dataStore.data.map { it[TEXT_ZOOM] ?: 100 }
@@ -39,6 +40,7 @@ class SettingsRepositoryImpl @Inject constructor(
     override val languageFlow: Flow<String> = context.dataStore.data.map { it[LANGUAGE] ?: "SPANISH" }
     override val autoStartReadingFlow: Flow<Boolean> = context.dataStore.data.map { it[AUTO_START_READING] ?: false }
     override val autoFinishReadingFlow: Flow<Boolean> = context.dataStore.data.map { it[AUTO_FINISH_READING] ?: false }
+    override val promptStatusChangeFlow: Flow<Boolean> = context.dataStore.data.map { it[PROMPT_STATUS_CHANGE] ?: true }
 
     override suspend fun saveTextZoom(textZoom: Int) {
         context.dataStore.edit { it[TEXT_ZOOM] = textZoom }
@@ -66,5 +68,9 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override suspend fun saveAutoFinishReading(enable: Boolean) {
         context.dataStore.edit { it[AUTO_FINISH_READING] = enable }
+    }
+
+    override suspend fun savePromptStatusChange(enable: Boolean) {
+        context.dataStore.edit { it[PROMPT_STATUS_CHANGE] = enable }
     }
 }

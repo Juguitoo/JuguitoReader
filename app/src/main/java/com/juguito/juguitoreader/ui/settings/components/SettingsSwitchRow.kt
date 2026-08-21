@@ -27,6 +27,7 @@ fun SettingsSwitchRow(
     subtitle: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -64,7 +65,8 @@ fun SettingsSwitchRow(
             colors = SwitchDefaults.colors(
                 checkedThumbColor = MaterialTheme.colorScheme.primaryContainer,
                 checkedTrackColor = MaterialTheme.colorScheme.primary
-            )
+            ),
+            enabled = enabled
         )
     }
 }

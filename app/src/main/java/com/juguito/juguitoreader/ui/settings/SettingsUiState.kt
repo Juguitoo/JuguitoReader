@@ -11,5 +11,6 @@ data class SettingsUiState(
     val language: Language = Language.SPANISH,
     val autoStart: Boolean = false,
     val autoFinish: Boolean = false,
+    val promptStatusChange: Boolean = true,
     val isLoading: Boolean = false
 )
