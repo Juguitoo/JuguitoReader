@@ -9,7 +9,7 @@ data class SettingsUiState(
     val readerTheme: ReaderTheme = ReaderTheme.SEPIA,
     val textZoom: Int = 14,
     val language: Language = Language.SPANISH,
-    val autoPendingToReading: Boolean = false,
+    val autoStart: Boolean = false,
     val autoFinish: Boolean = false,
     val isLoading: Boolean = false
 )

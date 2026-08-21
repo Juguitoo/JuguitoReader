@@ -19,7 +19,7 @@ class ReaderScreenTest {
     fun readerScreen_shows_book_title_when_controls_visible() {
         val book = Book(id = 1, title = "Moby Dick", author = "Melville", isPhysical = false)
         val epubContent = EpubContent(baseDir = "", spine = listOf("ch1"), chaptersTree = emptyList())
-        val progress = ReadingProgress(bookId = 1, lastChapterIndex = 0, scrollPosition = 0f, lastReadAt = 0L)
+        val progress = ReadingProgress(bookId = 1, totalChapters = 10, lastChapterIndex = 0, scrollPosition = 0f, lastReadAt = 0L)
         
         val successState = ReaderUiState.Success(
             book = book,

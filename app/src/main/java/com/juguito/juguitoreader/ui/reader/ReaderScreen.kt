@@ -327,7 +327,14 @@ fun ReaderContent(
                                         var totalWords = text.split(/\s+/).length;
                                         
                                         var scrollableHeight = document.body.scrollHeight - window.innerHeight;
-                                        var scrollPercent = scrollableHeight > 0 ? (window.scrollY / scrollableHeight) : 0;
+                                        var scrollPercent = 1.0;
+                                            if (scrollableHeight > 0) {
+                                                if (window.scrollY >= scrollableHeight - 5) {
+                                                    scrollPercent = 1.0;
+                                                } else {
+                                                    scrollPercent = windows.scrollY / scrollableHeight;
+                                                }
+                                            }
                                         if (scrollPercent > 1) scrollPercent = 1;
                                         if (scrollPercent < 0) scrollPercent = 0;
                                         
@@ -350,7 +357,14 @@ fun ReaderContent(
                                         clearTimeout(scrollTimeout);
                                         scrollTimeout = setTimeout(function() {
                                             var scrollableHeight = document.body.scrollHeight - window.innerHeight;
-                                            var scrollPercent = scrollableHeight > 0 ? (window.scrollY / scrollableHeight) : 0;
+                                            var scrollPercent = 1.0;
+                                            if (scrollableHeight > 0) {
+                                                if (window.scrollY >= scrollableHeight - 5) {
+                                                    scrollPercent = 1.0;
+                                                } else {
+                                                    scrollPercent = windows.scrollY / scrollableHeight;
+                                                }
+                                            }
                                             scrollPercent = Math.max(0, Math.min(1, scrollPercent));
                                             AndroidBridge.reportScrollPosition(scrollPercent);
                                             updateReadingTime();

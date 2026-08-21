@@ -10,5 +10,5 @@ sealed interface SettingsEvent {
     data class OnTextZoomChanged(val zoom: Int): SettingsEvent
     data class OnLanguageChanged(val language: Language): SettingsEvent
     data class OnAutoPendingToReadingChanged(val enable: Boolean): SettingsEvent
-    data class OnAutoFinishChanged(val enabled: Boolean): SettingsEvent
+    data class OnAutoFinishChanged(val enable: Boolean): SettingsEvent
 }

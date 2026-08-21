@@ -16,6 +16,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoStories
+import androidx.compose.material.icons.filled.BookmarkAdded
+import androidx.compose.material.icons.filled.CheckCircleOutline
 import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,6 +43,7 @@ import com.juguito.juguitoreader.ui.reader.ReaderTheme
 import com.juguito.juguitoreader.ui.settings.components.ReaderPreviewBox
 import com.juguito.juguitoreader.ui.settings.components.SettingsSection
 import com.juguito.juguitoreader.ui.settings.components.SettingsSelectorRow
+import com.juguito.juguitoreader.ui.settings.components.SettingsSwitchRow
 import com.juguito.juguitoreader.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -180,13 +183,13 @@ fun SettingsScreen(
                     )
                 }
             }
-/*
+
             SettingsSection(title = "Automatizaciones") {
                 SettingsSwitchRow(
                     icon = Icons.Default.BookmarkAdded,
-                    title = "Pasar a 'Leyendo' automáticamente",
+                    title = "Estado 'Leyendo'",
                     subtitle = "Mueve el libro de 'Pendiente' a 'Leyendo' al abrirlo.",
-                    checked = state.autoPendingToReading,
+                    checked = state.autoStart,
                     onCheckedChange = { viewModel.onEvent(SettingsEvent.OnAutoPendingToReadingChanged(it)) }
                 )
 
@@ -200,7 +203,7 @@ fun SettingsScreen(
                     onCheckedChange = { viewModel.onEvent(SettingsEvent.OnAutoFinishChanged(it)) }
                 )
             }
-
+/*
             SettingsSection(title = "General") {
                 SettingsSelectorRow(
                     icon = Icons.Default.Language,

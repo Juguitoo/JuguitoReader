@@ -48,7 +48,7 @@ class ReadingProgressRepositoryImplTest {
 
     @Test
     fun `saveReadingProgress calls insert on DAO`() = runTest {
-        val progress = ReadingProgress(bookId = 1, lastChapterIndex = 5, scrollPosition = 0.5f, lastReadAt = 100L)
+        val progress = ReadingProgress(bookId = 1, totalChapters = 10, lastChapterIndex = 5, scrollPosition = 0.5f, lastReadAt = 100L)
         coEvery { dao.insertReadingProgress(any()) } returns 1L
         
         repository.saveReadingProgress(progress)
@@ -58,7 +58,7 @@ class ReadingProgressRepositoryImplTest {
 
     @Test
     fun `saveReadingProgresses calls insert on DAO`() = runTest {
-        val list = listOf(ReadingProgress(bookId = 1, lastChapterIndex = 1, scrollPosition = 0f, lastReadAt = 0L))
+        val list = listOf(ReadingProgress(bookId = 1, totalChapters = 10, lastChapterIndex = 1, scrollPosition = 0f, lastReadAt = 0L))
         coEvery { dao.insertReadingProgresses(any()) } returns Unit
         
         repository.saveReadingProgresses(list)

@@ -28,7 +28,7 @@ class BookRepositoryImplTest {
     @Test
     fun `getAllBooks maps entities to domain`() = runTest {
         val bookEntity = BookEntity(id = 1, title = "Title", author = "Author", isPhysical = false, createdAt = 0L)
-        val bookWithDetails = BookWithDetails(book = bookEntity, folders = emptyList(), genres = emptyList())
+        val bookWithDetails = BookWithDetails(book = bookEntity, folders = emptyList(), genres = emptyList(), readingProgress = null)
         
         every { bookDAO.getAllBooks() } returns flowOf(listOf(bookWithDetails))
         
@@ -41,7 +41,7 @@ class BookRepositoryImplTest {
     @Test
     fun `getBookById returns domain book`() = runTest {
         val bookEntity = BookEntity(id = 1, title = "Title", author = "Author", isPhysical = false, createdAt = 0L)
-        val bookWithDetails = BookWithDetails(book = bookEntity, folders = emptyList(), genres = emptyList())
+        val bookWithDetails = BookWithDetails(book = bookEntity, folders = emptyList(), genres = emptyList(), readingProgress = null)
         coEvery { bookDAO.getBookById(1) } returns bookWithDetails
         
         val result = repository.getBookById(1)

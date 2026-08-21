@@ -50,7 +50,7 @@ class ReaderViewModelTest {
         every { settingsRepository.readerBrightnessFlow } returns flowOf(0.5f)
         
         coEvery { getBookByIdUseCase(1) } returns Book(id = 1, title = "T", author = "A", isPhysical = false, localFilePath = "path")
-        coEvery { getReadingProgressByIdUseCase(1) } returns ReadingProgress(bookId = 1, lastChapterIndex = 0, scrollPosition = 0f, lastReadAt = 0L)
+        coEvery { getReadingProgressByIdUseCase(1) } returns ReadingProgress(bookId = 1, totalChapters = 10, lastChapterIndex = 0, scrollPosition = 0f, lastReadAt = 0L)
     }
 
     @After

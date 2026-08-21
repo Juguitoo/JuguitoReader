@@ -1,5 +1,7 @@
 package com.juguito.juguitoreader.domain.model
 
+import kotlin.math.roundToInt
+
 class ReadingProgress (
     val bookId: Int,
     val totalChapters: Int,
@@ -9,10 +11,10 @@ class ReadingProgress (
 ) {
     val percentage: Int
         get() = if (totalChapters > 0) {
-            ((lastChapterIndex.toFloat() / totalChapters) * 100).toInt()
-        } else {
-            0
-        }
+            (((lastChapterIndex + scrollPosition) / totalChapters) * 100f)
+                .roundToInt()
+                .coerceIn(0, 100)
+        } else 0
 }
 
 fun ReadingProgress.copy(

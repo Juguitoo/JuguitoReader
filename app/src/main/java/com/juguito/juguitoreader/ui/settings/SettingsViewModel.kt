@@ -18,17 +18,33 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
-    val uiState: StateFlow<SettingsUiState> = combine(
+    private val themeAndZoomFlow = combine(
         settingsRepository.appThemeFlow,
         settingsRepository.readerThemeFlow,
-        settingsRepository.textZoomFlow,
-        settingsRepository.languageFlow
-    ) { appThemeStr, readerThemeStr, textZoom, languageStr ->
+        settingsRepository.textZoomFlow
+    ) { appTheme, readerTheme, zoom ->
+        Triple(appTheme, readerTheme, zoom)
+    }
+
+    private val readingPrefsFlow = combine(
+        settingsRepository.languageFlow,
+        settingsRepository.autoStartReadingFlow,
+        settingsRepository.autoFinishReadingFlow
+    ) { language, autoStart, autoFinish ->
+        Triple(language, autoStart, autoFinish)
+    }
+
+    val uiState: StateFlow<SettingsUiState> = combine(
+        themeAndZoomFlow,
+        readingPrefsFlow
+    ) { (appThemeStr, readerThemeStr, textZoom), (languageStr, autoStart, autoFinish) ->
         SettingsUiState(
             appTheme = runCatching { AppTheme.valueOf(appThemeStr) }.getOrDefault(AppTheme.JUGUITO),
             readerTheme = runCatching { ReaderTheme.valueOf(readerThemeStr) }.getOrDefault(ReaderTheme.SEPIA),
             textZoom = textZoom,
             language = runCatching { Language.valueOf(languageStr) }.getOrDefault(Language.SPANISH),
+            autoStart = autoStart,
+            autoFinish = autoFinish,
             isLoading = false
         )
     }.stateIn(
@@ -53,10 +69,10 @@ class SettingsViewModel @Inject constructor(
                     settingsRepository.saveLanguage(event.language.name)
                 }
                 is SettingsEvent.OnAutoPendingToReadingChanged -> {
-                    // Pendiente de añadir a DataStore en el futuro
+                    settingsRepository.saveAutoStartReading(event.enable)
                 }
                 is SettingsEvent.OnAutoFinishChanged -> {
-                    // Pendiente de añadir a DataStore en el futuro
+                    settingsRepository.saveAutoFinishReading(event.enable)
                 }
             }
         }

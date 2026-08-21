@@ -35,6 +35,8 @@ class SettingsViewModelTest {
         every { repository.readerThemeFlow } returns flowOf("SEPIA")
         every { repository.textZoomFlow } returns flowOf(100)
         every { repository.languageFlow } returns flowOf("SPANISH")
+        every { repository.autoStartReadingFlow } returns flowOf(false)
+        every { repository.autoFinishReadingFlow } returns flowOf(false)
         
         viewModel = SettingsViewModel(repository)
     }
@@ -49,7 +51,10 @@ class SettingsViewModelTest {
         viewModel.uiState.test {
             val state = awaitItem()
             assertThat(state.appTheme).isEqualTo(AppTheme.JUGUITO)
+            assertThat(state.readerTheme).isEqualTo(ReaderTheme.SEPIA)
             assertThat(state.textZoom).isEqualTo(100)
+            assertThat(state.autoFinish).isEqualTo(false)
+            assertThat(state.autoStart).isEqualTo(false)
         }
     }
 
@@ -79,5 +84,19 @@ class SettingsViewModelTest {
         coEvery { repository.saveLanguage(any()) } returns Unit
         viewModel.onEvent(SettingsEvent.OnLanguageChanged(Language.ENGLISH))
         coVerify { repository.saveLanguage("ENGLISH") }
+    }
+
+    @Test
+    fun `onEvent OnAutoPendingToReadingChanged calls repository`() = runTest {
+        coEvery { repository.saveAutoStartReading(any()) } returns Unit
+        viewModel.onEvent(SettingsEvent.OnAutoPendingToReadingChanged(true))
+        coVerify { repository.saveAutoStartReading(true) }
+    }
+
+    @Test
+    fun `onEvent OnAutoFinishReadingChanged calls repository`() = runTest {
+        coEvery { repository.saveAutoFinishReading(any()) } returns Unit
+        viewModel.onEvent(SettingsEvent.OnAutoFinishChanged(true))
+        coVerify { repository.saveAutoFinishReading(true) }
     }
 }

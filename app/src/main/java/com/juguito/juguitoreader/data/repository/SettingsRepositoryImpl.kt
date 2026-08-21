@@ -3,6 +3,7 @@ package com.juguito.juguitoreader.data.repository
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -27,6 +28,8 @@ class SettingsRepositoryImpl @Inject constructor(
         val APP_THEME = stringPreferencesKey("app_theme")
         val READER_BRIGHTNESS = floatPreferencesKey("reader_brightness")
         val LANGUAGE = stringPreferencesKey("language")
+        val AUTO_START_READING = booleanPreferencesKey("auto_start_reading")
+        val AUTO_FINISH_READING = booleanPreferencesKey("auto_finish_reading")
     }
 
     override val textZoomFlow: Flow<Int> = context.dataStore.data.map { it[TEXT_ZOOM] ?: 100 }
@@ -34,6 +37,8 @@ class SettingsRepositoryImpl @Inject constructor(
     override val appThemeFlow: Flow<String> = context.dataStore.data.map { it[APP_THEME] ?: "JUGUITO" }
     override val readerBrightnessFlow: Flow<Float> = context.dataStore.data.map { it[READER_BRIGHTNESS] ?: 0.5f }
     override val languageFlow: Flow<String> = context.dataStore.data.map { it[LANGUAGE] ?: "SPANISH" }
+    override val autoStartReadingFlow: Flow<Boolean> = context.dataStore.data.map { it[AUTO_START_READING] ?: false }
+    override val autoFinishReadingFlow: Flow<Boolean> = context.dataStore.data.map { it[AUTO_FINISH_READING] ?: false }
 
     override suspend fun saveTextZoom(textZoom: Int) {
         context.dataStore.edit { it[TEXT_ZOOM] = textZoom }
@@ -53,5 +58,13 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override suspend fun saveLanguage(language: String) {
         context.dataStore.edit { it[LANGUAGE] = language }
+    }
+
+    override suspend fun saveAutoStartReading(enable: Boolean) {
+        context.dataStore.edit { it[AUTO_START_READING] = enable }
+    }
+
+    override suspend fun saveAutoFinishReading(enable: Boolean) {
+        context.dataStore.edit { it[AUTO_FINISH_READING] = enable }
     }
 }

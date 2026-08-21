@@ -21,7 +21,7 @@ class AddReadingProgressUseCaseTest {
 
     @Test
     fun `invoke calls saveReadingProgress`() = runTest {
-        val p = ReadingProgress(bookId = 1, lastChapterIndex = 0, scrollPosition = 0f, lastReadAt = 0L)
+        val p = ReadingProgress(bookId = 1, totalChapters = 10, lastChapterIndex = 0, scrollPosition = 0f, lastReadAt = 0L)
         coEvery { repository.saveReadingProgress(any()) } returns 1L
         val result = useCase(p)
         assertThat(result.isSuccess).isTrue()
