@@ -22,6 +22,7 @@ class Book(
 
     val folders: List<Folder> = emptyList(),
     val genres: List<Genre> = emptyList(),
+    val readingProgress: ReadingProgress? = null,
     val createdAt: Long = System.currentTimeMillis()
 )
 
@@ -42,6 +43,7 @@ fun Book.copy(
     syncStatus: SyncStatus = this.syncStatus,
     folders: List<Folder> = this.folders,
     genres: List<Genre> = this.genres,
+    readingProgress: ReadingProgress? = this.readingProgress,
     createdAt: Long = this.createdAt
 ): Book {
     return Book(
@@ -62,6 +64,7 @@ fun Book.copy(
         syncStatus = syncStatus,
         folders = folders,
         genres = genres,
+        readingProgress = readingProgress,
         createdAt = createdAt
     )
 }

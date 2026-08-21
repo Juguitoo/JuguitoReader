@@ -88,6 +88,7 @@ fun BookGridItem(
 
             StatusBadge(
                 status = book.status,
+                percentage = book.readingProgress?.percentage ?: 0,
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
 

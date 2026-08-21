@@ -2,7 +2,7 @@ package com.juguito.juguitoreader.ui.library.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -17,30 +17,43 @@ import androidx.compose.ui.unit.sp
 import com.juguito.juguitoreader.domain.enums.BookStatus
 
 @Composable
-fun StatusBadge(status: BookStatus, modifier: Modifier = Modifier) {
+fun StatusBadge(status: BookStatus, percentage: Int, modifier: Modifier = Modifier) {
+    if (status == BookStatus.PENDING) return
+
     val color = when (status) {
         BookStatus.READING -> MaterialTheme.colorScheme.primary
         BookStatus.FINISHED -> Color(0xFF4CAF50)
         BookStatus.DROPPED -> MaterialTheme.colorScheme.error
-        BookStatus.PENDING -> return
     }
 
     Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(20.dp),
-        color = color.copy(alpha = 0.85f),
+        modifier = modifier.fillMaxWidth(),
+        color = color.copy(alpha = 0.95f),
         shape = RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp)
     ) {
-        Box(contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier.fillMaxWidth().padding(4.dp, 2.dp),
+            contentAlignment = Alignment.Center
+        ) {
             Text(
                 text = status.displayName.uppercase(),
                 color = Color.White,
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,
                 fontSize = 9.sp,
-                letterSpacing = 0.5.sp
+                letterSpacing = 1.sp
             )
+
+            if (status == BookStatus.READING) {
+                Text(
+                    text = "${percentage}%",
+                    color = Color.White.copy(alpha = 0.75f),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 9.sp,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ import com.juguito.juguitoreader.domain.model.ReadingProgress
 fun ReadingProgressEntity.toDomain(): ReadingProgress {
     return ReadingProgress(
         bookId = bookId,
+        totalChapters = totalChapters,
         lastChapterIndex = lastChapterIndex,
         scrollPosition = scrollPosition,
         lastReadAt = lastReadAt
@@ -15,6 +16,7 @@ fun ReadingProgressEntity.toDomain(): ReadingProgress {
 fun ReadingProgress.toEntity(): ReadingProgressEntity {
     return ReadingProgressEntity(
         bookId = bookId,
+        totalChapters = totalChapters,
         lastChapterIndex = lastChapterIndex,
         scrollPosition = scrollPosition,
         lastReadAt = lastReadAt

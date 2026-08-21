@@ -76,5 +76,11 @@ data class BookWithDetails(
             entityColumn = "genre_id"
         )
     )
-    val genres: List<GenreEntity>
+    val genres: List<GenreEntity>,
+
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "book_id"
+    )
+    val readingProgress: ReadingProgressEntity?
 )

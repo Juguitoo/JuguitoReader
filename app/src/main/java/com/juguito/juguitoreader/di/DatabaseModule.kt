@@ -25,7 +25,10 @@ object DatabaseModule {
             JuguitoReaderDatabase::class.java,
             "juguito_db"
         )
-            .addMigrations(JuguitoReaderDatabase.MIGRATION_6_7)
+            .addMigrations(
+                JuguitoReaderDatabase.MIGRATION_6_7,
+                JuguitoReaderDatabase.MIGRATION_7_8
+            )
             .fallbackToDestructiveMigration(false)
             .build()
     }

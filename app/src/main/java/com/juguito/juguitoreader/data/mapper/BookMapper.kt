@@ -23,7 +23,8 @@ fun BookWithDetails.toDomain(): Book {
         syncStatus = book.syncStatus,
         createdAt = book.createdAt,
         folders = folders.map{ it.toDomain() },
-        genres = genres.map{ it.toDomain() }
+        genres = genres.map{ it.toDomain() },
+        readingProgress = readingProgress?.toDomain()
     )
 }
 

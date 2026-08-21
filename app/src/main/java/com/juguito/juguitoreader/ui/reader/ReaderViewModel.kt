@@ -78,16 +78,16 @@ class ReaderViewModel @Inject constructor(
                 val localPath = book.localFilePath
                     ?: throw Exception("El libro no tiene un archivo físico asociado. Añade un fichero EPUB.")
 
-                var progress = getReadingProgressByIdUseCase.invoke(bookId)
-                if (progress == null) {
-                    val newProgress = ReadingProgress(bookId, 0, 0f, System.currentTimeMillis())
-                    addReadingProgressUseCase.invoke(newProgress)
-                    progress = newProgress
-                }
-
                 val parseResult = parseEpubUseCase.invoke(bookId, localPath)
                 parseResult.fold(
                     onSuccess = { content ->
+                        var progress = getReadingProgressByIdUseCase.invoke(bookId)
+                        if (progress == null) {
+                            val newProgress = ReadingProgress(bookId, content.spine.size ,0, 0f, System.currentTimeMillis())
+                            addReadingProgressUseCase.invoke(newProgress)
+                            progress = newProgress
+                        }
+
                         _internalState.value = ReaderUiState.Success(
                             book = book,
                             epubContent = content,
@@ -103,6 +103,9 @@ class ReaderViewModel @Inject constructor(
                         _internalState.value = ReaderUiState.Error(exception.localizedMessage ?: "Error desconocido.")
                     }
                 )
+
+
+
             } catch (e: Exception) {
                 _internalState.value = ReaderUiState.Error(e.localizedMessage ?: "Error al cargar los datos.")
             }

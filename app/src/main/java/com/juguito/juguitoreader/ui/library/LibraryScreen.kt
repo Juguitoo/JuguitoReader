@@ -1,6 +1,7 @@
 package com.juguito.juguitoreader.ui.library
 
 import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -75,7 +76,7 @@ fun LibraryContent(
     onNavigateToReadBook: (Int) -> Unit,
     onNavigateToBookDetail: (Int) -> Unit,
     onEvent: (LibraryEvent) -> Unit,
-    onImportBook: (android.net.Uri) -> Unit,
+    onImportBook: (Uri) -> Unit,
     onDismissError: () -> Unit,
     effect: kotlinx.coroutines.flow.Flow<UiEffect>
 ) {
