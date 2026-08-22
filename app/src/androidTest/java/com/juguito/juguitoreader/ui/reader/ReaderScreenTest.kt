@@ -33,8 +33,7 @@ class ReaderScreenTest {
             JuguitoReaderTheme {
                 ReaderContent(
                     state = successState,
-                    onEvent = {},
-                    onNavigateBack = {}
+                    onEvent = {}
                 )
             }
         }

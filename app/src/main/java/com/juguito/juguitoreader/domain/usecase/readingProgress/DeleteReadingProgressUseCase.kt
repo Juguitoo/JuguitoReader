@@ -11,7 +11,8 @@ class DeleteReadingProgressUseCase @Inject constructor(
             repository.deleteProgress(bookId)
             Result.success(Unit)
         } catch (e: Exception) {
-            Result.failure(Exception("Error al eliminar el progreso del libro: ${e.localizedMessage}"))
+            e.printStackTrace()
+            Result.failure(Exception("Error al eliminar el progreso del libro."))
         }
     }
 }

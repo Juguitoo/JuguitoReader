@@ -83,9 +83,10 @@ class HomeViewModel @Inject constructor(
                     stats = newStats
                 ) as HomeUiState
             }.catch { exception ->
+                exception.printStackTrace()
                 emit(
                     HomeUiState.Error(
-                        message = "Error al cargar los datos: ${exception.localizedMessage}"
+                        message = "Error al cargar los datos."
                     )
                 )
             }.collect { newState ->

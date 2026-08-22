@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.room.Room
 import com.juguito.juguitoreader.data.local.JuguitoReaderDatabase
 import com.juguito.juguitoreader.data.local.dao.BookDAO
+import com.juguito.juguitoreader.data.local.dao.DailyReadingDAO
 import com.juguito.juguitoreader.data.local.dao.FolderDAO
 import com.juguito.juguitoreader.data.local.dao.GenreDAO
 import com.juguito.juguitoreader.data.local.dao.ReadingProgressDAO
@@ -27,7 +28,8 @@ object DatabaseModule {
         )
             .addMigrations(
                 JuguitoReaderDatabase.MIGRATION_6_7,
-                JuguitoReaderDatabase.MIGRATION_7_8
+                JuguitoReaderDatabase.MIGRATION_7_8,
+                JuguitoReaderDatabase.MIGRATION_8_9
             )
             .fallbackToDestructiveMigration(false)
             .build()
@@ -55,5 +57,11 @@ object DatabaseModule {
     @Singleton
     fun provideReadingProgressDao(database: JuguitoReaderDatabase): ReadingProgressDAO {
         return database.readingProgressDAO
+    }
+
+    @Provides
+    @Singleton
+    fun provideDailyReading(database: JuguitoReaderDatabase): DailyReadingDAO {
+        return database.dailyReadingDAO
     }
 }

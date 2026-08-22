@@ -37,6 +37,7 @@ class SettingsViewModelTest {
         every { repository.languageFlow } returns flowOf("SPANISH")
         every { repository.autoStartReadingFlow } returns flowOf(false)
         every { repository.autoFinishReadingFlow } returns flowOf(false)
+        every { repository.promptStatusChangeFlow } returns flowOf(true)
         
         viewModel = SettingsViewModel(repository)
     }
@@ -89,6 +90,7 @@ class SettingsViewModelTest {
     @Test
     fun `onEvent OnAutoPendingToReadingChanged calls repository`() = runTest {
         coEvery { repository.saveAutoStartReading(any()) } returns Unit
+        coEvery { repository.savePromptStatusChange(any()) } returns Unit
         viewModel.onEvent(SettingsEvent.OnAutoPendingToReadingChanged(true))
         coVerify { repository.saveAutoStartReading(true) }
     }
@@ -98,5 +100,12 @@ class SettingsViewModelTest {
         coEvery { repository.saveAutoFinishReading(any()) } returns Unit
         viewModel.onEvent(SettingsEvent.OnAutoFinishChanged(true))
         coVerify { repository.saveAutoFinishReading(true) }
+    }
+
+    @Test
+    fun `onEvent OnPromptStatusChangeChanged calls repository`() = runTest {
+        coEvery { repository.savePromptStatusChange(any()) } returns Unit
+        viewModel.onEvent(SettingsEvent.OnPromptStatusChangeChanged(true))
+        coVerify { repository.savePromptStatusChange(true) }
     }
 }
