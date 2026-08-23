@@ -1,6 +1,7 @@
 package com.juguito.juguitoreader.ui.reader
 
 import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.domain.model.DailyReading
 import com.juguito.juguitoreader.domain.model.EpubContent
 import com.juguito.juguitoreader.domain.model.ReadingProgress
 
@@ -17,13 +18,15 @@ sealed interface ReaderUiState {
         val book: Book,
         val epubContent: EpubContent,
         val readingProgress: ReadingProgress,
+        val bookSessions: List<DailyReading>,
         val currentChapterIndex: Int,
         val isControlsVisible: Boolean = false,
         val textZoom: Int = 100,
         val theme: ReaderTheme = ReaderTheme.SEPIA,
         val brightness: Float = 0.5f,
         val timeRemaining: Int? = null,
-        val showStatusPrompt: Boolean = false
+        val showStatusPrompt: Boolean = false,
+        val showSessionsDialog: Boolean = false
     ): ReaderUiState {
         val currentChapterUrl: String
             get() = "file://${epubContent.baseDir}/${epubContent.spine[currentChapterIndex]}"

@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -39,6 +40,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.AutoStories
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
@@ -90,12 +92,16 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.juguito.juguitoreader.domain.model.EpubNavElement
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.JuguitoDialog
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import kotlinx.coroutines.launch
+import kotlin.math.ceil
 
 @Composable
 fun ReaderScreen(
@@ -105,6 +111,7 @@ fun ReaderScreen(
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val activity = context as? Activity
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     ObserveAsEvents(viewModel.effect) { uiEffect ->
         when (uiEffect) {
@@ -117,6 +124,24 @@ fun ReaderScreen(
         activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         onDispose {
             activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> {
+                    viewModel.onEvent(ReaderEvent.OnStartReading)
+                }
+                Lifecycle.Event.ON_PAUSE -> {
+                    viewModel.onEvent(ReaderEvent.OnFinishReading)
+                }
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
@@ -563,6 +588,7 @@ fun ReaderContent(
                         IconButton(onClick = { onEvent(ReaderEvent.OnBackRequested) }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) }
                     },
                     actions = {
+                        IconButton(onClick = { onEvent(ReaderEvent.OnToggleSessionsDialog) }) { Icon(Icons.Default.BarChart, contentDescription = "Estadísticas", tint = Color.White) }
                         IconButton(onClick = { scope.launch { drawerState.open() } }) { Icon(Icons.Default.Menu, contentDescription = "Índice") }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -821,6 +847,74 @@ fun ReaderContent(
                 )
             }
         }
+    }
+
+    if (state.showSessionsDialog) {
+        JuguitoDialog(
+            onDismissRequest = { onEvent(ReaderEvent.OnToggleSessionsDialog) },
+            icon = Icons.Default.BarChart,
+            title = "Tus sesiones de lectura",
+            message = "Progreso diario registrado en este libro.",
+            dismissButtonText = "Cerrar",
+            content = {
+                if (state.bookSessions.isEmpty()) {
+                    Text(
+                        text = "Aún no hay sesiones guardadas. Vuelve a visitarlo cuando termines de leer hoy.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 250.dp)
+                            .padding(top = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(state.bookSessions.sortedByDescending { it.date }) { session ->
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    // Fecha
+                                    Text(
+                                        text = session.date,
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+
+                                    val minutes = ceil(session.timeSpentMillis / 60000.0).toInt()
+
+                                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                                        Text(
+                                            text = "$minutes min",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Text(
+                                            text = "${session.reachedPercentage}%",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.secondary
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        )
     }
 }
 

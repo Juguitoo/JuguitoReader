@@ -5,11 +5,14 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.domain.model.DailyReading
 import com.juguito.juguitoreader.domain.model.EpubContent
 import com.juguito.juguitoreader.domain.model.ReadingProgress
 import com.juguito.juguitoreader.domain.repository.SettingsRepository
 import com.juguito.juguitoreader.domain.usecase.book.GetBookByIdUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
+import com.juguito.juguitoreader.domain.usecase.dailyReading.AddDailyReadingUseCase
+import com.juguito.juguitoreader.domain.usecase.dailyReading.GetBookDailyReadingsUseCase
 import com.juguito.juguitoreader.domain.usecase.reader.ParseEpubUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.AddReadingProgressUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgressByIdUseCase
@@ -38,8 +41,10 @@ class ReaderViewModelTest {
     private lateinit var viewModel: ReaderViewModel
     private val getBookByIdUseCase = mockk<GetBookByIdUseCase>()
     private val getReadingProgressByIdUseCase = mockk<GetReadingProgressByIdUseCase>()
+    private val getBookDailyReadingsUseCase = mockk<GetBookDailyReadingsUseCase>()
     private val updateReadingProgressUseCase = mockk<UpdateReadingProgressUseCase>()
     private val addReadingProgressUseCase = mockk<AddReadingProgressUseCase>()
+    private val addDailyReadingUseCase = mockk<AddDailyReadingUseCase>()
     private val updateBookUseCase = mockk<UpdateBookUseCase>()
     private val parseEpubUseCase = mockk<ParseEpubUseCase>()
     private val settingsRepository = mockk<SettingsRepository>()
@@ -61,7 +66,9 @@ class ReaderViewModelTest {
 
         coEvery { updateReadingProgressUseCase(any()) } returns Result.success(Unit)
         coEvery { addReadingProgressUseCase(any()) } returns Result.success(Unit)
+        coEvery { addDailyReadingUseCase(any()) } returns Result.success(Unit)
         coEvery { updateBookUseCase(any()) } returns Result.success(Unit)
+        coEvery { getBookDailyReadingsUseCase(any()) } returns flowOf(listOf(DailyReading(1, "0000-00-00", 300, 10f)))
     }
 
     @After
@@ -73,7 +80,7 @@ class ReaderViewModelTest {
     fun `initial state is Loading then Error if parse fails`() = runTest {
         coEvery { parseEpubUseCase(any(), any()) } returns Result.failure(Exception("Parse error"))
         
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
 
         viewModel.uiState.test {
             val state = awaitItem()
@@ -89,7 +96,7 @@ class ReaderViewModelTest {
         coEvery { settingsRepository.saveReaderTheme(any()) } returns Unit
         coEvery { settingsRepository.saveReaderBrightness(any()) } returns Unit
         
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
 
         viewModel.onEvent(ReaderEvent.OnTextZoomChanged(120))
         viewModel.onEvent(ReaderEvent.OnThemeChanged(ReaderTheme.NIGHT))
@@ -106,7 +113,7 @@ class ReaderViewModelTest {
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
         coEvery { updateReadingProgressUseCase(any()) } returns Result.success(Unit)
         
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
 
         viewModel.onEvent(ReaderEvent.OnNextChapter)
         coVerify { updateReadingProgressUseCase(match { it.lastChapterIndex == 1 }) }
@@ -124,7 +131,7 @@ class ReaderViewModelTest {
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
         coEvery { updateReadingProgressUseCase(any()) } returns Result.success(Unit)
         
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
 
         viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.7f))
 
@@ -136,7 +143,7 @@ class ReaderViewModelTest {
         val epubContent = EpubContent(baseDir = "", spine = listOf("ch1"), chaptersTree = emptyList())
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
         
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
 
         viewModel.onEvent(ReaderEvent.OnToggleControls)
 
@@ -151,7 +158,7 @@ class ReaderViewModelTest {
         val epubContent = EpubContent(baseDir = "", spine = listOf("ch1"), chaptersTree = emptyList())
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
         
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
 
         viewModel.onEvent(ReaderEvent.OnTimeRemainingChanged(15))
 
@@ -166,7 +173,7 @@ class ReaderViewModelTest {
         val epubContent = EpubContent(baseDir = "", spine = List(10) {"ch$it"}, chaptersTree = emptyList())
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
 
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase,updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
 
         viewModel.onEvent(ReaderEvent.OnChapterSelected(2))
 
@@ -183,7 +190,7 @@ class ReaderViewModelTest {
         val epubContent = EpubContent(baseDir = "", spine = List(10) {"ch$it"}, chaptersTree = emptyList())
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
 
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
 
         viewModel.onEvent(ReaderEvent.OnChapterSelected(1))
 
@@ -201,7 +208,7 @@ class ReaderViewModelTest {
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
         coEvery { updateBookUseCase(any()) } returns Result.success(Unit)
 
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
 
         viewModel.onEvent(ReaderEvent.OnChapterSelected(2))
         viewModel.onEvent(ReaderEvent.OnBackRequested)
@@ -220,7 +227,7 @@ class ReaderViewModelTest {
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
         coEvery { updateBookUseCase(any()) } returns Result.success(Unit)
 
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
 
         viewModel.onEvent(ReaderEvent.OnChapterSelected(2))
         viewModel.onEvent(ReaderEvent.OnBackRequested)

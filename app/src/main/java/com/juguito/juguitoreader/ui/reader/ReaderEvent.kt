@@ -12,4 +12,8 @@ sealed interface ReaderEvent {
     data class OnTimeRemainingChanged(val minutes: Int): ReaderEvent
     data class OnBrightnessChanged(val brightness: Float): ReaderEvent
     data class OnStatusPromptResult(val changeToReading: Boolean): ReaderEvent
+    data object OnStartReading: ReaderEvent
+    data object OnFinishReading: ReaderEvent
+
+    data object OnToggleSessionsDialog: ReaderEvent
 }

@@ -24,6 +24,7 @@ class ReaderScreenTest {
         val successState = ReaderUiState.Success(
             book = book,
             epubContent = epubContent,
+            bookSessions = emptyList(),
             readingProgress = progress,
             currentChapterIndex = 0,
             isControlsVisible = true

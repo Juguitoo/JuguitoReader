@@ -4,11 +4,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.juguito.juguitoreader.domain.enums.BookStatus
+import com.juguito.juguitoreader.domain.model.DailyReading
 import com.juguito.juguitoreader.domain.model.ReadingProgress
 import com.juguito.juguitoreader.domain.model.copy
 import com.juguito.juguitoreader.domain.repository.SettingsRepository
 import com.juguito.juguitoreader.domain.usecase.book.GetBookByIdUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
+import com.juguito.juguitoreader.domain.usecase.dailyReading.AddDailyReadingUseCase
+import com.juguito.juguitoreader.domain.usecase.dailyReading.GetBookDailyReadingsUseCase
 import com.juguito.juguitoreader.domain.usecase.reader.ParseEpubUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.AddReadingProgressUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgressByIdUseCase
@@ -24,14 +27,17 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
 class ReaderViewModel @Inject constructor(
     private val getBookByIdUseCase: GetBookByIdUseCase,
     private val getReadingProgressByIdUseCase: GetReadingProgressByIdUseCase,
+    private val getBookDailyReadingsUseCase: GetBookDailyReadingsUseCase,
     private val updateReadingProgressUseCase: UpdateReadingProgressUseCase,
     private val addReadingProgressUseCase: AddReadingProgressUseCase,
+    private val addDailyReadingUseCase: AddDailyReadingUseCase,
     private val updateBookUseCase: UpdateBookUseCase,
     private val parseEpubUseCase: ParseEpubUseCase,
     private val settingsRepository: SettingsRepository,
@@ -66,6 +72,7 @@ class ReaderViewModel @Inject constructor(
 
     private val bookId: Int = checkNotNull(savedStateHandle["bookId"])
     private var initialPercentage: Int = -1
+    private var sessionStartTimeMillis: Long = 0L
 
     init {
         loadData()
@@ -81,10 +88,8 @@ class ReaderViewModel @Inject constructor(
                 val brightness = settingsRepository.readerBrightnessFlow.first()
                 val initialTheme = runCatching { ReaderTheme.valueOf(themeStr) }.getOrDefault(ReaderTheme.SEPIA)
 
-
                 val book = getBookByIdUseCase.invoke(bookId)
                     ?: throw Exception("El libro que se está intentando leer no existe.")
-
                 val localPath = book.localFilePath
                     ?: throw Exception("El libro no tiene un archivo físico asociado. Añade un fichero EPUB.")
 
@@ -107,16 +112,22 @@ class ReaderViewModel @Inject constructor(
                             isControlsVisible = true,
                             textZoom = zoom,
                             theme = initialTheme,
-                            brightness = brightness
+                            brightness = brightness,
+                            bookSessions = emptyList()
                         )
+
+                        viewModelScope.launch {
+                            getBookDailyReadingsUseCase.invoke(bookId).collect { sessions ->
+                                val currentState = _internalState.value
+                                if (currentState is ReaderUiState.Success) _internalState.value = currentState.copy(bookSessions = sessions)
+                            }
+                        }
                     },
                     onFailure = { exception ->
-                        _internalState.value = ReaderUiState.Error(exception.localizedMessage ?: "Error desconocido.")
+                        exception.printStackTrace()
+                        _internalState.value = ReaderUiState.Error("Error desconocido al obtener el contenido del libro. Cambia el fichero EPUB para poder acceder al contenido.")
                     }
                 )
-
-
-
             } catch (e: Exception) {
                 _internalState.value = ReaderUiState.Error(e.localizedMessage ?: "Error al cargar los datos.")
             }
@@ -162,12 +173,28 @@ class ReaderViewModel @Inject constructor(
             is ReaderEvent.OnTimeRemainingChanged -> {
                 _internalState.value = currentState.copy(timeRemaining = event.minutes)
             }
-
             is ReaderEvent.OnBackRequested -> {
                 handleBackRequest(currentState)
             }
             is ReaderEvent.OnStatusPromptResult -> {
                 handlePromptResult(currentState, event.changeToReading)
+            }
+            is ReaderEvent.OnFinishReading -> {
+                saveCurrentReadingSession(currentState)
+            }
+            is ReaderEvent.OnStartReading -> {
+                sessionStartTimeMillis = System.currentTimeMillis()
+            }
+            is ReaderEvent.OnToggleSessionsDialog -> {
+                val willShow = !currentState.showSessionsDialog
+
+                if (willShow) {
+                    saveCurrentReadingSession(currentState)
+                    sessionStartTimeMillis = System.currentTimeMillis()
+                    _internalState.value = currentState.copy(showSessionsDialog = true)
+                } else {
+                    _internalState.value = currentState.copy(showSessionsDialog = false)
+                }
             }
         }
     }
@@ -194,6 +221,7 @@ class ReaderViewModel @Inject constructor(
     }
 
     private fun handleBackRequest(currentState: ReaderUiState.Success) {
+        if (sessionStartTimeMillis > 0L) saveCurrentReadingSession(currentState)
         val currentPercentage = currentState.readingProgress.percentage
         val sessionDelta = currentPercentage - initialPercentage
 
@@ -217,5 +245,25 @@ class ReaderViewModel @Inject constructor(
             }
             _effect.send(UiEffect.NavigateBack)
         }
+    }
+
+    private fun saveCurrentReadingSession(currentState: ReaderUiState.Success) {
+        if (sessionStartTimeMillis <= 0L) return
+
+        val sessionEndTimeMillis = System.currentTimeMillis()
+        val deltaTimeMillis = sessionEndTimeMillis - sessionStartTimeMillis
+        if (deltaTimeMillis > 60_000) {
+            val todayDateString = LocalDate.now().toString()
+            val dailyReading = DailyReading(
+                bookId = currentState.book.id,
+                date = todayDateString,
+                timeSpentMillis = deltaTimeMillis.toInt(),
+                reachedPercentage = currentState.readingProgress.percentage.toFloat()
+            )
+            viewModelScope.launch {
+                addDailyReadingUseCase.invoke(dailyReading)
+            }
+        }
+        sessionStartTimeMillis = 0L
     }
 }
