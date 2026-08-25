@@ -45,7 +45,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
@@ -53,7 +52,6 @@ import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.EmptyLibraryView
 import com.juguito.juguitoreader.ui.components.ErrorView
 import com.juguito.juguitoreader.ui.home.components.BookListSection
-import com.juguito.juguitoreader.ui.home.components.StatsSection
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -210,7 +208,7 @@ fun HomeContent(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            when (val homeUiState = state) {
+            when (state) {
                 is HomeUiState.Loading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
@@ -219,7 +217,7 @@ fun HomeContent(
                 }
                 is HomeUiState.Error -> {
                     ErrorView(
-                        message = homeUiState.message,
+                        message = state.message,
                         onRetry = { onEvent(HomeEvent.OnDismissError) }
                     )
                 }
@@ -239,8 +237,8 @@ fun HomeContent(
                         item {
                             Column(modifier = Modifier.fillMaxWidth()) {
 
-                                val hasReading = homeUiState.readingBooks.isNotEmpty()
-                                val hasPending = homeUiState.pendingBooks.isNotEmpty()
+                                val hasReading = state.readingBooks.isNotEmpty()
+                                val hasPending = state.pendingBooks.isNotEmpty()
 
                                 if (!hasReading && !hasPending) {
                                     BookListSection(
@@ -299,7 +297,7 @@ fun HomeContent(
                                 )
                             }
                         }
-
+/*
                         item {
                             Text(
                                 text = "Estadísticas generales".uppercase(),
@@ -311,6 +309,8 @@ fun HomeContent(
                             )
                             StatsSection(statsUiState = state.stats)
                         }
+
+ */
                     }
                 }
             }

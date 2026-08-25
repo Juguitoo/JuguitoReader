@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -55,6 +56,7 @@ fun SettingsScreen(
     val state by viewModel.uiState.collectAsState()
 
     Scaffold(
+        modifier = Modifier.statusBarsPadding(),
         topBar = {
             TopAppBar(
                 title = {
@@ -91,9 +93,9 @@ fun SettingsScreen(
                 SettingsSelectorRow(
                     icon = Icons.Default.Palette,
                     title = "Tema de la aplicación",
-                    subtitle = state.appTheme.name.lowercase().replaceFirstChar { it.uppercase() },
+                    subtitle = state.appTheme.displayName.lowercase().replaceFirstChar { it.uppercase() },
                     options = AppTheme.entries.map {
-                        it to it.name.lowercase().replaceFirstChar { c -> c.uppercase() }
+                        it to it.displayName.lowercase().replaceFirstChar { c -> c.uppercase() }
                     },
                     selectedOption = state.appTheme,
                     onOptionSelected = { viewModel.onEvent(SettingsEvent.OnAppThemeChanged(it)) }

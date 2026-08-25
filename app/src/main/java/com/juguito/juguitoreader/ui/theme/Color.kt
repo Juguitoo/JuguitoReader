@@ -19,13 +19,31 @@ val PastelCoral = Color(0xFFFFAB91) // Coral pastel
 val PastelText = Color(0xFF4A444B)
 val PastelBackground = Color(0xFFFFF9FB) // Blanco rosado muy suave
 
-// Paleta "Neon"
-val NeonBackground = Color(0xFF050505) // Negro profundo
-val NeonSurface = Color(0xFF121212)
-val NeonPrimary = Color(0xFF9D00FF) // Morado Eléctrico
-val NeonSecondary = Color(0xFF00E5FF) // Turquesa Neón
-val NeonAccent = Color(0xFFFF00D4) // Rosa Neón
-val NeonText = Color(0xFFF2F2F2)
+// Paleta "Alto Contraste"
+val NeonBackground = Color(0xFF000000)
+val NeonPrimary = Color(0xFF65AFFF)
+val NeonSecondary = Color(0xFF9C6DCE)
+val NeonTertiary = Color(0xFFF56476)
+val NeonText = Color(0xFFE6E6E6)
+val NeonPrimaryContainer = Color(0xFF001A33)
+val NeonSecondaryContainer = Color(0xFF1F142D)
+val NeonTertiaryContainer = Color(0xFF330B12)
+val NeonOnPrimaryContainer = NeonPrimary
+val NeonOnSecondaryContainer = NeonSecondary
+val NeonOnTertiaryContainer = NeonTertiary
+
+// Paleta "Oscuro"
+val DarkBackground = Color(0xFF141618)
+val DarkSurface = Color(0xFF1E2024)
+val DarkPrimary = Color(0xFFB86B52)
+val DarkSecondary = Color(0xFFC49366)
+val DarkText = Color(0xFFE3E2E6)
+val DarkPrimaryContainer = Color(0xFF2A3A4C)
+val DarkSecondaryContainer = Color(0xFF4C3A2A)
+val DarkTertiaryContainer = Color(0xFF324A38)
+val DarkOnPrimaryContainer = Color(0xFFD6E4F0)
+val DarkOnSecondaryContainer = Color(0xFFE8D4C8)
+val DarkOnTertiaryContainer = Color(0xFFCDE3D2)
 
 // Colores de soporte comunes
 val ErrorRed = Color(0xFFBA1A1A)

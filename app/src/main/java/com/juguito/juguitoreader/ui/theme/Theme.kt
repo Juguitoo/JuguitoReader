@@ -2,12 +2,10 @@ package com.juguito.juguitoreader.ui.theme
 
 import android.app.Activity
 import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
@@ -46,52 +44,51 @@ private val PastelColorScheme = lightColorScheme(
     error = ErrorRed
 )
 
-private val NeonColorScheme = darkColorScheme(
-    primary = NeonPrimary,
-    onPrimary = NeonBackground,
-    primaryContainer = NeonPrimary.copy(alpha = 0.2f),
-    onPrimaryContainer = NeonPrimary,
-    secondary = NeonSecondary,
-    onSecondary = NeonBackground,
-    tertiary = NeonAccent,
-    background = NeonBackground,
-    surface = NeonSurface,
-    onBackground = NeonText,
-    onSurface = NeonText,
-    surfaceVariant = NeonSurface,
-    onSurfaceVariant = NeonSecondary.copy(alpha = 0.7f),
-    error = ErrorRed
+private val ClassicDarkColorScheme = darkColorScheme(
+    primary = DarkPrimary,
+    secondary = DarkSecondary,
+    background = DarkBackground,
+    surface = DarkSurface,
+    onPrimary = Color(0xFF4A1000),
+    onBackground = DarkText,
+    onSurface = DarkText,
+    primaryContainer = DarkPrimaryContainer,
+    onPrimaryContainer = DarkOnPrimaryContainer,
+    secondaryContainer = DarkSecondaryContainer,
+    onSecondaryContainer = DarkOnSecondaryContainer,
+    tertiaryContainer = DarkTertiaryContainer,
+    onTertiaryContainer = DarkOnTertiaryContainer
 )
 
-// Esquema de sistema
-private val SystemDarkColorScheme = darkColorScheme(
-    primary = JuguitoPrimaryContainer,
-    onPrimary = JuguitoOnPrimaryContainer,
-    background = DeepNavy,
-    surface = DeepNavy,
-    onBackground = JuguitoBackground,
-    onSurface = JuguitoBackground
+val HighContrastDarkColorScheme = darkColorScheme(
+    primary = NeonPrimary,
+    secondary = NeonSecondary,
+    tertiary = NeonTertiary,
+    background = NeonBackground,
+    surface = NeonBackground,
+    onPrimary = Color(0xFF003258),
+    onSecondary = Color(0xFF381563),
+    onTertiary = Color(0xFF410015),
+    onBackground = NeonText,
+    onSurface = NeonText,
+    primaryContainer = NeonPrimaryContainer,
+    onPrimaryContainer = NeonOnPrimaryContainer,
+    secondaryContainer = NeonSecondaryContainer,
+    onSecondaryContainer = NeonOnSecondaryContainer,
+    tertiaryContainer = NeonTertiaryContainer,
+    onTertiaryContainer = NeonOnTertiaryContainer
 )
 
 @Composable
 fun JuguitoReaderTheme(
     appTheme: AppTheme = AppTheme.JUGUITO,
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when (appTheme) {
         AppTheme.JUGUITO -> JuguitoColorScheme
         AppTheme.PASTEL -> PastelColorScheme
-        AppTheme.NEON -> NeonColorScheme
-        AppTheme.SYSTEM -> {
-            if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val context = LocalContext.current
-                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-            } else {
-                if (darkTheme) SystemDarkColorScheme else JuguitoColorScheme
-            }
-        }
+        AppTheme.HIGH_CONTRAST -> HighContrastDarkColorScheme
+        AppTheme.DARK -> ClassicDarkColorScheme
     }
 
     val view = LocalView.current

@@ -4,10 +4,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,8 +27,6 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.InputChip
-import androidx.compose.material3.InputChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -52,8 +48,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -70,19 +64,14 @@ import com.juguito.juguitoreader.ui.management.ManagementScreen
 import com.juguito.juguitoreader.ui.reader.ReaderScreen
 import com.juguito.juguitoreader.ui.registry.RegistryScreen
 import com.juguito.juguitoreader.ui.settings.SettingsScreen
-import com.juguito.juguitoreader.ui.theme.AppTheme
-import com.juguito.juguitoreader.ui.theme.ThemeViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JuguitoApp(
-    themeViewModel: ThemeViewModel = hiltViewModel()
-) {
+fun JuguitoApp() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
-    val currentTheme by themeViewModel.appTheme.collectAsStateWithLifecycle()
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
@@ -199,39 +188,6 @@ fun JuguitoApp(
                 )
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp))
-
-                Text(
-                    text = "Apariencia",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(start = 28.dp, bottom = 8.dp)
-                )
-
-                Row(
-                    modifier = Modifier
-                        .padding(horizontal = 24.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    ThemeOption(
-                        label = "Juguito",
-                        selected = currentTheme == AppTheme.JUGUITO,
-                        onClick = { themeViewModel.setTheme(AppTheme.JUGUITO) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    ThemeOption(
-                        label = "Pastel",
-                        selected = currentTheme == AppTheme.PASTEL,
-                        onClick = { themeViewModel.setTheme(AppTheme.PASTEL) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    ThemeOption(
-                        label = "Neón",
-                        selected = currentTheme == AppTheme.NEON,
-                        onClick = { themeViewModel.setTheme(AppTheme.NEON) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
 
                 Spacer(modifier = Modifier.weight(1f))
 
@@ -394,28 +350,6 @@ fun JuguitoApp(
             }
         }
     }
-}
-
-@Composable
-fun ThemeOption(
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    InputChip(
-        selected = selected,
-        onClick = onClick,
-        label = { Text(label) },
-        modifier = modifier,
-        shape = RoundedCornerShape(8.dp),
-        colors = InputChipDefaults.inputChipColors(
-            selectedContainerColor = MaterialTheme.colorScheme.primary,
-            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            labelColor = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    )
 }
 
 @Composable
