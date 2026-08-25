@@ -44,7 +44,7 @@ fun ActionBookCard(
     Box(
         modifier = Modifier
             .width(width)
-            .aspectRatio(0.65f)
+            .aspectRatio(0.7f)
             .clickable { onClick() }
             .padding(4.dp),
         contentAlignment = Alignment.Center

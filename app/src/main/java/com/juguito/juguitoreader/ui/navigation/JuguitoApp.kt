@@ -135,7 +135,7 @@ fun JuguitoApp() {
                     }
                 )
 
-                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
 
                 Text(
                     text = "Gestión",
@@ -187,7 +187,7 @@ fun JuguitoApp() {
                     }
                 )
 
-                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
 
                 Spacer(modifier = Modifier.weight(1f))
 

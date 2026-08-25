@@ -268,6 +268,12 @@ fun HomeContent(
                                             onDeleteBook = { bookToDelete = it },
                                             onReadBook = onNavigateToReadBook
                                         )
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(12.dp)
+                                                .background(Color(0xFF5F4934))
+                                        )
                                     }
 
                                     BookListSection(
@@ -292,8 +298,8 @@ fun HomeContent(
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(8.dp)
-                                        .background(MaterialTheme.colorScheme.secondary)
+                                        .height(12.dp)
+                                        .background(Color(0xFF5F4934))
                                 )
                             }
                         }

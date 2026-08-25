@@ -51,6 +51,7 @@ private val ClassicDarkColorScheme = darkColorScheme(
     surface = DarkSurface,
     onPrimary = Color(0xFF4A1000),
     onBackground = DarkText,
+    surfaceVariant = DarkPrimaryContainer,
     onSurface = DarkText,
     primaryContainer = DarkPrimaryContainer,
     onPrimaryContainer = DarkOnPrimaryContainer,

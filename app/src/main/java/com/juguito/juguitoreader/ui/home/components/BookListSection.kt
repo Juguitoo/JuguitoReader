@@ -65,7 +65,7 @@ fun BookListSection(
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Black,
                 color = Color.White,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                modifier = Modifier.padding(start = 24.dp, end = 32.dp, top = 8.dp, bottom = 8.dp),
                 letterSpacing = 1.sp
             )
         }
@@ -73,7 +73,7 @@ fun BookListSection(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(210.dp)
+                .height(190.dp)
                 .paint(
                     painter = painterResource(id = R.drawable.madera_estante),
                     contentScale = ContentScale.FillBounds,
@@ -97,7 +97,7 @@ fun BookListSection(
             )
 
             LazyRow(
-                contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 12.dp),
+                contentPadding = PaddingValues(start = 20.dp, end = 20.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -130,7 +130,7 @@ fun BookListSection(
                     }
                 }
             }
-
+/*
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -145,6 +145,8 @@ fun BookListSection(
                         )
                     )
             )
+
+ */
         }
     }
 }

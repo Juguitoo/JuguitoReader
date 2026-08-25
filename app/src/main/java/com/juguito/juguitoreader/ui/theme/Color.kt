@@ -33,7 +33,7 @@ val NeonOnSecondaryContainer = NeonSecondary
 val NeonOnTertiaryContainer = NeonTertiary
 
 // Paleta "Oscuro"
-val DarkBackground = Color(0xFF141618)
+val DarkBackground = Color(0xFF45484D)
 val DarkSurface = Color(0xFF1E2024)
 val DarkPrimary = Color(0xFFB86B52)
 val DarkSecondary = Color(0xFFC49366)
