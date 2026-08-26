@@ -19,6 +19,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import androidx.core.net.toUri
+import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.ui.common.UiText
+import com.juguito.juguitoreader.ui.common.asUiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.catch
@@ -46,8 +49,7 @@ class AddBookViewModel @Inject constructor(
         viewModelScope.launch {
             getFoldersUseCase()
                 .catch { error ->
-                    error.printStackTrace()
-                    _effect.send(UiEffect.ShowSnackbar("No se pudieron cargar tus carpetas."))
+                    _effect.send(UiEffect.ShowSnackbar(error.asUiText()))
                 }
                 .collect { foldersFromDb ->
                 _uiState.value = _uiState.value.copy(
@@ -58,8 +60,7 @@ class AddBookViewModel @Inject constructor(
         viewModelScope.launch {
             getGenresUseCase()
                 .catch { error ->
-                    error.printStackTrace()
-                    _effect.send(UiEffect.ShowSnackbar("No se pudieron cargar tus géneros."))
+                    _effect.send(UiEffect.ShowSnackbar(error.asUiText()))
                 }
                 .collect { genresFromDb ->
                 _uiState.value = _uiState.value.copy(
@@ -145,13 +146,13 @@ class AddBookViewModel @Inject constructor(
 
         if (draft.title.isBlank()) {
             viewModelScope.launch {
-                _effect.send(UiEffect.ShowSnackbar("El título no puede estar vacío."))
+                _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.error_title_empty)))
             }
             return
         }
         if (draft.author.isBlank()) {
             viewModelScope.launch {
-                _effect.send(UiEffect.ShowSnackbar("El autor no puede estar vacío."))
+                _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.error_author_empty)))
             }
             return
         }
@@ -179,12 +180,9 @@ class AddBookViewModel @Inject constructor(
                     _effect.send(UiEffect.NavigateBack)
                 },
                 onFailure = { exception ->
-                    exception.printStackTrace()
-                    _effect.send(
-                        UiEffect.ShowSnackbar(
-                            message = "Error al guardar el libro."
-                        )
-                    )
+                    viewModelScope.launch {
+                        _effect.send(UiEffect.ShowSnackbar(exception.asUiText()))
+                    }
                 }
             )
         }
@@ -215,13 +213,13 @@ class AddBookViewModel @Inject constructor(
             }.onSuccess {
                 _effect.send(
                     UiEffect.ShowSnackbar(
-                        message = "Datos importados correctamente."
+                        message = UiText.DynamicString("Datos importados correctamente.")
                     )
                 )
             }.onFailure {
                 _effect.send(
                     UiEffect.ShowSnackbar(
-                        message = "Error al importar los datos."
+                        message = UiText.StringResource(R.string.something_went_wrong)
                     )
                 )
             }

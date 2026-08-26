@@ -25,8 +25,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.ui.book.detail.BookDetailEvent
 import com.juguito.juguitoreader.ui.book.detail.BookDetailUiState
 
@@ -46,7 +48,7 @@ fun RegistryTab(
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         Text(
-            text = "Progreso de lectura",
+            text = stringResource(R.string.reading_progress),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
@@ -63,13 +65,13 @@ fun RegistryTab(
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             DatePickerField(
-                label = "Fecha Inicio",
+                label = stringResource(R.string.start_date_label),
                 dateMillis = state.startDate,
                 onClick = onShowStartDatePicker,
                 modifier = Modifier.weight(1f)
             )
             DatePickerField(
-                label = "Fecha Fin",
+                label = stringResource(R.string.end_date_label),
                 dateMillis = state.endDate,
                 onClick = onShowEndDatePicker,
                 modifier = Modifier.weight(1f)
@@ -79,7 +81,7 @@ fun RegistryTab(
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
         Text(
-            text = "Mis Notas y Reflexiones",
+            text = stringResource(R.string.notes_reflections),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
@@ -90,7 +92,7 @@ fun RegistryTab(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 200.dp),
-            placeholder = { Text("Escribe aquí lo que piensas del libro, citas favoritas, dudas...") },
+            placeholder = { Text(stringResource(R.string.notes_placeholder)) },
             shape = RoundedCornerShape(12.dp)
         )
 
@@ -108,7 +110,7 @@ fun RegistryTab(
             } else {
                 Icon(Icons.Default.Save, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
-                Text("Guardar cambios de registro")
+                Text(stringResource(R.string.save_registry_changes))
             }
         }
     }

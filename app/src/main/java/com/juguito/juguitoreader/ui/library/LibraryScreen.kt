@@ -22,6 +22,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.compose.ui.res.stringResource
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.EmptyLibraryView
@@ -123,7 +125,7 @@ fun LibraryContent(
     ObserveAsEvents(effect) { uiEffect ->
         when (uiEffect) {
             is UiEffect.ShowSnackbar -> {
-                snackbarHostState.showSnackbar(uiEffect.message)
+                snackbarHostState.showSnackbar(uiEffect.message.asString(context))
             }
             else -> Unit
         }
@@ -150,7 +152,7 @@ fun LibraryContent(
                         TextField(
                             value = currentSearchText,
                             onValueChange = { onEvent(OnSearchTextChanged(it)) },
-                            placeholder = { Text("Buscar en mi biblioteca...", fontSize = 14.sp, color = Color.White.copy(alpha = 0.7f)) },
+                            placeholder = { Text(stringResource(R.string.search_library_hint), fontSize = 14.sp, color = Color.White.copy(alpha = 0.7f)) },
                             modifier = Modifier.fillMaxWidth(),
                             colors = TextFieldDefaults.colors(
                                 focusedContainerColor = Color.Transparent,
@@ -166,7 +168,7 @@ fun LibraryContent(
                             textStyle = MaterialTheme.typography.bodyLarge
                         )
                     } else {
-                        val folderName = (state as? LibraryUiState.Success)?.selectedFolder?.name ?: "Todos los libros"
+                        val folderName = (state as? LibraryUiState.Success)?.selectedFolder?.name ?: stringResource(R.string.all_books)
                         Text(
                             text = folderName,
                             style = MaterialTheme.typography.titleLarge,
@@ -188,21 +190,21 @@ fun LibraryContent(
                     ) {
                         Icon(
                             imageVector = if (isSearchVisible) Icons.AutoMirrored.Filled.ArrowBack else Icons.Default.Menu,
-                            contentDescription = if (isSearchVisible) "Volver" else "Menú"
+                            contentDescription = if (isSearchVisible) stringResource(R.string.return_text) else stringResource(R.string.menu)
                         )
                     }
                 },
                 actions = {
                     if (!isSearchVisible) {
                         IconButton(onClick = { onToggleSearch(true) }) {
-                            Icon(Icons.Default.Search, contentDescription = "Buscar")
+                            Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_hint))
                         }
                         IconButton(onClick = {
                             documentPickerLauncher.launch(arrayOf("application/epub+zip", "application/pdf"))
                         }) {
                             Icon(
                                 imageVector = Icons.Default.UploadFile,
-                                contentDescription = "Importar libro",
+                                contentDescription = stringResource(R.string.import_book_title),
                                 tint = Color.White
                             )
                         }
@@ -210,7 +212,7 @@ fun LibraryContent(
                         val currentSearch = (state as? LibraryUiState.Success)?.searchText ?: ""
                         if (currentSearch.isNotEmpty()) {
                             IconButton(onClick = { onEvent(OnSearchTextChanged("")) }) {
-                                Icon(Icons.Default.Close, contentDescription = "Limpiar búsqueda")
+                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.clear_search))
                             }
                         }
                     }

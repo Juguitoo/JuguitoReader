@@ -5,6 +5,8 @@ import com.juguito.juguitoreader.domain.model.DailyReading
 import com.juguito.juguitoreader.domain.model.EpubContent
 import com.juguito.juguitoreader.domain.model.ReadingProgress
 
+import com.juguito.juguitoreader.ui.common.UiText
+
 enum class ReaderTheme(val bgColor: String, val textColor: String) {
     DAY(bgColor = "#FFFFFF", textColor = "#1A1A1A"),
     SEPIA(bgColor = "#EEE7D7", textColor = "#1A1A1A"),
@@ -13,7 +15,7 @@ enum class ReaderTheme(val bgColor: String, val textColor: String) {
 
 sealed interface ReaderUiState {
     data object Loading: ReaderUiState
-    data class Error(val message: String): ReaderUiState
+    data class Error(val message: UiText): ReaderUiState
     data class Success(
         val book: Book,
         val epubContent: EpubContent,

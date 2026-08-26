@@ -1,0 +1,252 @@
+<resources>
+    <string name="app_name">JuguitoReader</string>
+
+    <!-- Common -->
+    <string name="back">Back</string>
+    <string name="cancel">Cancel</string>
+    <string name="accept">OK</string>
+    <string name="save">Save</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="erase">Delete</string>
+    <string name="close">Close</string>
+    <string name="retry">Retry</string>
+    <string name="import_text">Import</string>
+    <string name="search_hint">Search…</string>
+    <string name="no_description">No description</string>
+    <string name="no_title">No title</string>
+    <string name="menu">Menu</string>
+    <string name="settings">Settings</string>
+    <string name="return_text">Back</string>
+    <string name="one_book">1 book</string>
+    <string name="multiple_books">%d books</string>
+    <string name="one_book_dot">• 1 book</string>
+    <string name="multiple_books_dot">• %d books</string>
+
+    <!-- Add Book -->
+    <string name="add_book_title">New Book</string>
+    <string name="import_book_title">Import Book</string>
+    <string name="import_epub_message">Do you want to select an EPUB file to automatically extract its data? This will overwrite the title, author and any other data you have already filled in.</string>
+    <string name="select_cover">Select cover</string>
+    <string name="image_source_message">How do you want to add the image for the book?</string>
+    <string name="choose_from_gallery">Choose from gallery</string>
+    <string name="take_photo">Take a photo</string>
+    <string name="book_details">Book details</string>
+    <string name="title_label">Title</string>
+    <string name="author_label">Author</string>
+    <string name="publisher_label">Publisher</string>
+    <string name="series_label">Book series</string>
+    <string name="series_order_label">#</string>
+    <string name="organization">Organization</string>
+    <string name="format">Format</string>
+    <string name="physical_book">Physical book</string>
+    <string name="files">Files</string>
+    <string name="selected_cover">Selected cover</string>
+    <string name="reading_file">Reading file</string>
+    <string name="select">Select</string>
+    <string name="change">Change</string>
+    <string name="remove_file">Remove file</string>
+    <string name="add_cover">Add cover</string>
+    <string name="change_cover">Change cover</string>
+    <string name="save_book">Save Book</string>
+    <string name="autocomplete_epub">Autofill with EPUB</string>
+
+    <!-- Book Detail -->
+    <string name="edit_book">Edit Book</string>
+    <string name="book_detail">Book Detail</string>
+    <string name="information">Information</string>
+    <string name="registry">Registry</string>
+    <string name="delete_book_title">Delete Book</string>
+    <string name="delete_book_confirmation">Are you sure you want to delete \'%s\'? This action cannot be undone.</string>
+
+    <!-- Home -->
+    <string name="import_epub">Import EPUB</string>
+    <string name="your_shelf">Your Shelf</string>
+    <string name="continue_reading">Continue Reading</string>
+    <string name="pending_books">Pending Books</string>
+    <string name="general_stats">General Stats</string>
+    <string name="undo">Undo</string>
+
+    <!-- Library -->
+    <string name="search_library_hint">Search in my library…</string>
+    <string name="all_books">All Books</string>
+    <string name="clear_search">Clear search</string>
+
+    <!-- Management -->
+    <string name="content_manager">Content Manager</string>
+    <string name="create">Create</string>
+    <string name="clear">Clear</string>
+    <string name="folders">Folders</string>
+    <string name="genres">Genres</string>
+    <string name="delete_folder_title">Delete Folder</string>
+    <string name="delete_folder_confirmation">Are you sure you want to delete the folder \'%s\'? Books will not be deleted, they will only be removed from this folder.\n This action cannot be undone.</string>
+    <string name="delete_genre_title">Delete Genre</string>
+    <string name="delete_genre_confirmation">Are you sure you want to delete the genre \'%s\'? Books with this genre will no longer have it assigned.\n This action cannot be undone.</string>
+
+    <!-- Reader -->
+    <string name="error_opening_book">Error opening book</string>
+    <string name="index">Index</string>
+    <string name="previous_chapter">Previous chapter</string>
+    <string name="release_to_return">Release to return</string>
+    <string name="next_chapter">Next chapter</string>
+    <string name="release_to_advance">Release to advance</string>
+    <string name="stats">Stats</string>
+    <string name="font_size">Font size</string>
+    <string name="brightness">Brightness</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
+    <string name="change_theme">Change theme</string>
+    <string name="time_remaining_label">%s left</string>
+    <string name="less_than_one_min">&lt; 1 min</string>
+    <string name="minutes_remaining">%d min</string>
+    <string name="change_status_prompt_title">Do you want to change the status?</string>
+    <string name="change_status_prompt_message">You have made significant progress in this reading. The current book has the status \'Pending\'.\nDo you want to move the book to your \'Reading\' list?</string>
+    <string name="yes_change">Yes, change</string>
+    <string name="keep_same">Keep same</string>
+    <string name="your_reading_sessions">Your reading sessions</string>
+    <string name="daily_progress_message">Daily progress recorded in this book.</string>
+    <string name="no_sessions_saved">No sessions saved yet. Check back when you finish reading today.</string>
+
+    <!-- Registry -->
+    <string name="registry_title">Registry</string>
+    <string name="search_registry_hint">Search book, author or series…</string>
+    <string name="close_search">Close search</string>
+    <string name="open_menu">Open menu</string>
+    <string name="filters">Filters</string>
+    <string name="add_book">Add Book</string>
+    <string name="book_col">Book</string>
+    <string name="status_col">Status</string>
+    <string name="rating_col">Rating</string>
+    <string name="start_col">Start</string>
+    <string name="end_col">End</string>
+    <string name="comment_col">Comment</string>
+    <string name="no_books_found">No books found with these filters</string>
+    <string name="write_comment_hint">Write a comment…</string>
+    <string name="add_new_book_hint">Tap here to add a new book…</string>
+
+    <!-- Settings -->
+    <string name="appearance">Appearance</string>
+    <string name="app_theme">App theme</string>
+    <string name="reading_experience">Reading experience</string>
+    <string name="reader_background">Reader background</string>
+    <string name="text_size">Text size</string>
+    <string name="automations">Automations</string>
+    <string name="auto_start_title">Change to \'Reading\'</string>
+    <string name="auto_start_subtitle">Automatically move a \'Pending\' book to \'Reading\' when opening it.</string>
+    <string name="auto_finish_title">Mark as \'Finished\'</string>
+    <string name="auto_finish_subtitle">Complete the book when reaching 100% of the reading.</string>
+    <string name="prompt_status_change_title">Suggest change to \'Reading\'</string>
+    <string name="prompt_status_change_subtitle">Ask if you want to change the status when advancing 15% in one sitting.</string>
+    <string name="general">General</string>
+    <string name="language">Language</string>
+    <string name="book_deleted">Book deleted.</string>
+
+    <!-- Use Cases -->
+    <string name="error_title_empty">Book title cannot be empty.</string>
+    <string name="error_author_empty">Book author cannot be empty.</string>
+    <string name="error_save_book">Error saving book: %s</string>
+    <string name="error_epub_not_found">The EPUB file book does not exist.</string>
+    <string name="error_epub_extraction">An error occurred while extracting data from the EPUB file. Try again by replacing the EPUB file with a different one.</string>
+    <string name="error_genre_empty">Genre name cannot be empty.</string>
+    <string name="error_genre_exists">A genre named \'%s\' already exists.</string>
+    <string name="error_delete_book">Error deleting book</string>
+    <string name="error_delete_book_not_found">The book to delete does not exist.</string>
+    <string name="error_import_book">Error importing book automatically from file</string>
+    <string name="error_save_reading_session">Error saving reading session.</string>
+    <string name="error_delete_reading_sessions">Error deleting reading sessions.</string>
+    <string name="error_delete_folder_error">Error deleting folder</string>
+    <string name="error_delete_genre_error">Error deleting genre</string>
+    <string name="error_save_progress">Error saving progress</string>
+    <string name="error_delete_progress">Error deleting reading progress.</string>
+    <string name="error_update_progress">Error updating progress</string>
+
+    <!-- Enums -->
+    <string name="theme_juguito">Juguito</string>
+    <string name="theme_pastel">Pastel</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_high_contrast">High contrast</string>
+
+    <string name="lang_system">System</string>
+    <string name="lang_spanish">Spanish</string>
+    <string name="lang_english">English</string>
+
+    <string name="status_pending">Pending</string>
+    <string name="status_reading">Reading</string>
+    <string name="status_finished">Finished</string>
+    <string name="status_dropped">Dropped</string>
+
+    <!-- Error/Empty Views -->
+    <string name="something_went_wrong">Something went wrong</string>
+    <string name="empty_library_title">Your library is empty</string>
+    <string name="empty_library_subtitle">Add your first book to start</string>
+    <string name="new_text">New</string>
+
+    <!-- Components -->
+    <string name="technical_sheet">Technical Sheet</string>
+    <string name="by_author">by %s</string>
+    <string name="saga_volume">Saga: %s, Volume %s</string>
+    <string name="physical_format">Physical Format</string>
+    <string name="digital_format">Ebook / Digital</string>
+    <string name="delete_permanently">Delete this book permanently</string>
+    <string name="no_search_results">No matching books found</string>
+    <string name="no_books_in_folder">No books in this folder</string>
+    <string name="filter_books">Filter books</string>
+    <string name="clear_filters">Clear filters</string>
+    <string name="reading_status">Reading status</string>
+    <string name="saga_series">Saga / Series</string>
+    <string name="all_sagas">All sagas</string>
+    <string name="other_filters">Other filters</string>
+    <string name="series_order">Order in saga</string>
+
+    <string name="reading_progress">Reading progress</string>
+    <string name="start_date_label">Start Date</string>
+    <string name="end_date_label">End Date</string>
+    <string name="notes_reflections">My Notes and Reflections</string>
+    <string name="notes_placeholder">Write here what you think about the book, favorite quotes, doubts…</string>
+    <string name="save_registry_changes">Save registry changes</string>
+    <string name="name_empty_error">Name cannot be empty</string>
+    <string name="new_genre_title">New Genre</string>
+    <string name="new_genre_message">Write the name of the new genre for your library.</string>
+    <string name="genre_name_label">Genre name</string>
+    <string name="books_in_library">Books in library</string>
+    <string name="books_reading">Books reading</string>
+    <string name="books_finished">Books finished</string>
+    <string name="average_speed">Average speed</string>
+    <string name="create_new_folder">Create new folder</string>
+    <string name="assigned">Assigned</string>
+    <string name="available">Available</string>
+    <string name="no_folders_message">You don\'t have any folders created yet. Press \'+\' to add one.</string>
+    <string name="new_genre_hint">Write a new genre…</string>
+    <string name="suggestions">Suggestions</string>
+    <string name="existing_genres">Existing genres</string>
+    <string name="rating_label">Rating (1 – 10)</string>
+    <string name="options">Options</string>
+
+    <string name="edit_folder">Edit Folder</string>
+    <string name="new_folder">New Folder</string>
+    <string name="modify_folder">Modify folder</string>
+    <string name="folder_name">Name</string>
+    <string name="folder_description">Description (optional)</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="save_success">Changes saved successfully.</string>
+    <string name="create_folder">Create Folder</string>
+    <string name="error_save_folder">Error saving folder</string>
+    <string name="error_folder_exists">A folder named \'%s\' already exists.</string>
+    <string name="error_folder_color_empty">Folder color cannot be empty.</string>
+    <string name="color_tone">Distinctive color</string>
+    <string name="my_folders">My Folders</string>
+    <string name="details">Details</string>
+    <string name="change_status">Change status</string>
+    <string name="home_label">Home</string>
+    <string name="registry_label">Registry</string>
+    <string name="library_label">Library</string>
+    <string name="management_label">Management</string>
+    <string name="create_book">Create book</string>
+    <string name="create_genre">Create genre</string>
+    <string name="all">All</string>
+    <string name="folder_created">Folder created successfully</string>
+    <string name="your_personal_library">Your personal library</string>
+    <string name="standard">Standard</string>
+    <string name="deep">Deep</string>
+    <string name="selected_check">Selected</string>
+</resources>

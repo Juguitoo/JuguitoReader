@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.BookmarkAdded
 import androidx.compose.material.icons.filled.CheckCircleOutline
 import androidx.compose.material.icons.filled.FormatSize
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -37,9 +38,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.domain.enums.Language
+import com.juguito.juguitoreader.ui.common.toUiText
 import com.juguito.juguitoreader.ui.reader.ReaderTheme
 import com.juguito.juguitoreader.ui.settings.components.ReaderPreviewBox
 import com.juguito.juguitoreader.ui.settings.components.SettingsSection
@@ -61,7 +66,7 @@ fun SettingsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Ajustes",
+                        text = stringResource(R.string.settings),
                         fontWeight = FontWeight.Bold
                     )
                 },
@@ -69,7 +74,7 @@ fun SettingsScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 },
@@ -89,23 +94,23 @@ fun SettingsScreen(
                 .padding(horizontal = 16.dp, vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            SettingsSection(title = "Apariencia") {
+            SettingsSection(title = stringResource(R.string.appearance)) {
                 SettingsSelectorRow(
                     icon = Icons.Default.Palette,
-                    title = "Tema de la aplicación",
-                    subtitle = state.appTheme.displayName.lowercase().replaceFirstChar { it.uppercase() },
+                    title = stringResource(R.string.app_theme),
+                    subtitle = state.appTheme.toUiText().asString(),
                     options = AppTheme.entries.map {
-                        it to it.displayName.lowercase().replaceFirstChar { c -> c.uppercase() }
+                        it to it.toUiText().asString()
                     },
                     selectedOption = state.appTheme,
                     onOptionSelected = { viewModel.onEvent(SettingsEvent.OnAppThemeChanged(it)) }
                 )
             }
 
-            SettingsSection(title = "Experiencia de lectura") {
+            SettingsSection(title = stringResource(R.string.reading_experience)) {
                 SettingsSelectorRow(
                     icon = Icons.Default.AutoStories,
-                    title = "Fondo del lector",
+                    title = stringResource(R.string.reader_background),
                     subtitle = state.readerTheme.name.lowercase()
                         .replaceFirstChar { it.uppercase() },
                     options = ReaderTheme.entries.map {
@@ -139,7 +144,7 @@ fun SettingsScreen(
                                 tint = MaterialTheme.colorScheme.primary
                             )
                             Text(
-                                text = "Tamaño de texto",
+                                text = stringResource(R.string.text_size),
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Medium
                             )
@@ -186,11 +191,11 @@ fun SettingsScreen(
                 }
             }
 
-            SettingsSection(title = "Automatizaciones") {
+            SettingsSection(title = stringResource(R.string.automations)) {
                 SettingsSwitchRow(
                     icon = Icons.Default.BookmarkAdded,
-                    title = "Cambiar a 'Leyendo'",
-                    subtitle = "Pasa automáticamente un libro 'Pendiente' a 'Leyendo' al abrirlo.",
+                    title = stringResource(R.string.auto_start_title),
+                    subtitle = stringResource(R.string.auto_start_subtitle),
                     checked = state.autoStart,
                     onCheckedChange = { viewModel.onEvent(SettingsEvent.OnAutoPendingToReadingChanged(it)) },
                     enabled = true
@@ -200,8 +205,8 @@ fun SettingsScreen(
 
                 SettingsSwitchRow(
                     icon = Icons.Default.CheckCircleOutline,
-                    title = "Marcar como 'Terminado'",
-                    subtitle = "Completa el libro al llegar al 100% de la lectura.",
+                    title = stringResource(R.string.auto_finish_title),
+                    subtitle = stringResource(R.string.auto_finish_subtitle),
                     checked = state.autoFinish,
                     onCheckedChange = { viewModel.onEvent(SettingsEvent.OnAutoFinishChanged(it)) },
                     enabled = true
@@ -211,26 +216,25 @@ fun SettingsScreen(
 
                 SettingsSwitchRow(
                     icon = Icons.Default.AutoStories,
-                    title = "Sugerir cambio a 'Leyendo'",
-                    subtitle = "Pregunta si deseas cambiar el estado al avanzar un 15% de una sentada.",
+                    title = stringResource(R.string.prompt_status_change_title),
+                    subtitle = stringResource(R.string.prompt_status_change_subtitle),
                     checked = state.promptStatusChange,
                     onCheckedChange = { viewModel.onEvent(SettingsEvent.OnPromptStatusChangeChanged(it)) },
                     enabled = !state.autoStart
                 )
             }
-/*
-            SettingsSection(title = "General") {
+            SettingsSection(title = stringResource(R.string.general)) {
                 SettingsSelectorRow(
                     icon = Icons.Default.Language,
-                    title = "Idioma",
-                    subtitle = state.language.displayName.lowercase().replaceFirstChar { it.uppercase() },
-                    options = Language.entries.map { it to it.name.lowercase().replaceFirstChar { c -> c.uppercase() } },
+                    title = stringResource(R.string.language),
+                    subtitle = state.language.toUiText().asString(),
+                    options = Language.entries.map {
+                        it to it.toUiText().asString()
+                    },
                     selectedOption = state.language,
                     onOptionSelected = { viewModel.onEvent(SettingsEvent.OnLanguageChanged(it)) }
                 )
             }
-
- */
         }
     }
 }

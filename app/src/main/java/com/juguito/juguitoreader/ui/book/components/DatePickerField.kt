@@ -14,7 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.juguito.juguitoreader.R
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -28,13 +30,14 @@ fun DatePickerField(
     modifier: Modifier = Modifier,
     enabled: Boolean = true
 ) {
-    val dateText = remember(dateMillis) {
+    val selectText = stringResource(R.string.select)
+    val dateText = remember(dateMillis, selectText) {
         if (dateMillis != null) {
             val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
             sdf.timeZone = TimeZone.getTimeZone("UTC")
             sdf.format(Date(dateMillis))
         } else {
-            "Seleccionar"
+            selectText
         }
     }
 

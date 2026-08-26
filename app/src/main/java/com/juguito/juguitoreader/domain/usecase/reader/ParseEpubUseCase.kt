@@ -1,6 +1,8 @@
 package com.juguito.juguitoreader.domain.usecase.reader
 
 import android.content.Context
+import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.domain.exception.JuguitoException
 import com.juguito.juguitoreader.domain.model.EpubContent
 import com.juguito.juguitoreader.domain.repository.BookRepository
 import com.juguito.juguitoreader.utils.EpubParser
@@ -13,17 +15,19 @@ class ParseEpubUseCase @Inject constructor(
     private val bookRepository: BookRepository
 ) {
     suspend operator fun invoke(bookId: Int, localFilePath: String): Result<EpubContent> {
-        bookRepository.getBookById(bookId) ?: return Result.failure(Exception("El libro del fichero epub no existe."))
+        bookRepository.getBookById(bookId) ?: return Result.failure(JuguitoException(R.string.error_epub_not_found))
 
         return try {
             Result.success(EpubParser.extractFullContent(context, bookId, localFilePath))
         } catch (ioException: IOException) {
-            return Result.failure(Exception(ioException.localizedMessage))
+            ioException.printStackTrace()
+            return Result.failure(JuguitoException(R.string.something_went_wrong))
         } catch (securityException: SecurityException) {
-            return Result.failure(Exception(securityException.localizedMessage))
+            securityException.printStackTrace()
+            return Result.failure(JuguitoException(R.string.something_went_wrong))
         } catch (e: Exception) {
             e.printStackTrace()
-            return Result.failure(Exception("Ha ocurrido un error al extraer los datos del fichero epub. Intentalo de nuevo reemplazando el fichero epub por otro distinto."))
+            return Result.failure(JuguitoException(R.string.error_epub_extraction))
         }
     }
 }

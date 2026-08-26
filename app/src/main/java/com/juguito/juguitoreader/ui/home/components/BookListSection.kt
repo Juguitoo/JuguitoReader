@@ -26,6 +26,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -114,7 +115,7 @@ fun BookListSection(
                 if (showActions) {
                     item {
                         ActionBookCard(
-                            title = "Nuevo",
+                            title = stringResource(R.string.new_text),
                             icon = Icons.Default.Add,
                             width = itemWidth,
                             onClick = { onNavigateToAddBook?.invoke() }
@@ -122,7 +123,7 @@ fun BookListSection(
                     }
                     item {
                         ActionBookCard(
-                            title = "Importar",
+                            title = stringResource(R.string.import_text),
                             icon = Icons.Default.UploadFile,
                             width = itemWidth,
                             onClick = { onImportClick?.invoke() }

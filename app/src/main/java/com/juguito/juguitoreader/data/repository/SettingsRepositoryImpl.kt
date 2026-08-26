@@ -37,7 +37,7 @@ class SettingsRepositoryImpl @Inject constructor(
     override val readerThemeFlow: Flow<String> = context.dataStore.data.map { it[READER_THEME] ?: "SEPIA" }
     override val appThemeFlow: Flow<String> = context.dataStore.data.map { it[APP_THEME] ?: "JUGUITO" }
     override val readerBrightnessFlow: Flow<Float> = context.dataStore.data.map { it[READER_BRIGHTNESS] ?: 0.5f }
-    override val languageFlow: Flow<String> = context.dataStore.data.map { it[LANGUAGE] ?: "SPANISH" }
+    override val languageFlow: Flow<String> = context.dataStore.data.map { it[LANGUAGE] ?: "SYSTEM" }
     override val autoStartReadingFlow: Flow<Boolean> = context.dataStore.data.map { it[AUTO_START_READING] ?: false }
     override val autoFinishReadingFlow: Flow<Boolean> = context.dataStore.data.map { it[AUTO_FINISH_READING] ?: false }
     override val promptStatusChangeFlow: Flow<Boolean> = context.dataStore.data.map { it[PROMPT_STATUS_CHANGE] ?: true }

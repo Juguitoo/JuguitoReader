@@ -27,7 +27,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Genre
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -53,12 +55,12 @@ fun GenreHybridSelector(
     val selectedScrollState = rememberScrollState()
 
     Column(modifier = modifier.fillMaxWidth()) {
-        Text("Géneros", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+        Text(stringResource(R.string.genres), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
 
         OutlinedTextField(
             value = genreInput,
             onValueChange = { genreInput = it },
-            label = { Text("Escribe un género nuevo...") },
+            label = { Text(stringResource(R.string.new_genre_hint)) },
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
             shape = RoundedCornerShape(12.dp),
             trailingIcon = {
@@ -73,7 +75,7 @@ fun GenreHybridSelector(
                         }
                     }
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = "Añadir")
+                    Icon(Icons.Default.Add, contentDescription = stringResource(R.string.create))
                 }
             }
         )
@@ -91,7 +93,7 @@ fun GenreHybridSelector(
                             onGenresChanged(newGenres)
                         },
                         label = { Text(genre.name) },
-                        trailingIcon = { Icon(Icons.Default.Close, contentDescription = "Eliminar", modifier = Modifier.size(16.dp)) },
+                        trailingIcon = { Icon(Icons.Default.Close, contentDescription = stringResource(R.string.erase), modifier = Modifier.size(16.dp)) },
                         colors = InputChipDefaults.inputChipColors(selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer)
                     )
                 }
@@ -100,7 +102,7 @@ fun GenreHybridSelector(
 
         if (suggestedGenres.isNotEmpty()) {
             Text(
-                text = if (genreInput.isEmpty()) "Géneros existentes" else "Sugerencias",
+                text = if (genreInput.isEmpty()) stringResource(R.string.existing_genres) else stringResource(R.string.suggestions),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)

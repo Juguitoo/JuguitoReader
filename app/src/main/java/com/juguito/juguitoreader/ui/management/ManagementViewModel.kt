@@ -8,6 +8,7 @@ import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
 import com.juguito.juguitoreader.domain.usecase.genre.DeleteGenreUseCase
 import com.juguito.juguitoreader.domain.usecase.genre.GetGenresUseCase
 import com.juguito.juguitoreader.domain.usecase.genre.UpdateGenreUseCase
+import com.juguito.juguitoreader.ui.common.asUiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -118,8 +119,7 @@ class ManagementViewModel @Inject constructor(
             result.onSuccess {
                 _uiState.value = _uiState.value.copy(genreToEdit = null, newGenreName = "")
             }.onFailure { exception ->
-                exception.printStackTrace()
-                _effect.send(UiEffect.ShowSnackbar(exception.message ?: "Error al actualizar el género."))
+                _effect.send(UiEffect.ShowSnackbar(exception.asUiText()))
             }
         }
     }

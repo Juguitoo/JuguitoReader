@@ -8,8 +8,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.ui.components.JuguitoDialog
 
 @Composable
@@ -24,18 +26,18 @@ fun AddGenreDialog(
 
     val isError = isLocalEmptyError || dbError != null
     val errorMessage = when {
-        isLocalEmptyError -> "El nombre no puede estar vacío"
-        dbError != null -> dbError
+        isLocalEmptyError -> stringResource(R.string.name_empty_error)
+        dbError != null -> dbError?.asString()
         else -> null
     }
 
     JuguitoDialog(
         onDismissRequest = onDismissRequest,
         icon = Icons.AutoMirrored.Filled.Label,
-        title = "Nuevo Género",
-        message = "Escribe el nombre del nuevo género para tu biblioteca.",
-        confirmButtonText = "Crear",
-        dismissButtonText = "Cancelar",
+        title = stringResource(R.string.new_genre_title),
+        message = stringResource(R.string.new_genre_message),
+        confirmButtonText = stringResource(R.string.create),
+        dismissButtonText = stringResource(R.string.cancel),
         onConfirm = {
             if (genreName.isNotBlank()) {
                 viewModel.saveGenre(genreName.trim()) {
@@ -53,7 +55,7 @@ fun AddGenreDialog(
                     isLocalEmptyError = false
                     viewModel.clearError()
                 },
-                label = { Text("Nombre del género") },
+                label = { Text(stringResource(R.string.genre_name_label)) },
                 isError = isError,
                 supportingText = errorMessage?.let { { Text(it) } },
                 singleLine = true,

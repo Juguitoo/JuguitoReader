@@ -1,5 +1,7 @@
 package com.juguito.juguitoreader.domain.usecase.book
 
+import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.domain.exception.JuguitoException
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.repository.BookRepository
 import com.juguito.juguitoreader.domain.repository.FolderRepository
@@ -13,9 +15,9 @@ class AddBookUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(book: Book): Result<Unit> {
         if (book.title.isBlank()) {
-            return Result.failure(Exception("El título del libro no puede estar vacío."))
+            return Result.failure(JuguitoException(R.string.error_title_empty))
         } else if (book.author.isBlank()) {
-            return Result.failure(Exception("El autor del libro no puede estar vacío."))
+            return Result.failure(JuguitoException(R.string.error_author_empty))
         }
 
         return try {
@@ -35,7 +37,8 @@ class AddBookUseCase @Inject constructor(
 
             Result.success(Unit)
         } catch (e: Exception) {
-            Result.failure(Exception("Error al guardar el libro: ${e.localizedMessage}"))
+            e.printStackTrace()
+            Result.failure(JuguitoException(R.string.error_save_book))
         }
     }
 }

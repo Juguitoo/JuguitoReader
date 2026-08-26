@@ -1,9 +1,11 @@
 package com.juguito.juguitoreader.ui.common.interfaces
 
+import com.juguito.juguitoreader.ui.common.UiText
+
 sealed interface UiEffect {
     data class ShowSnackbar(
-        val message: String,
-        val actionLabel: String? = null,
+        val message: UiText,
+        val actionLabel: UiText? = null,
         val actionPayload: String? = null
     ) : UiEffect
 

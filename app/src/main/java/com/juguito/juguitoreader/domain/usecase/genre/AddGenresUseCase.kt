@@ -1,7 +1,9 @@
 package com.juguito.juguitoreader.domain.usecase.genre
 
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Genre
 import com.juguito.juguitoreader.domain.repository.GenreRepository
+import com.juguito.juguitoreader.ui.common.UiText
 import javax.inject.Inject
 
 class AddGenresUseCase @Inject constructor(
@@ -28,7 +30,7 @@ class AddGenresUseCase @Inject constructor(
         }
 
         if (validGenres.isEmpty() && skippedGenres.isNotEmpty()) {
-            return AddGenresResult.Error("Ningún género tenía un formato válido o estaban duplicados.")
+            return AddGenresResult.Error(UiText.StringResource(R.string.something_went_wrong))
         }
 
         return try {
@@ -40,7 +42,8 @@ class AddGenresUseCase @Inject constructor(
                 AddGenresResult.Success
             }
         } catch (e: Exception) {
-            AddGenresResult.Error("Error al guardar en la base de datos: ${e.localizedMessage}")
+            e.printStackTrace()
+            AddGenresResult.Error(UiText.StringResource(R.string.something_went_wrong))
         }
     }
 }
@@ -48,5 +51,5 @@ class AddGenresUseCase @Inject constructor(
 sealed interface AddGenresResult {
     data object Success : AddGenresResult
     data class PartialSuccess(val skippedGenres: List<String>) : AddGenresResult
-    data class Error(val message: String) : AddGenresResult
+    data class Error(val message: UiText) : AddGenresResult
 }

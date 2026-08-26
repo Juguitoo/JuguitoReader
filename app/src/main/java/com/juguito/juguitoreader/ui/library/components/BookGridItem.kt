@@ -29,13 +29,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.ui.common.toUiText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 @OptIn(ExperimentalFoundationApi::class)
@@ -97,7 +100,7 @@ fun BookGridItem(
                 onDismissRequest = { showMenu = false }
             ) {
                 DropdownMenuItem(
-                    text = { Text("Detalles") },
+                    text = { Text(stringResource(R.string.details)) },
                     onClick = {
                         showMenu = false
                         onDetailClick()
@@ -108,7 +111,7 @@ fun BookGridItem(
                 HorizontalDivider()
 
                 Text(
-                    "Cambiar estado",
+                    stringResource(R.string.change_status),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
@@ -116,7 +119,7 @@ fun BookGridItem(
 
                 BookStatus.entries.forEach { status ->
                     DropdownMenuItem(
-                        text = { Text(status.displayName) },
+                        text = { Text(status.toUiText().asString()) },
                         onClick = {
                             showMenu = false
                             onStatusChange(status)

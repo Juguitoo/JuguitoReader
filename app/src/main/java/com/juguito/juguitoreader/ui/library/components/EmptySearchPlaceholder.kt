@@ -15,9 +15,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.juguito.juguitoreader.R
 
 @Composable
 fun EmptySearchPlaceholder(
@@ -38,9 +40,9 @@ fun EmptySearchPlaceholder(
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = if (isSearching) {
-                "No se encontraron libros que coincidan"
+                stringResource(R.string.no_search_results)
             } else {
-                "No hay libros en esta carpeta"
+                stringResource(R.string.no_books_in_folder)
             },
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,

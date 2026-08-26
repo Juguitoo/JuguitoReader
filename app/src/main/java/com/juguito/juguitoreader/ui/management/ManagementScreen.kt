@@ -72,6 +72,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.compose.ui.res.stringResource
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.model.Genre
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
@@ -117,6 +119,7 @@ fun ManagementContent(
     onNavigateToAddFolder: () -> Unit,
     effect: Flow<UiEffect>
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val focusRequester = remember { FocusRequester() }
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -134,7 +137,7 @@ fun ManagementContent(
     ObserveAsEvents(effect) { uiEffect ->
         when (uiEffect) {
             is UiEffect.ShowSnackbar -> {
-                snackbarHostState.showSnackbar(uiEffect.message)
+                snackbarHostState.showSnackbar(uiEffect.message.asString(context))
             }
             else -> Unit
         }
@@ -149,14 +152,14 @@ fun ManagementContent(
     if (folderToDelete != null) {
         JuguitoDialog(
             onDismissRequest = { folderToDelete = null },
-            title = "Eliminar carpeta",
-            message = "¿Estás seguro de que quieres eliminar la carpeta '${folderToDelete?.name}'? Los libros no se borrarán, solo se quitarán de esta carpeta.\n Esta acción no se puede deshacer.",
-            confirmButtonText = "Eliminar",
+            title = stringResource(R.string.delete_folder_title),
+            message = stringResource(R.string.delete_folder_confirmation, folderToDelete?.name ?: ""),
+            confirmButtonText = stringResource(R.string.delete),
             onConfirm = {
                 folderToDelete?.let { onEvent(ManagementEvent.OnDeleteFolder(it.id)) }
                 folderToDelete = null
             },
-            dismissButtonText = "Cancelar",
+            dismissButtonText = stringResource(R.string.cancel),
             isDestructive = true
         )
     }
@@ -164,14 +167,14 @@ fun ManagementContent(
     if (genreToDelete != null) {
         JuguitoDialog(
             onDismissRequest = { genreToDelete = null },
-            title = "Eliminar género",
-            message = "¿Estás seguro de que quieres eliminar el género '${genreToDelete?.name}'? Los libros con este género dejaran de tenerlo asignado.\n Esta acción no se puede deshacer.",
-            confirmButtonText = "Eliminar",
+            title = stringResource(R.string.delete_genre_title),
+            message = stringResource(R.string.delete_genre_confirmation, genreToDelete?.name ?: ""),
+            confirmButtonText = stringResource(R.string.delete),
             onConfirm = {
                 genreToDelete?.let { onEvent(ManagementEvent.OnDeleteGenre(it.id)) }
                 genreToDelete = null
             },
-            dismissButtonText = "Cancelar",
+            dismissButtonText = stringResource(R.string.cancel),
             isDestructive = true
         )
     }
@@ -207,7 +210,7 @@ fun ManagementContent(
                                 onValueChange = { onEvent(ManagementEvent.OnSearchQueryChanged(it)) },
                                 placeholder = {
                                     Text(
-                                        "Buscar...",
+                                        stringResource(R.string.search_hint),
                                         color = Color.White.copy(alpha = 0.7f),
                                         style = MaterialTheme.typography.bodyLarge
                                     )
@@ -230,7 +233,7 @@ fun ManagementContent(
                             )
                         } else {
                             Text(
-                                "Gestor de contenido",
+                                stringResource(R.string.content_manager),
                                 style = MaterialTheme.typography.titleLarge,
                                 fontFamily = LoraFontFamily,
                                 fontWeight = FontWeight.Bold
@@ -243,7 +246,7 @@ fun ManagementContent(
                         } else onNavigateBack) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Volver",
+                                contentDescription = stringResource(R.string.return_text),
                                 tint = Color.White
                             )
                         }
@@ -251,15 +254,15 @@ fun ManagementContent(
                     actions = {
                         if (state.isSearchActive) {
                             IconButton(onClick = { onEvent(ManagementEvent.OnSearchQueryChanged("")) }) {
-                                Icon(Icons.Default.Close, contentDescription = "Limpiar", tint = Color.White)
+                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.clear), tint = Color.White)
                             }
                         } else {
                             IconButton(onClick = { onEvent(ManagementEvent.OnToggleSearch) }) {
-                                Icon(Icons.Default.Search, contentDescription = "Buscar", tint = Color.White)
+                                Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_hint), tint = Color.White)
                             }
                         }
                         IconButton(onClick = { if (state.selectedTab == 0) {onNavigateToAddFolder()} else {showAddGenreDialog = true} }) {
-                            Icon(Icons.Default.Add, contentDescription = "Crear", tint = Color.White)
+                            Icon(Icons.Default.Add, contentDescription = stringResource(R.string.create), tint = Color.White)
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -286,12 +289,12 @@ fun ManagementContent(
                 Tab(
                     selected = state.selectedTab == 0,
                     onClick = { onEvent(ManagementEvent.OnTabSelected(0)) },
-                    text = { Text("Carpetas") }
+                    text = { Text(stringResource(R.string.folders)) }
                 )
                 Tab(
                     selected = state.selectedTab == 1,
                     onClick = { onEvent(ManagementEvent.OnTabSelected(1)) },
-                    text = { Text("Géneros") }
+                    text = { Text(stringResource(R.string.genres)) }
                 )
             }
 
@@ -382,13 +385,13 @@ fun FolderItem(
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = if (folder.bookCount == 1) "• 1 libro" else "• ${folder.bookCount} libros",
+                        text = if (folder.bookCount == 1) stringResource(R.string.one_book_dot) else stringResource(R.string.multiple_books_dot, folder.bookCount),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                     )
                 }
                 Text(
-                    text = folder.description ?: "Sin descripción",
+                    text = folder.description ?: stringResource(R.string.no_description),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
@@ -396,10 +399,10 @@ fun FolderItem(
                 )
             }
             IconButton(onClick = { onEdit(folder) }) {
-                Icon(Icons.Default.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.primary)
+                Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit), tint = MaterialTheme.colorScheme.primary)
             }
             IconButton(onClick = { onDelete(folder) }) {
-                Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = MaterialTheme.colorScheme.error)
+                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.erase), tint = MaterialTheme.colorScheme.error)
             }
         }
     }
@@ -505,10 +508,10 @@ fun GenreItem(
                     })
                 )
                 IconButton(onClick = onConfirm) {
-                    Icon(Icons.Default.Check, contentDescription = "Guardar", tint = MaterialTheme.colorScheme.primary)
+                    Icon(Icons.Default.Check, contentDescription = stringResource(R.string.save), tint = MaterialTheme.colorScheme.primary)
                 }
                 IconButton(onClick = onCancel) {
-                    Icon(Icons.Default.Close, contentDescription = "Cancelar", tint = MaterialTheme.colorScheme.error)
+                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cancel), tint = MaterialTheme.colorScheme.error)
                 }
             } else {
                 Column(modifier = Modifier.weight(1f)) {
@@ -518,16 +521,16 @@ fun GenreItem(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = if (genre.bookCount == 1) "1 libro" else "${genre.bookCount} libros",
+                        text = if (genre.bookCount == 1) stringResource(R.string.one_book) else stringResource(R.string.multiple_books, genre.bookCount),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 IconButton(onClick = onEdit) {
-                    Icon(Icons.Default.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.primary)
+                    Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit), tint = MaterialTheme.colorScheme.primary)
                 }
                 IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = MaterialTheme.colorScheme.error)
+                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.erase), tint = MaterialTheme.colorScheme.error)
                 }
             }
         }

@@ -3,10 +3,13 @@ package com.juguito.juguitoreader.ui.folder
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.usecase.folder.AddFolderUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFolderByIdUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.UpdateFolderUseCase
+import com.juguito.juguitoreader.ui.common.UiText
+import com.juguito.juguitoreader.ui.common.asUiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -51,7 +54,7 @@ class FolderViewModel @Inject constructor(
                     isLoading = false
                 )
             } else {
-                _effect.send(UiEffect.ShowSnackbar("No se ha encontrado la carpeta que se intenta editar."))
+                _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.something_went_wrong)))
             }
         }
     }
@@ -70,7 +73,7 @@ class FolderViewModel @Inject constructor(
 
         if (currentState.name.isBlank()) {
             viewModelScope.launch {
-                _effect.send(UiEffect.ShowSnackbar("El nombre de la carpeta no puede estar vacío."))
+                _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.name_empty_error)))
             }
             return
         }
@@ -97,9 +100,8 @@ class FolderViewModel @Inject constructor(
                     _effect.send(UiEffect.NavigateBack)
                 },
                 onFailure = { exception ->
-                    exception.printStackTrace()
                     _uiState.value = _uiState.value.copy(isLoading = false)
-                    _effect.send(UiEffect.ShowSnackbar(exception.message ?: if (currentState.isEditing) "Error al guardar los cambios." else "Error al crear la carpeta."))
+                    _effect.send(UiEffect.ShowSnackbar(exception.asUiText()))
                 }
             )
         }

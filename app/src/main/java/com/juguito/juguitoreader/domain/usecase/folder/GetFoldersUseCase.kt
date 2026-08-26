@@ -8,7 +8,6 @@ import javax.inject.Inject
 class GetFoldersUseCase @Inject constructor(
     private val repository: FolderRepository
 ) {
-
     operator fun invoke(): Flow<List<Folder>> {
         return repository.getAllFolders()
     }

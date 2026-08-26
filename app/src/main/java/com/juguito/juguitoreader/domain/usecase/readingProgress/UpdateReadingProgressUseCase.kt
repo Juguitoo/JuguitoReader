@@ -1,6 +1,8 @@
 package com.juguito.juguitoreader.domain.usecase.readingProgress
 
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
+import com.juguito.juguitoreader.domain.exception.JuguitoException
 import com.juguito.juguitoreader.domain.model.ReadingProgress
 import com.juguito.juguitoreader.domain.model.copy
 import com.juguito.juguitoreader.domain.repository.BookRepository
@@ -39,7 +41,8 @@ class UpdateReadingProgressUseCase @Inject constructor(
 
             Result.success(Unit)
         } catch (e: Exception) {
-            return Result.failure(Exception("Error al actualizar el progreso: ${e.localizedMessage}"))
+            e.printStackTrace()
+            return Result.failure(JuguitoException(R.string.error_update_progress))
         }
     }
 }

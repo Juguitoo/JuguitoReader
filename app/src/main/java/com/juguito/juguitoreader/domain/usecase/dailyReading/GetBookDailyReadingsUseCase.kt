@@ -8,7 +8,6 @@ import javax.inject.Inject
 class GetBookDailyReadingsUseCase @Inject constructor(
     private val repository: DailyReadingRepository
 ) {
-
     operator fun invoke(bookId: Int): Flow<List<DailyReading>> {
         return repository.getAllBookDailyReadings(bookId)
     }

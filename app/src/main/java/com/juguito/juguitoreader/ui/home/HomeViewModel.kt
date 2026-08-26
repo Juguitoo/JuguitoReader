@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.common.ActionUndoManager
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
@@ -12,6 +13,8 @@ import com.juguito.juguitoreader.domain.usecase.book.DeleteBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgressesUseCase
+import com.juguito.juguitoreader.ui.common.UiText
+import com.juguito.juguitoreader.ui.common.asUiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.utils.FileUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -86,7 +89,7 @@ class HomeViewModel @Inject constructor(
                 exception.printStackTrace()
                 emit(
                     HomeUiState.Error(
-                        message = "Error al cargar los datos."
+                        message = UiText.StringResource(R.string.something_went_wrong)
                     )
                 )
             }.collect { newState ->
@@ -121,7 +124,7 @@ class HomeViewModel @Inject constructor(
             result.onSuccess {
             }.onFailure { exception ->
                 exception.printStackTrace()
-                _effect.send(UiEffect.ShowSnackbar("Error al importar los datos."))
+                _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.something_went_wrong)))
             }
         }
     }
@@ -140,8 +143,9 @@ class HomeViewModel @Inject constructor(
                         onSuccess = {
                             _effect.send(
                                 UiEffect.ShowSnackbar(
-                                    message = "Libro eliminado.",
-                                    actionLabel = "Deshacer"
+                                    message = UiText.StringResource(R.string.book_deleted),
+                                    actionLabel = UiText.StringResource(R.string.undo),
+                                    actionPayload = "undo_delete"
                                 )
                             )
                             true
@@ -149,7 +153,7 @@ class HomeViewModel @Inject constructor(
                         onFailure = { error ->
                             _effect.send(
                                 UiEffect.ShowSnackbar(
-                                    message = error.message ?: "Error al eliminar el libro."
+                                    message = error.asUiText()
                                 )
                             )
                             false

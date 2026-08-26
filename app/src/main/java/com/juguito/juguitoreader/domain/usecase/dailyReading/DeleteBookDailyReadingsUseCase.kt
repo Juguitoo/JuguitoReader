@@ -1,5 +1,7 @@
 package com.juguito.juguitoreader.domain.usecase.dailyReading
 
+import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.domain.exception.JuguitoException
 import com.juguito.juguitoreader.domain.repository.DailyReadingRepository
 import javax.inject.Inject
 
@@ -12,7 +14,7 @@ class DeleteBookDailyReadingsUseCase @Inject constructor(
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()
-            Result.failure(Exception("Error al eliminar las sesiones del libro."))
+            Result.failure(JuguitoException(R.string.error_delete_reading_sessions))
         }
     }
 }

@@ -43,12 +43,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.folder.components.FolderColorTonePicker
@@ -61,13 +63,14 @@ fun FolderScreen(
     onFolderSavedSuccessfully: () -> Unit,
     viewModel: FolderViewModel = hiltViewModel()
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
 
     ObserveAsEvents(viewModel.effect) { effect ->
         when (effect) {
-            is UiEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message)
+            is UiEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message.asString(context))
             is UiEffect.NavigateBack -> onFolderSavedSuccessfully()
             else -> Unit
         }
@@ -92,7 +95,7 @@ fun FolderScreen(
                 TopAppBar(
                     title = {
                         Text(
-                            text = if (state.isEditing) "Editar Carpeta" else "Nueva Carpeta",
+                            text = if (state.isEditing) stringResource(R.string.edit_folder) else stringResource(R.string.new_folder),
                             style = MaterialTheme.typography.titleLarge,
                             fontFamily = LoraFontFamily,
                             fontWeight = FontWeight.Bold
@@ -102,7 +105,7 @@ fun FolderScreen(
                         IconButton(onClick = onNavigateBack) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Volver",
+                                contentDescription = stringResource(R.string.back),
                                 tint = Color.White
                             )
                         }
@@ -148,14 +151,14 @@ fun FolderScreen(
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = state.name.ifBlank { if (state.isEditing) "Modificar carpeta" else "Nueva carpeta" },
+                        text = state.name.ifBlank { if (state.isEditing) stringResource(R.string.modify_folder) else stringResource(R.string.new_folder) },
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = state.description.ifBlank { "Sin descripción" },
+                        text = state.description.ifBlank { stringResource(R.string.no_description) },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 2,
@@ -167,7 +170,7 @@ fun FolderScreen(
             OutlinedTextField(
                 value = state.name,
                 onValueChange = { viewModel.onEvent(FolderEvent.OnNameChanged(it)) },
-                label = { Text("Nombre") },
+                label = { Text(stringResource(R.string.folder_name)) },
                 isError = state.nameError != null,
                 supportingText = state.nameError?.let { { Text(it) } },
                 singleLine = true,
@@ -179,7 +182,7 @@ fun FolderScreen(
             OutlinedTextField(
                 value = state.description,
                 onValueChange = { viewModel.onEvent(FolderEvent.OnDescriptionChanged(it)) },
-                label = { Text("Descripción (opcional)") },
+                label = { Text(stringResource(R.string.folder_description)) },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 3,
                 maxLines = 5,
@@ -210,7 +213,7 @@ fun FolderScreen(
                     )
                 } else {
                     Text(
-                        text = if (state.isEditing) "Guardar Cambios" else "Crear Carpeta",
+                        text = if (state.isEditing) stringResource(R.string.save_changes) else stringResource(R.string.create_folder),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )

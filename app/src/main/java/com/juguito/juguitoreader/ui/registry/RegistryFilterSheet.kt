@@ -7,11 +7,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.BookCriteria
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.SortOption
+import com.juguito.juguitoreader.ui.common.toUiText
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -41,12 +44,12 @@ fun RegistryFilterSheet(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Filtrar libros", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                TextButton(onClick = onClearFilters) { Text("Limpiar filtros") }
+                Text(stringResource(R.string.filter_books), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                TextButton(onClick = onClearFilters) { Text(stringResource(R.string.clear_filters)) }
             }
 
             // Estado de lectura
-            Text("Estado de lectura", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            Text(stringResource(R.string.reading_status), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
             
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
@@ -70,7 +73,7 @@ fun RegistryFilterSheet(
                             onCheckedChange = null
                         )
                         Text(
-                            text = status.displayName,
+                            text = status.toUiText().asString(),
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(start = 4.dp)
                         )
@@ -80,14 +83,14 @@ fun RegistryFilterSheet(
 
             // Saga
             if (availableSeries.isNotEmpty()) {
-                Text("Saga / Serie", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                Text(stringResource(R.string.saga_series), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                 var expanded by remember { mutableStateOf(false) }
                 ExposedDropdownMenuBox(
                     expanded = expanded,
                     onExpandedChange = { expanded = !expanded }
                 ) {
                     OutlinedTextField(
-                        value = currentCriteria.series ?: "Todas las sagas",
+                        value = currentCriteria.series ?: stringResource(R.string.all_sagas),
                         onValueChange = {},
                         readOnly = true,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
@@ -101,7 +104,7 @@ fun RegistryFilterSheet(
                         onDismissRequest = { expanded = false }
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Todas las sagas") },
+                            text = { Text(stringResource(R.string.all_sagas)) },
                             onClick = {
                                 onCriteriaChanged(currentCriteria.copy(series = null))
                                 expanded = false
@@ -121,11 +124,11 @@ fun RegistryFilterSheet(
             }
             
             // Ordenación específica
-            Text("Otros filtros", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            Text(stringResource(R.string.other_filters), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
             FilterChip(
                 selected = currentCriteria.sortBy == SortOption.SERIES_ORDER_ASC,
                 onClick = { onCriteriaChanged(currentCriteria.copy(sortBy = SortOption.SERIES_ORDER_ASC)) },
-                label = { Text("Orden en la saga") }
+                label = { Text(stringResource(R.string.series_order)) }
             )
         }
     }

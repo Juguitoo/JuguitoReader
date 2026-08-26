@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.juguito.juguitoreader.domain.model.Genre
 import com.juguito.juguitoreader.domain.usecase.genre.AddGenreUseCase
+import com.juguito.juguitoreader.ui.common.UiText
+import com.juguito.juguitoreader.ui.common.asUiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,8 +17,8 @@ import javax.inject.Inject
 class AddGenreViewModel @Inject constructor(
     private val addGenreUseCase: AddGenreUseCase
 ) : ViewModel() {
-    private val _error = MutableStateFlow<String?>(null)
-    val error: StateFlow<String?> = _error.asStateFlow()
+    private val _error = MutableStateFlow<UiText?>(null)
+    val error: StateFlow<UiText?> = _error.asStateFlow()
 
     fun saveGenre(name: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
@@ -27,7 +29,7 @@ class AddGenreViewModel @Inject constructor(
             result.fold(
                 onSuccess = { onSuccess() },
                 onFailure = { exception ->
-                    _error.value = exception.message
+                    _error.value = exception.asUiText()
                 }
             )
         }

@@ -1,5 +1,7 @@
 package com.juguito.juguitoreader.domain.usecase.readingProgress
 
+import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.domain.exception.JuguitoException
 import com.juguito.juguitoreader.domain.model.ReadingProgress
 import com.juguito.juguitoreader.domain.repository.ReadingProgressRepository
 import javax.inject.Inject
@@ -12,7 +14,8 @@ class AddReadingProgressUseCase @Inject constructor(
             repository.saveReadingProgress(readingProgress)
             Result.success(Unit)
         } catch (e: Exception) {
-            return Result.failure(Exception("Error al guardar el progreso: ${e.localizedMessage}"))
+            e.printStackTrace()
+            return Result.failure(JuguitoException(R.string.error_save_progress))
         }
     }
 }

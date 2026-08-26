@@ -39,10 +39,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Book
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -144,14 +146,14 @@ fun BookCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Bookmark,
-                            contentDescription = "Opciones",
+                            contentDescription = stringResource(R.string.options),
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.fillMaxSize()
                         )
 
                         Icon(
                             imageVector = Icons.Default.MoreVert,
-                            contentDescription = "Opciones",
+                            contentDescription = stringResource(R.string.options),
                             tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier
                                 .align(Alignment.Center)

@@ -1,5 +1,7 @@
 package com.juguito.juguitoreader.ui.settings
 
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.juguito.juguitoreader.domain.enums.Language
@@ -75,6 +77,13 @@ class SettingsViewModel @Inject constructor(
                 }
                 is SettingsEvent.OnLanguageChanged -> {
                     settingsRepository.saveLanguage(event.language.name)
+                    
+                    val appLocales: LocaleListCompat = if (event.language == Language.SYSTEM) {
+                        LocaleListCompat.getEmptyLocaleList()
+                    } else {
+                        LocaleListCompat.forLanguageTags(event.language.code)
+                    }
+                    AppCompatDelegate.setApplicationLocales(appLocales)
                 }
                 is SettingsEvent.OnAutoPendingToReadingChanged -> {
                     settingsRepository.saveAutoStartReading(event.enable)

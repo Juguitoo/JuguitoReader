@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.model.copy
@@ -11,6 +12,7 @@ import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
+import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -83,9 +85,10 @@ class LibraryViewModel @Inject constructor(
                     searchText = query
                 ) as LibraryUiState
             }.catch { error ->
+                error.printStackTrace()
                 emit (
                     LibraryUiState.Error(
-                        message = "Ha ocurrido un error al cargar los libros ${error.localizedMessage}"
+                        message = UiText.StringResource(R.string.something_went_wrong).asString(context)
                     )
                 )
             }.collect { newState ->
@@ -127,7 +130,7 @@ class LibraryViewModel @Inject constructor(
                 .onSuccess {
                 }.onFailure { exception ->
                     exception.printStackTrace()
-                    _effect.send(UiEffect.ShowSnackbar("Error al importar el libro."))
+                    _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.something_went_wrong)))
                 }
         }
     }

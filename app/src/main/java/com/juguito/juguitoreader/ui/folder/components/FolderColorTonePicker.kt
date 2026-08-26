@@ -21,14 +21,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.ui.common.UiText
 
-enum class ColorTone(val label: String) {
-    PASTEL("Pastel"),
-    STANDARD("Estándar"),
-    DEEP("Intenso")
+enum class ColorTone(val label: UiText) {
+    PASTEL(UiText.StringResource(R.string.theme_pastel)),
+    STANDARD(UiText.StringResource(R.string.standard)),
+    DEEP(UiText.StringResource(R.string.deep))
 }
 
 @Composable
@@ -73,7 +76,7 @@ fun FolderColorTonePicker(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Color distintivo",
+                text = stringResource(R.string.color_tone),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold
             )
@@ -108,7 +111,7 @@ fun FolderColorTonePicker(
                                 }
                         ) {
                             Text(
-                                text = tone.label,
+                                text = tone.label.asString(),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = if (isToneSelected) FontWeight.Bold else FontWeight.Medium,
                                 color = if (isToneSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -160,7 +163,7 @@ fun FolderColorTonePicker(
                     if (isSelected) {
                         Icon(
                             imageVector = Icons.Default.Check,
-                            contentDescription = "Seleccionado",
+                            contentDescription = stringResource(R.string.selected_check),
                             tint = checkColor,
                             modifier = Modifier.size(20.dp)
                         )

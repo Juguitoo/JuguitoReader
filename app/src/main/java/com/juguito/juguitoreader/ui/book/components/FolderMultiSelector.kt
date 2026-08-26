@@ -33,9 +33,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Folder
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -68,7 +70,7 @@ fun FolderMultiSelector(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Carpetas",
+                text = stringResource(R.string.folders),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -84,7 +86,7 @@ fun FolderMultiSelector(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Crear nueva carpeta",
+                    contentDescription = stringResource(R.string.create_new_folder),
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -97,7 +99,7 @@ fun FolderMultiSelector(
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(
-                    text = "Asignadas",
+                    text = stringResource(R.string.assigned),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -131,7 +133,7 @@ fun FolderMultiSelector(
                             trailingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = "Quitar ${folder.name}",
+                                    contentDescription = stringResource(R.string.remove_file),
                                     modifier = Modifier.size(14.dp)
                                 )
                             },
@@ -151,7 +153,7 @@ fun FolderMultiSelector(
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 if (selectedFolders.isNotEmpty()) {
                     Text(
-                        text = "Disponibles",
+                        text = stringResource(R.string.available),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -188,7 +190,7 @@ fun FolderMultiSelector(
             }
         } else if (availableFolders.isEmpty()) {
             Text(
-                text = "No tienes carpetas creadas aún. Pulsa '+' para añadir una.",
+                text = stringResource(R.string.no_folders_message),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

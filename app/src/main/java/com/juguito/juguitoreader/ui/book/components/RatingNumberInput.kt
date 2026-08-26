@@ -11,8 +11,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.juguito.juguitoreader.R
 
 @Composable
 fun RatingNumberInput(
@@ -49,7 +51,7 @@ fun RatingNumberInput(
                 }
             }
         },
-        label = { Text("Nota (1 - 10)") },
+        label = { Text(stringResource(R.string.rating_label)) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp)

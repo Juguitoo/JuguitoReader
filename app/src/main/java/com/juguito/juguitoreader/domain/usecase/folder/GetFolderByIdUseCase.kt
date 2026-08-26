@@ -7,7 +7,6 @@ import javax.inject.Inject
 class GetFolderByIdUseCase @Inject constructor(
     private val repository: FolderRepository
 ) {
-
     suspend operator fun invoke(folderId: Int): Folder? {
         return repository.getFolderById(folderId)
     }

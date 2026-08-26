@@ -95,6 +95,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.EpubNavElement
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
@@ -102,6 +104,8 @@ import com.juguito.juguitoreader.ui.components.JuguitoDialog
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import kotlinx.coroutines.launch
 import kotlin.math.ceil
+
+import com.juguito.juguitoreader.ui.common.UiText
 
 @Composable
 fun ReaderScreen(
@@ -177,12 +181,12 @@ fun ReaderLoading() {
 }
 
 @Composable
-fun ReaderError(message: String, onDismiss: () -> Unit) {
+fun ReaderError(message: UiText, onDismiss: () -> Unit) {
     JuguitoDialog(
         onDismissRequest = onDismiss,
-        title = "Error al abrir el libro",
-        message = message,
-        confirmButtonText = "Aceptar",
+        title = stringResource(R.string.error_opening_book),
+        message = message.asString(),
+        confirmButtonText = stringResource(R.string.accept),
         onConfirm = onDismiss,
         isDestructive = true
     )
@@ -242,14 +246,14 @@ fun ReaderContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        "Índice",
+                        stringResource(R.string.index),
                         style = MaterialTheme.typography.titleLarge,
                         fontFamily = LoraFontFamily,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
                     IconButton(onClick = { scope.launch { drawerState.close() } }) {
-                        Icon(Icons.Default.Close, contentDescription = "Cerrar")
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
                     }
                 }
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
@@ -535,7 +539,7 @@ fun ReaderContent(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = if (progress >= 1f) "Suelta para volver" else "Capítulo anterior",
+                            text = if (progress >= 1f) stringResource(R.string.release_to_return) else stringResource(R.string.previous_chapter),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
@@ -569,7 +573,7 @@ fun ReaderContent(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = if (progress >= 1f) "Suelta para avanzar" else "Siguiente capítulo",
+                            text = if (progress >= 1f) stringResource(R.string.release_to_advance) else stringResource(R.string.next_chapter),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
@@ -585,11 +589,11 @@ fun ReaderContent(
                 TopAppBar(
                     title = { Text(text = state.book.title, style = MaterialTheme.typography.titleLarge, maxLines = 1, fontWeight = FontWeight.Bold) },
                     navigationIcon = {
-                        IconButton(onClick = { onEvent(ReaderEvent.OnBackRequested) }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) }
+                        IconButton(onClick = { onEvent(ReaderEvent.OnBackRequested) }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) }
                     },
                     actions = {
-                        IconButton(onClick = { onEvent(ReaderEvent.OnToggleSessionsDialog) }) { Icon(Icons.Default.BarChart, contentDescription = "Estadísticas", tint = Color.White) }
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) { Icon(Icons.Default.Menu, contentDescription = "Índice") }
+                        IconButton(onClick = { onEvent(ReaderEvent.OnToggleSessionsDialog) }) { Icon(Icons.Default.BarChart, contentDescription = stringResource(R.string.stats), tint = Color.White) }
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) { Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.index)) }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primary,
@@ -626,7 +630,7 @@ fun ReaderContent(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     IconButton(onClick = { bottomBarMode = BottomBarMode.DEFAULT }) {
-                                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.White)
+                                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close), tint = Color.White)
                                     }
                                     Icon(
                                         Icons.Default.FormatSize,
@@ -673,7 +677,7 @@ fun ReaderContent(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     IconButton(onClick = { bottomBarMode = BottomBarMode.DEFAULT }) {
-                                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.White)
+                                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close), tint = Color.White)
                                     }
                                     Icon(
                                         Icons.Default.LightMode,
@@ -734,17 +738,17 @@ fun ReaderContent(
                                         ) {
                                             Icon(
                                                 Icons.Default.ChevronLeft,
-                                                contentDescription = "Anterior",
+                                                contentDescription = stringResource(R.string.previous),
                                                 modifier = Modifier.size(32.dp)
                                             )
                                         }
 
                                         IconButton(onClick = { bottomBarMode = BottomBarMode.FONT_SIZE }) {
-                                            Icon(Icons.Default.FormatSize, contentDescription = "Tamaño de letra")
+                                            Icon(Icons.Default.FormatSize, contentDescription = stringResource(R.string.font_size))
                                         }
 
                                         IconButton(onClick = { bottomBarMode = BottomBarMode.BRIGHTNESS }) {
-                                            Icon(Icons.Default.LightMode, contentDescription = "Brillo")
+                                            Icon(Icons.Default.LightMode, contentDescription = stringResource(R.string.brightness))
                                         }
                                     }
 
@@ -775,7 +779,7 @@ fun ReaderContent(
                                             val nextThemeIndex = (state.theme.ordinal + 1) % ReaderTheme.entries.size
                                             onEvent(ReaderEvent.OnThemeChanged(ReaderTheme.entries[nextThemeIndex]))
                                         }) {
-                                            Icon(Icons.Default.Palette, contentDescription = "Cambiar tema")
+                                            Icon(Icons.Default.Palette, contentDescription = stringResource(R.string.change_theme))
                                         }
 
                                         IconButton(
@@ -788,7 +792,7 @@ fun ReaderContent(
                                         ) {
                                             Icon(
                                                 Icons.Default.ChevronRight,
-                                                contentDescription = "Siguiente",
+                                                contentDescription = stringResource(R.string.next),
                                                 modifier = Modifier.size(32.dp)
                                             )
                                         }
@@ -824,9 +828,9 @@ fun ReaderContent(
                     )
 
                     if (state.timeRemaining != null) {
-                        val timeText = if (state.timeRemaining == 0) "< 1 min" else "${state.timeRemaining} min"
+                        val timeText = if (state.timeRemaining == 0) stringResource(R.string.less_than_one_min) else stringResource(R.string.minutes_remaining, state.timeRemaining)
                         Text(
-                            text = "Faltan $timeText",
+                            text = stringResource(R.string.time_remaining_label, timeText),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Medium,
                             color = footerColor
@@ -839,10 +843,10 @@ fun ReaderContent(
                 JuguitoDialog(
                     onDismissRequest = { onEvent(ReaderEvent.OnStatusPromptResult(false)) },
                     icon = Icons.Default.AutoStories,
-                    title = "¿Quieres cambiar el estado?",
-                    message = "Has avanzado bastante en esta lectura. El libro actual tiene el estado 'Pendiente'.\n¿Quieres mover el libro a tu lista de 'Leyendo'?",
-                    confirmButtonText = "Sí, cambiar",
-                    dismissButtonText = "Dejar igual",
+                    title = stringResource(R.string.change_status_prompt_title),
+                    message = stringResource(R.string.change_status_prompt_message),
+                    confirmButtonText = stringResource(R.string.yes_change),
+                    dismissButtonText = stringResource(R.string.keep_same),
                     onConfirm = { onEvent(ReaderEvent.OnStatusPromptResult(true)) }
                 )
             }
@@ -853,13 +857,13 @@ fun ReaderContent(
         JuguitoDialog(
             onDismissRequest = { onEvent(ReaderEvent.OnToggleSessionsDialog) },
             icon = Icons.Default.BarChart,
-            title = "Tus sesiones de lectura",
-            message = "Progreso diario registrado en este libro.",
-            dismissButtonText = "Cerrar",
+            title = stringResource(R.string.your_reading_sessions),
+            message = stringResource(R.string.daily_progress_message),
+            dismissButtonText = stringResource(R.string.close),
             content = {
                 if (state.bookSessions.isEmpty()) {
                     Text(
-                        text = "Aún no hay sesiones guardadas. Vuelve a visitarlo cuando termines de leer hoy.",
+                        text = stringResource(R.string.no_sessions_saved),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 16.dp)
@@ -897,7 +901,7 @@ fun ReaderContent(
 
                                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                                         Text(
-                                            text = "$minutes min",
+                                            text = stringResource(R.string.minutes_remaining, minutes),
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.primary
                                         )
@@ -961,7 +965,7 @@ fun CollapsibleIndexItem(
                 }
 
                 Text(
-                    text = element.title.ifBlank { "Sin título" },
+                    text = element.title.ifBlank { stringResource(R.string.no_title) },
                     style = if (level == 0) MaterialTheme.typography.titleSmall else MaterialTheme.typography.bodyMedium,
                     fontWeight = if (isSelected || level == 0) FontWeight.Bold else FontWeight.Normal,
                     color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,

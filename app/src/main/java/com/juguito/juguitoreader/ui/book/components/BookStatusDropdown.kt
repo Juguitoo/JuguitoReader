@@ -15,8 +15,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
+import com.juguito.juguitoreader.ui.common.toUiText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,11 +37,11 @@ fun BookStatusDropdown(
         modifier = modifier
     ) {
         OutlinedTextField(
-            value = selectedStatus.displayName,
+            value = selectedStatus.toUiText().asString(),
             onValueChange = {},
             readOnly = true,
             enabled = enabled,
-            label = { Text("Estado de lectura") },
+            label = { Text(stringResource(R.string.status_col)) },
             trailingIcon = { if (enabled) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = enabled)
@@ -51,7 +54,7 @@ fun BookStatusDropdown(
         ) {
             BookStatus.entries.forEach { statusOption ->
                 DropdownMenuItem(
-                    text = { Text(statusOption.displayName) },
+                    text = { Text(statusOption.toUiText().asString()) },
                     onClick = {
                         onStatusSelected(statusOption)
                         expanded = false

@@ -68,12 +68,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.ui.book.components.FolderMultiSelector
 import com.juguito.juguitoreader.ui.book.components.GenreHybridSelector
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
@@ -163,14 +165,14 @@ fun AddBookContent(
         JuguitoDialog(
             onDismissRequest = { showImportDialog = false },
             icon = Icons.Default.Download,
-            title = "Importar libro",
-            message = "¿Deseas seleccionar un archivo EPUB para extraer sus datos automáticamente? Esto sobrescribirá el título, autor y cualquier otro dato que ya hayas rellenado.",
-            confirmButtonText = "Importar",
+            title = stringResource(R.string.import_book_title),
+            message = stringResource(R.string.import_epub_message),
+            confirmButtonText = stringResource(R.string.import_text),
             onConfirm = {
                 showImportDialog = false
                 documentPickerLauncher.launch(arrayOf("application/epub+zip", "application/pdf"))
             },
-            dismissButtonText = "Cancelar",
+            dismissButtonText = stringResource(R.string.cancel),
         )
     }
 
@@ -178,16 +180,16 @@ fun AddBookContent(
         JuguitoDialog(
             onDismissRequest = { showImageSourceDialog = false },
             icon = Icons.Default.AddPhotoAlternate,
-            title = "Seleccionar portada",
-            message = "¿Cómo quieres añadir la imagen para el libro?",
-            dismissButtonText = "Cancelar",
+            title = stringResource(R.string.select_cover),
+            message = stringResource(R.string.image_source_message),
+            dismissButtonText = stringResource(R.string.cancel),
             content = {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     DialogOptionCard(
-                        title = "Elegir de la galería",
+                        title = stringResource(R.string.choose_from_gallery),
                         icon = Icons.Default.PhotoLibrary,
                         onClick = {
                             showImageSourceDialog = false
@@ -198,7 +200,7 @@ fun AddBookContent(
                     )
 
                     DialogOptionCard(
-                        title = "Tomar una foto",
+                        title = stringResource(R.string.take_photo),
                         icon = Icons.Default.PhotoCamera,
                         onClick = {
                             showImageSourceDialog = false
@@ -217,7 +219,10 @@ fun AddBookContent(
     ObserveAsEvents(effect) { uiEffect ->
         when (uiEffect) {
             is UiEffect.ShowSnackbar -> {
-                snackbarHostState.showSnackbar(uiEffect.message)
+                snackbarHostState.showSnackbar(
+                    message = uiEffect.message.asString(context),
+                    actionLabel = uiEffect.actionLabel?.asString(context)
+                )
             }
             is UiEffect.NavigateBack -> {
                 onBookSavedSuccessfully()
@@ -246,7 +251,7 @@ fun AddBookContent(
                 TopAppBar(
                     title = {
                         Text(
-                            "Nuevo libro",
+                            stringResource(R.string.add_book_title),
                             style = MaterialTheme.typography.titleLarge,
                             fontFamily = LoraFontFamily,
                             fontWeight = FontWeight.Bold
@@ -256,7 +261,7 @@ fun AddBookContent(
                         IconButton(onClick = onNavigateBack) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Atrás",
+                                contentDescription = stringResource(R.string.back),
                                 tint = Color.White
                             )
                         }
@@ -269,7 +274,7 @@ fun AddBookContent(
                         IconButton(onClick = {showImportDialog = true}) {
                             Icon(
                                 imageVector = Icons.Default.Download,
-                                contentDescription = "Autocompletar con EPUB",
+                                contentDescription = stringResource(R.string.autocomplete_epub),
                                 tint = Color.White
                             )
                         }
@@ -288,7 +293,7 @@ fun AddBookContent(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Detalles del libro",
+                text = stringResource(R.string.book_details),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -297,7 +302,7 @@ fun AddBookContent(
             OutlinedTextField(
                 value = state.bookDraft.title,
                 onValueChange = { onEvent(AddBookEvent.OnTitleChanged(it)) },
-                label = { Text("Título") },
+                label = { Text(stringResource(R.string.title_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
@@ -305,7 +310,7 @@ fun AddBookContent(
             OutlinedTextField(
                 value = state.bookDraft.author,
                 onValueChange = { onEvent(AddBookEvent.OnAuthorChanged(it)) },
-                label = { Text("Autor") },
+                label = { Text(stringResource(R.string.author_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
@@ -313,7 +318,7 @@ fun AddBookContent(
             OutlinedTextField(
                 value = state.bookDraft.publisher,
                 onValueChange = { onEvent(AddBookEvent.OnPublisherChanged(it)) },
-                label = { Text("Editorial") },
+                label = { Text(stringResource(R.string.publisher_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
@@ -324,7 +329,7 @@ fun AddBookContent(
                 OutlinedTextField(
                     value = state.bookDraft.series,
                     onValueChange = { onEvent(AddBookEvent.OnSeriesChanged(it)) },
-                    label = { Text("Saga del libro") },
+                    label = { Text(stringResource(R.string.series_label)) },
                     shape = RoundedCornerShape(12.dp)
                 )
                 OutlinedTextField(
@@ -332,7 +337,7 @@ fun AddBookContent(
                     onValueChange = { onEvent(AddBookEvent.OnSeriesOrderChanged(it)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
-                    label = { Text("#") },
+                    label = { Text(stringResource(R.string.series_order_label)) },
                     shape = RoundedCornerShape(12.dp)
                 )
             }
@@ -350,14 +355,14 @@ fun AddBookContent(
             )
 
             Text(
-                text = "Organización",
+                text = stringResource(R.string.organization),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
 
             Text(
-                text = "Formato",
+                text = stringResource(R.string.format),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -377,7 +382,7 @@ fun AddBookContent(
                         onCheckedChange = { onEvent(AddBookEvent.OnIsPhysicalChanged(it)) }
                     )
                     Text(
-                        text = "Libro en formato físico",
+                        text = stringResource(R.string.physical_book),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -396,7 +401,7 @@ fun AddBookContent(
             )
 
             Text(
-                text = "Archivos",
+                text = stringResource(R.string.files),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -417,7 +422,7 @@ fun AddBookContent(
                     if (!state.bookDraft.coverUrl.isNullOrBlank()) {
                         AsyncImage(
                             model = state.bookDraft.coverUrl,
-                            contentDescription = "Portada seleccionada",
+                            contentDescription = stringResource(R.string.selected_cover),
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .fillMaxSize()
@@ -467,7 +472,7 @@ fun AddBookContent(
                             )
 
                             Text(
-                                text = "Archivo de lectura",
+                                text = stringResource(R.string.reading_file),
                                 style = MaterialTheme.typography.titleSmall,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -495,7 +500,7 @@ fun AddBookContent(
                                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp)
                                 ) {
                                     Text(
-                                        text = if (state.bookDraft.localFilePath == null) "Seleccionar" else "Cambiar",
+                                        text = if (state.bookDraft.localFilePath == null) stringResource(R.string.select) else stringResource(R.string.change),
                                         style = MaterialTheme.typography.labelMedium
                                     )
                                 }
@@ -505,7 +510,7 @@ fun AddBookContent(
                                         onClick = { onEvent(AddBookEvent.OnLocalFilePathChanged(null)) },
                                         modifier = Modifier.size(30.dp)
                                     ) {
-                                        Icon(Icons.Default.Delete, contentDescription = "Quitar archivo", tint = MaterialTheme.colorScheme.error)
+                                        Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.remove_file), tint = MaterialTheme.colorScheme.error)
                                     }
                                 }
                             }
@@ -521,7 +526,7 @@ fun AddBookContent(
                         Icon(Icons.Default.Image, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            if (state.bookDraft.coverUrl == null) "Añadir portada" else "Cambiar portada",
+                            if (state.bookDraft.coverUrl == null) stringResource(R.string.add_cover) else stringResource(R.string.change_cover),
                             style = MaterialTheme.typography.labelMedium
                         )
                     }
@@ -544,7 +549,7 @@ fun AddBookContent(
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 } else {
-                    Text("Guardar Libro", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.save_book), style = MaterialTheme.typography.titleMedium)
                 }
             }
         }

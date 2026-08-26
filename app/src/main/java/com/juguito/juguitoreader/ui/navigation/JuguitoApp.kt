@@ -46,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
@@ -54,6 +55,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.ui.book.add.AddBookScreen
 import com.juguito.juguitoreader.ui.book.detail.BookDetailScreen
 import com.juguito.juguitoreader.ui.folder.FolderScreen
@@ -98,7 +100,7 @@ fun JuguitoApp() {
                 Spacer(modifier = Modifier.height(12.dp))
 
                 DrawerItem(
-                    label = "Inicio",
+                    label = stringResource(R.string.home_label),
                     icon = Icons.Default.Home,
                     selected = currentRoute == "home",
                     onClick = { 
@@ -112,7 +114,7 @@ fun JuguitoApp() {
                 )
 
                 DrawerItem(
-                    label = "Registro",
+                    label = stringResource(R.string.registry_label),
                     icon = Icons.Default.AppRegistration,
                     selected = currentRoute == "registry",
                     onClick = { 
@@ -124,7 +126,7 @@ fun JuguitoApp() {
                 )
 
                 DrawerItem(
-                    label = "Biblioteca",
+                    label = stringResource(R.string.library_label),
                     icon = Icons.Default.AutoStories,
                     selected = currentRoute == "library",
                     onClick = {
@@ -138,14 +140,14 @@ fun JuguitoApp() {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
 
                 Text(
-                    text = "Gestión",
+                    text = stringResource(R.string.management_label),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(start = 28.dp, bottom = 8.dp)
                 )
 
                 DrawerItem(
-                    label = "Gestor de contenido",
+                    label = stringResource(R.string.content_manager),
                     icon = Icons.Default.Widgets,
                     selected = currentRoute == "management",
                     onClick = {
@@ -157,7 +159,7 @@ fun JuguitoApp() {
                 )
 
                 DrawerItem(
-                    label = "Crear libro",
+                    label = stringResource(R.string.create_book),
                     icon = Icons.Default.LibraryAdd,
                     onClick = {
                         scope.launch {
@@ -168,7 +170,7 @@ fun JuguitoApp() {
                 )
 
                 DrawerItem(
-                    label = "Crear carpeta",
+                    label = stringResource(R.string.new_folder),
                     icon = Icons.Default.CreateNewFolder,
                     onClick = {
                         scope.launch {
@@ -179,7 +181,7 @@ fun JuguitoApp() {
                 )
 
                 DrawerItem(
-                    label = "Crear género",
+                    label = stringResource(R.string.create_genre),
                     icon = Icons.Default.NewLabel,
                     onClick = {
                         scope.launch { drawerState.close() }
@@ -192,7 +194,7 @@ fun JuguitoApp() {
                 Spacer(modifier = Modifier.weight(1f))
 
                 DrawerItem(
-                    label = "Ajustes",
+                    label = stringResource(R.string.settings),
                     icon = Icons.Default.Settings,
                     onClick = {
                         scope.launch { drawerState.close() }
@@ -254,7 +256,7 @@ fun JuguitoApp() {
                         onFolderSavedSuccessfully = {
                             navController.previousBackStackEntry
                                 ?.savedStateHandle
-                                ?.set("snackbar_result", "Carpeta creada con éxito")
+                                ?.set("snackbar_result", "folder_created")
                             navController.popBackStack()
                         }
                     )
@@ -269,7 +271,7 @@ fun JuguitoApp() {
                         onFolderSavedSuccessfully = {
                             navController.previousBackStackEntry
                                 ?.savedStateHandle
-                                ?.set("snackbar_result", "Carpeta actualizada")
+                                ?.set("snackbar_result", "folder_created")
                             navController.popBackStack()
                         }
                     )
@@ -376,13 +378,13 @@ fun DrawerHeader() {
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "JuguitoReader",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.headlineMedium,
                 color = colorScheme.onPrimary,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Tu biblioteca personal",
+                text = stringResource(R.string.your_personal_library),
                 style = MaterialTheme.typography.bodySmall,
                 color = colorScheme.onPrimary.copy(alpha = 0.8f)
             )

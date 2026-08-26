@@ -18,8 +18,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.ui.common.components.ActionBookCard
 
 @Composable
@@ -43,14 +45,14 @@ fun EmptyLibraryView(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Tu biblioteca está vacía",
+            text = stringResource(R.string.empty_library_title),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Añade tu primer libro para empezar",
+            text = stringResource(R.string.empty_library_subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
         )
@@ -60,13 +62,13 @@ fun EmptyLibraryView(
             verticalAlignment = Alignment.CenterVertically
         ) {
             ActionBookCard(
-                title = "Nuevo",
+                title = stringResource(R.string.new_text),
                 icon = Icons.Default.Add,
                 width = 120.dp,
                 onClick = onNavigateToAddBook
             )
             ActionBookCard(
-                title = "Importar",
+                title = stringResource(R.string.import_text),
                 icon = Icons.Default.UploadFile,
                 width = 120.dp,
                 onClick = onImportClick

@@ -7,7 +7,6 @@ import javax.inject.Inject
 class GetBookByIdUseCase @Inject constructor(
     private val repository: BookRepository
 ) {
-
     suspend operator fun invoke(bookId: Int): Book? {
         return repository.getBookById(bookId)
     }

@@ -49,11 +49,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import coil.compose.AsyncImage
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.ui.book.detail.BookDetailEvent
 import com.juguito.juguitoreader.ui.book.detail.BookDetailUiState
 import com.juguito.juguitoreader.utils.FileUtils
@@ -80,7 +82,7 @@ fun BookInfoTab(
 
         if (state.isEditMode) {
             Text(
-                text = "Ficha Técnica",
+                text = stringResource(R.string.technical_sheet),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -126,7 +128,7 @@ fun BookInfoTab(
                         Button(onClick = onPickFile, modifier = Modifier.weight(1f)) {
                             Icon(Icons.Default.FileUpload, contentDescription = null)
                             Spacer(Modifier.width(8.dp))
-                            Text("Cambiar")
+                            Text(stringResource(R.string.change))
                         }
                         if (draft.localFilePath != null) {
                             IconButton(onClick = {
@@ -138,7 +140,7 @@ fun BookInfoTab(
                             }) {
                                 Icon(
                                     Icons.Default.Delete,
-                                    contentDescription = "Quitar archivo",
+                                    contentDescription = stringResource(R.string.remove_file),
                                     tint = MaterialTheme.colorScheme.error
                                 )
                             }
@@ -152,21 +154,21 @@ fun BookInfoTab(
             OutlinedTextField(
                 value = draft.title,
                 onValueChange = { onEvent(BookDetailEvent.OnTitleChanged(it)) },
-                label = { Text("Título") },
+                label = { Text(stringResource(R.string.title_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
             )
             OutlinedTextField(
                 value = draft.author,
                 onValueChange = { onEvent(BookDetailEvent.OnAuthorChanged(it)) },
-                label = { Text("Autor") },
+                label = { Text(stringResource(R.string.author_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
             )
             OutlinedTextField(
                 value = draft.publisher,
                 onValueChange = { onEvent(BookDetailEvent.OnPublisherChanged(it)) },
-                label = { Text("Editorial") },
+                label = { Text(stringResource(R.string.publisher_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
             )
@@ -174,7 +176,7 @@ fun BookInfoTab(
                 OutlinedTextField(
                     value = draft.series,
                     onValueChange = { onEvent(BookDetailEvent.OnSeriesChanged(it)) },
-                    label = { Text("Saga del libro") },
+                    label = { Text(stringResource(R.string.series_label)) },
                     modifier = Modifier.weight(1f),
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
                 )
@@ -183,7 +185,7 @@ fun BookInfoTab(
                     onValueChange = { onEvent(BookDetailEvent.OnSeriesOrderChanged(it)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
-                    label = { Text("#") },
+                    label = { Text(stringResource(R.string.series_order_label)) },
                     modifier = Modifier.width(90.dp),
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
                 )
@@ -217,7 +219,7 @@ fun BookInfoTab(
                         onCheckedChange = { onEvent(BookDetailEvent.OnIsPhysicalChanged(it)) }
                     )
                     Text(
-                        text = "Libro en formato físico",
+                        text = stringResource(R.string.physical_book),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -263,13 +265,13 @@ fun BookInfoTab(
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "de ${draft.author}",
+                        text = stringResource(R.string.by_author, draft.author),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.secondary
                     )
                     if (draft.series.isNotBlank()) {
                         Text(
-                            text = "Saga: ${draft.series}, Volumen ${draft.seriesOrder}",
+                            text = stringResource(R.string.saga_volume, draft.series, draft.seriesOrder),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -282,7 +284,7 @@ fun BookInfoTab(
                         )
                     }
 
-                    val formatText = if (draft.isPhysical) "Formato Físico" else "Ebook / Digital"
+                    val formatText = if (draft.isPhysical) stringResource(R.string.physical_format) else stringResource(R.string.digital_format)
                     val formatIcon =
                         if (draft.isPhysical) Icons.AutoMirrored.Filled.MenuBook else Icons.Default.Devices
 
@@ -304,7 +306,7 @@ fun BookInfoTab(
 
             if (draft.genres.isNotEmpty()) {
                 Text(
-                    text = "Géneros",
+                    text = stringResource(R.string.genres),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -323,7 +325,7 @@ fun BookInfoTab(
 
             if (draft.folders.isNotEmpty()) {
                 Text(
-                    text = "Carpetas",
+                    text = stringResource(R.string.folders),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -358,7 +360,7 @@ fun BookInfoTab(
             ) {
                 Icon(Icons.Default.Delete, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
-                Text("Eliminar este libro permanentemente")
+                Text(stringResource(R.string.delete_permanently))
             }
         }
     }

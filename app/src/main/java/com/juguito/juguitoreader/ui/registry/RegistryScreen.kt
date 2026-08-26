@@ -33,7 +33,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.compose.ui.res.stringResource
+import com.juguito.juguitoreader.R
 import coil.compose.AsyncImage
+import com.juguito.juguitoreader.ui.common.toUiText
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.SortOption
@@ -96,7 +99,7 @@ fun RegistryContent(
                         TextField(
                             value = state.criteria.searchText,
                             onValueChange = { onEvent(RegistryEvent.OnSearchTextChanged(it)) },
-                            placeholder = { Text("Buscar libro, autor o saga...", fontSize = 14.sp) },
+                            placeholder = { Text(stringResource(R.string.search_registry_hint), fontSize = 14.sp) },
                             modifier = Modifier.fillMaxWidth(),
                             colors = TextFieldDefaults.colors(
                                 focusedContainerColor = Color.Transparent,
@@ -113,7 +116,7 @@ fun RegistryContent(
                         )
                     } else {
                         Text(
-                            "Registro",
+                            stringResource(R.string.registry_title),
                             style = MaterialTheme.typography.titleLarge,
                             fontFamily = LoraFontFamily,
                             fontWeight = FontWeight.Bold
@@ -123,28 +126,28 @@ fun RegistryContent(
                 navigationIcon = {
                     if (state.isSearchExpanded) {
                         IconButton(onClick = { onEvent(RegistryEvent.OnToggleSearch(false)) }) {
-                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Cerrar búsqueda")
+                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.close_search))
                         }
                     } else {
                         IconButton(onClick = onOpenDrawer) {
-                            Icon(imageVector = Icons.Default.Menu, contentDescription = "Abrir menú")
+                            Icon(imageVector = Icons.Default.Menu, contentDescription = stringResource(R.string.open_menu))
                         }
                     }
                 },
                 actions = {
                     if (!state.isSearchExpanded) {
                         IconButton(onClick = { onEvent(RegistryEvent.OnToggleSearch(true)) }) {
-                            Icon(imageVector = Icons.Default.Search, contentDescription = "Buscar")
+                            Icon(imageVector = Icons.Default.Search, contentDescription = stringResource(R.string.search_hint))
                         }
                     }
                     IconButton(onClick = { onEvent(RegistryEvent.OnShowFilterSheet(true)) }) {
                         val isFiltered = state.criteria.statuses.isNotEmpty() || state.criteria.series != null
                         BadgedBox(badge = { if (isFiltered) Badge() }) {
-                            Icon(imageVector = Icons.Default.FilterList, contentDescription = "Filtros")
+                            Icon(imageVector = Icons.Default.FilterList, contentDescription = stringResource(R.string.filters))
                         }
                     }
                     IconButton(onClick = onNavigateToAddBook) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = "Añadir Libro")
+                        Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.add_book))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -171,17 +174,17 @@ fun RegistryContent(
                                 .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                         ) {
                             TableHeaderItem(
-                                text = "Libro",
+                                text = stringResource(R.string.book_col),
                                 width = ColLibroWidth,
                                 sortOption = SortOption.TITLE_ASC,
                                 currentSort = state.criteria.sortBy,
                                 onSortClick = { onEvent(RegistryEvent.OnCriteriaChanged(state.criteria.copy(sortBy = it))) }
                             )
                             VerticalDivider(modifier = Modifier.height(48.dp), thickness = 0.5.dp)
-                            TableHeaderItem(text = "Estado", width = ColEstadoWidth)
+                            TableHeaderItem(text = stringResource(R.string.status_col), width = ColEstadoWidth)
                             VerticalDivider(modifier = Modifier.height(48.dp), thickness = 0.5.dp)
                             TableHeaderItem(
-                                text = "Nota",
+                                text = stringResource(R.string.rating_col),
                                 width = ColNotaWidth,
                                 sortOption = SortOption.RATING_DESC,
                                 currentSort = state.criteria.sortBy,
@@ -189,16 +192,16 @@ fun RegistryContent(
                             )
                             VerticalDivider(modifier = Modifier.height(48.dp), thickness = 0.5.dp)
                             TableHeaderItem(
-                                text = "Inicio",
+                                text = stringResource(R.string.start_col),
                                 width = ColFechaWidth,
                                 sortOption = SortOption.CREATED_AT_DESC,
                                 currentSort = state.criteria.sortBy,
                                 onSortClick = { onEvent(RegistryEvent.OnCriteriaChanged(state.criteria.copy(sortBy = it))) }
                             )
                             VerticalDivider(modifier = Modifier.height(48.dp), thickness = 0.5.dp)
-                            TableHeaderItem(text = "Fin", width = ColFechaWidth)
+                            TableHeaderItem(text = stringResource(R.string.end_col), width = ColFechaWidth)
                             VerticalDivider(modifier = Modifier.height(48.dp), thickness = 0.5.dp)
-                            TableHeaderItem(text = "Comentario", width = ColComentarioWidth)
+                            TableHeaderItem(text = stringResource(R.string.comment_col), width = ColComentarioWidth)
                         }
                         HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
 
@@ -244,7 +247,7 @@ fun EmptyRegistryState(width: Dp) {
         )
         Spacer(Modifier.height(16.dp))
         Text(
-            text = "No se encontraron libros con estos filtros",
+            text = stringResource(R.string.no_books_found),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -401,7 +404,7 @@ fun RegistryRow(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
-                        contentDescription = "Editar",
+                        contentDescription = stringResource(R.string.edit),
                         tint = MaterialTheme.colorScheme.onSecondary,
                         modifier = Modifier.size(16.dp)
                     )
@@ -475,7 +478,7 @@ fun RegistryRow(
                 decorationBox = { innerTextField ->
                     if (localComment.isEmpty()) {
                         Text(
-                            "Escribe un comentario...",
+                            stringResource(R.string.write_comment_hint),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                         )
@@ -513,7 +516,7 @@ fun GhostRow(onClick: () -> Unit) {
         }
         Spacer(Modifier.width(16.dp))
         Text(
-            text = "Pulsa aquí para añadir un nuevo libro...",
+            text = stringResource(R.string.add_new_book_hint),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold
@@ -526,12 +529,12 @@ fun RegistryStatusPicker(status: BookStatus, onStatusSelected: (BookStatus) -> U
     var expanded by remember { mutableStateOf(false) }
     Box {
         TextButton(onClick = { expanded = true }) {
-            Text(status.displayName, style = MaterialTheme.typography.bodyMedium)
+            Text(status.toUiText().asString(), style = MaterialTheme.typography.bodyMedium)
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             BookStatus.entries.forEach { statusOption ->
                 DropdownMenuItem(
-                    text = { Text(statusOption.displayName, style = MaterialTheme.typography.bodyMedium) },
+                    text = { Text(statusOption.toUiText().asString(), style = MaterialTheme.typography.bodyMedium) },
                     onClick = {
                         onStatusSelected(statusOption)
                         expanded = false
@@ -608,7 +611,7 @@ fun RegistryDatePickerDialog(
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.padding(end = 12.dp, bottom = 8.dp)
             ) {
-                Text("Aceptar")
+                Text(stringResource(R.string.accept))
             }
         },
         dismissButton = {
@@ -617,7 +620,7 @@ fun RegistryDatePickerDialog(
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.padding(bottom = 8.dp)
             ) {
-                Text("Cancelar")
+                Text(stringResource(R.string.cancel))
             }
         },
         shape = RoundedCornerShape(24.dp),

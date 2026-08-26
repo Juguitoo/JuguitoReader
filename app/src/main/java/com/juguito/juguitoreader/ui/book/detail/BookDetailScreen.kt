@@ -38,6 +38,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.juguito.juguitoreader.R
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -132,7 +134,10 @@ fun BookDetailContent(
     ObserveAsEvents(effect) { uiEffect ->
         when (uiEffect) {
             is UiEffect.ShowSnackbar -> {
-                snackbarHostState.showSnackbar(uiEffect.message)
+                snackbarHostState.showSnackbar(
+                    message = uiEffect.message.asString(context),
+                    actionLabel = uiEffect.actionLabel?.asString(context)
+                )
             }
             is UiEffect.NavigateBack -> {
                 onNavigateBack()
@@ -167,9 +172,9 @@ fun BookDetailContent(
         JuguitoDialog(
             onDismissRequest = { showDeleteDialog = false },
             icon = Icons.Default.Delete,
-            title = "Eliminar libro",
-            message = "¿Estás seguro de que deseas eliminar '${state.book.title}'? Esta acción no se puede deshacer.",
-            confirmButtonText = "Eliminar",
+            title = stringResource(R.string.delete_book_title),
+            message = stringResource(R.string.delete_book_confirmation, state.book.title),
+            confirmButtonText = stringResource(R.string.delete),
             isDestructive = true,
             onConfirm = {
                 showDeleteDialog = false
@@ -182,16 +187,16 @@ fun BookDetailContent(
         JuguitoDialog(
             onDismissRequest = { showImageSourceDialog = false },
             icon = Icons.Default.AddPhotoAlternate,
-            title = "Seleccionar portada",
-            message = "¿Cómo quieres añadir la imagen para el libro?",
-            dismissButtonText = "Cancelar",
+            title = stringResource(R.string.select_cover),
+            message = stringResource(R.string.image_source_message),
+            dismissButtonText = stringResource(R.string.cancel),
             content = {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     DialogOptionCard(
-                        title = "Elegir de la galería",
+                        title = stringResource(R.string.choose_from_gallery),
                         icon = Icons.Default.PhotoLibrary,
                         onClick = {
                             showImageSourceDialog = false
@@ -202,7 +207,7 @@ fun BookDetailContent(
                     )
 
                     DialogOptionCard(
-                        title = "Tomar una foto",
+                        title = stringResource(R.string.take_photo),
                         icon = Icons.Default.PhotoCamera,
                         onClick = {
                             showImageSourceDialog = false
@@ -231,8 +236,8 @@ fun BookDetailContent(
         modifier = Modifier.imePadding(),
         topBar = {
             val titleText = when (state) {
-                is BookDetailUiState.Success -> if (state.isEditMode) "Editar Libro" else state.bookDraft.title
-                else -> "Detalle del libro"
+                is BookDetailUiState.Success -> if (state.isEditMode) stringResource(R.string.edit_book) else state.bookDraft.title
+                else -> stringResource(R.string.book_detail)
             }
             TopAppBar(
                 modifier = Modifier.statusBarsPadding(),
@@ -247,21 +252,21 @@ fun BookDetailContent(
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás", tint = Color.White)
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back), tint = Color.White)
                     }
                 },
                 actions = {
                     if (state is BookDetailUiState.Success) {
                         if (state.isEditMode) {
                             IconButton(onClick = { onEvent(BookDetailEvent.OnEditModeChanged(false)) }) {
-                                Icon(imageVector = Icons.Default.Close, contentDescription = "Cancelar", tint = Color.White)
+                                Icon(imageVector = Icons.Default.Close, contentDescription = stringResource(R.string.cancel), tint = Color.White)
                             }
                             IconButton(onClick = { onEvent(BookDetailEvent.OnSaveClick) }) {
-                                Icon(imageVector = Icons.Default.Check, contentDescription = "Guardar", tint = Color.White)
+                                Icon(imageVector = Icons.Default.Check, contentDescription = stringResource(R.string.save), tint = Color.White)
                             }
                         } else {
                             IconButton(onClick = { onEvent(BookDetailEvent.OnEditModeChanged(true)) }) {
-                                Icon(imageVector = Icons.Default.Edit, contentDescription = "Editar", tint = Color.White)
+                                Icon(imageVector = Icons.Default.Edit, contentDescription = stringResource(R.string.edit), tint = Color.White)
                             }
                         }
                     }
@@ -300,12 +305,12 @@ fun BookDetailContent(
                             Tab(
                                 selected = state.selectedTab == 0,
                                 onClick = { onEvent(BookDetailEvent.OnTabChanged(0)) },
-                                text = { Text("Información") }
+                                text = { Text(stringResource(R.string.information)) }
                             )
                             Tab(
                                 selected = state.selectedTab == 1,
                                 onClick = { onEvent(BookDetailEvent.OnTabChanged(1)) },
-                                text = { Text("Registro") }
+                                text = { Text(stringResource(R.string.registry)) }
                             )
                         }
 

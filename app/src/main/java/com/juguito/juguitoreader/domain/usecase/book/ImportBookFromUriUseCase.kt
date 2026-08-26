@@ -2,6 +2,8 @@ package com.juguito.juguitoreader.domain.usecase.book
 
 import android.content.Context
 import android.net.Uri
+import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.domain.exception.JuguitoException
 import javax.inject.Inject
 
 class ImportBookFromUriUseCase @Inject constructor(
@@ -13,7 +15,8 @@ class ImportBookFromUriUseCase @Inject constructor(
             val book = getBookFromEpubUseCase(context, uri)
             addBookUseCase(book)
         } catch (e: Exception) {
-            Result.failure(e)
+            e.printStackTrace()
+            Result.failure(JuguitoException(R.string.error_import_book))
         }
     }
 }

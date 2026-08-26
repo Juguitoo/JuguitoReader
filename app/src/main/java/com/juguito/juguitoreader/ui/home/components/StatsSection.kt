@@ -11,7 +11,9 @@ import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.ui.home.StatsUiState
 
 @Composable
@@ -25,26 +27,26 @@ fun StatsSection(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         StatCard(
-            title = "Libros en biblioteca",
+            title = stringResource(R.string.books_in_library),
             value = statsUiState.totalBooksCount.toString(),
             icon = Icons.AutoMirrored.Filled.LibraryBooks,
             color = MaterialTheme.colorScheme.primaryContainer
         )
         StatCard(
-            title = "Libros leyendo",
+            title = stringResource(R.string.books_reading),
             value = statsUiState.readingBooksCount.toString(),
             icon = Icons.Default.AutoStories,
             color = MaterialTheme.colorScheme.secondaryContainer
         )
         StatCard(
-            title = "Libros finalizados",
+            title = stringResource(R.string.books_finished),
             value = statsUiState.finishedBooksCount.toString(),
             icon = Icons.Default.DoneAll,
             color = MaterialTheme.colorScheme.tertiaryContainer
         )
         /* TODO: Calculador de velocidad de lectura
         StatCard(
-            title = "Velocidad media",
+            title = stringResource(R.string.average_speed),
             value = statsUiState.readingVelocity.toString(),
             icon = Icons.Default.BarChart,
             color = MaterialTheme.colorScheme.errorContainer

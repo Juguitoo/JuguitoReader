@@ -16,6 +16,7 @@ import com.juguito.juguitoreader.domain.usecase.reader.ParseEpubUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.AddReadingProgressUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgressByIdUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.UpdateReadingProgressUseCase
+import com.juguito.juguitoreader.ui.common.asUiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -89,9 +90,9 @@ class ReaderViewModel @Inject constructor(
                 val initialTheme = runCatching { ReaderTheme.valueOf(themeStr) }.getOrDefault(ReaderTheme.SEPIA)
 
                 val book = getBookByIdUseCase.invoke(bookId)
-                    ?: throw Exception("El libro que se está intentando leer no existe.")
+                    ?: throw Exception("error_epub_not_found")
                 val localPath = book.localFilePath
-                    ?: throw Exception("El libro no tiene un archivo físico asociado. Añade un fichero EPUB.")
+                    ?: throw Exception("error_epub_not_found")
 
                 val parseResult = parseEpubUseCase.invoke(bookId, localPath)
                 parseResult.fold(
@@ -124,12 +125,11 @@ class ReaderViewModel @Inject constructor(
                         }
                     },
                     onFailure = { exception ->
-                        exception.printStackTrace()
-                        _internalState.value = ReaderUiState.Error("Error desconocido al obtener el contenido del libro. Cambia el fichero EPUB para poder acceder al contenido.")
+                        _internalState.value = ReaderUiState.Error(exception.asUiText())
                     }
                 )
             } catch (e: Exception) {
-                _internalState.value = ReaderUiState.Error(e.localizedMessage ?: "Error al cargar los datos.")
+                _internalState.value = ReaderUiState.Error(e.asUiText())
             }
         }
     }

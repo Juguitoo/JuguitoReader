@@ -14,7 +14,8 @@ enum class BookStatus(val displayName: String) {
     DROPPED("Abandonado")
 }
 
-enum class Language(val displayName: String) {
-    SPANISH("Español"),
-    ENGLISH("Inglés")
+enum class Language(val displayName: String, val code: String) {
+    SYSTEM("Sistema", ""),
+    SPANISH("Español", "es"),
+    ENGLISH("Inglés", "en")
 }

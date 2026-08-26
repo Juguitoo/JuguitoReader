@@ -2,6 +2,8 @@ package com.juguito.juguitoreader.ui.registry
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import android.app.Application
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.BookCriteria
 import com.juguito.juguitoreader.domain.enums.BookStatus
@@ -9,6 +11,7 @@ import com.juguito.juguitoreader.domain.model.applyCriteria
 import com.juguito.juguitoreader.domain.model.copy
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
+import com.juguito.juguitoreader.ui.common.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +22,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RegistryViewModel @Inject constructor(
+    private val application: Application,
     private val getBooksUseCase: GetBooksUseCase,
     private val updateBookUseCase: UpdateBookUseCase
 ) : ViewModel() {
@@ -36,9 +40,10 @@ class RegistryViewModel @Inject constructor(
 
             getBooksUseCase()
                 .catch { exception ->
+                    exception.printStackTrace()
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        errorMessage = "Error al cargar los libros: ${exception.localizedMessage}"
+                        errorMessage = UiText.StringResource(R.string.something_went_wrong).asString(application)
                     )
                 }
                 .collect { books ->

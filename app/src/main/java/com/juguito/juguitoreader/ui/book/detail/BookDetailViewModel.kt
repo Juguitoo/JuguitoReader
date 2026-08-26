@@ -5,6 +5,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.Folder
@@ -16,6 +17,8 @@ import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
 import com.juguito.juguitoreader.domain.usecase.genre.GetGenresUseCase
 import com.juguito.juguitoreader.ui.book.state.BookDraftState
+import com.juguito.juguitoreader.ui.common.UiText
+import com.juguito.juguitoreader.ui.common.asUiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.utils.FileUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -60,7 +63,7 @@ class BookDetailViewModel @Inject constructor(
     private fun loadAvailableData() {
         viewModelScope.launch {
             getFoldersUseCase()
-                .catch { _effect.send(UiEffect.ShowSnackbar("No se pudieron cargar las carpetas")) }
+                .catch { error -> _effect.send(UiEffect.ShowSnackbar(error.asUiText())) }
                 .collect { folders ->
                     availableFolders = folders
                     updateSuccessState { it.copy(availableFolders = folders) }
@@ -68,7 +71,7 @@ class BookDetailViewModel @Inject constructor(
         }
         viewModelScope.launch {
             getGenresUseCase()
-                .catch { _effect.send(UiEffect.ShowSnackbar("No se pudieron cargar los géneros")) }
+                .catch { error -> _effect.send(UiEffect.ShowSnackbar(error.asUiText())) }
                 .collect { genres ->
                     availableGenres = genres
                     updateSuccessState { it.copy(availableGenres = genres) }
@@ -106,10 +109,11 @@ class BookDetailViewModel @Inject constructor(
                         availableGenres = availableGenres
                     )
                 } else {
-                    _uiState.value = BookDetailUiState.Error("No se ha encontrado el libro.")
+                    _uiState.value = BookDetailUiState.Error(UiText.StringResource(R.string.error_epub_not_found).asString(application))
                 }
             }.onFailure { exception ->
-                _uiState.value = BookDetailUiState.Error("Error al cargar el libro: ${exception.localizedMessage}")
+                exception.printStackTrace()
+                _uiState.value = BookDetailUiState.Error("Error al cargar el libro")
             }
         }
     }
@@ -243,11 +247,11 @@ class BookDetailViewModel @Inject constructor(
         val draft = current.bookDraft
 
         if (draft.title.isBlank()) {
-            viewModelScope.launch { _effect.send(UiEffect.ShowSnackbar("El título no puede estar vacío.")) }
+            viewModelScope.launch { _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.error_title_empty))) }
             return
         }
         if (draft.author.isBlank()) {
-            viewModelScope.launch { _effect.send(UiEffect.ShowSnackbar("El autor no puede estar vacío.")) }
+            viewModelScope.launch { _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.error_author_empty))) }
             return
         }
 
@@ -285,11 +289,11 @@ class BookDetailViewModel @Inject constructor(
                             book = updatedBook
                         )
                     }
-                    _effect.send(UiEffect.ShowSnackbar("Cambios guardados correctamente."))
+                    _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.save_success)))
                 },
                 onFailure = { exception ->
                     updateSuccessState { it.copy(isActionLoading = false) }
-                    _effect.send(UiEffect.ShowSnackbar("Error al guardar: ${exception.localizedMessage}"))
+                    _effect.send(UiEffect.ShowSnackbar(exception.asUiText()))
                 }
             )
         }

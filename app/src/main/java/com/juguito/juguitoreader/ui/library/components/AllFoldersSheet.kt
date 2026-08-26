@@ -22,9 +22,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Folder
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -47,7 +49,7 @@ fun AllFoldersSheet(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                "Mis Carpetas",
+                stringResource(R.string.my_folders),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -60,7 +62,7 @@ fun AllFoldersSheet(
                 FilterChip(
                     selected = selectedFolder == null,
                     onClick = { onFolderSelected(null) },
-                    label = { Text("Todos los libros") },
+                    label = { Text(stringResource(R.string.all_books)) },
                     shape = RoundedCornerShape(12.dp)
                 )
 

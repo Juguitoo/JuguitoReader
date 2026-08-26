@@ -33,6 +33,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.juguito.juguitoreader.R
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -118,17 +120,19 @@ fun HomeContent(
         when (uiEffect) {
             is UiEffect.ShowSnackbar -> {
                 val result = snackbarHostState.showSnackbar(
-                    message = uiEffect.message,
-                    actionLabel = uiEffect.actionLabel,
+                    message = uiEffect.message.asString(context),
+                    actionLabel = uiEffect.actionLabel?.asString(context),
                     duration = SnackbarDuration.Short
                 )
 
                 when (result) {
                     SnackbarResult.ActionPerformed -> {
-                        onEvent(HomeEvent.OnUndoDeleteClick)
+                        if (uiEffect.actionPayload == "undo_delete") {
+                            onEvent(HomeEvent.OnUndoDeleteClick)
+                        }
                     }
                     SnackbarResult.Dismissed -> {
-                        if (uiEffect.actionLabel == "Deshacer") {
+                        if (uiEffect.actionPayload == "undo_delete") {
                             onEvent(HomeEvent.OnDeleteConfirmed)
                         }
                     }
@@ -168,7 +172,7 @@ fun HomeContent(
                 CenterAlignedTopAppBar(
                     title = {
                         Text(
-                            "JuguitoReader",
+                            stringResource(R.string.app_name),
                             style = MaterialTheme.typography.titleLarge,
                             fontFamily = LoraFontFamily,
                             fontWeight = FontWeight.Bold
@@ -178,7 +182,7 @@ fun HomeContent(
                         IconButton(onClick = onOpenDrawer) {
                             Icon(
                                 imageVector = Icons.Default.Menu,
-                                contentDescription = "Menú",
+                                contentDescription = stringResource(R.string.menu),
                                 tint = Color.White
                             )
                         }
@@ -189,7 +193,7 @@ fun HomeContent(
                         }) {
                             Icon(
                                 imageVector = Icons.Default.UploadFile,
-                                contentDescription = "Importar EPUB",
+                                contentDescription = stringResource(R.string.import_epub),
                                 tint = Color.White
                             )
                         }
@@ -217,7 +221,7 @@ fun HomeContent(
                 }
                 is HomeUiState.Error -> {
                     ErrorView(
-                        message = state.message,
+                        message = state.message.asString(),
                         onRetry = { onEvent(HomeEvent.OnDismissError) }
                     )
                 }
@@ -242,7 +246,7 @@ fun HomeContent(
 
                                 if (!hasReading && !hasPending) {
                                     BookListSection(
-                                        title = "Tu estantería",
+                                        title = stringResource(R.string.your_shelf),
                                         books = emptyList(),
                                         showActions = true,
                                         onNavigateToAddBook = onNavigateToAddBook,
@@ -262,7 +266,7 @@ fun HomeContent(
                                 else {
                                     if (hasReading) {
                                         BookListSection(
-                                            title = "Continuar lectura",
+                                            title = stringResource(R.string.continue_reading),
                                             books = state.readingBooks,
                                             onBookDetails = onNavigateToBookDetail,
                                             onDeleteBook = { bookToDelete = it },
@@ -277,7 +281,7 @@ fun HomeContent(
                                     }
 
                                     BookListSection(
-                                        title = "Libros pendientes",
+                                        title = stringResource(R.string.pending_books),
                                         books = state.pendingBooks,
                                         showActions = true,
                                         onNavigateToAddBook = onNavigateToAddBook,
