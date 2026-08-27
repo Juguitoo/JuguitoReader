@@ -2,6 +2,7 @@ package com.juguito.juguitoreader.ui.genre
 
 import com.google.common.truth.Truth.assertThat
 import com.juguito.juguitoreader.domain.usecase.genre.AddGenreUseCase
+import com.juguito.juguitoreader.ui.common.UiText
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -48,7 +49,8 @@ class AddGenreViewModelTest {
         coEvery { addGenreUseCase(any()) } returns Result.failure(Exception("Error message"))
         
         viewModel.saveGenre("Fantasy") {}
-        
-        assertThat(viewModel.error.value).isEqualTo("Error message")
+
+        val uiText = viewModel.error.value as UiText.DynamicString
+        assertThat(uiText.value).isEqualTo("Error message")
     }
 }

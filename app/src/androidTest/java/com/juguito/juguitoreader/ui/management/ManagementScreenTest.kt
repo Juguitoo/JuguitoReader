@@ -3,6 +3,8 @@ package com.juguito.juguitoreader.ui.management
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.test.platform.app.InstrumentationRegistry
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.ui.theme.JuguitoReaderTheme
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
@@ -32,7 +34,8 @@ class ManagementScreenTest {
             }
         }
 
-        composeTestRule.onNodeWithText("Carpetas").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Géneros").assertIsDisplayed()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        composeTestRule.onNodeWithText(context.getString(R.string.folders)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.genres)).assertIsDisplayed()
     }
 }

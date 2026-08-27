@@ -25,7 +25,7 @@ class DailyRepositoryImplTest {
 
     @Test
     fun `getAllBookDailyReadings maps entities to domain`() = runTest {
-        val entity = DailyReadingEntity(bookId = 1, date = "0000-00-00", timeSpentMillis = 0, reachedPercentage = 0f)
+        val entity = DailyReadingEntity(bookId = 1, date = "0000-00-00", timeSpentMillis = 0, reachedPercentage = 0f, readingSpeed = 0)
         every { dao.getAllBookDailyReadings(1) } returns flowOf(listOf(entity))
 
         val result = repository.getAllBookDailyReadings(1).first()
@@ -36,7 +36,7 @@ class DailyRepositoryImplTest {
 
     @Test
     fun `getAllDailyReadings maps entities to domain`() = runTest {
-        val entity = DailyReadingEntity(bookId = 1, date = "0000-00-00", timeSpentMillis = 0, reachedPercentage = 0f)
+        val entity = DailyReadingEntity(bookId = 1, date = "0000-00-00", timeSpentMillis = 0, reachedPercentage = 0f, readingSpeed = 0)
         every { dao.getAllDailyReadings() } returns flowOf(listOf(entity))
 
         val result = repository.getAllDailyReadings().first()
@@ -47,7 +47,7 @@ class DailyRepositoryImplTest {
 
     @Test
     fun `getDailyReadingByIdAndDate successfully returns`() = runTest {
-        val entity = DailyReadingEntity(bookId = 1, date = "0000-00-00", timeSpentMillis = 20, reachedPercentage = 0f)
+        val entity = DailyReadingEntity(bookId = 1, date = "0000-00-00", timeSpentMillis = 20, reachedPercentage = 0f, readingSpeed = 0)
         coEvery { dao.getDailyReadingByIdAndDate(1,"0000-00-00" ) } returns entity
 
         val result = repository.getDailyReadingByIdAndDate(1, "0000-00-00")
@@ -62,7 +62,8 @@ class DailyRepositoryImplTest {
             bookId = 1,
             date = "0000-00-00",
             timeSpentMillis = 20,
-            reachedPercentage = 0f
+            reachedPercentage = 0f,
+            readingSpeed = 0
         )
         coEvery { dao.insert(any()) } returns 1L
 

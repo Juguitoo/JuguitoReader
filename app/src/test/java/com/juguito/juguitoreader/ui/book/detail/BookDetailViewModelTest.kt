@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.Folder
@@ -15,6 +16,7 @@ import com.juguito.juguitoreader.domain.usecase.book.GetBookFromEpubUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
 import com.juguito.juguitoreader.domain.usecase.genre.GetGenresUseCase
+import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.utils.FileUtils
 import io.mockk.coEvery
@@ -24,6 +26,7 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -180,9 +183,10 @@ class BookDetailViewModelTest {
         
         coVerify { updateBookUseCase(any()) }
         viewModel.effect.test {
-            val effect = awaitItem()
+            val effect = awaitItem() as UiEffect.ShowSnackbar
+            val uiText = effect.message as UiText.StringResource
             assertThat(effect).isInstanceOf(UiEffect.ShowSnackbar::class.java)
-            assertThat((effect as UiEffect.ShowSnackbar).message).contains("guardados")
+            assertEquals(R.string.save_success, uiText.resId)
         }
     }
 

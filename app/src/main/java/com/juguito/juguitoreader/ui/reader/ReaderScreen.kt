@@ -312,7 +312,6 @@ fun ReaderContent(
                             fun goToNextChapter() {
                                 onEvent(ReaderEvent.OnNextChapter)
                             }
-
                             @JavascriptInterface
                             fun goToPreviousChapter() {
                                 onEvent(ReaderEvent.OnPreviousChapter)
@@ -320,6 +319,10 @@ fun ReaderContent(
                             @JavascriptInterface
                             fun updateOverscroll(delta: Float) {
                                 overscrollDelta = delta
+                            }
+                            @JavascriptInterface
+                            fun reportWordsRead(words: Int) {
+                                onEvent(ReaderEvent.OnReportWordsRead(words))
                             }
                         }, "AndroidBridge")
 
@@ -389,10 +392,12 @@ fun ReaderContent(
                                         if (scrollPercent > 1) scrollPercent = 1;
                                         if (scrollPercent < 0) scrollPercent = 0;
                                         
+                                        var wordsRead = totalWords * scrollPercent;
                                         var wordsLeft = totalWords * (1 - scrollPercent);
                                         var minutesLeft = Math.ceil(wordsLeft / 250);
                                         
                                         AndroidBridge.reportTimeRemaining(minutesLeft);
+                                        AndroidBridge.reportWordsRead(wordsRead);
                                     }
                 
                                     var scrollableHeight = document.body.scrollHeight - window.innerHeight;
@@ -902,6 +907,11 @@ fun ReaderContent(
                                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                                         Text(
                                             text = stringResource(R.string.minutes_remaining, minutes),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.reading_speed, session.readingSpeed),
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.primary
                                         )

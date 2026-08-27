@@ -1,6 +1,8 @@
 package com.juguito.juguitoreader.domain.usecase.book
 
 import com.google.common.truth.Truth.assertThat
+import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.domain.exception.JuguitoException
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.repository.BookRepository
 import com.juguito.juguitoreader.domain.repository.FolderRepository
@@ -30,7 +32,8 @@ class AddBookUseCaseTest {
         val result = addBookUseCase(book)
         
         assertThat(result.isFailure).isTrue()
-        assertThat(result.exceptionOrNull()?.message).contains("título")
+        val exception = result.exceptionOrNull() as JuguitoException
+        assertThat(exception.resId).isEqualTo(R.string.error_title_empty)
     }
 
     @Test
@@ -39,7 +42,8 @@ class AddBookUseCaseTest {
         val result = addBookUseCase(book)
         
         assertThat(result.isFailure).isTrue()
-        assertThat(result.exceptionOrNull()?.message).contains("autor")
+        val exception = result.exceptionOrNull() as JuguitoException
+        assertThat(exception.resId).isEqualTo(R.string.error_author_empty)
     }
 
     @Test
@@ -64,6 +68,7 @@ class AddBookUseCaseTest {
         val result = addBookUseCase(book)
         
         assertThat(result.isFailure).isTrue()
-        assertThat(result.exceptionOrNull()?.message).contains("DB Error")
+        val exception = result.exceptionOrNull() as JuguitoException
+        assertThat(exception.resId).isEqualTo(R.string.error_save_book)
     }
 }

@@ -91,7 +91,7 @@ class SettingsRepositoryImplTest {
 
     @Test
     fun `languageFlow returns default value when empty`() = runTest {
-        assertThat(repository.languageFlow.first()).isEqualTo("SPANISH")
+        assertThat(repository.languageFlow.first()).isEqualTo("SYSTEM")
     }
 
     @Test

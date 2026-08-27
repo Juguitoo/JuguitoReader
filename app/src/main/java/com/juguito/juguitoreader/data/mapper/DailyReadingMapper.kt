@@ -8,7 +8,8 @@ fun DailyReadingEntity.toDomain(): DailyReading {
         bookId = bookId,
         date = date,
         timeSpentMillis = timeSpentMillis,
-        reachedPercentage = reachedPercentage
+        reachedPercentage = reachedPercentage,
+        readingSpeed = readingSpeed
     )
 }
 
@@ -17,6 +18,7 @@ fun DailyReading.toEntity(): DailyReadingEntity {
         bookId = bookId,
         date = date,
         timeSpentMillis = timeSpentMillis,
-        reachedPercentage = reachedPercentage
+        reachedPercentage = reachedPercentage,
+        readingSpeed = readingSpeed
     )
 }

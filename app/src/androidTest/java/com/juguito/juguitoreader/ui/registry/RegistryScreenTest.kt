@@ -2,6 +2,8 @@ package com.juguito.juguitoreader.ui.registry
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.test.platform.app.InstrumentationRegistry
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.ui.theme.JuguitoReaderTheme
 import org.junit.Rule
@@ -27,10 +29,10 @@ class RegistryScreenTest {
                 )
             }
         }
-
-        composeTestRule.onNodeWithText("LIBRO").assertIsDisplayed()
-        composeTestRule.onNodeWithText("ESTADO").assertIsDisplayed()
-        composeTestRule.onNodeWithText("NOTA").assertExists()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        composeTestRule.onNodeWithText(context.getString(R.string.book_col), ignoreCase = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.status_col), ignoreCase = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.rating_col), ignoreCase = true).assertExists()
     }
 
     @Test

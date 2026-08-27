@@ -74,7 +74,7 @@ class ReaderViewModel @Inject constructor(
     private val bookId: Int = checkNotNull(savedStateHandle["bookId"])
     private var initialPercentage: Int = -1
     private var sessionStartTimeMillis: Long = 0L
-
+    internal var currentTimeProvider: () -> Long = { System.currentTimeMillis() }
     init {
         loadData()
     }
@@ -99,7 +99,7 @@ class ReaderViewModel @Inject constructor(
                     onSuccess = { content ->
                         var progress = getReadingProgressByIdUseCase.invoke(bookId)
                         if (progress == null) {
-                            val newProgress = ReadingProgress(bookId, content.spine.size ,0, 0f, System.currentTimeMillis())
+                            val newProgress = ReadingProgress(bookId, content.spine.size ,0, 0f, currentTimeProvider())
                             addReadingProgressUseCase.invoke(newProgress)
                             progress = newProgress
                         }
@@ -164,7 +164,7 @@ class ReaderViewModel @Inject constructor(
                 viewModelScope.launch { settingsRepository.saveReaderBrightness(event.brightness) }
             }
             is ReaderEvent.OnScrollPositionChanged -> {
-                val updatedProgress = currentState.readingProgress.copy(scrollPosition = event.scrollPosition, lastReadAt = System.currentTimeMillis())
+                val updatedProgress = currentState.readingProgress.copy(scrollPosition = event.scrollPosition, lastReadAt = currentTimeProvider())
                 _internalState.value = currentState.copy(readingProgress = updatedProgress)
                 viewModelScope.launch {
                     updateReadingProgressUseCase.invoke(updatedProgress)
@@ -183,18 +183,26 @@ class ReaderViewModel @Inject constructor(
                 saveCurrentReadingSession(currentState)
             }
             is ReaderEvent.OnStartReading -> {
-                sessionStartTimeMillis = System.currentTimeMillis()
+                sessionStartTimeMillis = currentTimeProvider()
             }
             is ReaderEvent.OnToggleSessionsDialog -> {
                 val willShow = !currentState.showSessionsDialog
 
                 if (willShow) {
                     saveCurrentReadingSession(currentState)
-                    sessionStartTimeMillis = System.currentTimeMillis()
+                    sessionStartTimeMillis = currentTimeProvider()
                     _internalState.value = currentState.copy(showSessionsDialog = true)
                 } else {
                     _internalState.value = currentState.copy(showSessionsDialog = false)
                 }
+            }
+            is ReaderEvent.OnReportWordsRead -> {
+                val delta = event.words - currentState.lastReportedChapterWords
+                val newAccumulated = if (delta > 0) currentState.accumulatedReadWords + delta else currentState.accumulatedReadWords
+                _internalState.value = currentState.copy(
+                    lastReportedChapterWords = event.words,
+                    accumulatedReadWords = newAccumulated
+                )
             }
         }
     }
@@ -207,12 +215,13 @@ class ReaderViewModel @Inject constructor(
         val updatedProgress = currentState.readingProgress.copy(
             lastChapterIndex = newIndex,
             scrollPosition = 0f,
-            lastReadAt = System.currentTimeMillis()
+            lastReadAt = currentTimeProvider()
         )
 
         _internalState.value = currentState.copy(
             currentChapterIndex = newIndex,
-            readingProgress = updatedProgress
+            readingProgress = updatedProgress,
+            lastReportedChapterWords = 0
         )
 
         viewModelScope.launch {
@@ -250,20 +259,24 @@ class ReaderViewModel @Inject constructor(
     private fun saveCurrentReadingSession(currentState: ReaderUiState.Success) {
         if (sessionStartTimeMillis <= 0L) return
 
-        val sessionEndTimeMillis = System.currentTimeMillis()
+        val sessionEndTimeMillis = currentTimeProvider()
         val deltaTimeMillis = sessionEndTimeMillis - sessionStartTimeMillis
         if (deltaTimeMillis > 60_000) {
             val todayDateString = LocalDate.now().toString()
+            val sessionMinutes = deltaTimeMillis / 60000.0
+            val speedWpm = (currentState.accumulatedReadWords / sessionMinutes).toInt()
             val dailyReading = DailyReading(
                 bookId = currentState.book.id,
                 date = todayDateString,
                 timeSpentMillis = deltaTimeMillis.toInt(),
-                reachedPercentage = currentState.readingProgress.percentage.toFloat()
+                reachedPercentage = currentState.readingProgress.percentage.toFloat(),
+                readingSpeed = speedWpm
             )
             viewModelScope.launch {
                 addDailyReadingUseCase.invoke(dailyReading)
             }
         }
+        _internalState.value = currentState.copy(accumulatedReadWords = 0)
         sessionStartTimeMillis = 0L
     }
 }

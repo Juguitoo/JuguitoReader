@@ -1,6 +1,8 @@
 package com.juguito.juguitoreader.domain.usecase.folder
 
 import com.google.common.truth.Truth.assertThat
+import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.domain.exception.JuguitoException
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.repository.FolderRepository
 import io.mockk.coEvery
@@ -25,7 +27,8 @@ class AddFolderUseCaseTest {
         val folder = Folder(name = "", colorHex = "#000")
         val result = useCase(folder)
         assertThat(result.isFailure).isTrue()
-        assertThat(result.exceptionOrNull()?.message).contains("nombre")
+        val exception = result.exceptionOrNull() as JuguitoException
+        assertThat(exception.resId).isEqualTo(R.string.name_empty_error)
     }
 
     @Test
@@ -36,7 +39,8 @@ class AddFolderUseCaseTest {
         val result = useCase(folder)
         
         assertThat(result.isFailure).isTrue()
-        assertThat(result.exceptionOrNull()?.message).contains("Ya existe")
+        val exception = result.exceptionOrNull() as JuguitoException
+        assertThat(exception.resId).isEqualTo(R.string.error_folder_exists)
     }
 
     @Test

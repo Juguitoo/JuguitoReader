@@ -55,7 +55,7 @@
     <string name="edit_book">Edit Book</string>
     <string name="book_detail">Book Detail</string>
     <string name="information">Information</string>
-    <string name="registry">Registry</string>
+    <string name="registry">Reading Log</string>
     <string name="delete_book_title">Delete Book</string>
     <string name="delete_book_confirmation">Are you sure you want to delete \'%s\'? This action cannot be undone.</string>
 
@@ -91,6 +91,7 @@
     <string name="next_chapter">Next chapter</string>
     <string name="release_to_advance">Release to advance</string>
     <string name="stats">Stats</string>
+    <string name="reading_speed">%d wpm</string>
     <string name="font_size">Font size</string>
     <string name="brightness">Brightness</string>
     <string name="previous">Previous</string>
@@ -108,7 +109,7 @@
     <string name="no_sessions_saved">No sessions saved yet. Check back when you finish reading today.</string>
 
     <!-- Registry -->
-    <string name="registry_title">Registry</string>
+    <string name="registry_title">Reading Log</string>
     <string name="search_registry_hint">Search book, author or series…</string>
     <string name="close_search">Close search</string>
     <string name="open_menu">Open menu</string>
@@ -203,7 +204,7 @@
     <string name="end_date_label">End Date</string>
     <string name="notes_reflections">My Notes and Reflections</string>
     <string name="notes_placeholder">Write here what you think about the book, favorite quotes, doubts…</string>
-    <string name="save_registry_changes">Save registry changes</string>
+    <string name="save_registry_changes">Save changes</string>
     <string name="name_empty_error">Name cannot be empty</string>
     <string name="new_genre_title">New Genre</string>
     <string name="new_genre_message">Write the name of the new genre for your library.</string>

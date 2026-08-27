@@ -91,6 +91,7 @@
     <string name="next_chapter">Siguiente capítulo</string>
     <string name="release_to_advance">Suelta para avanzar</string>
     <string name="stats">Estadísticas</string>
+    <string name="reading_speed">%d ppm</string>
     <string name="font_size">Tamaño de letra</string>
     <string name="brightness">Brillo</string>
     <string name="previous">Anterior</string>

@@ -1,6 +1,8 @@
 package com.juguito.juguitoreader.domain.usecase.book
 
 import com.google.common.truth.Truth.assertThat
+import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.domain.exception.JuguitoException
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.repository.BookRepository
 import io.mockk.coEvery
@@ -27,7 +29,8 @@ class DeleteBookUseCaseTest {
         val result = useCase(1)
         
         assertThat(result.isFailure).isTrue()
-        assertThat(result.exceptionOrNull()?.message).contains("no existe")
+        val exception = result.exceptionOrNull() as JuguitoException
+        assertThat(exception.resId).isEqualTo(R.string.error_delete_book_not_found)
     }
 
     @Test

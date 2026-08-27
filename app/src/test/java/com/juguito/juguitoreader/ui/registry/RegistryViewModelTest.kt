@@ -1,5 +1,6 @@
 package com.juguito.juguitoreader.ui.registry
 
+import android.app.Application
 import com.google.common.truth.Truth.assertThat
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
@@ -26,6 +27,7 @@ class RegistryViewModelTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
     private lateinit var viewModel: RegistryViewModel
+    private val application = mockk<Application>()
     private val getBooksUseCase = mockk<GetBooksUseCase>()
     private val updateBookUseCase = mockk<UpdateBookUseCase>()
 
@@ -33,7 +35,7 @@ class RegistryViewModelTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         every { getBooksUseCase() } returns flowOf(emptyList())
-        viewModel = RegistryViewModel(getBooksUseCase, updateBookUseCase)
+        viewModel = RegistryViewModel(application, getBooksUseCase, updateBookUseCase)
     }
 
     @After
@@ -45,7 +47,7 @@ class RegistryViewModelTest {
     fun `onEvent update field events call updateBookUseCase`() = runTest {
         val book = Book(id = 1, title = "T", author = "A", isPhysical = false)
         every { getBooksUseCase() } returns flowOf(listOf(book))
-        viewModel = RegistryViewModel(getBooksUseCase, updateBookUseCase)
+        viewModel = RegistryViewModel(application, getBooksUseCase, updateBookUseCase)
         coEvery { updateBookUseCase(any()) } returns Result.success(Unit)
 
         viewModel.onEvent(RegistryEvent.OnRatingChanged(1, 5f))

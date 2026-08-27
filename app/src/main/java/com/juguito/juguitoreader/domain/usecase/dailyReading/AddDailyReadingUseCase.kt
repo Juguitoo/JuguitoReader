@@ -13,7 +13,10 @@ class AddDailyReadingUseCase @Inject constructor(
     suspend operator fun invoke(dailyReading: DailyReading): Result<Unit> {
         val todayDailyReading = repository.getDailyReadingByIdAndDate(dailyReading.bookId, dailyReading.date)
 
-        val dailyReadingToSave = if (todayDailyReading != null) dailyReading.copy(timeSpentMillis = dailyReading.timeSpentMillis + todayDailyReading.timeSpentMillis) else dailyReading
+        val dailyReadingToSave = if (todayDailyReading != null) {
+            val newVelocity = ((todayDailyReading.readingSpeed * todayDailyReading.timeSpentMillis) + (dailyReading.readingSpeed * dailyReading.timeSpentMillis)) / (todayDailyReading.timeSpentMillis + dailyReading.timeSpentMillis)
+            dailyReading.copy(timeSpentMillis = dailyReading.timeSpentMillis + todayDailyReading.timeSpentMillis, readingSpeed = newVelocity)
+        } else dailyReading
 
         return try {
             repository.saveDailyReading(dailyReadingToSave)

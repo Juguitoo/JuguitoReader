@@ -4,6 +4,7 @@ import android.app.Application
 import android.net.Uri
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.model.Genre
@@ -11,6 +12,7 @@ import com.juguito.juguitoreader.domain.usecase.book.AddBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBookFromEpubUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
 import com.juguito.juguitoreader.domain.usecase.genre.GetGenresUseCase
+import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.utils.FileUtils
 import io.mockk.coEvery
@@ -20,6 +22,7 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -122,7 +125,8 @@ class AddBookViewModelTest {
         viewModel.onEvent(AddBookEvent.OnSaveClick)
         viewModel.effect.test {
             val effect = awaitItem() as UiEffect.ShowSnackbar
-            assertThat(effect.message).contains("título")
+            val uiText = effect.message as UiText.StringResource
+            assertEquals(R.string.error_title_empty, uiText.resId)
         }
     }
 

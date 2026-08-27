@@ -62,8 +62,8 @@ class SettingsViewModelTest {
     @Test
     fun `onEvent OnAppThemeChanged calls repository`() = runTest {
         coEvery { repository.saveAppTheme(any()) } returns Unit
-        viewModel.onEvent(SettingsEvent.OnAppThemeChanged(AppTheme.NEON))
-        coVerify { repository.saveAppTheme("NEON") }
+        viewModel.onEvent(SettingsEvent.OnAppThemeChanged(AppTheme.DARK))
+        coVerify { repository.saveAppTheme("DARK") }
     }
 
     @Test

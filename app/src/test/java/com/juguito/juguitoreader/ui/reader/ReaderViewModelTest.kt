@@ -22,10 +22,13 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -68,7 +71,20 @@ class ReaderViewModelTest {
         coEvery { addReadingProgressUseCase(any()) } returns Result.success(Unit)
         coEvery { addDailyReadingUseCase(any()) } returns Result.success(Unit)
         coEvery { updateBookUseCase(any()) } returns Result.success(Unit)
-        coEvery { getBookDailyReadingsUseCase(any()) } returns flowOf(listOf(DailyReading(1, "0000-00-00", 300, 10f)))
+        coEvery { getBookDailyReadingsUseCase(any()) } returns flowOf(listOf(DailyReading(1, "0000-00-00", 300, 10f, readingSpeed = 0)))
+
+        viewModel = ReaderViewModel(
+            getBookByIdUseCase,
+            getReadingProgressByIdUseCase,
+            getBookDailyReadingsUseCase,
+            updateReadingProgressUseCase,
+            addReadingProgressUseCase,
+            addDailyReadingUseCase,
+            updateBookUseCase,
+            parseEpubUseCase,
+            settingsRepository,
+            savedStateHandle
+        )
     }
 
     @After
@@ -238,5 +254,76 @@ class ReaderViewModelTest {
             coVerify(exactly = 0) { updateBookUseCase(any()) }
             assertThat(awaitItem()).isEqualTo(UiEffect.NavigateBack)
         }
+    }
+
+    @Test
+    fun `OnReportWordsRead calculates delta correctly and accumulates`() = runTest {
+        val epubContent = EpubContent(baseDir = "", spine = listOf("ch1"), chaptersTree = emptyList())
+        coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
+
+        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(100))
+        var state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.lastReportedChapterWords).isEqualTo(100)
+        assertThat(state.accumulatedReadWords).isEqualTo(100)
+
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(150))
+        state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.lastReportedChapterWords).isEqualTo(150)
+        assertThat(state.accumulatedReadWords).isEqualTo(150)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `updateChapter resets lastReportedChapterWords but keeps accumulatedReadWords`() = runTest {
+        val epubContent = EpubContent(baseDir = "", spine = listOf("ch1", "ch2"), chaptersTree = emptyList())
+        coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
+
+        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(200))
+        viewModel.onEvent(ReaderEvent.OnNextChapter)
+
+        val state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.lastReportedChapterWords).isEqualTo(0)
+        assertThat(state.accumulatedReadWords).isEqualTo(200)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `saveCurrentReadingSession calculates reading speed correctly`() = runTest {
+        val epubContent = EpubContent(baseDir = "", spine = listOf("ch1"), chaptersTree = emptyList())
+        coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
+
+        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.currentTimeProvider = { 1000L }
+        viewModel.onEvent(ReaderEvent.OnStartReading)
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(400))
+
+        viewModel.currentTimeProvider = { 121_000L }
+
+        val slot = slot<DailyReading>()
+        coEvery { addDailyReadingUseCase.invoke(capture(slot)) } returns Result.success(Unit)
+
+        viewModel.onEvent(ReaderEvent.OnFinishReading)
+        advanceUntilIdle()
+
+        assertThat(slot.captured.timeSpentMillis).isEqualTo(120_000)
+        assertThat(slot.captured.readingSpeed).isEqualTo(200)
+
+        job.cancel()
     }
 }

@@ -28,7 +28,9 @@ sealed interface ReaderUiState {
         val brightness: Float = 0.5f,
         val timeRemaining: Int? = null,
         val showStatusPrompt: Boolean = false,
-        val showSessionsDialog: Boolean = false
+        val showSessionsDialog: Boolean = false,
+        val lastReportedChapterWords: Int = 0,
+        val accumulatedReadWords: Int = 0
     ): ReaderUiState {
         val currentChapterUrl: String
             get() = "file://${epubContent.baseDir}/${epubContent.spine[currentChapterIndex]}"
