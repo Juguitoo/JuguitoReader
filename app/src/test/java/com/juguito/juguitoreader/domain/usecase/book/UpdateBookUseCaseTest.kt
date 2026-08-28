@@ -1,6 +1,8 @@
 package com.juguito.juguitoreader.domain.usecase.book
 
 import com.google.common.truth.Truth.assertThat
+import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.domain.exception.JuguitoException
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.repository.BookRepository
 import com.juguito.juguitoreader.domain.repository.FolderRepository
@@ -25,14 +27,31 @@ class UpdateBookUseCaseTest {
     }
 
     @Test
-    fun `invoke with valid book calls repository save`() = runTest {
+    fun `invoke with blank title returns failure`() = runTest {
+        val result = useCase(Book(id = 1, title = "", author = "Author", isPhysical = true))
+        assertThat(result.isFailure).isTrue()
+        val exception = result.exceptionOrNull() as JuguitoException
+        assertThat(exception.resId).isEqualTo(R.string.error_title_empty)
+    }
+
+    @Test
+    fun `invoke with blank author returns failure`() = runTest {
+        val result = useCase(Book(id = 1, title = "Title", author = "", isPhysical = true))
+        assertThat(result.isFailure).isTrue()
+        val exception = result.exceptionOrNull() as JuguitoException
+        assertThat(exception.resId).isEqualTo(R.string.error_author_empty)
+    }
+
+    @Test
+    fun `invoke with valid book calls updateBook and returns success`() = runTest {
         val book = Book(id = 1, title = "Title", author = "Author", isPhysical = true)
-        coEvery { bookRepository.saveBook(any()) } returns 1L
+        coEvery { bookRepository.updateBook(any()) } returns Unit
         coEvery { bookRepository.addCrossReferences(any(), any(), any()) } returns Unit
-        
+
         val result = useCase(book)
-        
+
         assertThat(result.isSuccess).isTrue()
-        coVerify { bookRepository.saveBook(any()) }
+        coVerify { bookRepository.updateBook(book) }
+        coVerify { bookRepository.addCrossReferences(1, any(), any()) }
     }
 }

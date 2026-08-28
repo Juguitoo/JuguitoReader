@@ -102,4 +102,28 @@ class BookDAOTest {
         assertThat(books).isNotEmpty()
         assertThat(books[0].book.title).isEqualTo("B")
     }
+
+    @Test
+    fun updateBook_preservesFoldersAndGenres() = runBlocking {
+        val book = BookEntity(id = 1, title = "Original", author = "A", isPhysical = false, createdAt = 0L)
+        val folder = FolderEntity(id = 1, name = "F", colorHex = "#000", createdAt = 0L)
+        val genre = GenreEntity(id = 1, name = "G", createdAt = 0L)
+
+        bookDAO.insertBook(book)
+        database.folderDAO.insertFolder(folder)
+        database.genreDAO.insertGenre(genre)
+        bookDAO.insertBookFolderCrossRefs(listOf(BookFolderCrossRef(bookId = 1, folderId = 1)))
+        bookDAO.insertBookGenreCrossRefs(listOf(BookGenreCrossRef(bookId = 1, genreId = 1)))
+
+        bookDAO.updateBook(book.copy(title = "Renamed", status = BookStatus.READING))
+
+        val result = bookDAO.getBookById(1)
+        assertThat(result).isNotNull()
+        assertThat(result?.book?.title).isEqualTo("Renamed")
+        assertThat(result?.book?.status).isEqualTo(BookStatus.READING)
+        assertThat(result?.folders).hasSize(1)
+        assertThat(result?.folders?.first()?.id).isEqualTo(1)
+        assertThat(result?.genres).hasSize(1)
+        assertThat(result?.genres?.first()?.id).isEqualTo(1)
+    }
 }

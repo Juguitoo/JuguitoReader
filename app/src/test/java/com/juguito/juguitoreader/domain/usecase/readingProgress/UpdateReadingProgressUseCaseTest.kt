@@ -45,7 +45,7 @@ class UpdateReadingProgressUseCaseTest {
 
         assertTrue(result.isSuccess)
         coVerify(exactly = 1) {
-            bookRepository.saveBook(match { it.status == BookStatus.READING })
+            bookRepository.updateBook(match { it.status == BookStatus.READING })
         }
     }
 
@@ -61,7 +61,7 @@ class UpdateReadingProgressUseCaseTest {
         useCase(progress)
 
         coVerify(exactly = 1) {
-            bookRepository.saveBook(match { it.status == BookStatus.FINISHED })
+            bookRepository.updateBook(match { it.status == BookStatus.FINISHED })
         }
     }
 
@@ -76,7 +76,7 @@ class UpdateReadingProgressUseCaseTest {
 
         useCase(progress)
 
-        coVerify(exactly = 0) { bookRepository.saveBook(any()) }
+        coVerify(exactly = 0) { bookRepository.updateBook(any()) }
     }
 
     @Test
@@ -90,6 +90,6 @@ class UpdateReadingProgressUseCaseTest {
 
         useCase(progress)
 
-        coVerify(exactly = 0) { bookRepository.saveBook(any()) }
+        coVerify(exactly = 0) { bookRepository.updateBook(any()) }
     }
 }

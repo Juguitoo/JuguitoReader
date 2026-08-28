@@ -22,12 +22,20 @@ class BookRepositoryImpl @Inject constructor(
         return bookDAO.getBookById(id)?.toDomain()
     }
 
-    override suspend fun saveBook(book: Book): Long {
+    override suspend fun insertBook(book: Book): Long {
         return bookDAO.insertBook(book.toEntity())
     }
 
-    override suspend fun saveBooks(books: List<Book>) {
+    override suspend fun insertBooks(books: List<Book>) {
         bookDAO.insertBooks(books.map { it.toEntity() })
+    }
+
+    override suspend fun updateBook(book: Book) {
+        bookDAO.updateBook(book.toEntity())
+    }
+
+    override suspend fun updateBooks(books: List<Book>) {
+        bookDAO.updateBooks(books.map { it.toEntity() })
     }
 
     override suspend fun addCrossReferences(bookId: Int, folderIds: List<Int>, genreIds: List<Int>) {

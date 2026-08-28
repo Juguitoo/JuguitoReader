@@ -36,7 +36,7 @@ class UpdateReadingProgressUseCase @Inject constructor(
             }
 
             if (newStatus != book.status) {
-                bookRepository.saveBook(book.copy(status = newStatus))
+                bookRepository.updateBook(book.copy(status = newStatus))
             }
 
             Result.success(Unit)

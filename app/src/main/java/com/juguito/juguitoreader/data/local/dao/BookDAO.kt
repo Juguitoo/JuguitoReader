@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import com.juguito.juguitoreader.data.local.entity.BookEntity
 import com.juguito.juguitoreader.data.local.entity.BookFolderCrossRef
 import com.juguito.juguitoreader.data.local.entity.BookGenreCrossRef
@@ -14,11 +15,17 @@ import com.juguito.juguitoreader.data.local.entity.BookWithDetails
 @Dao
 interface BookDAO {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     suspend fun insertBook(book: BookEntity): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     suspend fun insertBooks(books: List<BookEntity>)
+
+    @Update
+    suspend fun updateBook(book: BookEntity)
+
+    @Update
+    suspend fun updateBooks(books: List<BookEntity>)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertBookFolderCrossRefs(crossRefs: List<BookFolderCrossRef>)

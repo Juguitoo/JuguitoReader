@@ -30,7 +30,7 @@ class AddBookUseCaseTest {
     fun `invoke with empty title returns failure`() = runBlocking {
         val book = Book(title = "", author = "Author", isPhysical = false)
         val result = addBookUseCase(book)
-        
+
         assertThat(result.isFailure).isTrue()
         val exception = result.exceptionOrNull() as JuguitoException
         assertThat(exception.resId).isEqualTo(R.string.error_title_empty)
@@ -40,33 +40,33 @@ class AddBookUseCaseTest {
     fun `invoke with empty author returns failure`() = runBlocking {
         val book = Book(title = "Title", author = "", isPhysical = false)
         val result = addBookUseCase(book)
-        
+
         assertThat(result.isFailure).isTrue()
         val exception = result.exceptionOrNull() as JuguitoException
         assertThat(exception.resId).isEqualTo(R.string.error_author_empty)
     }
 
     @Test
-    fun `invoke with valid book calls repository and returns success`() = runBlocking {
+    fun `invoke with valid book calls insertBook and returns success`() = runBlocking {
         val book = Book(title = "Valid Title", author = "Valid Author", isPhysical = false)
-        
-        coEvery { bookRepository.saveBook(any()) } returns 1L
+
+        coEvery { bookRepository.insertBook(any()) } returns 1L
         coEvery { bookRepository.addCrossReferences(any(), any(), any()) } returns Unit
-        
+
         val result = addBookUseCase(book)
-        
+
         assertThat(result.isSuccess).isTrue()
-        coVerify(exactly = 1) { bookRepository.saveBook(any()) }
+        coVerify(exactly = 1) { bookRepository.insertBook(any()) }
         coVerify(exactly = 1) { bookRepository.addCrossReferences(1, any(), any()) }
     }
 
     @Test
     fun `invoke with exception in repository returns failure`() = runBlocking {
         val book = Book(title = "Title", author = "Author", isPhysical = false)
-        coEvery { bookRepository.saveBook(any()) } throws Exception("DB Error")
-        
+        coEvery { bookRepository.insertBook(any()) } throws Exception("DB Error")
+
         val result = addBookUseCase(book)
-        
+
         assertThat(result.isFailure).isTrue()
         val exception = result.exceptionOrNull() as JuguitoException
         assertThat(exception.resId).isEqualTo(R.string.error_save_book)

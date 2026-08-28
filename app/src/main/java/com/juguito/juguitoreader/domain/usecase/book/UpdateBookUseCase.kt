@@ -31,9 +31,9 @@ class UpdateBookUseCase @Inject constructor(
                 existingGenre?.id ?: genreRepository.insertGenre(genre).toInt()
             }
 
-            val bookId = bookRepository.saveBook(book).toInt()
+            bookRepository.updateBook(book)
 
-            bookRepository.addCrossReferences(bookId, folderIds, genreIds)
+            bookRepository.addCrossReferences(book.id, folderIds, genreIds)
 
             Result.success(Unit)
         } catch (e: Exception) {
