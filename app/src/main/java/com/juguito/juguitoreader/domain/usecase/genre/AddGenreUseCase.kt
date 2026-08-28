@@ -20,7 +20,7 @@ class AddGenreUseCase @Inject constructor(
         }
 
         return try {
-            repository.saveGenre(genre)
+            repository.insertGenre(genre)
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()

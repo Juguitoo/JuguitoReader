@@ -1,6 +1,8 @@
 package com.juguito.juguitoreader.domain.usecase.genre
 
 import com.google.common.truth.Truth.assertThat
+import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.domain.exception.JuguitoException
 import com.juguito.juguitoreader.domain.model.Genre
 import com.juguito.juguitoreader.domain.repository.GenreRepository
 import io.mockk.coEvery
@@ -21,14 +23,35 @@ class AddGenreUseCaseTest {
     }
 
     @Test
-    fun `invoke with valid genre calls save`() = runBlocking {
+    fun `invoke with blank name returns failure`() = runBlocking {
+        val result = useCase(Genre(name = ""))
+
+        assertThat(result.isFailure).isTrue()
+        val exception = result.exceptionOrNull() as JuguitoException
+        assertThat(exception.resId).isEqualTo(R.string.error_genre_empty)
+    }
+
+    @Test
+    fun `invoke with existing name returns failure`() = runBlocking {
+        val genre = Genre(name = "Fantasy")
+        coEvery { repository.getGenreByName("Fantasy") } returns genre
+
+        val result = useCase(genre)
+
+        assertThat(result.isFailure).isTrue()
+        val exception = result.exceptionOrNull() as JuguitoException
+        assertThat(exception.resId).isEqualTo(R.string.error_genre_exists)
+    }
+
+    @Test
+    fun `invoke with valid genre calls insertGenre and returns success`() = runBlocking {
         val genre = Genre(name = "Fantasy")
         coEvery { repository.getGenreByName("Fantasy") } returns null
-        coEvery { repository.saveGenre(any()) } returns 1L
-        
+        coEvery { repository.insertGenre(any()) } returns 1L
+
         val result = useCase(genre)
-        
+
         assertThat(result.isSuccess).isTrue()
-        coVerify { repository.saveGenre(any()) }
+        coVerify { repository.insertGenre(any()) }
     }
 }

@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.juguito.juguitoreader.data.local.entity.GenreEntity
 import com.juguito.juguitoreader.data.local.entity.GenreWithCountEntity
 import kotlinx.coroutines.flow.Flow
@@ -11,11 +12,17 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface GenreDAO {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     suspend fun insertGenre(genre: GenreEntity): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     suspend fun insertGenres(genres: List<GenreEntity>)
+
+    @Update
+    suspend fun updateGenre(genre: GenreEntity)
+
+    @Update
+    suspend fun updateGenres(genres: List<GenreEntity>)
 
     @Query("SELECT * FROM genres WHERE name = :genreName")
     suspend fun getGenreByName(genreName: String): GenreEntity?

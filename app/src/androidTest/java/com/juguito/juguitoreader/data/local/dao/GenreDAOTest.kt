@@ -79,4 +79,24 @@ class GenreDAOTest {
         genreDAO.deleteGenreById(1)
         assertThat(genreDAO.getGenreByName("G")).isNull()
     }
+
+    @Test
+    fun updateGenre_preservesBookGenreCrossRefs() = runBlocking {
+        val genre = GenreEntity(id = 1, name = "Original", createdAt = 0L)
+        val book = BookEntity(id = 1, title = "B", author = "A", isPhysical = false, createdAt = 0L)
+
+        genreDAO.insertGenre(genre)
+        database.bookDAO.insertBook(book)
+        database.bookDAO.insertBookGenreCrossRefs(listOf(BookGenreCrossRef(bookId = 1, genreId = 1)))
+
+        genreDAO.updateGenre(genre.copy(name = "Renamed"))
+
+        assertThat(genreDAO.getGenreByName("Renamed")?.id).isEqualTo(1)
+
+        val bookWithDetails = database.bookDAO.getBookById(1)
+        assertThat(bookWithDetails).isNotNull()
+        assertThat(bookWithDetails?.genres).hasSize(1)
+        assertThat(bookWithDetails?.genres?.first()?.id).isEqualTo(1)
+        assertThat(bookWithDetails?.genres?.first()?.name).isEqualTo("Renamed")
+    }
 }

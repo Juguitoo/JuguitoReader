@@ -34,7 +34,7 @@ class AddGenresUseCase @Inject constructor(
         }
 
         return try {
-            repository.saveGenres(validGenres)
+            repository.insertGenres(validGenres)
 
             if (skippedGenres.isNotEmpty()) {
                 AddGenresResult.PartialSuccess(skippedGenres)

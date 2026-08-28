@@ -29,27 +29,27 @@ class AddGenresUseCaseTest {
     @Test
     fun `invoke filters duplicates and invalid names`() = runTest {
         val genres = listOf(
-            Genre(name = "Action"), // Valid
-            Genre(name = "Action"), // Duplicate
-            Genre(name = "")        // Invalid
+            Genre(name = "Action"),
+            Genre(name = "Action"),
+            Genre(name = "")
         )
         coEvery { repository.getAllGenreNames() } returns listOf("Action")
-        
+
         val result = useCase(genres)
-        
+
         assertThat(result).isInstanceOf(AddGenresResult.Error::class.java)
-        coVerify(exactly = 0) { repository.saveGenres(any()) }
+        coVerify(exactly = 0) { repository.insertGenres(any()) }
     }
 
     @Test
     fun `invoke with new valid genres returns Success`() = runTest {
         val genres = listOf(Genre(name = "Horror"))
         coEvery { repository.getAllGenreNames() } returns emptyList()
-        coEvery { repository.saveGenres(any()) } returns Unit
-        
+        coEvery { repository.insertGenres(any()) } returns Unit
+
         val result = useCase(genres)
-        
+
         assertThat(result).isEqualTo(AddGenresResult.Success)
-        coVerify { repository.saveGenres(any()) }
+        coVerify { repository.insertGenres(any()) }
     }
 }

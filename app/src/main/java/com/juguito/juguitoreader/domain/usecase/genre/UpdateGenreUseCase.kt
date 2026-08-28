@@ -21,7 +21,7 @@ class UpdateGenreUseCase @Inject constructor(
         }
 
         return try {
-            repository.saveGenre(genre)
+            repository.updateGenre(genre)
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()

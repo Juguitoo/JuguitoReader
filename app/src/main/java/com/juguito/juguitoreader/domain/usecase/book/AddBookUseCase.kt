@@ -28,7 +28,7 @@ class AddBookUseCase @Inject constructor(
 
             val genreIds = book.genres.map { genre ->
                 val existingGenre = genreRepository.getGenreByName(genre.name)
-                existingGenre?.id ?: genreRepository.saveGenre(genre).toInt()
+                existingGenre?.id ?: genreRepository.insertGenre(genre).toInt()
             }
 
             val bookId = bookRepository.saveBook(book).toInt()

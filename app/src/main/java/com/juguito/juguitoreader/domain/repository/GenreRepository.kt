@@ -11,9 +11,13 @@ interface GenreRepository {
 
     suspend fun getGenreByName(name: String): Genre?
 
-    suspend fun saveGenre(genre: Genre): Long
+    suspend fun insertGenre(genre: Genre): Long
 
-    suspend fun saveGenres(genres: List<Genre>)
+    suspend fun insertGenres(genres: List<Genre>)
+
+    suspend fun updateGenre(genre: Genre)
+
+    suspend fun updateGenres(genres: List<Genre>)
 
     suspend fun deleteGenre(id: Int)
 

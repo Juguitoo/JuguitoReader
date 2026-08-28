@@ -26,12 +26,20 @@ class GenreRepositoryImpl @Inject constructor(
         return genreDAO.getGenreByName(name)?.toDomain()
     }
 
-    override suspend fun saveGenre(genre: Genre): Long {
+    override suspend fun insertGenre(genre: Genre): Long {
         return genreDAO.insertGenre(genre.toEntity())
     }
 
-    override suspend fun saveGenres(genres: List<Genre>) {
+    override suspend fun insertGenres(genres: List<Genre>) {
         genreDAO.insertGenres(genres.map { it.toEntity() })
+    }
+
+    override suspend fun updateGenre(genre: Genre) {
+        genreDAO.updateGenre(genre.toEntity())
+    }
+
+    override suspend fun updateGenres(genres: List<Genre>) {
+        genreDAO.updateGenres(genres.map { it.toEntity() })
     }
 
     override suspend fun deleteGenre(id: Int) {
@@ -41,6 +49,4 @@ class GenreRepositoryImpl @Inject constructor(
     override suspend fun syncPendingGenres() {
         TODO("Not yet implemented")
     }
-
-
 }
