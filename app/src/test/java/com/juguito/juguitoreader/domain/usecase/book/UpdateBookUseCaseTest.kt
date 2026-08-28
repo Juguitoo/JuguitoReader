@@ -46,12 +46,12 @@ class UpdateBookUseCaseTest {
     fun `invoke with valid book calls updateBook and returns success`() = runTest {
         val book = Book(id = 1, title = "Title", author = "Author", isPhysical = true)
         coEvery { bookRepository.updateBook(any()) } returns Unit
-        coEvery { bookRepository.addCrossReferences(any(), any(), any()) } returns Unit
+        coEvery { bookRepository.syncCrossReferences(any(), any(), any()) } returns Unit
 
         val result = useCase(book)
 
         assertThat(result.isSuccess).isTrue()
         coVerify { bookRepository.updateBook(book) }
-        coVerify { bookRepository.addCrossReferences(1, any(), any()) }
+        coVerify { bookRepository.syncCrossReferences(1, any(), any()) }
     }
 }

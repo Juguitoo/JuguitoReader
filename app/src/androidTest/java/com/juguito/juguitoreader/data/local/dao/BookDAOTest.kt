@@ -126,4 +126,78 @@ class BookDAOTest {
         assertThat(result?.genres).hasSize(1)
         assertThat(result?.genres?.first()?.id).isEqualTo(1)
     }
+
+    @Test
+    fun syncBookCrossRefs_removesStaleFolderAndGenre() = runBlocking {
+        seedBookWithFoldersAndGenres(
+            folderIds = listOf(1, 2),
+            genreIds = listOf(1, 2),
+        )
+
+        bookDAO.syncBookCrossRefs(bookId = 1, folderIds = listOf(1), genreIds = listOf(1))
+
+        val result = bookDAO.getBookById(1)
+        assertThat(result?.folders).hasSize(1)
+        assertThat(result?.folders?.first()?.id).isEqualTo(1)
+        assertThat(result?.genres).hasSize(1)
+        assertThat(result?.genres?.first()?.id).isEqualTo(1)
+    }
+
+    @Test
+    fun syncBookCrossRefs_clearsAllWhenListsEmpty() = runBlocking {
+        seedBookWithFoldersAndGenres(
+            folderIds = listOf(1),
+            genreIds = listOf(1),
+        )
+
+        bookDAO.syncBookCrossRefs(bookId = 1, folderIds = emptyList(), genreIds = emptyList())
+
+        val result = bookDAO.getBookById(1)
+        assertThat(result?.folders).isEmpty()
+        assertThat(result?.genres).isEmpty()
+    }
+
+    @Test
+    fun syncBookCrossRefs_replacesFullSet() = runBlocking {
+        seedBookWithFoldersAndGenres(
+            folderIds = listOf(1),
+            genreIds = listOf(1),
+        )
+        database.folderDAO.insertFolder(FolderEntity(id = 2, name = "F2", colorHex = "#000", createdAt = 0L))
+        database.genreDAO.insertGenre(GenreEntity(id = 2, name = "G2", createdAt = 0L))
+
+        bookDAO.syncBookCrossRefs(bookId = 1, folderIds = listOf(2), genreIds = listOf(2))
+
+        val result = bookDAO.getBookById(1)
+        assertThat(result?.folders).hasSize(1)
+        assertThat(result?.folders?.first()?.id).isEqualTo(2)
+        assertThat(result?.genres).hasSize(1)
+        assertThat(result?.genres?.first()?.id).isEqualTo(2)
+    }
+
+    private suspend fun seedBookWithFoldersAndGenres(
+        folderIds: List<Int>,
+        genreIds: List<Int>,
+    ) {
+        val book = BookEntity(id = 1, title = "T", author = "A", isPhysical = false, createdAt = 0L)
+        bookDAO.insertBook(book)
+
+        folderIds.distinct().forEach { folderId ->
+            database.folderDAO.insertFolder(
+                FolderEntity(id = folderId, name = "F$folderId", colorHex = "#000", createdAt = 0L)
+            )
+        }
+        genreIds.distinct().forEach { genreId ->
+            database.genreDAO.insertGenre(
+                GenreEntity(id = genreId, name = "G$genreId", createdAt = 0L)
+            )
+        }
+
+        if (folderIds.isNotEmpty()) {
+            bookDAO.insertBookFolderCrossRefs(folderIds.map { BookFolderCrossRef(bookId = 1, folderId = it) })
+        }
+        if (genreIds.isNotEmpty()) {
+            bookDAO.insertBookGenreCrossRefs(genreIds.map { BookGenreCrossRef(bookId = 1, genreId = it) })
+        }
+    }
 }

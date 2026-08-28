@@ -1,8 +1,6 @@
 package com.juguito.juguitoreader.data.repository
 
 import com.juguito.juguitoreader.data.local.dao.BookDAO
-import com.juguito.juguitoreader.data.local.entity.BookFolderCrossRef
-import com.juguito.juguitoreader.data.local.entity.BookGenreCrossRef
 import com.juguito.juguitoreader.data.mapper.toDomain
 import com.juguito.juguitoreader.data.mapper.toEntity
 import com.juguito.juguitoreader.domain.model.Book
@@ -38,15 +36,8 @@ class BookRepositoryImpl @Inject constructor(
         bookDAO.updateBooks(books.map { it.toEntity() })
     }
 
-    override suspend fun addCrossReferences(bookId: Int, folderIds: List<Int>, genreIds: List<Int>) {
-        if (folderIds.isNotEmpty()) {
-            val folderRefs = folderIds.map { BookFolderCrossRef(bookId, it) }
-            bookDAO.insertBookFolderCrossRefs(folderRefs)
-        }
-        if (genreIds.isNotEmpty()) {
-            val genreRefs = genreIds.map { BookGenreCrossRef(bookId, it) }
-            bookDAO.insertBookGenreCrossRefs(genreRefs)
-        }
+    override suspend fun syncCrossReferences(bookId: Int, folderIds: List<Int>, genreIds: List<Int>) {
+        bookDAO.syncBookCrossRefs(bookId, folderIds, genreIds)
     }
 
     override suspend fun deleteBook(id: Int) {

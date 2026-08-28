@@ -82,14 +82,12 @@ class BookRepositoryImplTest {
     }
 
     @Test
-    fun `addCrossReferences calls DAO methods`() = runTest {
-        coEvery { bookDAO.insertBookFolderCrossRefs(any()) } returns Unit
-        coEvery { bookDAO.insertBookGenreCrossRefs(any()) } returns Unit
+    fun `syncCrossReferences calls syncBookCrossRefs on DAO`() = runTest {
+        coEvery { bookDAO.syncBookCrossRefs(any(), any(), any()) } returns Unit
 
-        repository.addCrossReferences(1, listOf(1), listOf(1))
+        repository.syncCrossReferences(1, listOf(1), listOf(2))
 
-        coVerify { bookDAO.insertBookFolderCrossRefs(any()) }
-        coVerify { bookDAO.insertBookGenreCrossRefs(any()) }
+        coVerify { bookDAO.syncBookCrossRefs(1, listOf(1), listOf(2)) }
     }
 
     @Test

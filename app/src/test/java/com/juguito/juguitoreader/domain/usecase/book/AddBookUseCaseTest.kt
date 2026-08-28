@@ -51,13 +51,13 @@ class AddBookUseCaseTest {
         val book = Book(title = "Valid Title", author = "Valid Author", isPhysical = false)
 
         coEvery { bookRepository.insertBook(any()) } returns 1L
-        coEvery { bookRepository.addCrossReferences(any(), any(), any()) } returns Unit
+        coEvery { bookRepository.syncCrossReferences(any(), any(), any()) } returns Unit
 
         val result = addBookUseCase(book)
 
         assertThat(result.isSuccess).isTrue()
         coVerify(exactly = 1) { bookRepository.insertBook(any()) }
-        coVerify(exactly = 1) { bookRepository.addCrossReferences(1, any(), any()) }
+        coVerify(exactly = 1) { bookRepository.syncCrossReferences(1, any(), any()) }
     }
 
     @Test

@@ -16,7 +16,7 @@ interface BookRepository {
 
     suspend fun updateBooks(books: List<Book>)
 
-    suspend fun addCrossReferences(bookId: Int, folderIds: List<Int>, genreIds: List<Int>)
+    suspend fun syncCrossReferences(bookId: Int, folderIds: List<Int>, genreIds: List<Int>)
 
     suspend fun deleteBook(id: Int)
 

@@ -33,7 +33,7 @@ class UpdateBookUseCase @Inject constructor(
 
             bookRepository.updateBook(book)
 
-            bookRepository.addCrossReferences(book.id, folderIds, genreIds)
+            bookRepository.syncCrossReferences(book.id, folderIds, genreIds)
 
             Result.success(Unit)
         } catch (e: Exception) {
