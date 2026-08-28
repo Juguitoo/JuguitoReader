@@ -30,6 +30,9 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -38,7 +41,7 @@ import org.junit.Test
 class AddBookViewModelTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
-    
+
     private lateinit var viewModel: AddBookViewModel
     private val application = mockk<Application>(relaxed = true)
     private val addBookUseCase = mockk<AddBookUseCase>()
@@ -49,17 +52,17 @@ class AddBookViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        
+
         mockkStatic(Uri::class)
         mockkStatic("androidx.core.net.UriKt")
         val uri = mockk<Uri>(relaxed = true)
         every { Uri.parse(any()) } returns uri
-        
+
         mockkObject(FileUtils)
-        
+
         every { getFoldersUseCase() } returns flowOf(emptyList())
         every { getGenresUseCase() } returns flowOf(emptyList())
-        
+
         viewModel = AddBookViewModel(
             application,
             addBookUseCase,
@@ -75,6 +78,20 @@ class AddBookViewModelTest {
         unmockkAll()
     }
 
+    /**
+     * ViewModel work on [Dispatchers.IO] finishes on a real thread pool.
+     * [runTest] virtual time does not advance that work, so we poll on real time.
+     */
+    private suspend fun awaitUiState(predicate: (AddBookUiState) -> Boolean) {
+        withContext(Dispatchers.Default) {
+            withTimeout(5_000) {
+                while (!predicate(viewModel.uiState.value)) {
+                    yield()
+                }
+            }
+        }
+    }
+
     @Test
     fun `onEvent updates draft correctly for all fields`() = runTest {
         viewModel.onEvent(AddBookEvent.OnTitleChanged("Title"))
@@ -83,13 +100,13 @@ class AddBookViewModelTest {
         viewModel.onEvent(AddBookEvent.OnSeriesChanged("Series"))
         viewModel.onEvent(AddBookEvent.OnSeriesOrderChanged("1"))
         viewModel.onEvent(AddBookEvent.OnIsPhysicalChanged(true))
-        
+
         val folders = listOf(Folder(name = "F", colorHex = "#000"))
         viewModel.onEvent(AddBookEvent.OnFoldersChanged(folders))
-        
+
         val genres = listOf(Genre(name = "G"))
         viewModel.onEvent(AddBookEvent.OnGenresChanged(genres))
-        
+
         val state = viewModel.uiState.value
         assertThat(state.bookDraft.title).isEqualTo("Title")
         assertThat(state.bookDraft.author).isEqualTo("Author")
@@ -104,14 +121,11 @@ class AddBookViewModelTest {
     @Test
     fun `onEvent OnCoverUrlChanged calls FileUtils and updates draft`() = runTest {
         every { FileUtils.saveImageToInternalStorage(any(), any()) } returns "new/path"
-        
+
         viewModel.onEvent(AddBookEvent.OnCoverUrlChanged("temp/uri"))
-        
-        // As it launches a coroutine, we use turbine to wait for the state update
-        viewModel.uiState.test {
-            val state = awaitItem()
-            assertThat(state.bookDraft.coverUrl).isEqualTo("new/path")
-        }
+        awaitUiState { it.bookDraft.coverUrl == "new/path" }
+
+        assertThat(viewModel.uiState.value.bookDraft.coverUrl).isEqualTo("new/path")
     }
 
     @Test
@@ -135,9 +149,9 @@ class AddBookViewModelTest {
         viewModel.onEvent(AddBookEvent.OnTitleChanged("T"))
         viewModel.onEvent(AddBookEvent.OnAuthorChanged("A"))
         coEvery { addBookUseCase(any()) } returns Result.success(Unit)
-        
+
         viewModel.onEvent(AddBookEvent.OnSaveClick)
-        
+
         coVerify { addBookUseCase(any()) }
         viewModel.effect.test {
             assertThat(awaitItem()).isEqualTo(UiEffect.NavigateBack)
@@ -149,13 +163,11 @@ class AddBookViewModelTest {
         val uri = mockk<Uri>(relaxed = true)
         val book = Book(title = "Epub Title", author = "Epub Author", isPhysical = false)
         coEvery { getBookFromEpubUseCase(any(), any()) } returns book
-        
-        viewModel.uiState.test {
-            skipItems(1)
-            viewModel.onEvent(AddBookEvent.OnImportEpub(uri))
-            awaitItem() // Loading
-            val success = awaitItem()
-            assertThat(success.bookDraft.title).isEqualTo("Epub Title")
-        }
+
+        viewModel.onEvent(AddBookEvent.OnImportEpub(uri))
+        awaitUiState { it.bookDraft.title == "Epub Title" && !it.isLoading }
+
+        assertThat(viewModel.uiState.value.bookDraft.title).isEqualTo("Epub Title")
+        assertThat(viewModel.uiState.value.isLoading).isFalse()
     }
 }
