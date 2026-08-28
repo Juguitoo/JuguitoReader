@@ -1,0 +1,23 @@
+#!/bin/sh
+# Runs unit tests before git push. Install: scripts/install-git-hooks.ps1
+
+echo "pre-push: running unit tests..."
+
+if [ -f "./gradlew" ]; then
+  ./gradlew test --no-daemon
+elif [ -f "./gradlew.bat" ]; then
+  ./gradlew.bat test --no-daemon
+else
+  echo "pre-push: gradlew not found. Push aborted."
+  exit 1
+fi
+
+RESULT=$?
+if [ $RESULT -ne 0 ]; then
+  echo "pre-push: tests failed. Push aborted."
+  echo "To skip (not recommended): git push --no-verify"
+  exit 1
+fi
+
+echo "pre-push: tests passed."
+exit 0

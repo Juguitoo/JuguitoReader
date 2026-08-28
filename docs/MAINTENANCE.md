@@ -23,6 +23,7 @@ Ejemplo: la nota sobre renombrar `v1.2.0` desaparece cuando la rama se reorganic
 | Cambio arquitectura | `ARCHITECTURE.md` + rule `.cursor/rules/architecture.mdc` si aplica |
 | Cambio Room / schema | `DATABASE.md` + `room-data.mdc` |
 | Cambio ramas git | `GIT_WORKFLOW.md` — **solo estado actual**, sin historial de ramas muertas |
+| Cambio CI / hooks | `.github/workflows/test.yml`, `docs/GIT_WORKFLOW.md` |
 | Nueva versión release | `ROADMAP.md`, `GIT_WORKFLOW.md` (si aplica), bump en README si relevante |
 | Decisión producto (p. ej. sync) | `ROADMAP.md`, `AGENTS.md`, `KNOWN_ISSUES.md` |
 

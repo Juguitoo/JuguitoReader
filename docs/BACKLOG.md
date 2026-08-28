@@ -110,7 +110,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 |----|-------|--------|
 | REL-001 | Keystore release (no debug) | `[ ]` |
 | REL-002 | Habilitar R8 / ProGuard | `[ ]` |
-| REL-003 | CI: `./gradlew test` en push | `[ ]` |
+| REL-003 | CI: `./gradlew test` en push (GitHub Actions) + hook opcional | `[x]` |
 | DATA-006 | Migraciones DB 1→5 o política destructive en dev | `[ ]` |
 
 ---

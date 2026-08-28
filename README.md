@@ -1,5 +1,7 @@
 # JuguitoReader
 
+![Tests](https://github.com/Juguitoo/juguitoreader-android/actions/workflows/test.yml/badge.svg)
+
 Lector EPUB y gestor de lecturas personal para Android. Importa libros digitales, léelos en la app y registra también lecturas hechas fuera de ella (libros físicos): fechas, nota, comentario, estado y estadísticas.
 
 > **Estado:** pre-release — desarrollo activo, pruebas cerradas. No publicada en Play Store.
@@ -44,6 +46,12 @@ Ejecutar tests unitarios:
 
 ```bash
 ./gradlew test
+```
+
+Hook local opcional (tests antes de cada push):
+
+```powershell
+.\scripts\install-git-hooks.ps1
 ```
 
 Tests instrumentados (requiere emulador o dispositivo):

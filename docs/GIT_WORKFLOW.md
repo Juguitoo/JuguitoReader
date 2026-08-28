@@ -85,9 +85,40 @@ Formato: `v{versionName}` — p. ej. `v1.2.0`
 
 - Force push a `main`
 - Commits directos a `main` (salvo hotfix documentado)
-- `--no-verify` salvo petición explícita
+- `--no-verify` en push salvo emergencia (salta tests locales del hook)
 
-## Estado actual del repo
+## CI (GitHub Actions)
+
+Workflow: [.github/workflows/test.yml](../.github/workflows/test.yml)
+
+| Trigger | Qué ejecuta |
+|---------|-------------|
+| Cada `push` | `./gradlew test` |
+| Cada `pull_request` | `./gradlew test` |
+
+Ver resultados en GitHub → **Actions** → *Test*. Badge en [README.md](../README.md).
+
+Solo unit tests. Los instrumentados (`connectedAndroidTest`) requieren emulador y no están en CI por ahora.
+
+## Hook pre-push (local, opcional)
+
+Complemento al CI: feedback antes de subir al remoto.
+
+```powershell
+# Desde la raíz del repo (una vez por clone)
+.\scripts\install-git-hooks.ps1
+```
+
+Copia `scripts/hooks/pre-push` → `.git/hooks/pre-push`. Antes de cada `git push` ejecuta `./gradlew test`.
+
+| Comando | Efecto |
+|---------|--------|
+| Push normal | Corre tests; aborta si fallan |
+| `git push --no-verify` | Salta el hook (usar solo en emergencia) |
+
+Los hooks **no se versionan** en `.git/hooks/`; hay que reinstalar tras un clone nuevo.
+
+---
 
 | Rama | Rol |
 |------|-----|
