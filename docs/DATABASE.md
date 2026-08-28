@@ -28,17 +28,23 @@ books (1) ──────< book_folders >────── (N) folders
   └──────< daily_reading        [FK CASCADE a books]
 ```
 
+
+
 ## Tablas
 
-| Tabla | Descripción |
-|-------|-------------|
-| `books` | Metadatos del libro: título, autor, estado, fechas, rating, paths, `is_physical` |
-| `folders` | Carpetas de organización (`name` UNIQUE) |
-| `genres` | Etiquetas/géneros (`name` UNIQUE) |
-| `book_folders` | Junction M:N libro ↔ carpeta (FK CASCADE ambos lados) |
-| `book_genres` | Junction M:N libro ↔ género (FK CASCADE ambos lados) |
-| `reading_progress` | Capítulo actual, scroll, `total_chapters`, `last_read_at` |
-| `daily_reading` | Sesiones diarias: tiempo, % alcanzado, WPM (`reading_speed`) |
+
+| Tabla              | Descripción                                                                      |
+| ------------------ | -------------------------------------------------------------------------------- |
+| `books`            | Metadatos del libro: título, autor, estado, fechas, rating, paths, `is_physical` |
+| `folders`          | Carpetas de organización (`name` UNIQUE)                                         |
+| `genres`           | Etiquetas/géneros (`name` UNIQUE)                                                |
+| `book_folders`     | Junction M:N libro ↔ carpeta (FK CASCADE ambos lados)                            |
+| `book_genres`      | Junction M:N libro ↔ género (FK CASCADE ambos lados)                             |
+| `reading_progress` | Capítulo actual, scroll, `total_chapters`, `last_read_at`                        |
+| `daily_reading`    | Sesiones diarias: tiempo, % alcanzado, WPM (`reading_speed`)                     |
+
+
+
 
 ## Type converters
 
@@ -47,16 +53,20 @@ books (1) ──────< book_folders >────── (N) folders
 - `BookStatus`
 - `SyncStatus` *(pendiente de eliminar — ver BACKLOG CLEAN-001)*
 
+
+
 ## Migraciones definidas
 
 Solo existen migraciones **6 → 10**:
 
-| Migración | Cambio |
-|-----------|--------|
-| 6→7 | Rebuild `reading_progress` + columna `scroll_position` |
-| 7→8 | Columna `total_chapters` en `reading_progress` |
-| 8→9 | Tabla `daily_reading` |
-| 9→10 | Columna `reading_speed` en `daily_reading` |
+
+| Migración | Cambio                                                 |
+| --------- | ------------------------------------------------------ |
+| 6→7       | Rebuild `reading_progress` + columna `scroll_position` |
+| 7→8       | Columna `total_chapters` en `reading_progress`         |
+| 8→9       | Tabla `daily_reading`                                  |
+| 9→10      | Columna `reading_speed` en `daily_reading`             |
+
 
 Definidas en `JuguitoReaderDatabase.kt`, registradas en `DatabaseModule.kt`.
 
@@ -113,6 +123,8 @@ En updates, usar `folder.id` / `genre.id` cuando `id != 0`. Resolver por `name` 
 - `FolderDAO.getFoldersWithBookCount()` — subquery COUNT en junction.
 - Filtro unsynced (legacy sync, pendiente eliminar): `sync_status != 'SYNCED'`.
 
+
+
 ## Cómo añadir una migración
 
 1. Incrementar `version` en `@Database`.
@@ -121,10 +133,11 @@ En updates, usar `folder.id` / `genre.id` cuando `id != 0`. Resolver por `name` 
 4. Compilar — Room valida contra schema exportado.
 5. Commit del nuevo JSON en `app/schemas/...`.
 
+
+
 ## Tests de DAO
 
 Instrumentados en `app/src/androidTest/.../dao/`:
 
 - `BookDAOTest`, `FolderDAOTest`, `GenreDAOTest`, `ReadingProgressDAOTest`
 
-**Pendiente:** tests de integridad post-update (renombrar carpeta mantiene relaciones).
