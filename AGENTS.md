@@ -74,8 +74,8 @@ Referenciar IDs del backlog cuando existan: `fix: DATA-001 replace breaks FK rel
 
 No reintroducir estos anti-patrones — detalle en [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md):
 
-1. **`@Insert(REPLACE)` en updates** — rompe FK CASCADE (carpetas, géneros, libros).
-2. **Cross-refs solo con INSERT IGNORE** — no elimina relaciones al editar.
+1. **`@Insert(REPLACE)` en updates** — rompe FK CASCADE (carpetas, géneros, libros). (Resueltas instancias anteriores)
+2. **Cross-refs solo con INSERT IGNORE** — no elimina relaciones al editar. (Resuelto instancias anteriores)
 3. **Resolución de carpetas/géneros por nombre** — falla tras renombrar entidades.
 
 ## Producto: libros físicos

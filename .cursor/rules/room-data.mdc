@@ -23,6 +23,8 @@ suspend fun insertFolder(folder: FolderEntity): Long
 
 Entidades afectadas: Book, Folder, Genre, ReadingProgress.
 
+(Incidencia resuelta, ya no hay ninguna instancia de este anti-patron en entidades con FK)
+
 ## Relaciones M:N
 
 Al actualizar relaciones de un libro:
@@ -32,6 +34,8 @@ Al actualizar relaciones de un libro:
 3. Todo en `@Transaction`
 
 `INSERT IGNORE` solo añade — nunca elimina relaciones quitadas.
+
+(Incidencia resuelta, ahora las relaciones si que se modifican correctamente)
 
 ## Resolver por ID
 

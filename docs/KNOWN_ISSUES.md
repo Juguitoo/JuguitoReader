@@ -10,10 +10,10 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 | Severidad    | IDs                                                                              |
 | ------------ | -------------------------------------------------------------------------------- |
 | **Crítico**  | READER-002                                                                       |
-| **Alto**     | DATA-002, DATA-003, DATA-007, DATA-008, FILE-001…004, SEC-001…003, READER-004    |
+| **Alto**     | DATA-003, DATA-007, DATA-008, FILE-001…004, SEC-001…003, READER-004              |
 | **Medio**    | DATA-004, DATA-006, READER-005…011, FILE-005, UX-001, UX-002, PERF-001, ARCH-002 |
 | **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                     |
-| **Resuelto** | READER-001, DATA-001, READER-003                                                 |
+| **Resuelto** | READER-001, DATA-001, READER-003, DATA-002                                       |
 
 
 ---
@@ -45,21 +45,6 @@ Pickers aceptan `application/pdf` pero no hay motor PDF (`PdfRenderer`, pdfium�
 
 
 ## Alto
-
-
-
-### DATA-002 · Cross-refs no se sincronizan al editar libro
-
-
-| Estado | Abierto · v1.2.0 |
-| ------ | ---------------- |
-
-
-`UpdateBookUseCase` solo INSERT IGNORE. No elimina relaciones quitadas en UI.
-
-**Fix:** transacción DELETE + INSERT en junction tables.
-
----
 
 
 
@@ -384,12 +369,29 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 
 
 
-### DATA-001 · `REPLACE` en updates rompe relaciones FK
+### DATA-002 · Cross-refs no se sincronizan al editar libro
 
 
 | Campo      | Valor                 |
 | ---------- | --------------------- |
 | **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `06fe93b`             |
+
+
+`UpdateBookUseCase` solo INSERT IGNORE. No elimina relaciones quitadas en UI.
+
+**Fix:** transacción DELETE + INSERT en junction tables.
+
+---
+
+
+
+### DATA-001 · `REPLACE` en updates rompe relaciones FK
+
+
+| Campo      | Valor                           |
+| ---------- | ------------------------------- |
+| **Estado** | **Resuelto (v1.2.0)**           |
 | **Commit** | `3b6823c`, `ed6a26d`, `41257b4` |
 
 
@@ -404,9 +406,9 @@ Cierra también **READER-003** (progreso usaba `saveBook` → REPLACE).
 ### READER-003 · Actualizar progreso borra metadatos del libro
 
 
-| Campo      | Valor                 |
-| ---------- | --------------------- |
-| **Estado** | **Resuelto (v1.2.0)** |
+| Campo      | Valor                    |
+| ---------- | ------------------------ |
+| **Estado** | **Resuelto (v1.2.0)**    |
 | **Commit** | `41257b4` (vía DATA-001) |
 
 

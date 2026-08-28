@@ -16,7 +16,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | ID         | Tarea                                                                 | Estado | Ref          |
 | ---------- | --------------------------------------------------------------------- | ------ | ------------ |
 | DATA-001   | Separar INSERT / UPDATE en DAOs (Book, Folder, Genre)                 | `[x]`  | KNOWN_ISSUES |
-| DATA-002   | Sync cross-refs en transacción (UpdateBookUseCase)                    | `[ ]`  | KNOWN_ISSUES |
+| DATA-002   | Sync cross-refs en transacción (UpdateBookUseCase)                    | `[x]`  | KNOWN_ISSUES |
 | READER-002 | PDF aceptado en picker pero no soportado — quitar o implementar       | `[ ]`  | KNOWN_ISSUES |
 | READER-003 | UpdateReadingProgressUseCase usa saveBook(REPLACE) → borra relaciones | `[x]`  | KNOWN_ISSUES |
 
@@ -83,11 +83,12 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 ### Resueltos en v1.2.0
 
 
-| ID         | Tarea                                         | Commit / nota                             |
-| ---------- | --------------------------------------------- | ----------------------------------------- |
-| DATA-001   | Separar INSERT / UPDATE (Book, Folder, Genre) | `3b6823c`, `ed6a26d`, `41257b4, 28a89813` |
-| READER-003 | Progress update usaba saveBook(REPLACE)       | `41257b4` (vía DATA-001)                  |
-| READER-001 | `windows.scrollY` → `window.scrollY`          | `737d185`                                 |
+| ID         | Tarea                                              | Commit / nota                              |
+| ---------- | -------------------------------------------------- | ------------------------------------------ |
+| DATA-002   | Sync cross-refs en transacción (UpdateBookUseCase) | `06fe93b`                                  |
+| DATA-001   | Separar INSERT / UPDATE (Book, Folder, Genre)      | `3b6823c`, `ed6a26d`, `41257b4`, `28a8981` |
+| READER-003 | Progress update usaba saveBook(REPLACE)            | `41257b4` (vía DATA-001)                   |
+| READER-001 | `windows.scrollY` → `window.scrollY`               | `737d185`                                  |
 
 
 ---

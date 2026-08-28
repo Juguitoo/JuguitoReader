@@ -99,15 +99,18 @@ Al actualizar relaciones M:N de un libro:
 
 ```kotlin
 @Transaction
-suspend fun updateBookRelations(bookId: Int, folderIds: List<Int>, genreIds: List<Int>) {
-    deleteBookFolderCrossRefs(bookId)
-    deleteBookGenreCrossRefs(bookId)
-    insertBookFolderCrossRefs(...)
-    insertBookGenreCrossRefs(...)
-}
+    suspend fun syncBookCrossRefs(bookId: Int, folderIds: List<Int>, genreIds: List<Int>) {
+        deleteBookFolderCrossRefs(bookId)
+        deleteBookGenreCrossRefs(bookId)
+
+        if (folderIds.isNotEmpty()) insertBookFolderCrossRefs(folderIds.map { BookFolderCrossRef(bookId = bookId, folderId = it) })
+        if (genreIds.isNotEmpty()) insertBookGenreCrossRefs(genreIds.map { BookGenreCrossRef(bookId = bookId, genreId = it) })
+    }
 ```
 
-`INSERT IGNORE` solo añade; **nunca elimina** relaciones quitadas en UI.
+**NO** usar solo `INSERT IGNORE`, esto solo añade relaciones; **nunca elimina** relaciones quitadas en UI. 
+
+Patrón correcto implementado en BookRepository.syncCrossReferences y BookDAO.syncBookCrossRefs
 
 ### 3. Resolver relaciones por ID
 
