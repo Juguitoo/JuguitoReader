@@ -1,0 +1,46 @@
+---
+description: Convenciones de testing en JuguitoReader
+globs: "**/*Test.kt"
+alwaysApply: false
+---
+
+# Testing — JuguitoReader
+
+## Stack
+
+- JUnit 4
+- MockK (`coEvery`, `coVerify`, `mockk`)
+- Turbine (Flows)
+- Truth (assertions)
+- kotlinx-coroutines-test (`runTest`)
+
+## Use case tests
+
+- Mock repositories, no Room real.
+- Cubrir: happy path, validación (campos vacíos), errores de repository.
+- Para bugs de integridad (DATA-001+): añadir tests instrumentados DAO, no solo unit mocks.
+
+## ViewModel tests
+
+- Mock use cases.
+- Turbine para `uiState` y `effect`.
+- Usar `StandardTestDispatcher` / `advanceUntilIdle` cuando aplique.
+
+## Naming
+
+```kotlin
+@Test
+fun `invoke with blank title returns failure`() = runTest { ... }
+```
+
+Descripción en backticks = comportamiento esperado.
+
+## Instrumented
+
+- DAOs: `app/src/androidTest/.../dao/`
+- Compose screens: estado fake, sin Hilt E2E por ahora.
+
+## Al fixear KNOWN_ISSUES
+
+Añadir test de regresión que falle antes del fix y pase después.
+Prioridad: DATA-001 rename folder keeps book relations.

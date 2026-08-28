@@ -1,0 +1,45 @@
+---
+description: Patrones de arquitectura y UI en JuguitoReader
+globs: "**/*.kt"
+alwaysApply: false
+---
+
+# Arquitectura Kotlin — JuguitoReader
+
+## Capas — respetar separación
+
+- **ui/** — Compose, ViewModels. No acceder a DAOs directamente.
+- **domain/** — Models, repository interfaces, use cases. Sin imports Android (salvo excepciones existentes como `@StringRes`).
+- **data/** — Room, mappers, repository impls.
+
+## ViewModel pattern
+
+```kotlin
+private val _internalState = MutableStateFlow<XUiState>(XUiState.Loading)
+val uiState: StateFlow<XUiState> = _internalState.asStateFlow()
+
+private val _effect = Channel<UiEffect>()
+val effect = _effect.receiveAsFlow()
+
+fun onEvent(event: XEvent) { when (event) { ... } }
+```
+
+- Estados sellados: Loading, Success, Error, Empty.
+- Errores al usuario vía `UiText` / `JuguitoException.asUiText()`.
+- Navegación y snackbars: `UiEffect` en Channel, no en UiState.
+
+## Use cases
+
+- Un archivo por operación en `domain/usecase/`.
+- Retorno `Result<T>`. Validación de negocio aquí, no en ViewModel.
+- ViewModels orquestan; use cases contienen reglas.
+
+## Nuevas pantallas
+
+Seguir estructura existente: `Screen.kt`, `ViewModel.kt`, `UiState.kt`, `Event.kt`. Registrar ruta en `ui/navigation/JuguitoApp.kt`.
+
+## No hacer
+
+- Saltarse use cases llamando repositories desde ViewModels.
+- Poner strings de UI hardcodeados (usar strings.xml + UiText).
+- Añadir dependencias sin proponer primero.

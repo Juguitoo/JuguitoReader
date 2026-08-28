@@ -1,0 +1,38 @@
+---
+description: Contexto general de JuguitoReader — stack, estado, modos de colaboración
+alwaysApply: true
+---
+
+# JuguitoReader — Contexto del proyecto
+
+App Android: lector EPUB + gestor de lecturas (digitales y físicos). Pre-release, pruebas cerradas.
+
+## Stack
+
+Kotlin 2.4 · Compose · Material 3 · Hilt · Room v10 · DataStore · Coroutines/Flow
+
+## Arquitectura
+
+Clean Architecture + MVVM. Flujo: ViewModel → UseCase → Repository → DAO.
+
+## Colaboración con Hugo
+
+- Español en comunicación; código en inglés.
+- Modos: SUPERVISOR (orientar), PAIR (paso a paso), WORKER/AGENT (implementar con OK).
+- No implementar código sin confirmación salvo WORKER/AGENT explícito.
+- Commits/PRs: proponer y esperar OK.
+
+## Producto
+
+- Libros físicos (`isPhysical`) son feature permanente — gestor de lecturas, no solo lector.
+- Sin backend en roadmap cercano; eliminar scaffold sync si se toca.
+
+## Documentación
+
+- README.md, AGENTS.md, docs/ARCHITECTURE.md, docs/DATABASE.md, docs/KNOWN_ISSUES.md
+- Antes de tocar Room: leer KNOWN_ISSUES DATA-001 a DATA-004
+- **Mantener docs vivos:** ver docs/MAINTENANCE.md — actualizar al resolver bugs, cambiar ramas o arquitectura; eliminar notas obsoletas, no acumularlas
+
+## Commits
+
+Conventional commits: feat, fix, refactor, enhance, test, docs, chore. Referenciar IDs de BACKLOG.md.

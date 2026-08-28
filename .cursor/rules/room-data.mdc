@@ -1,0 +1,54 @@
+---
+description: Reglas Room y capa data — integridad FK y relaciones M:N
+globs: "app/src/main/java/com/juguito/juguitoreader/data/**"
+alwaysApply: false
+---
+
+# Room & Data Layer — JuguitoReader
+
+## REGLA CRÍTICA: no usar REPLACE para updates
+
+`@Insert(onConflict = OnConflictStrategy.REPLACE)` provoca DELETE+INSERT en SQLite.
+Con FK `ON DELETE CASCADE` en `book_folders` / `book_genres`, **destruye relaciones**.
+
+```kotlin
+// ❌ PROHIBIDO para actualizar entidades existentes
+@Insert(onConflict = OnConflictStrategy.REPLACE)
+suspend fun insertFolder(folder: FolderEntity): Long
+
+// ✅ CORRECTO
+@Insert suspend fun insertFolder(folder: FolderEntity): Long
+@Update suspend fun updateFolder(folder: FolderEntity)
+```
+
+Entidades afectadas: Book, Folder, Genre, ReadingProgress.
+
+## Relaciones M:N
+
+Al actualizar relaciones de un libro:
+
+1. DELETE cross-refs existentes del bookId
+2. INSERT lista nueva
+3. Todo en `@Transaction`
+
+`INSERT IGNORE` solo añade — nunca elimina relaciones quitadas.
+
+## Resolver por ID
+
+En updates de libros, usar `folder.id` / `genre.id` cuando `id != 0`.
+Resolución por `name` solo en import EPUB o creación.
+
+## reading_progress
+
+Sin FK a books en schema v10. Al borrar libro, eliminar progreso explícitamente.
+
+## Migraciones
+
+- Incrementar version en @Database
+- Añadir MIGRATION_X_Y en JuguitoReaderDatabase
+- Registrar en DatabaseModule
+- Commit schema JSON exportado
+
+## Referencia
+
+Detalle completo: docs/KNOWN_ISSUES.md (DATA-001 a DATA-004), docs/DATABASE.md
