@@ -12,6 +12,7 @@ import com.juguito.juguitoreader.domain.usecase.book.AddBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBookFromEpubUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
 import com.juguito.juguitoreader.domain.usecase.genre.GetGenresUseCase
+import com.juguito.juguitoreader.testutil.awaitValue
 import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.utils.FileUtils
@@ -30,9 +31,6 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.yield
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -78,20 +76,6 @@ class AddBookViewModelTest {
         unmockkAll()
     }
 
-    /**
-     * ViewModel work on [Dispatchers.IO] finishes on a real thread pool.
-     * [runTest] virtual time does not advance that work, so we poll on real time.
-     */
-    private suspend fun awaitUiState(predicate: (AddBookUiState) -> Boolean) {
-        withContext(Dispatchers.Default) {
-            withTimeout(5_000) {
-                while (!predicate(viewModel.uiState.value)) {
-                    yield()
-                }
-            }
-        }
-    }
-
     @Test
     fun `onEvent updates draft correctly for all fields`() = runTest {
         viewModel.onEvent(AddBookEvent.OnTitleChanged("Title"))
@@ -123,7 +107,7 @@ class AddBookViewModelTest {
         every { FileUtils.saveImageToInternalStorage(any(), any()) } returns "new/path"
 
         viewModel.onEvent(AddBookEvent.OnCoverUrlChanged("temp/uri"))
-        awaitUiState { it.bookDraft.coverUrl == "new/path" }
+        viewModel.uiState.awaitValue { it.bookDraft.coverUrl == "new/path" }
 
         assertThat(viewModel.uiState.value.bookDraft.coverUrl).isEqualTo("new/path")
     }
@@ -165,7 +149,7 @@ class AddBookViewModelTest {
         coEvery { getBookFromEpubUseCase(any(), any()) } returns book
 
         viewModel.onEvent(AddBookEvent.OnImportEpub(uri))
-        awaitUiState { it.bookDraft.title == "Epub Title" && !it.isLoading }
+        viewModel.uiState.awaitValue { it.bookDraft.title == "Epub Title" && !it.isLoading }
 
         assertThat(viewModel.uiState.value.bookDraft.title).isEqualTo("Epub Title")
         assertThat(viewModel.uiState.value.isLoading).isFalse()

@@ -16,6 +16,7 @@ import com.juguito.juguitoreader.domain.usecase.book.GetBookFromEpubUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
 import com.juguito.juguitoreader.domain.usecase.genre.GetGenresUseCase
+import com.juguito.juguitoreader.testutil.awaitValue
 import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.utils.FileUtils
@@ -58,6 +59,7 @@ class BookDetailViewModelTest {
         Dispatchers.setMain(testDispatcher)
         
         mockkStatic(Uri::class)
+        mockkStatic("androidx.core.net.UriKt")
         val uri = mockk<Uri>(relaxed = true)
         every { Uri.parse(any()) } returns uri
         
@@ -166,13 +168,14 @@ class BookDetailViewModelTest {
     @Test
     fun `onEvent OnCoverUrlChanged updates cover path`() = runTest {
         every { FileUtils.saveImageToInternalStorage(any(), any()) } returns "permanent/path"
-        
+
         viewModel.onEvent(BookDetailEvent.OnCoverUrlChanged("temp/path"))
-        
-        viewModel.uiState.test {
-            val success = awaitItem() as BookDetailUiState.Success
-            assertThat(success.bookDraft.coverUrl).isEqualTo("permanent/path")
+        viewModel.uiState.awaitValue {
+            it is BookDetailUiState.Success && it.bookDraft.coverUrl == "permanent/path"
         }
+
+        val success = viewModel.uiState.value as BookDetailUiState.Success
+        assertThat(success.bookDraft.coverUrl).isEqualTo("permanent/path")
     }
 
     @Test
