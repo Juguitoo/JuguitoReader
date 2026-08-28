@@ -124,7 +124,7 @@ fun EpubWebView(
                                                 if (window.scrollY >= scrollableHeight - 5) {
                                                     scrollPercent = 1.0;
                                                 } else {
-                                                    scrollPercent = windows.scrollY / scrollableHeight;
+                                                    scrollPercent = window.scrollY / scrollableHeight;
                                                 }
                                             }
                                         if (scrollPercent > 1) scrollPercent = 1;
@@ -156,7 +156,7 @@ fun EpubWebView(
                                                 if (window.scrollY >= scrollableHeight - 5) {
                                                     scrollPercent = 1.0;
                                                 } else {
-                                                    scrollPercent = windows.scrollY / scrollableHeight;
+                                                    scrollPercent = window.scrollY / scrollableHeight;
                                                 }
                                             }
                                             scrollPercent = Math.max(0, Math.min(1, scrollPercent));
