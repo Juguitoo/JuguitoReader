@@ -80,4 +80,24 @@ class FolderDAOTest {
         folderDAO.deleteFolderById(1)
         assertThat(folderDAO.getFolderById(1)).isNull()
     }
+
+    @Test
+    fun updateFolder_preservesBookFolderCrossRefs() = runBlocking {
+        val folder = FolderEntity(id = 1, name = "Original", colorHex = "#000", createdAt = 0L)
+        val book = BookEntity(id = 1, title = "B", author = "A", isPhysical = false, createdAt = 0L)
+
+        folderDAO.insertFolder(folder)
+        database.bookDAO.insertBook(book)
+        database.bookDAO.insertBookFolderCrossRefs(listOf(BookFolderCrossRef(bookId = 1, folderId = 1)))
+
+        folderDAO.updateFolder(folder.copy(name = "Renamed"))
+
+        assertThat(folderDAO.getFolderById(1)?.name).isEqualTo("Renamed")
+
+        val bookWithDetails = database.bookDAO.getBookById(1)
+        assertThat(bookWithDetails).isNotNull()
+        assertThat(bookWithDetails?.folders).hasSize(1)
+        assertThat(bookWithDetails?.folders?.first()?.id).isEqualTo(1)
+        assertThat(bookWithDetails?.folders?.first()?.name).isEqualTo("Renamed")
+    }
 }

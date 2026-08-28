@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.juguito.juguitoreader.data.local.entity.FolderEntity
 import com.juguito.juguitoreader.data.local.entity.FolderWithCountEntity
 import kotlinx.coroutines.flow.Flow
@@ -11,11 +12,17 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface FolderDAO {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     suspend fun insertFolder(folder: FolderEntity): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     suspend fun insertFolders(folders: List<FolderEntity>)
+
+    @Update
+    suspend fun updateFolder(folder: FolderEntity)
+
+    @Update
+    suspend fun updateFolders(folders: List<FolderEntity>)
 
     @Query("SELECT * FROM folders WHERE id = :idFolder")
     suspend fun getFolderById(idFolder: Int): FolderEntity?

@@ -8,7 +8,6 @@ import com.juguito.juguitoreader.domain.repository.FolderRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
-import kotlin.collections.map
 
 class FolderRepositoryImpl @Inject constructor(
     private val folderDAO: FolderDAO
@@ -18,7 +17,6 @@ class FolderRepositoryImpl @Inject constructor(
             list.map { it.toDomain() }
         }
     }
-
     override suspend fun getFolderById(id: Int): Folder? {
         return folderDAO.getFolderById(id)?.toDomain()
     }
@@ -27,12 +25,20 @@ class FolderRepositoryImpl @Inject constructor(
         return folderDAO.getFolderByName(name)?.toDomain()
     }
 
-    override suspend fun saveFolder(folder: Folder): Long {
+    override suspend fun insertFolder(folder: Folder): Long {
         return folderDAO.insertFolder(folder.toEntity())
     }
 
-    override suspend fun saveFolders(folders: List<Folder>) {
+    override suspend fun insertFolders(folders: List<Folder>) {
         folderDAO.insertFolders(folders.map{ it.toEntity() })
+    }
+
+    override suspend fun updateFolder(folder: Folder) {
+        folderDAO.updateFolder(folder.toEntity())
+    }
+
+    override suspend fun updateFolders(folders: List<Folder>) {
+        folderDAO.updateFolders(folders.map { it.toEntity() })
     }
 
     override suspend fun deleteFolder(id: Int) {

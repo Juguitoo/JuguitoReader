@@ -11,9 +11,13 @@ interface FolderRepository {
 
     suspend fun getFolderByName(name: String): Folder?
 
-    suspend fun saveFolder(folder: Folder): Long
+    suspend fun insertFolder(folder: Folder): Long
 
-    suspend fun saveFolders(folders: List<Folder>)
+    suspend fun insertFolders(folders: List<Folder>)
+
+    suspend fun updateFolder(folder: Folder)
+
+    suspend fun updateFolders(folders: List<Folder>)
 
     suspend fun deleteFolder(id: Int)
 

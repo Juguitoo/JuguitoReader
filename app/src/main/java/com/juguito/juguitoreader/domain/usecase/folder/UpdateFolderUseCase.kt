@@ -20,7 +20,7 @@ class UpdateFolderUseCase @Inject constructor(
         }
 
         return try {
-            repository.saveFolder(folder)
+            repository.updateFolder(folder)
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()

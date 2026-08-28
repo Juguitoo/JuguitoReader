@@ -22,7 +22,7 @@ class AddFolderUseCase @Inject constructor(
         }
 
         return try{
-            repository.saveFolder(folder)
+            repository.insertFolder(folder)
             Result.success(Unit)
         } catch (e: Exception){
             e.printStackTrace()

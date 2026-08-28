@@ -25,7 +25,9 @@ class AddFolderUseCaseTest {
     @Test
     fun `invoke with empty name returns failure`() = runBlocking {
         val folder = Folder(name = "", colorHex = "#000")
+
         val result = useCase(folder)
+
         assertThat(result.isFailure).isTrue()
         val exception = result.exceptionOrNull() as JuguitoException
         assertThat(exception.resId).isEqualTo(R.string.name_empty_error)
@@ -35,23 +37,23 @@ class AddFolderUseCaseTest {
     fun `invoke with existing name returns failure`() = runBlocking {
         val folder = Folder(name = "Existing", colorHex = "#000")
         coEvery { repository.getFolderByName("Existing") } returns folder
-        
+
         val result = useCase(folder)
-        
+
         assertThat(result.isFailure).isTrue()
         val exception = result.exceptionOrNull() as JuguitoException
         assertThat(exception.resId).isEqualTo(R.string.error_folder_exists)
     }
 
     @Test
-    fun `invoke with valid folder calls save and returns success`() = runBlocking {
+    fun `invoke with valid folder calls insertFolder and returns success`() = runBlocking {
         val folder = Folder(name = "New", colorHex = "#000")
         coEvery { repository.getFolderByName("New") } returns null
-        coEvery { repository.saveFolder(any()) } returns 1L
-        
+        coEvery { repository.insertFolder(any()) } returns 1L
+
         val result = useCase(folder)
-        
+
         assertThat(result.isSuccess).isTrue()
-        coVerify { repository.saveFolder(any()) }
+        coVerify { repository.insertFolder(any()) }
     }
 }

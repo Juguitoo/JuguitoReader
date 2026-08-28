@@ -31,7 +31,7 @@ Ver [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) para detalle de capas y patrone
 ## Requisitos
 
 - Android Studio (AGP 9.3+)
-- JDK 11
+- JDK 17+ (para construir; bytecode de la app sigue en JVM 11)
 - minSdk 26 · targetSdk 37
 
 ## Quick start

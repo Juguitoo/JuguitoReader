@@ -23,7 +23,7 @@ class AddBookUseCase @Inject constructor(
         return try {
             val folderIds = book.folders.map { folder ->
                 val existingFolder = folderRepository.getFolderByName(folder.name)
-                existingFolder?.id ?: folderRepository.saveFolder(folder).toInt()
+                existingFolder?.id ?: folderRepository.insertFolder(folder).toInt()
             }
 
             val genreIds = book.genres.map { genre ->
