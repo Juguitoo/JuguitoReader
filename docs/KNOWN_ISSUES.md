@@ -9,44 +9,18 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 
 | Severidad    | IDs                                                                              |
 | ------------ | -------------------------------------------------------------------------------- |
-| **Crítico**  | READER-002                                                                       |
+| **Crítico**  |                                                                                  |
 | **Alto**     | DATA-003, DATA-007, DATA-008, FILE-001…004, SEC-001…003, READER-004              |
 | **Medio**    | DATA-004, DATA-006, READER-005…011, FILE-005, UX-001, UX-002, PERF-001, ARCH-002 |
 | **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                     |
-| **Resuelto** | READER-001, DATA-001, READER-003, DATA-002                                       |
+| **Resuelto** | READER-002, READER-001, DATA-001, READER-003, DATA-002                           |
 
-
----
-
-
-
-## Crítico
-
-
-
-### READER-002 · PDF aceptado pero no soportado
-
-
-| Campo      | Valor                              |
-| ---------- | ---------------------------------- |
-| **Estado** | Abierto                            |
-| **Target** | v1.2.0                             |
-| **Área**   | Home, Library, AddBook, BookDetail |
-
-
-Pickers aceptan `application/pdf` pero no hay motor PDF (`PdfRenderer`, pdfium…). Todo pasa por `EpubParser` → fallo o comportamiento incorrecto.
-
-**Fix:** quitar PDF de mime types hasta implementarlo, o añadir pipeline PDF explícito.
-
-**Archivos:** `HomeScreen.kt`, `LibraryScreen.kt`, `AddBookScreen.kt`, `BookDetailScreen.kt`.
 
 ---
 
 
 
 ## Alto
-
-
 
 ### DATA-003 · Relaciones resueltas por nombre
 
@@ -60,8 +34,6 @@ Pickers aceptan `application/pdf` pero no hay motor PDF (`PdfRenderer`, pdfium�
 **Fix:** usar `id` cuando `id != 0`.
 
 ---
-
-
 
 ### DATA-007 · Undo delete no restaura daily_reading
 
@@ -367,7 +339,22 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 
 ## Resuelto
 
+### READER-002 · PDF aceptado pero no soportado
 
+
+| Campo      | Valor                              |
+| ---------- | ---------------------------------- |
+| **Estado** | **Resuelto (v1.2.0)**              |
+| **Commit** | `6ac4c4a`                          |
+
+
+Pickers aceptan `application/pdf` pero no hay motor PDF (`PdfRenderer`, pdfium…). Todo pasa por `EpubParser` → fallo o comportamiento incorrecto.
+
+**Fix:** quitar PDF de mime types hasta implementarlo.
+
+**Archivos:** `HomeScreen.kt`, `LibraryScreen.kt`, `AddBookScreen.kt`, `BookDetailScreen.kt`.
+
+---
 
 ### DATA-002 · Cross-refs no se sincronizan al editar libro
 
