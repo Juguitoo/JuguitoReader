@@ -6,7 +6,7 @@ alwaysApply: false
 
 # Room & Data Layer — JuguitoReader
 
-## REGLA CRÍTICA: no usar REPLACE para updates
+## No usar REPLACE para updates (DATA-001)
 
 `@Insert(onConflict = OnConflictStrategy.REPLACE)` provoca DELETE+INSERT en SQLite.
 Con FK `ON DELETE CASCADE` en `book_folders` / `book_genres`, **destruye relaciones**.
@@ -23,9 +23,7 @@ suspend fun insertFolder(folder: FolderEntity): Long
 
 Entidades afectadas: Book, Folder, Genre, ReadingProgress.
 
-(Incidencia resuelta, ya no hay ninguna instancia de este anti-patron en entidades con FK)
-
-## Relaciones M:N
+## Relaciones M:N (DATA-002)
 
 Al actualizar relaciones de un libro:
 
@@ -35,9 +33,7 @@ Al actualizar relaciones de un libro:
 
 `INSERT IGNORE` solo añade — nunca elimina relaciones quitadas.
 
-(Incidencia resuelta, ahora las relaciones si que se modifican correctamente)
-
-## Resolver por ID
+## Resolver por ID (DATA-003)
 
 En updates de libros, usar `folder.id` / `genre.id` cuando `id != 0`.
 Resolución por `name` solo en import EPUB o creación.

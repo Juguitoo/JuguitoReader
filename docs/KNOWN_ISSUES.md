@@ -10,10 +10,10 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 | Severidad    | IDs                                                                              |
 | ------------ | -------------------------------------------------------------------------------- |
 | **Crítico**  |                                                                                  |
-| **Alto**     | DATA-003, DATA-007, DATA-008, FILE-001…004, SEC-001…003, READER-004              |
+| **Alto**     | DATA-007, DATA-008, FILE-001…004, SEC-001…003, READER-004                        |
 | **Medio**    | DATA-004, DATA-006, READER-005…011, FILE-005, UX-001, UX-002, PERF-001, ARCH-002 |
 | **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                     |
-| **Resuelto** | READER-002, READER-001, DATA-001, READER-003, DATA-002                           |
+| **Resuelto** | DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002                 |
 
 
 ---
@@ -21,19 +21,6 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 
 
 ## Alto
-
-### DATA-003 · Relaciones resueltas por nombre
-
-
-| Estado | Abierto · v1.2.0 |
-| ------ | ---------------- |
-
-
-`getFolderByName` / `getGenreByName` en Add/UpdateBook. Tras renombrar entidad, libro en memoria con nombre viejo → duplicados o enlaces rotos.
-
-**Fix:** usar `id` cuando `id != 0`.
-
----
 
 ### DATA-007 · Undo delete no restaura daily_reading
 
@@ -339,13 +326,30 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 
 ## Resuelto
 
+### DATA-003 · Relaciones resueltas por nombre
+
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `901ad24`, `d26e95c`  |
+
+
+`getFolderByName` / `getGenreByName` en Add/UpdateBook. Tras renombrar entidad, libro en memoria con nombre viejo → duplicados o enlaces rotos.
+
+**Fix:** usar `id` cuando `id != 0`.
+
+---
+
+
+
 ### READER-002 · PDF aceptado pero no soportado
 
 
-| Campo      | Valor                              |
-| ---------- | ---------------------------------- |
-| **Estado** | **Resuelto (v1.2.0)**              |
-| **Commit** | `6ac4c4a`                          |
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `6ac4c4a`             |
 
 
 Pickers aceptan `application/pdf` pero no hay motor PDF (`PdfRenderer`, pdfium…). Todo pasa por `EpubParser` → fallo o comportamiento incorrecto.
@@ -355,6 +359,8 @@ Pickers aceptan `application/pdf` pero no hay motor PDF (`PdfRenderer`, pdfium�
 **Archivos:** `HomeScreen.kt`, `LibraryScreen.kt`, `AddBookScreen.kt`, `BookDetailScreen.kt`.
 
 ---
+
+
 
 ### DATA-002 · Cross-refs no se sincronizan al editar libro
 
