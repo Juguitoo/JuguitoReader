@@ -10,10 +10,10 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 | Severidad    | IDs                                                                                  |
 | ------------ | ------------------------------------------------------------------------------------ |
 | **Crítico**  |                                                                                      |
-| **Alto**     | DATA-007, DATA-008, FILE-003…004, SEC-001…003, READER-004                            |
+| **Alto**     | DATA-007, DATA-008, FILE-004, SEC-001…003, READER-004                                |
 | **Medio**    | DATA-004, DATA-006, READER-005…011, FILE-005, UX-001, UX-002, PERF-001, ARCH-002     |
 | **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                         |
-| **Resuelto** | FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
+| **Resuelto** | FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
 
 
 ---
@@ -47,17 +47,6 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 
 
 AddBookUseCase / UpdateBookUseCase: múltiples writes sin `@Transaction`. Fallo intermedio → BD inconsistente.
-
----
-
-### FILE-003 · Parse EPUB puede bloquear UI
-
-
-| Estado | Abierto · v1.2.0 |
-| ------ | ---------------- |
-
-
-`ParseEpubUseCase` llama `EpubParser.extractFullContent` sin `withContext(Dispatchers.IO)`.
 
 ---
 
@@ -295,6 +284,25 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 
 
 ## Resuelto
+
+### FILE-003 · Parse EPUB puede bloquear UI
+
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `7f4cf25`, `1bbe4fb` |
+
+
+`ParseEpubUseCase` y `GetBookFromEpubUseCase` ejecutaban unzip/parse/copy en el hilo Main → ANR o tirones al abrir lector o importar desde Home/Library.
+
+**Fix:** `withContext(Dispatchers.IO)` en ambos use cases; `GetBookFromEpubUseCase` pasa a `suspend`. ViewModels de Add/Detail dejan de envolver redundante.
+
+**Test:** `ParseEpubUseCaseTest`, `GetBookFromEpubUseCaseTest`, `ImportBookFromUriUseCaseTest`, `BookDetailViewModelTest`.
+
+---
+
+
 
 ### FILE-001 · Mezcla content:// y path filesystem
 

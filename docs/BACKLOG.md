@@ -31,7 +31,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | DATA-003   | Resolver relaciones por ID, no por nombre                       | `[x]`  | KNOWN_ISSUES |
 | FILE-001   | Mezcla content:// URI vs path en filesystem                     | `[x]`  | KNOWN_ISSUES |
 | FILE-002   | BookDetail guarda URI en vez de path interno al reemplazar EPUB | `[x]`  | KNOWN_ISSUES |
-| FILE-003   | ParseEpubUseCase / extractFullContent sin Dispatchers.IO        | `[ ]`  | KNOWN_ISSUES |
+| FILE-003   | ParseEpubUseCase / extractFullContent sin Dispatchers.IO        | `[x]`  | KNOWN_ISSUES |
 | SEC-001    | WebView + file:// + allowFileAccess — usar WebViewAssetLoader   | `[ ]`  | KNOWN_ISSUES |
 | SEC-002    | Zip bomb — limitar tamaño/descompresión en EpubParser           | `[ ]`  | KNOWN_ISSUES |
 | SEC-003    | Path traversal tras unzip (canonicalPath)                       | `[ ]`  | KNOWN_ISSUES |
@@ -85,6 +85,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 
 | ID         | Tarea                                                                           | Commit / nota                              |
 | ---------- | ------------------------------------------------------------------------------- | ------------------------------------------ |
+| FILE-003   | Parse/import EPUB I/O en Dispatchers.IO (lector + Home/Library)                 | `7f4cf25`, `1bbe4fb`                       |
 | FILE-002   | BookDetail guarda URI en vez de path interno al reemplazar EPUB                 | `8cf2a86`, `32e8d83`                       |
 | FILE-001   | Mezcla content:// URI vs path en filesystem                                     | `906b659`, `32e8d83`                       |
 | DATA-003   | Resolver relaciones por ID, no por nombre                                       | `901ad24`, `d26e95c`                       |
