@@ -5,7 +5,7 @@ import android.net.Uri
 import com.google.common.truth.Truth.assertThat
 import com.juguito.juguitoreader.domain.model.Book
 import io.mockk.coEvery
-import io.mockk.every
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -27,11 +27,13 @@ class ImportBookFromUriUseCaseTest {
     @Test
     fun `invoke calls getBookFromEpub and addBook`() = runTest {
         val book = Book(title = "T", author = "A", isPhysical = false)
-        every { getBookFromEpubUseCase(any(), any()) } returns book
+        coEvery { getBookFromEpubUseCase(any(), any()) } returns book
         coEvery { addBookUseCase(any()) } returns Result.success(Unit)
-        
+
         val result = useCase(context, uri)
-        
+
         assertThat(result.isSuccess).isTrue()
+        coVerify { getBookFromEpubUseCase(context, uri) }
+        coVerify { addBookUseCase(book) }
     }
 }

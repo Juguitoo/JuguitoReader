@@ -241,7 +241,7 @@ class BookDetailViewModelTest {
         loadDigitalBookWithPath("/data/files/persisted.epub")
         val pickerUri = mockk<Uri>(relaxed = true)
         every { pickerUri.toString() } returns "content://documents/book.epub"
-        every { getBookFromEpubUseCase(any(), any()) } returns Book(
+        coEvery { getBookFromEpubUseCase(any(), any()) } returns Book(
             title = "Title",
             author = "Author",
             isPhysical = false,
@@ -265,7 +265,7 @@ class BookDetailViewModelTest {
     @Test
     fun `onEvent OnEpubFilePicked shows snackbar on failure and keeps previous path`() = runTest {
         loadDigitalBookWithPath("/data/files/persisted.epub")
-        every { getBookFromEpubUseCase(any(), any()) } throws JuguitoException(R.string.error_copy_epub)
+        coEvery { getBookFromEpubUseCase(any(), any()) } throws JuguitoException(R.string.error_copy_epub)
 
         viewModel.onEvent(BookDetailEvent.OnEpubFilePicked(mockk(relaxed = true)))
 
@@ -285,7 +285,7 @@ class BookDetailViewModelTest {
     @Test
     fun `onEvent OnEpubFilePicked deletes previous draft-only path but not persisted`() = runTest {
         loadDigitalBookWithPath("/data/files/persisted.epub")
-        every { getBookFromEpubUseCase(any(), any()) } returnsMany listOf(
+        coEvery { getBookFromEpubUseCase(any(), any()) } returnsMany listOf(
             Book(title = "Title", author = "Author", isPhysical = false, localFilePath = "/data/files/temp1.epub"),
             Book(title = "Title", author = "Author", isPhysical = false, localFilePath = "/data/files/temp2.epub")
         )
@@ -320,7 +320,7 @@ class BookDetailViewModelTest {
     @Test
     fun `onEvent OnSaveClick deletes previous persisted epub when path changed`() = runTest {
         loadDigitalBookWithPath("/data/files/persisted.epub")
-        every { getBookFromEpubUseCase(any(), any()) } returns Book(
+        coEvery { getBookFromEpubUseCase(any(), any()) } returns Book(
             title = "Title",
             author = "Author",
             isPhysical = false,
