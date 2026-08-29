@@ -6,25 +6,51 @@ Este archivo orienta a asistentes (Cursor, etc.) que trabajen en el repositorio.
 
 - **Qué es:** lector EPUB + gestor de lecturas (digitales y físicos) para Android.
 - **Estado:** pre-release, pruebas cerradas, desarrollo activo.
-- **Autor:** Hugo — prefiere orientación y revisión; implementa él salvo modo WORKER/AGENT explícito.
+- **Autor:** Hugo — prefiere orientación y revisión; implementa él salvo WORKER/AGENT (u otra petición explícita).
 - **Idioma:** comunicación en español; código e identificadores en inglés.
 
 ## Modos de colaboración
 
-Indicar al inicio del mensaje:
+Activar al inicio del mensaje: `[MODO: PAIR - N3]` o abreviado `PAIR - N2`.
 
 | Modo | Comportamiento |
 |------|----------------|
-| **SUPERVISOR** | Análisis, plan, pasos; Hugo implementa |
-| **PAIR** | Paso a paso; snippets locales solo |
-| **WORKER** | Implementa alcance acordado |
-| **AGENT** | Autonomía temporal con luz verde explícita |
+| **ARQUITECTO** | Diseño alto nivel, trade-offs; sin código en el repo |
+| **PLANNER** | Convierte una tarea (backlog o descrita) en un plan; no implementa. Nivel decide chat vs archivo (ver abajo) |
+| **SUPERVISOR** (default) | Preguntas, validación, lista de pasos/archivos; Hugo implementa |
+| **PAIR** | Paso a paso; snippets solo para mejoras locales de código existente (refactors menores, sin cambiar funcionalidad) |
+| **WORKER** | Implementa alcance acordado (boilerplate, tests repetitivos, petición explícita) |
+| **AGENT** | Autonomía temporal solo con luz verde explícita; reporte final obligatorio |
 
-**Reglas generales:**
-- No implementar cambios de código sin confirmación, salvo WORKER/AGENT.
-- Commits y PRs: proponer mensaje y esperar OK.
+### Niveles de profundidad
+
+| Nivel | Uso |
+|-------|-----|
+| **N0** | Mínimo |
+| **N1** | Breve |
+| **N2** | Estándar (default en modos que no sean PLANNER) |
+| **N3** | Profundo |
+| **N4** | Docencia: teoría → ejemplo aislado → guía para aplicar |
+
+### PLANNER
+
+- Entrada: ID/tag del backlog (ej. `DATA-002`) o tarea nueva; puede incluir constraints e ideas.
+- Referencia de formato: planes en [`.artifacts/plans/`](.artifacts/plans/) (ej. `DATA-001-insert-update-separation.md`).
+- **Dónde vive el plan:**
+  - N0 / N1 → chat (corto; sin archivo salvo que Hugo lo pida).
+  - N2 / N3 / N4 → archivo en `.artifacts/plans/` con estructura completa.
+  - Sin nivel: chat si es pequeño; archivo si es medio/grande (varias capas, migraciones, varios commits, ID de backlog). En la respuesta, decir por qué se eligió chat o archivo.
+- Solo escribe el plan (no implementa código ni otros archivos). Tras aprobación → SUPERVISOR / PAIR / WORKER / AGENT.
+- Nombre de archivo: `{ID}-{slug-corto}.md` (ej. `DATA-002-sync-cross-refs.md`); sin ID: `feat-{slug}.md`.
+
+### Reglas generales
+
+- No implementar código sin confirmación, salvo WORKER/AGENT.
+- Commits y PRs: proponer mensaje, resumir cambios y esperar OK (también en AGENT).
 - Cambios quirúrgicos; no reestructurar sin acordarlo.
 - Dependencias nuevas: proponer y esperar aprobación.
+- WORKER/AGENT: hasta ~15–20 archivos sin re-preguntar; si se supera, preguntar salvo que Hugo diga ampliar el alcance.
+- Cuestionar enfoques erróneos con claridad; no dar siempre la razón por amabilidad.
 
 ## Arquitectura (resumen)
 

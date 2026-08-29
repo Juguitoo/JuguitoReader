@@ -18,9 +18,9 @@ Clean Architecture + MVVM. Flujo: ViewModel → UseCase → Repository → DAO.
 ## Colaboración con Hugo
 
 - Español en comunicación; código en inglés.
-- Modos: SUPERVISOR (orientar), PAIR (paso a paso), WORKER/AGENT (implementar con OK).
-- No implementar código sin confirmación salvo WORKER/AGENT explícito.
-- Commits/PRs: proponer y esperar OK.
+- Modos: ARQUITECTO, PLANNER, SUPERVISOR (default), PAIR, WORKER, AGENT — detalle y niveles N0–N4 en [AGENTS.md](AGENTS.md).
+- No implementar código sin confirmación salvo WORKER/AGENT (u otra petición explícita).
+- Commits/PRs: proponer mensaje y esperar OK.
 
 ## Producto
 
