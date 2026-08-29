@@ -17,9 +17,10 @@ import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
 import com.juguito.juguitoreader.domain.usecase.genre.GetGenresUseCase
 import com.juguito.juguitoreader.ui.book.state.BookDraftState
-import com.juguito.juguitoreader.ui.common.UiText
+import com.juguito.juguitoreader.ui.common.UiText.StringResource
 import com.juguito.juguitoreader.ui.common.asUiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
+import com.juguito.juguitoreader.ui.common.interfaces.UiEffect.ShowSnackbar
 import com.juguito.juguitoreader.utils.FileUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -63,7 +64,7 @@ class BookDetailViewModel @Inject constructor(
     private fun loadAvailableData() {
         viewModelScope.launch {
             getFoldersUseCase()
-                .catch { error -> _effect.send(UiEffect.ShowSnackbar(error.asUiText())) }
+                .catch { error -> _effect.send(ShowSnackbar(error.asUiText())) }
                 .collect { folders ->
                     availableFolders = folders
                     updateSuccessState { it.copy(availableFolders = folders) }
@@ -71,7 +72,7 @@ class BookDetailViewModel @Inject constructor(
         }
         viewModelScope.launch {
             getGenresUseCase()
-                .catch { error -> _effect.send(UiEffect.ShowSnackbar(error.asUiText())) }
+                .catch { error -> _effect.send(ShowSnackbar(error.asUiText())) }
                 .collect { genres ->
                     availableGenres = genres
                     updateSuccessState { it.copy(availableGenres = genres) }
@@ -109,7 +110,7 @@ class BookDetailViewModel @Inject constructor(
                         availableGenres = availableGenres
                     )
                 } else {
-                    _uiState.value = BookDetailUiState.Error(UiText.StringResource(R.string.error_epub_not_found).asString(application))
+                    _uiState.value = BookDetailUiState.Error(StringResource(R.string.error_epub_not_found).asString(application))
                 }
             }.onFailure { exception ->
                 exception.printStackTrace()
@@ -150,24 +151,46 @@ class BookDetailViewModel @Inject constructor(
                     }
                 }
             }
-            is BookDetailEvent.OnLocalFilePathChanged -> {
-                if (event.localFilePath == null) {
-                    updateSuccessState { it.copy(bookDraft = it.bookDraft.copy(localFilePath = null)) }
-                } else {
-                    viewModelScope.launch {
-                        updateSuccessState { it.copy(isActionLoading = true) }
-                        val bookMetadata = withContext(Dispatchers.IO) {
-                            getBookFromEpubUseCase(application, event.localFilePath.toUri())
+            is BookDetailEvent.OnEpubFilePicked -> {
+                viewModelScope.launch {
+                    updateSuccessState { it.copy(isActionLoading = true) }
+                    runCatching {
+                        withContext(Dispatchers.IO) {
+                            getBookFromEpubUseCase(application, event.uri)
                         }
+                    }.onSuccess { bookMetadata ->
+                        val success = _uiState.value as? BookDetailUiState.Success
+                        val previousPath = success?.bookDraft?.localFilePath
+                        val persistedPath = success?.book?.localFilePath
+                        val newPath = bookMetadata.localFilePath
                         updateSuccessState {
                             it.copy(
                                 isActionLoading = false,
                                 bookDraft = it.bookDraft.copy(
-                                    localFilePath = event.localFilePath,
+                                    localFilePath = bookMetadata.localFilePath,
                                     coverUrl = bookMetadata.coverUrl ?: it.bookDraft.coverUrl
                                 )
                             )
                         }
+                        if (previousPath != null && previousPath != newPath && previousPath != persistedPath) {
+                            withContext(Dispatchers.IO) {
+                                FileUtils.deleteFileFromInternalStorage(application, previousPath)
+                            }
+                        }
+                    }.onFailure {
+                        updateSuccessState { it.copy(isActionLoading = false) }
+                        _effect.send(ShowSnackbar(StringResource(R.string.error_copy_epub)))
+                    }
+                }
+            }
+            is BookDetailEvent.OnLocalFilePathChanged -> {
+                val success = _uiState.value as? BookDetailUiState.Success
+                val previousPath = success?.bookDraft?.localFilePath
+                val persistedPath = success?.book?.localFilePath
+                updateSuccessState { it.copy(bookDraft = it.bookDraft.copy(localFilePath = null)) }
+                if (previousPath != null && previousPath != persistedPath) {
+                    viewModelScope.launch(Dispatchers.IO) {
+                        FileUtils.deleteFileFromInternalStorage(application, previousPath)
                     }
                 }
             }
@@ -247,11 +270,11 @@ class BookDetailViewModel @Inject constructor(
         val draft = current.bookDraft
 
         if (draft.title.isBlank()) {
-            viewModelScope.launch { _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.error_title_empty))) }
+            viewModelScope.launch { _effect.send(ShowSnackbar(StringResource(R.string.error_title_empty))) }
             return
         }
         if (draft.author.isBlank()) {
-            viewModelScope.launch { _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.error_author_empty))) }
+            viewModelScope.launch { _effect.send(ShowSnackbar(StringResource(R.string.error_author_empty))) }
             return
         }
 
@@ -282,6 +305,13 @@ class BookDetailViewModel @Inject constructor(
 
             result.fold(
                 onSuccess = {
+                    val oldPath = current.book.localFilePath
+                    val newPath = updatedBook.localFilePath
+                    if (oldPath != null && oldPath != newPath) {
+                        withContext(Dispatchers.IO) {
+                            FileUtils.deleteFileFromInternalStorage(application, oldPath)
+                        }
+                    }
                     updateSuccessState {
                         it.copy(
                             isActionLoading = false,
@@ -289,11 +319,11 @@ class BookDetailViewModel @Inject constructor(
                             book = updatedBook
                         )
                     }
-                    _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.save_success)))
+                    _effect.send(ShowSnackbar(StringResource(R.string.save_success)))
                 },
                 onFailure = { exception ->
                     updateSuccessState { it.copy(isActionLoading = false) }
-                    _effect.send(UiEffect.ShowSnackbar(exception.asUiText()))
+                    _effect.send(ShowSnackbar(exception.asUiText()))
                 }
             )
         }
