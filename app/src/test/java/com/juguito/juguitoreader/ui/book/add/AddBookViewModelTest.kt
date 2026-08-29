@@ -2,6 +2,7 @@ package com.juguito.juguitoreader.ui.book.add
 
 import android.app.Application
 import android.net.Uri
+import androidx.core.net.toUri
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.juguito.juguitoreader.R
@@ -106,7 +107,7 @@ class AddBookViewModelTest {
     fun `onEvent OnCoverUrlChanged calls FileUtils and updates draft`() = runTest {
         every { FileUtils.saveImageToInternalStorage(any(), any()) } returns "new/path"
 
-        viewModel.onEvent(AddBookEvent.OnCoverUrlChanged("temp/uri"))
+        viewModel.onEvent(AddBookEvent.OnCoverUrlChanged("temp/uri".toUri()))
         viewModel.uiState.awaitValue { it.bookDraft.coverUrl == "new/path" }
 
         assertThat(viewModel.uiState.value.bookDraft.coverUrl).isEqualTo("new/path")

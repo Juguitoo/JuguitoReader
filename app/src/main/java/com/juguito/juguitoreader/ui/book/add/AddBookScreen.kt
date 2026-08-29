@@ -125,7 +125,7 @@ fun AddBookContent(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
             uri?.let {
-                onEvent(AddBookEvent.OnCoverUrlChanged(it.toString()))
+                onEvent(AddBookEvent.OnCoverUrlChanged(it))
             }
         }
     )
@@ -135,7 +135,7 @@ fun AddBookContent(
         onResult = { success ->
             if (success) {
                 tempCameraUri?.let {
-                    onEvent(AddBookEvent.OnCoverUrlChanged(it.toString()))
+                    onEvent(AddBookEvent.OnCoverUrlChanged(it))
                 }
             }
         }
@@ -145,8 +145,7 @@ fun AddBookContent(
         contract = ActivityResultContracts.OpenDocument(),
         onResult = { uri ->
             uri?.let {
-                context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                onEvent(AddBookEvent.OnLocalFilePathChanged(it.toString()))
+                onEvent(AddBookEvent.OnEpubFilePicked(it))
             }
         }
     )

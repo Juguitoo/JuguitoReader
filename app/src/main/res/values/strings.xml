@@ -147,7 +147,9 @@
     <string name="error_author_empty">El autor del libro no puede estar vacío.</string>
     <string name="error_save_book">Error al guardar el libro: %s</string>
     <string name="error_epub_not_found">El libro del fichero epub no existe.</string>
-    <string name="error_epub_extraction">Ha ocurrido un error al extraer los datos del fichero epub. Intentalo de nuevo reemplazando el fichero epub por otro distinto.</string>
+    <string name="error_copy_epub">No se pudo copiar el fichero EPUB.</string>
+    <string name="error_copy_cover">No se pudo copiar el fichero de portada.</string>
+    <string name="error_epub_extraction">Ha ocurrido un error al extraer los datos del fichero epub. Inténtalo de nuevo reemplazando el fichero epub por otro distinto.</string>
     <string name="error_genre_empty">El nombre del género no puede estar vacio.</string>
     <string name="error_genre_exists">Ya existe un género llamado \'%s\'.</string>
     <string name="error_delete_book">Error al borrar el libro</string>

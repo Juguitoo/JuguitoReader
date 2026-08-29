@@ -11,8 +11,9 @@ sealed interface AddBookEvent {
     data class OnSeriesChanged(val series: String): AddBookEvent
     data class OnSeriesOrderChanged(val seriesOrder: String): AddBookEvent
     data class OnIsPhysicalChanged(val isPhysical: Boolean): AddBookEvent
-    data class OnCoverUrlChanged(val coverUrl: String): AddBookEvent
+    data class OnCoverUrlChanged(val uri: Uri): AddBookEvent
     data class OnLocalFilePathChanged(val localFilePath: String?): AddBookEvent
+    data class OnEpubFilePicked(val uri: Uri): AddBookEvent
     data class OnFoldersChanged(val folders: List<Folder>): AddBookEvent
     data class OnGenresChanged(val genres: List<Genre>): AddBookEvent
     data class OnImportEpub(val uri: Uri): AddBookEvent

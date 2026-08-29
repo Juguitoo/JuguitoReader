@@ -4,28 +4,27 @@ import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.usecase.book.AddBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBookFromEpubUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
 import com.juguito.juguitoreader.domain.usecase.genre.GetGenresUseCase
-import com.juguito.juguitoreader.utils.FileUtils
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import androidx.core.net.toUri
-import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.asUiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
+import com.juguito.juguitoreader.utils.FileUtils
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 @HiltViewModel
 class AddBookViewModel @Inject constructor(
@@ -107,11 +106,31 @@ class AddBookViewModel @Inject constructor(
             is AddBookEvent.OnCoverUrlChanged -> {
                 viewModelScope.launch {
                     val permanentPath = withContext(Dispatchers.IO) {
-                        FileUtils.saveImageToInternalStorage(application, event.coverUrl.toUri())
+                        FileUtils.saveImageToInternalStorage(application, event.uri)
                     }
                     if (permanentPath != null) {
                         _uiState.value = _uiState.value.copy(
                             bookDraft = _uiState.value.bookDraft.copy(coverUrl = permanentPath)
+                        )
+                    } else {
+                        _effect.send(
+                            UiEffect.ShowSnackbar(UiText.StringResource(R.string.error_copy_epub))
+                        )
+                    }
+                }
+            }
+            is AddBookEvent.OnEpubFilePicked -> {
+                viewModelScope.launch {
+                    val permanentPath = withContext(Dispatchers.IO) {
+                        FileUtils.saveBookToInternalStorage(application, event.uri)
+                    }
+                    if (permanentPath != null) {
+                        _uiState.value = _uiState.value.copy(
+                            bookDraft = _uiState.value.bookDraft.copy(localFilePath = permanentPath)
+                        )
+                    } else {
+                        _effect.send(
+                            UiEffect.ShowSnackbar(UiText.StringResource(R.string.error_copy_epub))
                         )
                     }
                 }
