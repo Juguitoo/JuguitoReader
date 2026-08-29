@@ -21,15 +21,8 @@ class UpdateBookUseCase @Inject constructor(
         }
 
         return try {
-            val folderIds = book.folders.map { folder ->
-                val existingFolder = folderRepository.getFolderByName(folder.name)
-                existingFolder?.id ?: folderRepository.insertFolder(folder).toInt()
-            }
-
-            val genreIds = book.genres.map { genre ->
-                val existingGenre = genreRepository.getGenreByName(genre.name)
-                existingGenre?.id ?: genreRepository.insertGenre(genre).toInt()
-            }
+            val folderIds = resolveFolderIds(book.folders, folderRepository)
+            val genreIds = resolveGenreIds(book.genres, genreRepository)
 
             bookRepository.updateBook(book)
 
