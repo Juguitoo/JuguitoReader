@@ -114,9 +114,37 @@ class AddBookViewModelTest {
     }
 
     @Test
-    fun `onEvent OnLocalFilePathChanged updates draft`() = runTest {
+    fun `onEvent OnLocalFilePathChanged null clears draft path`() = runTest {
         viewModel.onEvent(AddBookEvent.OnLocalFilePathChanged("local/path"))
-        assertThat(viewModel.uiState.value.bookDraft.localFilePath).isEqualTo("local/path")
+        viewModel.onEvent(AddBookEvent.OnLocalFilePathChanged(null))
+        assertThat(viewModel.uiState.value.bookDraft.localFilePath).isNull()
+    }
+
+    @Test
+    fun `onEvent OnEpubFilePicked copies to internal path and updates draft`() = runTest {
+        val uri = mockk<Uri>(relaxed = true)
+        every { FileUtils.saveBookToInternalStorage(any(), any()) } returns "/data/files/book_1.epub"
+
+        viewModel.onEvent(AddBookEvent.OnEpubFilePicked(uri))
+        viewModel.uiState.awaitValue { it.bookDraft.localFilePath == "/data/files/book_1.epub" }
+
+        assertThat(viewModel.uiState.value.bookDraft.localFilePath).isEqualTo("/data/files/book_1.epub")
+        assertThat(viewModel.uiState.value.bookDraft.localFilePath).doesNotContain("content://")
+    }
+
+    @Test
+    fun `onEvent OnEpubFilePicked shows snackbar when copy fails and keeps previous path`() = runTest {
+        viewModel.onEvent(AddBookEvent.OnLocalFilePathChanged("/data/files/existing.epub"))
+        every { FileUtils.saveBookToInternalStorage(any(), any()) } returns null
+
+        viewModel.onEvent(AddBookEvent.OnEpubFilePicked(mockk(relaxed = true)))
+
+        viewModel.effect.test {
+            val effect = awaitItem() as UiEffect.ShowSnackbar
+            val uiText = effect.message as UiText.StringResource
+            assertEquals(R.string.error_copy_epub, uiText.resId)
+        }
+        assertThat(viewModel.uiState.value.bookDraft.localFilePath).isEqualTo("/data/files/existing.epub")
     }
 
     @Test
