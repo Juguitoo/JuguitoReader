@@ -189,7 +189,7 @@ fun HomeContent(
                     },
                     actions = {
                         IconButton(onClick = {
-                            documentPickerLauncher.launch(arrayOf("application/epub+zip", "application/pdf"))
+                            documentPickerLauncher.launch(arrayOf("application/epub+zip"))
                         }) {
                             Icon(
                                 imageVector = Icons.Default.UploadFile,
@@ -229,7 +229,7 @@ fun HomeContent(
                     EmptyLibraryView(
                         onNavigateToAddBook = onNavigateToAddBook,
                         onImportClick = {
-                            documentPickerLauncher.launch(arrayOf("application/epub+zip", "application/pdf"))
+                            documentPickerLauncher.launch(arrayOf("application/epub+zip"))
                         }
                     )
                 }
@@ -253,8 +253,7 @@ fun HomeContent(
                                         onImportClick = {
                                             documentPickerLauncher.launch(
                                                 arrayOf(
-                                                    "application/epub+zip",
-                                                    "application/pdf"
+                                                    "application/epub+zip"
                                                 )
                                             )
                                         },
@@ -288,8 +287,7 @@ fun HomeContent(
                                         onImportClick = {
                                             documentPickerLauncher.launch(
                                                 arrayOf(
-                                                    "application/epub+zip",
-                                                    "application/pdf"
+                                                    "application/epub+zip"
                                                 )
                                             )
                                         },

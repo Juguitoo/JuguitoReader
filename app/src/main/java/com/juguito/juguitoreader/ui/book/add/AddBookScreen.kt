@@ -170,7 +170,7 @@ fun AddBookContent(
             confirmButtonText = stringResource(R.string.import_text),
             onConfirm = {
                 showImportDialog = false
-                documentPickerLauncher.launch(arrayOf("application/epub+zip", "application/pdf"))
+                documentPickerLauncher.launch(arrayOf("application/epub+zip"))
             },
             dismissButtonText = stringResource(R.string.cancel),
         )
@@ -491,7 +491,7 @@ fun AddBookContent(
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 OutlinedButton(
                                     onClick = {
-                                        basicDocumentLauncher.launch(arrayOf("application/epub+zip", "application/pdf"))
+                                        basicDocumentLauncher.launch(arrayOf("application/epub+zip"))
                                     },
                                     modifier = Modifier.height(30.dp).weight(1f),
                                     shape = RoundedCornerShape(8.dp),

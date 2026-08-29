@@ -323,8 +323,7 @@ fun BookDetailContent(
                                     onPickFile = {
                                         documentPickerLauncher.launch(
                                             arrayOf(
-                                                "application/epub+zip",
-                                                "application/pdf"
+                                                "application/epub+zip"
                                             )
                                         )
                                     },

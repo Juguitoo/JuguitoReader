@@ -200,7 +200,7 @@ fun LibraryContent(
                             Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_hint))
                         }
                         IconButton(onClick = {
-                            documentPickerLauncher.launch(arrayOf("application/epub+zip", "application/pdf"))
+                            documentPickerLauncher.launch(arrayOf("application/epub+zip"))
                         }) {
                             Icon(
                                 imageVector = Icons.Default.UploadFile,
@@ -307,7 +307,7 @@ fun LibraryContent(
                             EmptyLibraryView(
                                 onNavigateToAddBook = onNavigateToAddBook,
                                 onImportClick = {
-                                    documentPickerLauncher.launch(arrayOf("application/epub+zip", "application/pdf"))
+                                    documentPickerLauncher.launch(arrayOf("application/epub+zip"))
                                 },
                                 modifier = Modifier.align(Alignment.Center)
                             )
