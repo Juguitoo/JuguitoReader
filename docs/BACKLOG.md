@@ -29,8 +29,8 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | ID         | Tarea                                                           | Estado | Ref          |
 | ---------- | --------------------------------------------------------------- | ------ | ------------ |
 | DATA-003   | Resolver relaciones por ID, no por nombre                       | `[x]`  | KNOWN_ISSUES |
-| FILE-001   | Mezcla content:// URI vs path en filesystem                     | `[ ]`  | KNOWN_ISSUES |
-| FILE-002   | BookDetail guarda URI en vez de path interno al reemplazar EPUB | `[ ]`  | KNOWN_ISSUES |
+| FILE-001   | Mezcla content:// URI vs path en filesystem                     | `[x]`  | KNOWN_ISSUES |
+| FILE-002   | BookDetail guarda URI en vez de path interno al reemplazar EPUB | `[x]`  | KNOWN_ISSUES |
 | FILE-003   | ParseEpubUseCase / extractFullContent sin Dispatchers.IO        | `[ ]`  | KNOWN_ISSUES |
 | SEC-001    | WebView + file:// + allowFileAccess — usar WebViewAssetLoader   | `[ ]`  | KNOWN_ISSUES |
 | SEC-002    | Zip bomb — limitar tamaño/descompresión en EpubParser           | `[ ]`  | KNOWN_ISSUES |
@@ -83,14 +83,16 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 ### Resueltos en v1.2.0
 
 
-| ID         | Tarea                                              | Commit / nota                              |
-| ---------- | -------------------------------------------------- | ------------------------------------------ |
-| DATA-003   | Resolver relaciones por ID, no por nombre          | `901ad24`, `d26e95c`                       |
-| READER-002 | PDF aceptado en picker pero no soportado — quitar  | `6ac4c4a`                                  |
-| DATA-002   | Sync cross-refs en transacción (UpdateBookUseCase) | `06fe93b`                                  |
-| DATA-001   | Separar INSERT / UPDATE (Book, Folder, Genre)      | `3b6823c`, `ed6a26d`, `41257b4`, `28a8981` |
-| READER-003 | Progress update usaba saveBook(REPLACE)            | `41257b4` (vía DATA-001)                   |
-| READER-001 | `windows.scrollY` → `window.scrollY`               | `737d185`                                  |
+| ID         | Tarea                                                                           | Commit / nota                              |
+| ---------- | ------------------------------------------------------------------------------- | ------------------------------------------ |
+| FILE-002   | BookDetail guarda URI en vez de path interno al reemplazar EPUB                 | `8cf2a86`, `32e8d83`                       |
+| FILE-001   | Mezcla content:// URI vs path en filesystem                                     | `906b659`, `32e8d83`                       |
+| DATA-003   | Resolver relaciones por ID, no por nombre                                       | `901ad24`, `d26e95c`                       |
+| READER-002 | PDF aceptado en picker pero no soportado — quitar                               | `6ac4c4a`                                  |
+| DATA-002   | Sync cross-refs en transacción (UpdateBookUseCase)                              | `06fe93b`                                  |
+| DATA-001   | Separar INSERT / UPDATE (Book, Folder, Genre)                                   | `3b6823c`, `ed6a26d`, `41257b4`, `28a8981` |
+| READER-003 | Progress update usaba saveBook(REPLACE)                                         | `41257b4` (vía DATA-001)                   |
+| READER-001 | `windows.scrollY` → `window.scrollY`                                            | `737d185`                                  |
 
 
 ---

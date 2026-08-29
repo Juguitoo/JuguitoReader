@@ -7,13 +7,13 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 ## Índice por severidad
 
 
-| Severidad    | IDs                                                                              |
-| ------------ | -------------------------------------------------------------------------------- |
-| **Crítico**  |                                                                                  |
-| **Alto**     | DATA-007, DATA-008, FILE-001…004, SEC-001…003, READER-004                        |
-| **Medio**    | DATA-004, DATA-006, READER-005…011, FILE-005, UX-001, UX-002, PERF-001, ARCH-002 |
-| **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                     |
-| **Resuelto** | DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002                 |
+| Severidad    | IDs                                                                                  |
+| ------------ | ------------------------------------------------------------------------------------ |
+| **Crítico**  |                                                                                      |
+| **Alto**     | DATA-007, DATA-008, FILE-003…004, SEC-001…003, READER-004                            |
+| **Medio**    | DATA-004, DATA-006, READER-005…011, FILE-005, UX-001, UX-002, PERF-001, ARCH-002     |
+| **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                         |
+| **Resuelto** | FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
 
 
 ---
@@ -21,6 +21,8 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 
 
 ## Alto
+
+
 
 ### DATA-007 · Undo delete no restaura daily_reading
 
@@ -47,38 +49,6 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 AddBookUseCase / UpdateBookUseCase: múltiples writes sin `@Transaction`. Fallo intermedio → BD inconsistente.
 
 ---
-
-
-
-### FILE-001 · Mezcla content:// y path filesystem
-
-
-| Estado | Abierto · v1.2.0 |
-| ------ | ---------------- |
-
-
-Algunas pantallas guardan URI del picker; `EpubParser` usa `File(path)` → falla.
-
-**Relacionado:** `GetBookFromEpubUseCase` fallback `uri.toString()` si copy falla.
-
----
-
-
-
-### FILE-002 · Reemplazar EPUB guarda path incorrecto
-
-
-| Estado | Abierto · v1.2.0 |
-| ------ | ---------------- |
-
-
-`BookDetailViewModel`: `getBookFromEpubUseCase` copia a interno pero draft guarda `event.localFilePath` (URI) en vez de path interno.
-
-**Archivo:** `BookDetailViewModel.kt` ~159-168
-
----
-
-
 
 ### FILE-003 · Parse EPUB puede bloquear UI
 
@@ -325,6 +295,38 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 
 
 ## Resuelto
+
+### FILE-001 · Mezcla content:// y path filesystem
+
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `906b659`, `32e8d83`  |
+
+
+Algunas pantallas guardan URI del picker; `EpubParser` usa `File(path)` → falla.
+
+**Relacionado:** `GetBookFromEpubUseCase` fallback `uri.toString()` si copy falla.
+
+---
+
+
+
+### FILE-002 · Reemplazar EPUB guarda path incorrecto
+
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `8cf2a86`, `32e8d83`  |
+
+
+`BookDetailViewModel`: `getBookFromEpubUseCase` copia a interno pero draft guarda `event.localFilePath` (URI) en vez de path interno.
+
+**Archivo:** `BookDetailViewModel.kt` ~159-168
+
+---
 
 ### DATA-003 · Relaciones resueltas por nombre
 
