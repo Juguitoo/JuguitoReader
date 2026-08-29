@@ -39,6 +39,18 @@ class GenreRepositoryImplTest {
     }
 
     @Test
+    fun `getGenreById returns domain genre`() = runTest {
+        val genreEntity = GenreEntity(id = 1, name = "G1", createdAt = 0L)
+        coEvery { genreDAO.getGenreById(1) } returns genreEntity
+
+        val result = repository.getGenreById(1)
+
+        assertThat(result).isNotNull()
+        assertThat(result?.name).isEqualTo("G1")
+        assertThat(result?.id).isEqualTo(1)
+    }
+
+    @Test
     fun `getGenreByName returns domain genre`() = runTest {
         val genreEntity = GenreEntity(id = 1, name = "Sci-Fi", createdAt = 0L)
         coEvery { genreDAO.getGenreByName("Sci-Fi") } returns genreEntity

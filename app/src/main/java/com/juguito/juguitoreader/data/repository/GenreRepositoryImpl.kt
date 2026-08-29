@@ -22,6 +22,10 @@ class GenreRepositoryImpl @Inject constructor(
         return genreDAO.getAllGenreNames()
     }
 
+    override suspend fun getGenreById(id: Int): Genre? {
+        return genreDAO.getGenreById(id)?.toDomain()
+    }
+
     override suspend fun getGenreByName(name: String): Genre? {
         return genreDAO.getGenreByName(name)?.toDomain()
     }

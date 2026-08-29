@@ -58,6 +58,7 @@ class FolderRepositoryImplTest {
 
         assertThat(result).isNotNull()
         assertThat(result?.name).isEqualTo("F1")
+        assertThat(result?.id).isEqualTo(1)
     }
 
     @Test

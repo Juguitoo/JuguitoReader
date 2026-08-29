@@ -24,6 +24,9 @@ interface GenreDAO {
     @Update
     suspend fun updateGenres(genres: List<GenreEntity>)
 
+    @Query("SELECT * FROM genres WHERE id = :genreId")
+    suspend fun getGenreById(genreId: Int): GenreEntity?
+
     @Query("SELECT * FROM genres WHERE name = :genreName")
     suspend fun getGenreByName(genreName: String): GenreEntity?
 
