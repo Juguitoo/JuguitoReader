@@ -211,9 +211,7 @@ class AddBookViewModel @Inject constructor(
         viewModelScope.launch {
             runCatching {
                 _uiState.value = _uiState.value.copy(isLoading = true)
-                val book = withContext(Dispatchers.IO) {
-                    getBookFromEpubUseCase(application, uri)
-                }
+                val book = getBookFromEpubUseCase(application, uri)
 
                 val currentDraft = _uiState.value.bookDraft
                 _uiState.value = _uiState.value.copy(

@@ -7,6 +7,8 @@ import com.juguito.juguitoreader.domain.model.EpubContent
 import com.juguito.juguitoreader.domain.repository.BookRepository
 import com.juguito.juguitoreader.utils.EpubParser
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import javax.inject.Inject
 
@@ -18,7 +20,9 @@ class ParseEpubUseCase @Inject constructor(
         bookRepository.getBookById(bookId) ?: return Result.failure(JuguitoException(R.string.error_epub_not_found))
 
         return try {
-            Result.success(EpubParser.extractFullContent(context, bookId, localFilePath))
+            withContext(Dispatchers.IO) {
+                Result.success(EpubParser.extractFullContent(context, bookId, localFilePath))
+            }
         } catch (ioException: IOException) {
             ioException.printStackTrace()
             return Result.failure(JuguitoException(R.string.something_went_wrong))
