@@ -9,12 +9,15 @@ import org.xmlpull.v1.XmlPullParser
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
+import java.io.OutputStream
 import java.util.zip.ZipInputStream
 
 /** Production ceilings for EPUB unzip (uncompressed bytes / entry count). */
 internal const val MAX_UNCOMPRESSED_BYTES = 512L * 1024 * 1024
 internal const val MAX_ENTRY_UNCOMPRESSED_BYTES = 128L * 1024 * 1024
 internal const val MAX_ZIP_ENTRIES = 10_000
+
+internal const val MAX_COVER_BYTES = 20L * 1024 * 1024
 
 /**
  * Limits applied while extracting a ZIP/EPUB.
@@ -108,31 +111,27 @@ object EpubParser {
         }
 
         if (coverHref != null) {
+            var coverFile: File? = null
             try {
                 val opfDir = if (opfPath.contains("/")) opfPath.substringBeforeLast("/") + "/" else ""
                 val fullCoverZipPath = opfDir + coverHref
-
                 context.contentResolver.openInputStream(uri)?.use { inputStream ->
                     ZipInputStream(inputStream).use { zip ->
                         var entry = zip.nextEntry
                         while (entry != null) {
                             if (entry.name == fullCoverZipPath) {
-                                val coverFile = File(
-                                    context.filesDir,
-                                    "cover_${System.currentTimeMillis()}.jpg"
-                                )
-                                coverFile.outputStream().use { output ->
-                                    zip.copyTo(output)
-                                }
+                                coverFile = File(context.filesDir, "cover_${System.currentTimeMillis()}.jpg")
+                                writeBounded(zip, coverFile, MAX_COVER_BYTES)
                                 coverUrl = coverFile.absolutePath
                                 break
                             }
                             entry = zip.nextEntry
                         }
-
                     }
                 }
             } catch (e: Exception) {
+                coverFile?.delete()
+                coverUrl = null
                 e.printStackTrace()
             }
         }
@@ -266,6 +265,42 @@ object EpubParser {
         )
     }
 
+    /**
+     * Copies [input] into [output], aborting with [SecurityException] if more than
+     * [maxBytes] would be written. Returns bytes actually written.
+     */
+    internal fun copyBounded(
+        input: InputStream,
+        output: OutputStream,
+        maxBytes: Long,
+    ): Long {
+        val buffer = ByteArray(BUFFER_SIZE)
+        var written = 0L
+        var len: Int
+        while (input.read(buffer).also { len = it } > 0) {
+            written += len
+            if (written > maxBytes) {
+                throw SecurityException("Posible archivo malicioso, excesivamente grande.")
+            }
+            output.write(buffer, 0, len)
+        }
+        return written
+    }
+
+    /**
+     * Copies [input] into [outputFile] with a byte ceiling.
+     * Caller owns cleanup of [outputFile] on failure.
+     */
+    internal fun writeBounded(
+        input: InputStream,
+        outputFile: File,
+        maxBytes: Long = MAX_COVER_BYTES,
+    ) {
+        outputFile.outputStream().use { output ->
+            copyBounded(input, output, maxBytes)
+        }
+    }
+
     internal fun unzip(
         inputStream: InputStream,
         outputPath: String,
@@ -281,11 +316,12 @@ object EpubParser {
                 var totalWritten = 0L
 
                 var entry = zipInputStream.nextEntry
-                val buffer = ByteArray(BUFFER_SIZE)
 
                 while (entry != null) {
                     entries++
-                    if (entries > limits.maxZipEntries) throw SecurityException("Posible archivo malicioso, excesivamente grande.")
+                    if (entries > limits.maxZipEntries) {
+                        throw SecurityException("Posible archivo malicioso, excesivamente grande.")
+                    }
 
                     val newFile = File(outputDir, entry.name)
 
@@ -296,20 +332,17 @@ object EpubParser {
                         throw SecurityException("Archivo malicioso detectado. Intenta escapar del directorio: ${entry.name}")
                     }
 
-                    if (entry.isDirectory) newFile.mkdirs()
-                    else {
+                    if (entry.isDirectory) {
+                        newFile.mkdirs()
+                    } else {
                         newFile.parentFile?.mkdirs()
+                        val remainingTotal = limits.maxUncompressedBytes - totalWritten
+                        val cap = minOf(limits.maxEntryUncompressedBytes, remainingTotal)
+                        if (cap <= 0L) {
+                            throw SecurityException("Posible archivo malicioso, excesivamente grande.")
+                        }
                         newFile.outputStream().use { output ->
-                            var entryWritten = 0L
-                            var len: Int
-                            while (zipInputStream.read(buffer).also { len = it } > 0) {
-                                entryWritten += len
-                                totalWritten += len
-                                if (entryWritten > limits.maxEntryUncompressedBytes) throw SecurityException("Posible archivo malicioso, excesivamente grande.")
-                                if (totalWritten > limits.maxUncompressedBytes) throw SecurityException("Posible archivo malicioso, excesivamente grande.")
-
-                                output.write(buffer, 0, len)
-                            }
+                            totalWritten += copyBounded(zipInputStream, output, cap)
                         }
                     }
                     entry = zipInputStream.nextEntry

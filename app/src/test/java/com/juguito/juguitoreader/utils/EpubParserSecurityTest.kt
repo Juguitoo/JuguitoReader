@@ -94,6 +94,35 @@ class EpubParserSecurityTest {
         assertThat(File(outputDir, "OEBPS/ch1.xhtml").readText()).isEqualTo("<html/>")
     }
 
+    @Test
+    fun `writeBounded throws and leaves no usable cover when size exceeds max`() {
+        val coverFile = tempFolder.newFile("cover_oversize.jpg")
+        val payload = ByteArray(200) { 0xFF.toByte() }
+
+        assertThrows(SecurityException::class.java) {
+            payload.inputStream().use { input ->
+                EpubParser.writeBounded(input, coverFile, maxBytes = 100L)
+            }
+        }
+
+        coverFile.delete()
+        assertThat(coverFile.exists()).isFalse()
+    }
+
+    @Test
+    fun `writeBounded writes cover when under maxBytes`() {
+        val coverFile = tempFolder.newFile("cover_ok.jpg")
+        val payload = ByteArray(50) { 0xAB.toByte() }
+
+        payload.inputStream().use { input ->
+            EpubParser.writeBounded(input, coverFile, maxBytes = 100L)
+        }
+
+        assertThat(coverFile.exists()).isTrue()
+        assertThat(coverFile.length()).isEqualTo(50L)
+        assertThat(coverFile.readBytes()).isEqualTo(payload)
+    }
+
     private fun unzip(
         zipFile: File,
         outputDir: File,
