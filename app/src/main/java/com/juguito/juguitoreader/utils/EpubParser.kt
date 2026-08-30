@@ -216,9 +216,7 @@ object EpubParser {
                                         val href = parser.getAttributeValue(null, "href") ?: ""
                                         val mediaType = parser.getAttributeValue(null, "media-type") ?: ""
                                         val resourcePath = opfDir + href
-                                        val filePath = resourcePath
-                                            .substringBefore('#')
-                                            .substringBefore('?')
+                                        val filePath = filePathFromReference(resourcePath)
                                         resolveEpubFile(directory, filePath)
                                         if (mediaType.contains("ncx")) tocPath = resourcePath
                                         manifestMap[id] = resourcePath
@@ -235,7 +233,7 @@ object EpubParser {
                 }
 
                 if (tocPath.isNotEmpty()) {
-                    val ncxFile = resolveEpubFile(directory, tocPath.substringBefore('#').substringBefore('?'))
+                    val ncxFile = resolveEpubFile(directory, filePathFromReference(tocPath))
                     val tocDir = if (tocPath.contains("/")) tocPath.substringBeforeLast("/") + "/" else ""
                     if (ncxFile.exists()) {
                         ncxFile.inputStream().use { tocStream ->
@@ -399,9 +397,7 @@ object EpubParser {
                     "content" -> {
                         val src = parser.getAttributeValue(null, "src") ?: ""
                         val resourcePath = tocDir + src
-                        val filePath = resourcePath
-                            .substringBefore('#')
-                            .substringBefore('?')
+                        val filePath = filePathFromReference(resourcePath)
                         resolveEpubFile(directory, filePath)
                         href = resourcePath
                     }
@@ -416,12 +412,20 @@ object EpubParser {
         return EpubNavElement(title, href, children)
     }
 
+    /** Returns the filesystem part of an EPUB resource reference. */
+    internal fun filePathFromReference(reference: String): String =
+        reference.substringBefore('#').substringBefore('?')
+
     /**
      * Resolves [relativePath] and ensures its canonical location remains below [root].
      *
      * @throws SecurityException if the resolved path points outside [root].
      */
     internal fun resolveEpubFile(root: File, relativePath: String): File {
+        if (File(relativePath).isAbsolute) {
+            throw SecurityException("Archivo malicioso detectado. Ruta absoluta no permitida.")
+        }
+
         val newFile = File(root, relativePath)
         val canonicalDirPath = root.canonicalPath
         val canonicalFilePath = newFile.canonicalPath

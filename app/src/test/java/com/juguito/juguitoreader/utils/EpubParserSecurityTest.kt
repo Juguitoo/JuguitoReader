@@ -123,6 +123,81 @@ class EpubParserSecurityTest {
         assertThat(coverFile.readBytes()).isEqualTo(payload)
     }
 
+    @Test
+    fun `resolveEpubFile accepts direct path inside root`() {
+        val root = tempFolder.newFolder("resolve_direct")
+
+        val resolved = EpubParser.resolveEpubFile(root, "chapter.xhtml")
+
+        assertThat(resolved).isEqualTo(File(root, "chapter.xhtml").canonicalFile)
+    }
+
+    @Test
+    fun `resolveEpubFile accepts nested path inside root`() {
+        val root = tempFolder.newFolder("resolve_nested")
+
+        val resolved = EpubParser.resolveEpubFile(root, "OPS/Text/chapter.xhtml")
+
+        assertThat(resolved).isEqualTo(File(root, "OPS/Text/chapter.xhtml").canonicalFile)
+    }
+
+    @Test
+    fun `resolveEpubFile normalizes path that remains inside root`() {
+        val root = tempFolder.newFolder("resolve_normalized")
+
+        val resolved = EpubParser.resolveEpubFile(root, "OPS/Text/../chapter.xhtml")
+
+        assertThat(resolved).isEqualTo(File(root, "OPS/chapter.xhtml").canonicalFile)
+    }
+
+    @Test
+    fun `resolveEpubFile rejects traversal outside root`() {
+        val root = tempFolder.newFolder("resolve_traversal")
+
+        assertThrows(SecurityException::class.java) {
+            EpubParser.resolveEpubFile(root, "../outside.xhtml")
+        }
+    }
+
+    @Test
+    fun `resolveEpubFile rejects traversal from nested path`() {
+        val root = tempFolder.newFolder("resolve_nested_traversal")
+
+        assertThrows(SecurityException::class.java) {
+            EpubParser.resolveEpubFile(root, "OPS/Text/../../../outside.xhtml")
+        }
+    }
+
+    @Test
+    fun `resolveEpubFile rejects absolute path`() {
+        val root = tempFolder.newFolder("resolve_absolute")
+        val outsideFile = tempFolder.newFile("absolute_outside.xhtml")
+
+        assertThrows(SecurityException::class.java) {
+            EpubParser.resolveEpubFile(root, outsideFile.absolutePath)
+        }
+    }
+
+    @Test
+    fun `resolveEpubFile rejects sibling with matching root prefix`() {
+        val root = tempFolder.newFolder("epub")
+        tempFolder.newFolder("epub-evil")
+
+        assertThrows(SecurityException::class.java) {
+            EpubParser.resolveEpubFile(root, "../epub-evil/chapter.xhtml")
+        }
+    }
+
+    @Test
+    fun `filePathFromReference removes query and fragment`() {
+        val reference = "OPS/Text/chapter.xhtml?theme=dark#section-2"
+
+        val filePath = EpubParser.filePathFromReference(reference)
+
+        assertThat(filePath).isEqualTo("OPS/Text/chapter.xhtml")
+        assertThat(reference).isEqualTo("OPS/Text/chapter.xhtml?theme=dark#section-2")
+    }
+
     private fun unzip(
         zipFile: File,
         outputDir: File,
