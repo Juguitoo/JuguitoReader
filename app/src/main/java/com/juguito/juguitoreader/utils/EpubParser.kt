@@ -17,6 +17,7 @@ internal const val MAX_UNCOMPRESSED_BYTES = 512L * 1024 * 1024
 internal const val MAX_ENTRY_UNCOMPRESSED_BYTES = 128L * 1024 * 1024
 internal const val MAX_ZIP_ENTRIES = 10_000
 
+/** Maximum number of bytes extracted for an EPUB cover. */
 internal const val MAX_COVER_BYTES = 20L * 1024 * 1024
 
 /**
@@ -29,6 +30,7 @@ internal data class ZipExtractionLimits(
     val maxZipEntries: Int = MAX_ZIP_ENTRIES,
 )
 
+/** Metadata read from an EPUB package during import. */
 data class EpubMetaData(
     val title: String?,
     val author: String?,
@@ -39,9 +41,15 @@ data class EpubMetaData(
     val coverUrl: String?
 )
 
+/** Parses EPUB metadata and reading content from ZIP-based EPUB files. */
 object EpubParser {
     private const val BUFFER_SIZE = 8192
 
+    /**
+     * Reads package metadata and extracts a bounded cover image from [uri].
+     *
+     * Malformed or unavailable optional fields are omitted instead of failing the import.
+     */
     fun extractMetadata(context: Context, uri: Uri): EpubMetaData {
         var title: String? = null
         var author: String? = null
@@ -146,6 +154,15 @@ object EpubParser {
         )
     }
 
+    /**
+     * Extracts and parses the EPUB at [filePath] into the cache directory for [bookId].
+     *
+     * Reuses an existing extraction, validates every XML-provided file reference against
+     * the extraction root, and generates a basic chapter index when the NCX cannot provide one.
+     *
+     * @throws SecurityException if an archive entry or XML reference escapes the extraction root.
+     * @throws IOException if extraction fails or no readable spine can be found.
+     */
     fun extractFullContent(context: Context, bookId: Int, filePath: String): EpubContent {
         val directory = File(context.cacheDir, "reader/$bookId")
         val manifestMap = mutableMapOf<String, String>()
@@ -164,7 +181,7 @@ object EpubParser {
                 }
             }
 
-            val containerFile = File(directory, "META-INF/container.xml")
+            val containerFile = resolveEpubFile(directory, "META-INF/container.xml")
             if (containerFile.exists()) {
                 containerFile.inputStream().use { inputStream ->
                     val parser = Xml.newPullParser()
@@ -182,7 +199,7 @@ object EpubParser {
             }
 
             if (opfPath.isNotEmpty()) {
-                val opfFile = File(directory, opfPath)
+                val opfFile = resolveEpubFile(directory, opfPath)
                 val opfDir = if (opfPath.contains("/")) opfPath.substringBeforeLast("/") + "/" else ""
 
                 if (opfFile.exists()) {
@@ -198,12 +215,17 @@ object EpubParser {
                                         val id = parser.getAttributeValue(null, "id") ?: ""
                                         val href = parser.getAttributeValue(null, "href") ?: ""
                                         val mediaType = parser.getAttributeValue(null, "media-type") ?: ""
-                                        if (mediaType.contains("ncx")) tocPath = opfDir + href
-                                        manifestMap[id] = opfDir + href
+                                        val resourcePath = opfDir + href
+                                        val filePath = resourcePath
+                                            .substringBefore('#')
+                                            .substringBefore('?')
+                                        resolveEpubFile(directory, filePath)
+                                        if (mediaType.contains("ncx")) tocPath = resourcePath
+                                        manifestMap[id] = resourcePath
                                     }
                                     "itemref" -> {
-                                        val idref = parser.getAttributeValue(null, "idref")
-                                        manifestMap[idref]?.let { spine.add(it) }
+                                        val idRef = parser.getAttributeValue(null, "idref")
+                                        manifestMap[idRef]?.let { spine.add(it) }
                                     }
                                 }
                             }
@@ -213,7 +235,7 @@ object EpubParser {
                 }
 
                 if (tocPath.isNotEmpty()) {
-                    val ncxFile = File(directory, tocPath)
+                    val ncxFile = resolveEpubFile(directory, tocPath.substringBefore('#').substringBefore('?'))
                     val tocDir = if (tocPath.contains("/")) tocPath.substringBeforeLast("/") + "/" else ""
                     if (ncxFile.exists()) {
                         ncxFile.inputStream().use { tocStream ->
@@ -226,7 +248,7 @@ object EpubParser {
                                 if (eventType == XmlPullParser.START_TAG) {
                                     if (parser.name == "navMap") navMapOpen = true
                                     else if (navMapOpen && parser.name == "navPoint") {
-                                        chaptersTree.add(parseNavPoint(parser, tocDir))
+                                        chaptersTree.add(parseNavPoint(parser, tocDir, directory))
                                     }
                                 } else if (eventType == XmlPullParser.END_TAG && parser.name == "navMap") {
                                     break
@@ -301,6 +323,11 @@ object EpubParser {
         }
     }
 
+    /**
+     * Extracts [inputStream] into [outputPath] while enforcing [limits].
+     *
+     * Rejects Zip Slip paths and removes the complete output directory after any failure.
+     */
     internal fun unzip(
         inputStream: InputStream,
         outputPath: String,
@@ -354,28 +381,54 @@ object EpubParser {
         }
     }
 
-    private fun parseNavPoint(parser: XmlPullParser, tocDir: String): EpubNavElement {
+    /**
+     * Parses one NCX nav point recursively and validates its content reference.
+     *
+     * [tocDir] is relative to the EPUB extraction [directory].
+     */
+    private fun parseNavPoint(parser: XmlPullParser, tocDir: String, directory: File): EpubNavElement {
         var title = ""
         var href = ""
         val children = mutableListOf<EpubNavElement>()
         var eventType = parser.next()
 
-        try {
-            while (!(eventType == XmlPullParser.END_TAG && parser.name == "navPoint")) {
-                if (eventType == XmlPullParser.START_TAG) {
-                    when (parser.name) {
-                        "text" -> title = parser.nextText()
-                        "content" -> href = tocDir + (parser.getAttributeValue(null, "src") ?: "")
-                        "navPoint" -> children.add(parseNavPoint(parser, tocDir))
+        while (!(eventType == XmlPullParser.END_TAG && parser.name == "navPoint")) {
+            if (eventType == XmlPullParser.START_TAG) {
+                when (parser.name) {
+                    "text" -> title = parser.nextText()
+                    "content" -> {
+                        val src = parser.getAttributeValue(null, "src") ?: ""
+                        val resourcePath = tocDir + src
+                        val filePath = resourcePath
+                            .substringBefore('#')
+                            .substringBefore('?')
+                        resolveEpubFile(directory, filePath)
+                        href = resourcePath
                     }
+
+                    "navPoint" -> children.add(parseNavPoint(parser, tocDir, directory))
                 }
-                if (eventType == XmlPullParser.END_DOCUMENT) break
-                eventType = parser.next()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
+            if (eventType == XmlPullParser.END_DOCUMENT) break
+            eventType = parser.next()
         }
 
         return EpubNavElement(title, href, children)
+    }
+
+    /**
+     * Resolves [relativePath] and ensures its canonical location remains below [root].
+     *
+     * @throws SecurityException if the resolved path points outside [root].
+     */
+    internal fun resolveEpubFile(root: File, relativePath: String): File {
+        val newFile = File(root, relativePath)
+        val canonicalDirPath = root.canonicalPath
+        val canonicalFilePath = newFile.canonicalPath
+
+        if (!canonicalFilePath.startsWith(canonicalDirPath + File.separator)) {
+            throw SecurityException("Archivo malicioso detectado. Intentando escapar de los ficheros del EPUB.")
+        }
+        return newFile.canonicalFile
     }
 }

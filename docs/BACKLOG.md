@@ -34,7 +34,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | FILE-003   | ParseEpubUseCase / extractFullContent sin Dispatchers.IO        | `[x]`  | KNOWN_ISSUES |
 | SEC-001    | WebView + file:// + allowFileAccess — usar WebViewAssetLoader   | `[x]`  | KNOWN_ISSUES |
 | SEC-002    | Zip bomb — limitar tamaño/descompresión en EpubParser           | `[x]`  | KNOWN_ISSUES |
-| SEC-003    | Path traversal tras unzip (canonicalPath)                       | `[ ]`  | KNOWN_ISSUES |
+| SEC-003    | Path traversal tras unzip (canonicalPath)                       | `[~]`  | KNOWN_ISSUES |
 | READER-004 | Crash al reemplazar EPUB con menos capítulos (index OOB)        | `[ ]`  | KNOWN_ISSUES |
 | FILE-004   | Archivos internos huérfanos (EPUB/cover sin confirmar)          | `[ ]`  | KNOWN_ISSUES |
 | DATA-007   | Undo delete no restaura daily_reading (CASCADE)                 | `[ ]`  | KNOWN_ISSUES |
@@ -46,23 +46,23 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 ### P2 — Medios (audit)
 
 
-| ID         | Tarea                                          | Estado | Ref          |
-| ---------- | ---------------------------------------------- | ------ | ------------ |
-| DATA-004   | Cleanup reading_progress al borrar libro       | `[ ]`  | KNOWN_ISSUES |
-| READER-005 | Restaurar brillo al salir del lector           | `[ ]`  | KNOWN_ISSUES |
-| READER-006 | Restaurar system bars al salir del lector      | `[ ]`  | KNOWN_ISSUES |
-| READER-007 | Destruir WebView explícitamente (onRelease)    | `[ ]`  | KNOWN_ISSUES |
-| READER-008 | TOC con #fragment falla                        | `[ ]`  | KNOWN_ISSUES |
-| READER-009 | EPUB3 nav document incompleto                  | `[ ]`  | KNOWN_ISSUES |
-| READER-010 | Errores unzip silenciados en EpubParser        | `[ ]`  | KNOWN_ISSUES |
-| FILE-005   | openInputStream null pero devuelve path válido | `[ ]`  | KNOWN_ISSUES |
-| UX-001     | Loading global al importar (Home)              | `[ ]`  | KNOWN_ISSUES |
-| UX-002     | Pantallas stuck en Loading tras error          | `[ ]`  | KNOWN_ISSUES |
-| PERF-001   | Demasiadas escrituras BD durante scroll        | `[ ]`  | KNOWN_ISSUES |
-| READER-011 | Conteo palabras duplica al retroceder scroll   | `[ ]`  | KNOWN_ISSUES |
+| ID         | Tarea                                                        | Estado | Ref          |
+| ---------- | ------------------------------------------------------------ | ------ | ------------ |
+| DATA-004   | Cleanup reading_progress al borrar libro                     | `[ ]`  | KNOWN_ISSUES |
+| READER-005 | Restaurar brillo al salir del lector                         | `[ ]`  | KNOWN_ISSUES |
+| READER-006 | Restaurar system bars al salir del lector                    | `[ ]`  | KNOWN_ISSUES |
+| READER-007 | Destruir WebView explícitamente (onRelease)                  | `[ ]`  | KNOWN_ISSUES |
+| READER-008 | TOC con #fragment falla                                      | `[ ]`  | KNOWN_ISSUES |
+| READER-009 | EPUB3 nav document incompleto                                | `[ ]`  | KNOWN_ISSUES |
+| READER-010 | Errores unzip silenciados en EpubParser                      | `[ ]`  | KNOWN_ISSUES |
+| FILE-005   | openInputStream null pero devuelve path válido               | `[ ]`  | KNOWN_ISSUES |
+| UX-001     | Loading global al importar (Home)                            | `[ ]`  | KNOWN_ISSUES |
+| UX-002     | Pantallas stuck en Loading tras error                        | `[ ]`  | KNOWN_ISSUES |
+| PERF-001   | Demasiadas escrituras BD durante scroll                      | `[ ]`  | KNOWN_ISSUES |
+| READER-011 | Conteo palabras duplica al retroceder scroll                 | `[ ]`  | KNOWN_ISSUES |
 | READER-012 | WebView sin onRenderProcessGone (crash si muere el renderer) | `[ ]`  | KNOWN_ISSUES |
-| READER-013 | FOUC / flicker de HTML al cambiar de capítulo                  | `[ ]`  | KNOWN_ISSUES |
-| ARCH-002   | Revisar allowBackup vs política local-only     | `[ ]`  | KNOWN_ISSUES |
+| READER-013 | FOUC / flicker de HTML al cambiar de capítulo                | `[ ]`  | KNOWN_ISSUES |
+| ARCH-002   | Revisar allowBackup vs política local-only                   | `[ ]`  | KNOWN_ISSUES |
 
 
 
@@ -85,19 +85,19 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 ### Resueltos en v1.2.0
 
 
-| ID         | Tarea                                                                           | Commit / nota                              |
-| ---------- | ------------------------------------------------------------------------------- | ------------------------------------------ |
-| SEC-002    | Límites anti zip bomb en EpubParser (unzip + cover)                             | `11e1d4d`, `14078f0`                       |
-| SEC-001    | WebView EPUB vía WebViewAssetLoader (sin file:// / allowFileAccess)            | `903dede` (+ webkit `6822276`)            |
-| FILE-003   | Parse/import EPUB I/O en Dispatchers.IO (lector + Home/Library)                 | `7f4cf25`, `1bbe4fb`                       |
-| FILE-002   | BookDetail guarda URI en vez de path interno al reemplazar EPUB                 | `8cf2a86`, `32e8d83`                       |
-| FILE-001   | Mezcla content:// URI vs path en filesystem                                     | `906b659`, `32e8d83`                       |
-| DATA-003   | Resolver relaciones por ID, no por nombre                                       | `901ad24`, `d26e95c`                       |
-| READER-002 | PDF aceptado en picker pero no soportado — quitar                               | `6ac4c4a`                                  |
-| DATA-002   | Sync cross-refs en transacción (UpdateBookUseCase)                              | `06fe93b`                                  |
-| DATA-001   | Separar INSERT / UPDATE (Book, Folder, Genre)                                   | `3b6823c`, `ed6a26d`, `41257b4`, `28a8981` |
-| READER-003 | Progress update usaba saveBook(REPLACE)                                         | `41257b4` (vía DATA-001)                   |
-| READER-001 | `windows.scrollY` → `window.scrollY`                                            | `737d185`                                  |
+| ID         | Tarea                                                               | Commit / nota                              |
+| ---------- | ------------------------------------------------------------------- | ------------------------------------------ |
+| SEC-002    | Límites anti zip bomb en EpubParser (unzip + cover)                 | `11e1d4d`, `14078f0`                       |
+| SEC-001    | WebView EPUB vía WebViewAssetLoader (sin file:// / allowFileAccess) | `903dede` (+ webkit `6822276`)             |
+| FILE-003   | Parse/import EPUB I/O en Dispatchers.IO (lector + Home/Library)     | `7f4cf25`, `1bbe4fb`                       |
+| FILE-002   | BookDetail guarda URI en vez de path interno al reemplazar EPUB     | `8cf2a86`, `32e8d83`                       |
+| FILE-001   | Mezcla content:// URI vs path en filesystem                         | `906b659`, `32e8d83`                       |
+| DATA-003   | Resolver relaciones por ID, no por nombre                           | `901ad24`, `d26e95c`                       |
+| READER-002 | PDF aceptado en picker pero no soportado — quitar                   | `6ac4c4a`                                  |
+| DATA-002   | Sync cross-refs en transacción (UpdateBookUseCase)                  | `06fe93b`                                  |
+| DATA-001   | Separar INSERT / UPDATE (Book, Folder, Genre)                       | `3b6823c`, `ed6a26d`, `41257b4`, `28a8981` |
+| READER-003 | Progress update usaba saveBook(REPLACE)                             | `41257b4` (vía DATA-001)                   |
+| READER-001 | `windows.scrollY` → `window.scrollY`                                | `737d185`                                  |
 
 
 ---
