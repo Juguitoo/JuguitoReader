@@ -10,10 +10,10 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 | Severidad    | IDs                                                                                  |
 | ------------ | ------------------------------------------------------------------------------------ |
 | **Crítico**  |                                                                                      |
-| **Alto**     | DATA-007, DATA-008, FILE-004, SEC-003, READER-004                                      |
+| **Alto**     | DATA-007, DATA-008, FILE-004, READER-004                                               |
 | **Medio**    | DATA-004, DATA-006, READER-005…013, FILE-005, UX-001, UX-002, PERF-001, ARCH-002     |
 | **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                         |
-| **Resuelto** | SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
+| **Resuelto** | SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
 
 
 ---
@@ -60,19 +60,6 @@ AddBookUseCase / UpdateBookUseCase: múltiples writes sin `@Transaction`. Fallo 
 
 
 EPUB/cover se copian antes de confirmar save. Cancelación o error → archivos abandonados en storage.
-
----
-
-
-
-### SEC-003 · Path traversal tras unzip
-
-
-| Estado | Abierto · v1.2.0 |
-| ------ | ---------------- |
-
-
-Rutas de container.xml / OPF / manifest → `File(dir, href)` sin verificar `canonicalPath` dentro del directorio destino.
 
 ---
 
@@ -289,6 +276,21 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 
 ## Resuelto
 
+### SEC-003 · Path traversal tras unzip
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `9f9ef29`, `1fb4e4c`  |
+
+Las rutas declaradas por `container.xml`, el manifest OPF y el NCX se resolvían sin comprobar que permanecieran dentro del directorio extraído.
+
+**Fix:** resolución mediante `canonicalFile`; rechazo de rutas absolutas, traversal y colisiones de prefijo; validación de referencias del OPF/NCX sin perder query o fragment; propagación fail-closed con `SecurityException`.
+
+**Test:** `EpubParserSecurityTest` cubre rutas directas, anidadas, normalización interna, escapes, rutas absolutas, siblings con prefijo común y referencias con query/fragment.
+
+---
+
 ### SEC-002 · Posible zip bomb
 
 
@@ -302,7 +304,7 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 
 **Fix:** límites (512 MiB total / 128 MiB por entry / 10 000 entries; cover 20 MiB); contar bytes escritos vía `copyBounded`; abort + `deleteRecursively` del destino; `unzip(InputStream, …)` testeable; `ParseEpubUseCase` → `error_unzip`.
 
-**Residual:** path traversal en href OPF/manifest (SEC-003); otros `printStackTrace` del parser (READER-010).
+**Residual:** otros `printStackTrace` del parser (READER-010).
 
 **Test:** `EpubParserSecurityTest`, `ParseEpubUseCaseTest`.
 
@@ -323,7 +325,7 @@ Carga `file://` + `allowFileAccess`. EPUB = HTML de terceros.
 
 **Fix:** `WebViewAssetLoader` + `InternalStoragePathHandler` sobre `cacheDir/reader/{id}`; URL `https://appassets.androidplatform.net/epub/…`; `allowFileAccess` / `allowContentAccess` en false; `shouldOverrideUrlLoading` bloquea otros hosts.
 
-**Residual:** `javaScriptEnabled` + `AndroidBridge` (necesario para scroll/WPM). Path traversal en parser: SEC-003. Renderer: READER-012.
+**Residual:** `javaScriptEnabled` + `AndroidBridge` (necesario para scroll/WPM). Renderer: READER-012.
 
 **Test:** `EpubChapterUrlTest`.
 

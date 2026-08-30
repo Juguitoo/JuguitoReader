@@ -34,7 +34,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | FILE-003   | ParseEpubUseCase / extractFullContent sin Dispatchers.IO        | `[x]`  | KNOWN_ISSUES |
 | SEC-001    | WebView + file:// + allowFileAccess — usar WebViewAssetLoader   | `[x]`  | KNOWN_ISSUES |
 | SEC-002    | Zip bomb — limitar tamaño/descompresión en EpubParser           | `[x]`  | KNOWN_ISSUES |
-| SEC-003    | Path traversal tras unzip (canonicalPath)                       | `[~]`  | KNOWN_ISSUES |
+| SEC-003    | Path traversal tras unzip (canonicalPath)                       | `[x]`  | KNOWN_ISSUES |
 | READER-004 | Crash al reemplazar EPUB con menos capítulos (index OOB)        | `[ ]`  | KNOWN_ISSUES |
 | FILE-004   | Archivos internos huérfanos (EPUB/cover sin confirmar)          | `[ ]`  | KNOWN_ISSUES |
 | DATA-007   | Undo delete no restaura daily_reading (CASCADE)                 | `[ ]`  | KNOWN_ISSUES |
@@ -87,6 +87,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 
 | ID         | Tarea                                                               | Commit / nota                              |
 | ---------- | ------------------------------------------------------------------- | ------------------------------------------ |
+| SEC-003    | Validación canónica de rutas OPF, manifest y NCX                    | `9f9ef29`, `1fb4e4c`                       |
 | SEC-002    | Límites anti zip bomb en EpubParser (unzip + cover)                 | `11e1d4d`, `14078f0`                       |
 | SEC-001    | WebView EPUB vía WebViewAssetLoader (sin file:// / allowFileAccess) | `903dede` (+ webkit `6822276`)             |
 | FILE-003   | Parse/import EPUB I/O en Dispatchers.IO (lector + Home/Library)     | `7f4cf25`, `1bbe4fb`                       |
