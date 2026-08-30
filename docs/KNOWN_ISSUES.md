@@ -11,7 +11,7 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 | ------------ | ------------------------------------------------------------------------------------ |
 | **Crítico**  |                                                                                      |
 | **Alto**     | DATA-007, DATA-008, FILE-004, SEC-002, SEC-003, READER-004                             |
-| **Medio**    | DATA-004, DATA-006, READER-005…012, FILE-005, UX-001, UX-002, PERF-001, ARCH-002     |
+| **Medio**    | DATA-004, DATA-006, READER-005…013, FILE-005, UX-001, UX-002, PERF-001, ARCH-002     |
 | **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                         |
 | **Resuelto** | SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
 
@@ -226,6 +226,21 @@ Lint en `EpubWebView`: el HTML corre en un proceso de render aparte. Si muere (O
 **Fix:** implementar el callback, devolver `true`, **no** reutilizar ese `WebView` (quitar del árbol / recrear `AndroidView` o estado Error). Un `return true` vacío evita el crash pero deja el visor muerto.
 
 **Relacionado:** READER-007 (ciclo de vida del WebView). Detectado al cerrar SEC-001; no forma parte de AssetLoader.
+
+**Archivo:** `EpubWebView.kt`
+
+---
+
+
+
+### READER-013 · FOUC al cambiar de capítulo
+
+| Estado | Abierto · v1.2.0 |
+| ------ | ---------------- |
+
+Al pasar de capítulo se ve un instante el HTML del EPUB (sin tema/padding del lector) y luego el CSS inyectado en `onPageFinished`. Más visible tras SEC-001 (el origen sintético pinta el documento antes de `evaluateJavascript`).
+
+**Fix (orientativo):** inyectar CSS en `onPageStarted`, u ocultar el WebView hasta `onPageFinished`; alinear `setBackgroundColor` con el tema al cambiar de capítulo.
 
 **Archivo:** `EpubWebView.kt`
 

@@ -61,6 +61,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | PERF-001   | Demasiadas escrituras BD durante scroll        | `[ ]`  | KNOWN_ISSUES |
 | READER-011 | Conteo palabras duplica al retroceder scroll   | `[ ]`  | KNOWN_ISSUES |
 | READER-012 | WebView sin onRenderProcessGone (crash si muere el renderer) | `[ ]`  | KNOWN_ISSUES |
+| READER-013 | FOUC / flicker de HTML al cambiar de capítulo                  | `[ ]`  | KNOWN_ISSUES |
 | ARCH-002   | Revisar allowBackup vs política local-only     | `[ ]`  | KNOWN_ISSUES |
 
 
