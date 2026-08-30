@@ -26,9 +26,8 @@ class ParseEpubUseCase @Inject constructor(
         } catch (ioException: IOException) {
             ioException.printStackTrace()
             return Result.failure(JuguitoException(R.string.something_went_wrong))
-        } catch (securityException: SecurityException) {
-            securityException.printStackTrace()
-            return Result.failure(JuguitoException(R.string.something_went_wrong))
+        } catch (_: SecurityException) {
+            return Result.failure(JuguitoException(R.string.error_unzip))
         } catch (e: Exception) {
             e.printStackTrace()
             return Result.failure(JuguitoException(R.string.error_epub_extraction))

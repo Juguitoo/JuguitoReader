@@ -65,4 +65,21 @@ class ParseEpubUseCaseTest {
         assertThat(result.isSuccess).isTrue()
         assertThat(result.getOrNull()).isEqualTo(epubContent)
     }
+
+    @Test
+    fun `invoke maps SecurityException to error_unzip`() = runTest {
+        coEvery { bookRepository.getBookById(1) } returns Book(
+            id = 1,
+            title = "Title",
+            author = "Author",
+            isPhysical = false
+        )
+        every { EpubParser.extractFullContent(any(), 1, "path") } throws SecurityException("zip bomb")
+
+        val result = useCase(1, "path")
+
+        assertThat(result.isFailure).isTrue()
+        val exception = result.exceptionOrNull() as JuguitoException
+        assertThat(exception.resId).isEqualTo(R.string.error_unzip)
+    }
 }

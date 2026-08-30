@@ -162,6 +162,7 @@
     <string name="error_save_progress">Error saving progress</string>
     <string name="error_delete_progress">Error deleting reading progress.</string>
     <string name="error_update_progress">Error updating progress</string>
+    <string name="error_unzip">Error extracting EPUB file. Possible malicious file.</string>
 
     <!-- Enums -->
     <string name="theme_juguito">Juguito</string>
