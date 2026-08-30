@@ -4,6 +4,8 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ViewGroup
 import android.webkit.JavascriptInterface
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,8 +16,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.toColorInt
+import androidx.webkit.WebViewAssetLoader
 import com.juguito.juguitoreader.ui.reader.ReaderEvent
 import com.juguito.juguitoreader.ui.reader.ReaderUiState
+import java.io.File
+
+private data class WebViewHolder(
+    var loader: WebViewAssetLoader,
+    var baseDir: String
+)
 
 @Composable
 fun EpubWebView(
@@ -29,8 +38,20 @@ fun EpubWebView(
             .fillMaxSize()
             .systemBarsPadding()
             .padding(vertical = 24.dp),
-        factory = { ctx ->
-            WebView(ctx).apply {
+        factory = { context ->
+            val webViewHolder = WebViewHolder(
+                loader = WebViewAssetLoader.Builder()
+                    .setDomain(WebViewAssetLoader.DEFAULT_DOMAIN)
+                    .addPathHandler(
+                        "/epub/",
+                        WebViewAssetLoader.InternalStoragePathHandler(context, File(state.epubContent.baseDir))
+                    )
+                    .build(),
+                baseDir = state.epubContent.baseDir
+            )
+
+            WebView(context).apply {
+                tag = webViewHolder
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
@@ -65,6 +86,12 @@ fun EpubWebView(
                 }, "AndroidBridge")
 
                 webViewClient = object : WebViewClient() {
+                    override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
+                        return (view.tag as WebViewHolder).loader.shouldInterceptRequest(request.url)
+                    }
+                    override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                        return request.url.host != WebViewAssetLoader.DEFAULT_DOMAIN
+                    }
                     override fun onPageFinished(view: WebView?, url: String?) {
                         val viewportScript = """
                                     var meta = document.createElement('meta');
@@ -204,7 +231,7 @@ fun EpubWebView(
                     }
                 }
 
-                val gestureDetector = GestureDetector(ctx, object : GestureDetector.SimpleOnGestureListener() {
+                val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
                     override fun onSingleTapUp(e: MotionEvent): Boolean {
                         onEvent(ReaderEvent.OnToggleControls)
                         return true
@@ -218,7 +245,8 @@ fun EpubWebView(
 
                 settings.apply {
                     javaScriptEnabled = true
-                    allowFileAccess = true
+                    allowFileAccess = false
+                    allowContentAccess = false
                     domStorageEnabled = true
                     useWideViewPort = true
                     loadWithOverviewMode = true
@@ -227,6 +255,18 @@ fun EpubWebView(
             }
         },
         update = { webView ->
+            val webViewHolder = webView.tag as WebViewHolder
+            if (webViewHolder.baseDir != state.epubContent.baseDir) {
+                webViewHolder.baseDir = state.epubContent.baseDir
+                webViewHolder.loader = WebViewAssetLoader.Builder()
+                    .setDomain(WebViewAssetLoader.DEFAULT_DOMAIN)
+                    .addPathHandler(
+                        "/epub/",
+                        WebViewAssetLoader.InternalStoragePathHandler(webView.context, File(state.epubContent.baseDir))
+                    )
+                    .build()
+            }
+
             if (webView.url != state.currentChapterUrl) {
                 webView.loadUrl(state.currentChapterUrl)
             }

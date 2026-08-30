@@ -33,6 +33,6 @@ sealed interface ReaderUiState {
         val accumulatedReadWords: Int = 0
     ): ReaderUiState {
         val currentChapterUrl: String
-            get() = "file://${epubContent.baseDir}/${epubContent.spine[currentChapterIndex]}"
+            get() = epubChapterUrl(epubContent.spine[currentChapterIndex])
     }
 }
