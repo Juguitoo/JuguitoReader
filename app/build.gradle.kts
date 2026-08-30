@@ -105,4 +105,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.text.google.fonts)
     implementation(libs.coil.compose)
     implementation(libs.androidx.datastore.preferences)
+
+    // Jetpack Webkit
+    implementation(libs.androidx.webkit)
 }
