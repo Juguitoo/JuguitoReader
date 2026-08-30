@@ -27,6 +27,12 @@ class UpdateBookUseCaseTest {
     @Before
     fun setup() {
         useCase = UpdateBookUseCase(bookRepository, folderRepository, genreRepository)
+        coEvery { bookRepository.getBookById(any()) } returns Book(
+            id = 1,
+            title = "Persisted",
+            author = "Author",
+            isPhysical = true
+        )
     }
 
     @Test
@@ -123,5 +129,45 @@ class UpdateBookUseCaseTest {
         coVerify(exactly = 0) { folderRepository.insertFolder(any()) }
         coVerify(exactly = 1) { genreRepository.getGenreByName("Fantasy") }
         coVerify(exactly = 0) { genreRepository.insertGenre(any()) }
+    }
+
+    @Test
+    fun `invoke with changed EPUB resets reading data with resolved relation ids`() = runTest {
+        val folder = Folder(id = 0, name = "Sci-Fi", colorHex = "#FFF")
+        val genre = Genre(id = 0, name = "Fantasy")
+        val book = Book(
+            id = 1,
+            title = "T",
+            author = "A",
+            isPhysical = false,
+            localFilePath = "new.epub",
+            folders = listOf(folder),
+            genres = listOf(genre)
+        )
+        coEvery { folderRepository.getFolderByName("Sci-Fi") } returns null
+        coEvery { folderRepository.insertFolder(any()) } returns 5L
+        coEvery { genreRepository.getGenreByName("Fantasy") } returns null
+        coEvery { genreRepository.insertGenre(any()) } returns 20L
+        coEvery { bookRepository.updateBookWithNewEpub(any(), any(), any()) } returns Unit
+
+        val result = useCase(book)
+
+        assertThat(result.isSuccess).isTrue()
+        coVerify(exactly = 1) {
+            bookRepository.updateBookWithNewEpub(book, listOf(5), listOf(20))
+        }
+        coVerify(exactly = 0) { bookRepository.updateBook(any()) }
+        coVerify(exactly = 0) { bookRepository.syncCrossReferences(any(), any(), any()) }
+    }
+
+    @Test
+    fun `invoke returns failure when persisted book does not exist`() = runTest {
+        coEvery { bookRepository.getBookById(1) } returns null
+
+        val result = useCase(Book(id = 1, title = "T", author = "A", isPhysical = true))
+
+        assertThat(result.isFailure).isTrue()
+        val exception = result.exceptionOrNull() as JuguitoException
+        assertThat(exception.resId).isEqualTo(R.string.error_save_book)
     }
 }

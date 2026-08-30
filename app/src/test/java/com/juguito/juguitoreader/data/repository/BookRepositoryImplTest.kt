@@ -1,7 +1,10 @@
 package com.juguito.juguitoreader.data.repository
 
 import com.google.common.truth.Truth.assertThat
+import com.juguito.juguitoreader.data.local.JuguitoReaderDatabase
 import com.juguito.juguitoreader.data.local.dao.BookDAO
+import com.juguito.juguitoreader.data.local.dao.DailyReadingDAO
+import com.juguito.juguitoreader.data.local.dao.ReadingProgressDAO
 import com.juguito.juguitoreader.data.local.entity.BookEntity
 import com.juguito.juguitoreader.data.local.entity.BookWithDetails
 import com.juguito.juguitoreader.domain.model.Book
@@ -19,10 +22,18 @@ class BookRepositoryImplTest {
 
     private lateinit var repository: BookRepositoryImpl
     private val bookDAO = mockk<BookDAO>()
+    private val readingProgressDAO = mockk<ReadingProgressDAO>()
+    private val dailyReadingDAO = mockk<DailyReadingDAO>()
+    private val database = mockk<JuguitoReaderDatabase>()
 
     @Before
     fun setup() {
-        repository = BookRepositoryImpl(bookDAO)
+        repository = BookRepositoryImpl(
+            bookDAO = bookDAO,
+            readingProgressDAO = readingProgressDAO,
+            dailyReadingDAO = dailyReadingDAO,
+            database = database
+        )
     }
 
     @Test
