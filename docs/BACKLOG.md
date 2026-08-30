@@ -35,7 +35,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | SEC-001    | WebView + file:// + allowFileAccess — usar WebViewAssetLoader   | `[x]`  | KNOWN_ISSUES |
 | SEC-002    | Zip bomb — limitar tamaño/descompresión en EpubParser           | `[x]`  | KNOWN_ISSUES |
 | SEC-003    | Path traversal tras unzip (canonicalPath)                       | `[x]`  | KNOWN_ISSUES |
-| READER-004 | Crash al reemplazar EPUB con menos capítulos (index OOB)        | `[ ]`  | KNOWN_ISSUES |
+| READER-004 | Crash al reemplazar EPUB con menos capítulos (index OOB)        | `[x]`  | KNOWN_ISSUES |
 | FILE-004   | Archivos internos huérfanos (EPUB/cover sin confirmar)          | `[ ]`  | KNOWN_ISSUES |
 | DATA-007   | Undo delete no restaura daily_reading (CASCADE)                 | `[ ]`  | KNOWN_ISSUES |
 | DATA-008   | AddBook/UpdateBook sin transacción atómica                      | `[ ]`  | KNOWN_ISSUES |
@@ -62,6 +62,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | READER-011 | Conteo palabras duplica al retroceder scroll                 | `[ ]`  | KNOWN_ISSUES |
 | READER-012 | WebView sin onRenderProcessGone (crash si muere el renderer) | `[ ]`  | KNOWN_ISSUES |
 | READER-013 | FOUC / flicker de HTML al cambiar de capítulo                | `[ ]`  | KNOWN_ISSUES |
+| READER-014 | Temporizador de sesión no inicia si el lector sigue cargando | `[ ]`  | KNOWN_ISSUES |
 | ARCH-002   | Revisar allowBackup vs política local-only                   | `[ ]`  | KNOWN_ISSUES |
 
 
@@ -87,6 +88,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 
 | ID         | Tarea                                                               | Commit / nota                              |
 | ---------- | ------------------------------------------------------------------- | ------------------------------------------ |
+| READER-004 | Reset transaccional de lectura al reemplazar EPUB                  | `fbf09aa`, `44061a0`, `96b565d`            |
 | SEC-003    | Validación canónica de rutas OPF, manifest y NCX                    | `9f9ef29`, `1fb4e4c`                       |
 | SEC-002    | Límites anti zip bomb en EpubParser (unzip + cover)                 | `11e1d4d`, `14078f0`                       |
 | SEC-001    | WebView EPUB vía WebViewAssetLoader (sin file:// / allowFileAccess) | `903dede` (+ webkit `6822276`)             |
