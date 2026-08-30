@@ -51,9 +51,13 @@ class BookRepositoryImpl @Inject constructor(
         bookDAO.deleteBookById(id)
     }
 
-    override suspend fun updateBookWithNewEPUB(book: Book, folderIds: List<Int>, genreIds: List<Int> ) = database.withTransaction {
-        updateBook(book)
-        syncCrossReferences(book.id, folderIds, genreIds)
+    override suspend fun updateBookWithNewEpub(
+        book: Book,
+        folderIds: List<Int>,
+        genreIds: List<Int>
+    ) = database.withTransaction {
+        bookDAO.updateBook(book.toEntity())
+        bookDAO.syncBookCrossRefs(book.id, folderIds, genreIds)
         readingProgressDAO.deleteReadingProgressById(book.id)
         dailyReadingDAO.deleteBookDailyReadings(book.id)
     }

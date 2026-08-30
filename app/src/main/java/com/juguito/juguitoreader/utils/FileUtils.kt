@@ -74,6 +74,16 @@ object FileUtils {
         }
     }
 
+    fun deleteReaderCache(context: Context, bookId: Int): Boolean {
+        return try {
+            val directory = File(context.cacheDir, "reader/$bookId")
+            !directory.exists() || directory.deleteRecursively()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
     fun getFileNameFromUri(context: Context, uriString: String?): String {
         if (uriString.isNullOrBlank()) return "Ningún archivo seleccionado"
 

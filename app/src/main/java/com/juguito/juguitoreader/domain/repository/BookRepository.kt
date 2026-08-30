@@ -20,7 +20,7 @@ interface BookRepository {
 
     suspend fun deleteBook(id: Int)
 
-    suspend fun updateBookWithNewEPUB(book: Book, folderIds: List<Int>, genreIds: List<Int>)
+    suspend fun updateBookWithNewEpub(book: Book, folderIds: List<Int>, genreIds: List<Int>)
 
     suspend fun syncPendingBooks()
 }
