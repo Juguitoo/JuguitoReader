@@ -32,7 +32,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | FILE-001   | Mezcla content:// URI vs path en filesystem                     | `[x]`  | KNOWN_ISSUES |
 | FILE-002   | BookDetail guarda URI en vez de path interno al reemplazar EPUB | `[x]`  | KNOWN_ISSUES |
 | FILE-003   | ParseEpubUseCase / extractFullContent sin Dispatchers.IO        | `[x]`  | KNOWN_ISSUES |
-| SEC-001    | WebView + file:// + allowFileAccess — usar WebViewAssetLoader   | `[ ]`  | KNOWN_ISSUES |
+| SEC-001    | WebView + file:// + allowFileAccess — usar WebViewAssetLoader   | `[x]`  | KNOWN_ISSUES |
 | SEC-002    | Zip bomb — limitar tamaño/descompresión en EpubParser           | `[ ]`  | KNOWN_ISSUES |
 | SEC-003    | Path traversal tras unzip (canonicalPath)                       | `[ ]`  | KNOWN_ISSUES |
 | READER-004 | Crash al reemplazar EPUB con menos capítulos (index OOB)        | `[ ]`  | KNOWN_ISSUES |
@@ -60,6 +60,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | UX-002     | Pantallas stuck en Loading tras error          | `[ ]`  | KNOWN_ISSUES |
 | PERF-001   | Demasiadas escrituras BD durante scroll        | `[ ]`  | KNOWN_ISSUES |
 | READER-011 | Conteo palabras duplica al retroceder scroll   | `[ ]`  | KNOWN_ISSUES |
+| READER-012 | WebView sin onRenderProcessGone (crash si muere el renderer) | `[ ]`  | KNOWN_ISSUES |
 | ARCH-002   | Revisar allowBackup vs política local-only     | `[ ]`  | KNOWN_ISSUES |
 
 
@@ -85,6 +86,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 
 | ID         | Tarea                                                                           | Commit / nota                              |
 | ---------- | ------------------------------------------------------------------------------- | ------------------------------------------ |
+| SEC-001    | WebView EPUB vía WebViewAssetLoader (sin file:// / allowFileAccess)            | `903dede` (+ webkit `6822276`)            |
 | FILE-003   | Parse/import EPUB I/O en Dispatchers.IO (lector + Home/Library)                 | `7f4cf25`, `1bbe4fb`                       |
 | FILE-002   | BookDetail guarda URI en vez de path interno al reemplazar EPUB                 | `8cf2a86`, `32e8d83`                       |
 | FILE-001   | Mezcla content:// URI vs path en filesystem                                     | `906b659`, `32e8d83`                       |

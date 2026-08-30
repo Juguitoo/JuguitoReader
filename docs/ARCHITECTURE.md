@@ -162,7 +162,7 @@ Centralizada en `ui/navigation/JuguitoApp.kt`:
 
 **Pros:** renderiza HTML/CSS de EPUBs sin dependencia externa pesada; control total del JS bridge (scroll, capítulos, WPM).
 
-**Contras:** rendimiento y batería vs. renderer nativo; superficie de seguridad con `allowFileAccess`; accesibilidad limitada.
+**Contras:** rendimiento y batería vs. renderer nativo; accesibilidad limitada. Contenido EPUB se sirve con `WebViewAssetLoader` (origen HTTPS sintético, sin `file://` ni `allowFileAccess`). Residual: JS + `JavascriptInterface` (`AndroidBridge`); el proceso de render no se gestiona aún (READER-012).
 
 **Alternativas descartadas por ahora:** Readium, FolioReader.
 

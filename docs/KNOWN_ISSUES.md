@@ -10,10 +10,10 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 | Severidad    | IDs                                                                                  |
 | ------------ | ------------------------------------------------------------------------------------ |
 | **Crítico**  |                                                                                      |
-| **Alto**     | DATA-007, DATA-008, FILE-004, SEC-001…003, READER-004                                |
-| **Medio**    | DATA-004, DATA-006, READER-005…011, FILE-005, UX-001, UX-002, PERF-001, ARCH-002     |
+| **Alto**     | DATA-007, DATA-008, FILE-004, SEC-002, SEC-003, READER-004                             |
+| **Medio**    | DATA-004, DATA-006, READER-005…012, FILE-005, UX-001, UX-002, PERF-001, ARCH-002     |
 | **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                         |
-| **Resuelto** | FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
+| **Resuelto** | SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
 
 
 ---
@@ -60,23 +60,6 @@ AddBookUseCase / UpdateBookUseCase: múltiples writes sin `@Transaction`. Fallo 
 
 
 EPUB/cover se copian antes de confirmar save. Cancelación o error → archivos abandonados en storage.
-
----
-
-
-
-### SEC-001 · WebView inseguro para contenido EPUB
-
-
-| Estado | Abierto · v1.2.0 |
-| ------ | ---------------- |
-
-
-`javaScriptEnabled`, `allowFileAccess`, carga `file://`. EPUB = contenido no confiable.
-
-**Fix:** `WebViewAssetLoader` (Android docs).
-
-**Archivo:** `EpubWebView.kt`
 
 ---
 
@@ -163,6 +146,8 @@ Solo 6→10. En dev aceptable (destructive OK). Antes de open testing: definir p
 
 Falta `stopLoading()`, quitar JS bridge, `destroy()` en `AndroidView.onRelease`.
 
+**Relacionado:** READER-012 (proceso de render).
+
 ---
 
 
@@ -231,6 +216,23 @@ Scroll abajo → arriba → abajo puede recontar palabras ya leídas.
 
 
 
+### READER-012 · WebView sin onRenderProcessGone
+
+| Estado | Abierto · v1.2.0 |
+| ------ | ---------------- |
+
+Lint en `EpubWebView`: el HTML corre en un proceso de render aparte. Si muere (OOM, crash de Chromium) y no hay `onRenderProcessGone`, Android mata la app.
+
+**Fix:** implementar el callback, devolver `true`, **no** reutilizar ese `WebView` (quitar del árbol / recrear `AndroidView` o estado Error). Un `return true` vacío evita el crash pero deja el visor muerto.
+
+**Relacionado:** READER-007 (ciclo de vida del WebView). Detectado al cerrar SEC-001; no forma parte de AssetLoader.
+
+**Archivo:** `EpubWebView.kt`
+
+---
+
+
+
 ### ARCH-002 · Auto Backup vs local-only
 
 `allowBackup="true"`, rules vacías → Android puede backup de DB y filesDir.
@@ -284,6 +286,27 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 
 
 ## Resuelto
+
+### SEC-001 · WebView inseguro para contenido EPUB
+
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `903dede`, `6822276` |
+
+
+Carga `file://` + `allowFileAccess`. EPUB = HTML de terceros.
+
+**Fix:** `WebViewAssetLoader` + `InternalStoragePathHandler` sobre `cacheDir/reader/{id}`; URL `https://appassets.androidplatform.net/epub/…`; `allowFileAccess` / `allowContentAccess` en false; `shouldOverrideUrlLoading` bloquea otros hosts.
+
+**Residual:** `javaScriptEnabled` + `AndroidBridge` (necesario para scroll/WPM). Zip bomb / path traversal en parser: SEC-002, SEC-003. Renderer: READER-012.
+
+**Test:** `EpubChapterUrlTest`.
+
+---
+
+
 
 ### FILE-003 · Parse EPUB puede bloquear UI
 
