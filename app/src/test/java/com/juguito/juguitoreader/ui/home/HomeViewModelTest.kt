@@ -80,6 +80,37 @@ class HomeViewModelTest {
             assertThat(state).isInstanceOf(HomeUiState.Success::class.java)
             val successState = state as HomeUiState.Success
             assertThat(successState.stats.totalBooksCount).isEqualTo(2)
+            assertThat(successState.pendingBooks.map { it.id }).containsExactly(1)
+            assertThat(successState.readingBooks.map { it.id }).containsExactly(2)
+        }
+    }
+
+    @Test
+    fun `reading book without progress remains visible after EPUB replacement`() = runTest {
+        val readingBook = Book(
+            id = 1,
+            title = "Book",
+            author = "Author",
+            isPhysical = false,
+            localFilePath = "new.epub",
+            status = BookStatus.READING
+        )
+        every { getBooksUseCase() } returns flowOf(listOf(readingBook))
+        every { getReadingProgressesUseCase() } returns flowOf(emptyList())
+
+        viewModel = HomeViewModel(
+            context,
+            getBooksUseCase,
+            getReadingProgressesUseCase,
+            importBookFromUriUseCase,
+            deleteBookUseCase,
+            addBookUseCase
+        )
+
+        viewModel.uiState.test {
+            val state = awaitItem() as HomeUiState.Success
+            assertThat(state.readingBooks.map { it.id }).containsExactly(1)
+            assertThat(state.pendingBooks).isEmpty()
         }
     }
 

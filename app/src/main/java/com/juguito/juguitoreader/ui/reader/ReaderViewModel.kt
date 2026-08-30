@@ -103,6 +103,21 @@ class ReaderViewModel @Inject constructor(
                             addReadingProgressUseCase.invoke(newProgress)
                             progress = newProgress
                         }
+
+                        val safeChapterIndex = progress.lastChapterIndex.coerceIn(0, content.spine.lastIndex)
+                        val chapterChanged = safeChapterIndex != progress.lastChapterIndex
+                        val totalChaptersChanged = progress.totalChapters != content.spine.size
+
+                        if (chapterChanged || totalChaptersChanged) {
+                            progress = progress.copy(
+                                totalChapters = content.spine.size,
+                                lastChapterIndex = safeChapterIndex,
+                                scrollPosition = if (chapterChanged) 0f else progress.scrollPosition,
+                                lastReadAt = currentTimeProvider()
+                            )
+                            updateReadingProgressUseCase.invoke(progress)
+                        }
+
                         initialPercentage = progress.percentage
 
                         _internalState.value = ReaderUiState.Success(

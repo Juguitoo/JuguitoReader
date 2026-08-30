@@ -69,6 +69,7 @@ class BookDetailViewModelTest {
         
         mockkObject(FileUtils)
         every { FileUtils.deleteFileFromInternalStorage(any(), any()) } just runs
+        every { FileUtils.deleteReaderCache(any(), any()) } returns true
 
         every { getFoldersUseCase() } returns flowOf(emptyList())
         every { getGenresUseCase() } returns flowOf(emptyList())
@@ -340,6 +341,39 @@ class BookDetailViewModelTest {
         }
         verify(timeout = 2000, exactly = 1) {
             FileUtils.deleteFileFromInternalStorage(any(), "/data/files/persisted.epub")
+        }
+        verify(timeout = 2000, exactly = 1) {
+            FileUtils.deleteReaderCache(any(), 1)
+        }
+    }
+
+    @Test
+    fun `onEvent OnSaveClick keeps persisted epub and cache when update fails`() = runTest {
+        loadDigitalBookWithPath("/data/files/persisted.epub")
+        coEvery { getBookFromEpubUseCase(any(), any()) } returns Book(
+            title = "Title",
+            author = "Author",
+            isPhysical = false,
+            localFilePath = "/data/files/new.epub"
+        )
+        coEvery { updateBookUseCase(any()) } returns Result.failure(
+            JuguitoException(R.string.error_save_book)
+        )
+
+        viewModel.onEvent(BookDetailEvent.OnEpubFilePicked(mockk(relaxed = true)))
+        viewModel.uiState.awaitValue {
+            it is BookDetailUiState.Success && it.bookDraft.localFilePath == "/data/files/new.epub"
+        }
+        viewModel.onEvent(BookDetailEvent.OnSaveClick)
+        viewModel.uiState.awaitValue {
+            it is BookDetailUiState.Success && !it.isActionLoading
+        }
+
+        verify(exactly = 0) {
+            FileUtils.deleteFileFromInternalStorage(any(), "/data/files/persisted.epub")
+        }
+        verify(exactly = 0) {
+            FileUtils.deleteReaderCache(any(), 1)
         }
     }
 }

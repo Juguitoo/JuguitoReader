@@ -105,6 +105,70 @@ class ReaderViewModelTest {
     }
 
     @Test
+    fun `loadData reconciles stale progress with current EPUB spine`() = runTest {
+        val epubContent = EpubContent(
+            baseDir = "",
+            spine = listOf("ch1", "ch2", "ch3"),
+            chaptersTree = emptyList()
+        )
+        coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
+        coEvery { getReadingProgressByIdUseCase(1) } returns ReadingProgress(
+            bookId = 1,
+            totalChapters = 10,
+            lastChapterIndex = 9,
+            scrollPosition = 0.8f,
+            lastReadAt = 0L
+        )
+        val progressSlot = slot<ReadingProgress>()
+        coEvery { updateReadingProgressUseCase(capture(progressSlot)) } returns Result.success(Unit)
+
+        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.currentChapterIndex).isEqualTo(2)
+        assertThat(state.readingProgress.totalChapters).isEqualTo(3)
+        assertThat(state.readingProgress.lastChapterIndex).isEqualTo(2)
+        assertThat(state.readingProgress.scrollPosition).isEqualTo(0f)
+        assertThat(state.currentChapterUrl).isEqualTo(
+            "https://appassets.androidplatform.net/epub/ch3"
+        )
+        assertThat(progressSlot.captured.lastChapterIndex).isEqualTo(2)
+        coVerify(exactly = 1) { updateReadingProgressUseCase(any()) }
+
+        job.cancel()
+    }
+
+    @Test
+    fun `loadData does not persist progress when it already matches EPUB spine`() = runTest {
+        val epubContent = EpubContent(
+            baseDir = "",
+            spine = listOf("ch1", "ch2"),
+            chaptersTree = emptyList()
+        )
+        coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
+        coEvery { getReadingProgressByIdUseCase(1) } returns ReadingProgress(
+            bookId = 1,
+            totalChapters = 2,
+            lastChapterIndex = 1,
+            scrollPosition = 0.4f,
+            lastReadAt = 0L
+        )
+
+        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.currentChapterIndex).isEqualTo(1)
+        assertThat(state.readingProgress.scrollPosition).isEqualTo(0.4f)
+        coVerify(exactly = 0) { updateReadingProgressUseCase(any()) }
+
+        job.cancel()
+    }
+
+    @Test
     fun `onEvent updates settings correctly`() = runTest {
         val epubContent = EpubContent(baseDir = "", spine = listOf("ch1", "ch2"), chaptersTree = emptyList())
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)

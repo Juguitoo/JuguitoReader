@@ -305,8 +305,9 @@ class BookDetailViewModel @Inject constructor(
                 onSuccess = {
                     val oldPath = current.book.localFilePath
                     val newPath = updatedBook.localFilePath
-                    if (oldPath != null && oldPath != newPath) {
+                    if (oldPath != newPath) {
                         withContext(Dispatchers.IO) {
+                            FileUtils.deleteReaderCache(application, updatedBook.id)
                             FileUtils.deleteFileFromInternalStorage(application, oldPath)
                         }
                     }

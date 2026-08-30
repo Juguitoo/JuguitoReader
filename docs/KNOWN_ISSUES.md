@@ -10,10 +10,10 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 | Severidad    | IDs                                                                                  |
 | ------------ | ------------------------------------------------------------------------------------ |
 | **Crítico**  |                                                                                      |
-| **Alto**     | DATA-007, DATA-008, FILE-004, READER-004                                               |
-| **Medio**    | DATA-004, DATA-006, READER-005…013, FILE-005, UX-001, UX-002, PERF-001, ARCH-002     |
+| **Alto**     | DATA-007, DATA-008, FILE-004                                                           |
+| **Medio**    | DATA-004, DATA-006, READER-005…014, FILE-005, UX-001, UX-002, PERF-001, ARCH-002     |
 | **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                         |
-| **Resuelto** | SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
+| **Resuelto** | READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
 
 
 ---
@@ -60,21 +60,6 @@ AddBookUseCase / UpdateBookUseCase: múltiples writes sin `@Transaction`. Fallo 
 
 
 EPUB/cover se copian antes de confirmar save. Cancelación o error → archivos abandonados en storage.
-
----
-
-
-
-### READER-004 · Crash EPUB con menos capítulos
-
-
-| Estado | Abierto · v1.2.0 |
-| ------ | ---------------- |
-
-
-`lastChapterIndex` persistido; al cargar EPUB nuevo más corto, acceso `spine[index]` sin `coerceIn` → index OOB.
-
-**Archivo:** `ReaderViewModel.kt`
 
 ---
 
@@ -220,6 +205,19 @@ Al pasar de capítulo se ve un instante el HTML del EPUB (sin tema/padding del l
 
 ---
 
+### READER-014 · Temporizador de sesión perdido durante Loading
+
+| Estado | Abierto · v1.2.0 |
+| ------ | ---------------- |
+
+`ReaderScreen` envía `OnStartReading` al recibir `Lifecycle.Event.ON_RESUME`, pero `ReaderViewModel.onEvent` descarta todos los eventos mientras `_internalState` no sea `Success`. Si el EPUB sigue parseándose, el temporizador no comienza y la sesión no se registra hasta que ocurre otro pause/resume.
+
+**Fix orientativo:** conservar si el reader está resumed aunque siga cargando e iniciar el temporizador al publicar `Success`; hacer `OnStartReading` idempotente y detenerlo correctamente en `ON_PAUSE`.
+
+**Archivo:** `ReaderViewModel.kt`, `ReaderScreen.kt`
+
+---
+
 
 
 ### ARCH-002 · Auto Backup vs local-only
@@ -275,6 +273,23 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 
 
 ## Resuelto
+
+### READER-004 · Crash EPUB con menos capítulos
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `fbf09aa`, `44061a0`, `96b565d` |
+
+Al reemplazar un EPUB, `reading_progress`, `daily_reading` y la extracción en caché seguían perteneciendo al archivo anterior. Un `lastChapterIndex` superior al nuevo `spine` provocaba `IndexOutOfBoundsException`.
+
+**Fix:** operación Room transaccional para actualizar el libro y sus relaciones mientras elimina progreso y sesiones; cleanup posterior de `cache/reader/{bookId}` y del EPUB anterior. `ReaderViewModel` también reconcilia índice y total de capítulos para datos legacy. Home mantiene visibles los libros `READING` aunque todavía no exista progreso para el EPUB nuevo.
+
+**Test:** cobertura unitaria de selección de la operación, cleanup, reconciliación y filtro de Home; test instrumentado de commit y rollback de la transacción Room.
+
+**Residual:** Room y filesystem no comparten transacción. Los candidatos y covers huérfanos siguen bajo FILE-004.
+
+---
 
 ### SEC-003 · Path traversal tras unzip
 

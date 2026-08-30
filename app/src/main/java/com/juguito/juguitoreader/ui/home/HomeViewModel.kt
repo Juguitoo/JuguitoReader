@@ -76,7 +76,7 @@ class HomeViewModel @Inject constructor(
                     .sortedByDescending { it.createdAt }
                     .take(10)
                 val recentBooks = availableBooks
-                    .filter { progressMap.containsKey(it.id) && it.status == BookStatus.READING }
+                    .filter { it.status == BookStatus.READING }
                     .sortedByDescending { progressMap[it.id]?.lastReadAt ?: it.createdAt }
                     .take(10)
 
