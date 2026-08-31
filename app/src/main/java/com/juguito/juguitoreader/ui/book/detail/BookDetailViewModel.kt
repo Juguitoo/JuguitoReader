@@ -1,12 +1,12 @@
 package com.juguito.juguitoreader.ui.book.detail
 
 import android.app.Application
-import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
+import com.juguito.juguitoreader.domain.exception.JuguitoException
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.model.Genre
@@ -22,6 +22,7 @@ import com.juguito.juguitoreader.ui.common.asUiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect.ShowSnackbar
 import com.juguito.juguitoreader.utils.FileUtils
+import com.juguito.juguitoreader.utils.FileUtils.deleteFileFromInternalStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -142,55 +143,13 @@ class BookDetailViewModel @Inject constructor(
                 updateSuccessState { it.copy(bookDraft = it.bookDraft.copy(isPhysical = event.isPhysical)) }
             }
             is BookDetailEvent.OnCoverUrlChanged -> {
-                viewModelScope.launch {
-                    val permanentPath = withContext(Dispatchers.IO) {
-                        FileUtils.saveImageToInternalStorage(application, event.coverUrl.toUri())
-                    }
-                    if (permanentPath != null) {
-                        updateSuccessState { it.copy(bookDraft = it.bookDraft.copy(coverUrl = permanentPath)) }
-                    }
-                }
+                updateSuccessState { it.copy(bookDraft = it.bookDraft.copy(coverUrl = event.coverUrl)) }
             }
             is BookDetailEvent.OnEpubFilePicked -> {
-                viewModelScope.launch {
-                    updateSuccessState { it.copy(isActionLoading = true) }
-                    runCatching {
-                        getBookFromEpubUseCase(application, event.uri, false)
-                    }.onSuccess { bookMetadata ->
-                        val success = _uiState.value as? BookDetailUiState.Success
-                        val previousPath = success?.bookDraft?.localFilePath
-                        val persistedPath = success?.book?.localFilePath
-                        val newPath = bookMetadata.localFilePath
-                        updateSuccessState {
-                            it.copy(
-                                isActionLoading = false,
-                                bookDraft = it.bookDraft.copy(
-                                    localFilePath = bookMetadata.localFilePath,
-                                    coverUrl = bookMetadata.coverUrl ?: it.bookDraft.coverUrl
-                                )
-                            )
-                        }
-                        if (previousPath != null && previousPath != newPath && previousPath != persistedPath) {
-                            withContext(Dispatchers.IO) {
-                                FileUtils.deleteFileFromInternalStorage(application, previousPath)
-                            }
-                        }
-                    }.onFailure {
-                        updateSuccessState { it.copy(isActionLoading = false) }
-                        _effect.send(ShowSnackbar(StringResource(R.string.error_copy_epub)))
-                    }
-                }
+                updateSuccessState { it.copy(bookDraft = it.bookDraft.copy(localFilePath = event.uri.toString())) }
             }
             is BookDetailEvent.OnLocalFilePathChanged -> {
-                val success = _uiState.value as? BookDetailUiState.Success
-                val previousPath = success?.bookDraft?.localFilePath
-                val persistedPath = success?.book?.localFilePath
-                updateSuccessState { it.copy(bookDraft = it.bookDraft.copy(localFilePath = null)) }
-                if (previousPath != null && previousPath != persistedPath) {
-                    viewModelScope.launch(Dispatchers.IO) {
-                        FileUtils.deleteFileFromInternalStorage(application, previousPath)
-                    }
-                }
+                updateSuccessState { it.copy(bookDraft = it.bookDraft.copy(localFilePath = event.localFilePath)) }
             }
             is BookDetailEvent.OnFoldersChanged -> {
                 updateSuccessState { it.copy(bookDraft = it.bookDraft.copy(folders = event.folders)) }
@@ -221,6 +180,7 @@ class BookDetailViewModel @Inject constructor(
             is BookDetailEvent.OnEditModeChanged -> {
                 updateSuccessState { current ->
                     if (!event.mode) {
+                        FileUtils.deleteStagingAsset(application, current.bookDraft.coverUrl)
                         current.copy(
                             isEditMode = false,
                             bookDraft = BookDraftState(
@@ -256,75 +216,114 @@ class BookDetailViewModel @Inject constructor(
                 val current = _uiState.value as? BookDetailUiState.Success ?: return
                 viewModelScope.launch {
                     updateSuccessState { it.copy(isActionLoading = true) }
-                    deleteBookUseCase(current.book.id)
-                    _effect.send(UiEffect.NavigateBack)
+                    runCatching {
+                        deleteBookUseCase(current.book.id)
+                    }.onSuccess {
+                        updateSuccessState { it.copy(isActionLoading = false) }
+                        withContext(Dispatchers.IO) {
+                            if (current.book.localFilePath != null) deleteFileFromInternalStorage(
+                                application,
+                                current.book.localFilePath
+                            )
+                            if (current.book.coverUrl != null) deleteFileFromInternalStorage(
+                                application,
+                                current.book.coverUrl
+                            )
+                            FileUtils.deleteReaderCache(application, current.book.id)
+                        }
+                        _effect.send(UiEffect.NavigateBack)
+                    }.onFailure {
+                        updateSuccessState { it.copy(isActionLoading = false) }
+                        _effect.send(ShowSnackbar(StringResource(R.string.error_delete_book)))
+                    }
                 }
             }
         }
     }
 
     private fun saveChanges() {
-        val current = _uiState.value as? BookDetailUiState.Success ?: return
-        val draft = current.bookDraft
-
-        if (draft.title.isBlank()) {
-            viewModelScope.launch { _effect.send(ShowSnackbar(StringResource(R.string.error_title_empty))) }
-            return
-        }
-        if (draft.author.isBlank()) {
-            viewModelScope.launch { _effect.send(ShowSnackbar(StringResource(R.string.error_author_empty))) }
-            return
-        }
-
-        updateSuccessState { it.copy(isActionLoading = true) }
-
         viewModelScope.launch {
-            val updatedBook = Book(
-                id = current.book.id,
-                title = draft.title,
-                author = draft.author,
-                publisher = draft.publisher,
-                series = draft.series,
-                seriesOrder = draft.seriesOrder.toDoubleOrNull(),
-                isPhysical = draft.isPhysical,
-                status = current.status,
-                rating = current.rating ?: 0f,
-                comment = current.comment,
-                startDate = current.startDate,
-                endDate = current.endDate,
-                coverUrl = draft.coverUrl,
-                localFilePath = draft.localFilePath,
-                folders = draft.folders,
-                genres = draft.genres,
-                createdAt = current.book.createdAt
-            )
+            val current = _uiState.value as? BookDetailUiState.Success ?: return@launch
+            val draft = current.bookDraft
 
-            val result = updateBookUseCase(updatedBook)
+            if (draft.title.isBlank()) {
+                viewModelScope.launch { _effect.send(ShowSnackbar(StringResource(R.string.error_title_empty))) }
+                return@launch
+            }
+            if (draft.author.isBlank()) {
+                viewModelScope.launch { _effect.send(ShowSnackbar(StringResource(R.string.error_author_empty))) }
+                return@launch
+            }
 
-            result.fold(
-                onSuccess = {
-                    val oldPath = current.book.localFilePath
-                    val newPath = updatedBook.localFilePath
-                    if (oldPath != newPath) {
-                        withContext(Dispatchers.IO) {
-                            FileUtils.deleteReaderCache(application, updatedBook.id)
-                            FileUtils.deleteFileFromInternalStorage(application, oldPath)
-                        }
-                    }
-                    updateSuccessState {
-                        it.copy(
-                            isActionLoading = false,
-                            isEditMode = false,
-                            book = updatedBook
-                        )
-                    }
-                    _effect.send(ShowSnackbar(StringResource(R.string.save_success)))
-                },
-                onFailure = { exception ->
-                    updateSuccessState { it.copy(isActionLoading = false) }
-                    _effect.send(ShowSnackbar(exception.asUiText()))
+            updateSuccessState { it.copy(isActionLoading = true) }
+
+            try {
+                val filesResult = withContext(Dispatchers.IO) {
+                    FileUtils.promotePendingFiles(application, draft.localFilePath, draft.coverUrl)
                 }
-            )
+
+                val updatedBook = Book(
+                    id = current.book.id,
+                    title = draft.title,
+                    author = draft.author,
+                    publisher = draft.publisher,
+                    series = draft.series,
+                    seriesOrder = draft.seriesOrder.toDoubleOrNull(),
+                    isPhysical = draft.isPhysical,
+                    status = current.status,
+                    rating = current.rating ?: 0f,
+                    comment = current.comment,
+                    startDate = current.startDate,
+                    endDate = current.endDate,
+                    coverUrl = filesResult.coverPath,
+                    localFilePath = filesResult.epubPath,
+                    folders = draft.folders,
+                    genres = draft.genres,
+                    createdAt = current.book.createdAt
+                )
+
+                val result = updateBookUseCase(updatedBook)
+
+
+
+                result.fold(
+                    onSuccess = {
+                        withContext(Dispatchers.IO) {
+                            if (filesResult.coverPath != current.book.coverUrl) {
+                                deleteFileFromInternalStorage(application, current.book.coverUrl)
+                            }
+                            if (filesResult.epubPath != current.book.localFilePath) {
+                                deleteFileFromInternalStorage(application, current.book.localFilePath)
+                                FileUtils.deleteReaderCache(application, updatedBook.id)
+                            }
+                            FileUtils.deleteStagingAsset(application, draft.coverUrl)
+                        }
+                        updateSuccessState {
+                            it.copy(
+                                isEditMode = false,
+                                book = updatedBook,
+                                bookDraft = draft.copy(coverUrl = filesResult.coverPath, localFilePath = filesResult.epubPath)
+                            )
+                        }
+                        _effect.send(ShowSnackbar(StringResource(R.string.save_success)))
+                    },
+                    onFailure = { exception ->
+                        withContext(Dispatchers.IO) {
+                            if (filesResult.epubPath != null && filesResult.epubPath != current.book.localFilePath) {
+                                deleteFileFromInternalStorage(application, filesResult.epubPath)
+                            }
+                            if (filesResult.coverPath != null && filesResult.coverPath != current.book.coverUrl) {
+                                deleteFileFromInternalStorage(application, filesResult.coverPath)
+                            }
+                        }
+                        _effect.send(ShowSnackbar(exception.asUiText()))
+                    }
+                )
+            } catch (e: JuguitoException) {
+                _effect.send(ShowSnackbar(StringResource(e.resId)))
+            } finally {
+                updateSuccessState { it.copy(isActionLoading = false) }
+            }
         }
     }
 
