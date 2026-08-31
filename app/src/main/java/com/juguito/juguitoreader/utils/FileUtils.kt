@@ -5,8 +5,12 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.domain.exception.JuguitoException
 import java.io.File
 import java.io.FileOutputStream
+
+data class PromotedBookFiles(val epubPath: String?, val coverPath: String?)
 
 object FileUtils {
     fun getTempImageUri(context: Context): Uri {
@@ -37,11 +41,11 @@ object FileUtils {
             file.absolutePath
         } catch (e: Exception) {
             e.printStackTrace()
-            null
+            throw JuguitoException(R.string.error_copy_cover)
         }
     }
 
-    fun saveBookToInternalStorage(context: Context, uri: Uri, extension: String = "epub"): String? {
+    fun saveEpubBookToInternalStorage(context: Context, uri: Uri, extension: String = "epub"): String? {
         if (uri.path?.startsWith(context.filesDir.absolutePath) == true) {
             return uri.path
         }
@@ -58,7 +62,7 @@ object FileUtils {
             file.absolutePath
         } catch (e: Exception) {
             e.printStackTrace()
-            null
+            throw JuguitoException(R.string.error_copy_epub)
         }
     }
 
@@ -107,5 +111,29 @@ object FileUtils {
         }
 
         return result ?: "Archivo desconocido"
+    }
+
+    fun promotePendingFiles(context: Context, epubCandidate: String?, coverCandidate: String?): PromotedBookFiles {
+        var epubPath: String? = null
+        var coverPath: String? = null
+        try {
+            if (epubCandidate != null) {
+                epubPath = if (epubCandidate.startsWith(context.filesDir.absolutePath)) epubCandidate else saveEpubBookToInternalStorage(context, epubCandidate.toUri())
+            }
+            if (coverCandidate != null) {
+                coverPath = if (coverCandidate.startsWith(context.filesDir.absolutePath)) coverCandidate else saveImageToInternalStorage(context, coverCandidate.toUri())
+            }
+            return PromotedBookFiles(epubPath, coverPath)
+        } catch (e: JuguitoException) {
+            if (epubPath != null) deleteFileFromInternalStorage(context, epubPath)
+            if (coverPath != null) deleteFileFromInternalStorage(context, coverPath)
+            throw e
+        }
+    }
+
+    fun deleteStagingAsset(context: Context, path: String?) {
+        if (path.isNullOrBlank()) return
+        if (!path.startsWith(context.cacheDir.absolutePath)) return
+        runCatching { File(path).delete() }
     }
 }

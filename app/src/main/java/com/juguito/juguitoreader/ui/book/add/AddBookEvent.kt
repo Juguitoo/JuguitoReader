@@ -18,4 +18,5 @@ sealed interface AddBookEvent {
     data class OnGenresChanged(val genres: List<Genre>): AddBookEvent
     data class OnImportEpub(val uri: Uri): AddBookEvent
     data object OnSaveClick: AddBookEvent
+    data object OnDiscard: AddBookEvent
 }

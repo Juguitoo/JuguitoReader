@@ -2,8 +2,6 @@ package com.juguito.juguitoreader.domain.usecase.book
 
 import android.content.Context
 import android.net.Uri
-import com.juguito.juguitoreader.R
-import com.juguito.juguitoreader.domain.exception.JuguitoException
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.Genre
 import com.juguito.juguitoreader.utils.EpubParser
@@ -13,10 +11,10 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class GetBookFromEpubUseCase @Inject constructor() {
-    suspend operator fun invoke(context: Context, uri: Uri): Book {
+    suspend operator fun invoke(context: Context, uri: Uri, persistFiles: Boolean): Book {
         return withContext(Dispatchers.IO) {
-            val metadata = EpubParser.extractMetadata(context, uri)
-            val internalPath = FileUtils.saveBookToInternalStorage(context, uri)
+            val metadata = EpubParser.extractMetadata(context, uri, persistFiles)
+            val internalPath = if (persistFiles) FileUtils.saveEpubBookToInternalStorage(context, uri) else uri.toString()
 
             return@withContext Book(
                 title = metadata.title ?: "",
@@ -26,7 +24,7 @@ class GetBookFromEpubUseCase @Inject constructor() {
                 seriesOrder = metadata.seriesOrder,
                 isPhysical = false,
                 coverUrl = metadata.coverUrl,
-                localFilePath = internalPath ?: throw JuguitoException(R.string.error_copy_epub),
+                localFilePath = internalPath,
                 genres = metadata.genres.map { Genre(name = it) }
             )
         }

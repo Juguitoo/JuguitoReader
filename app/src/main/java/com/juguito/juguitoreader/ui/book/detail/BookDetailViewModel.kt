@@ -155,7 +155,7 @@ class BookDetailViewModel @Inject constructor(
                 viewModelScope.launch {
                     updateSuccessState { it.copy(isActionLoading = true) }
                     runCatching {
-                        getBookFromEpubUseCase(application, event.uri)
+                        getBookFromEpubUseCase(application, event.uri, false)
                     }.onSuccess { bookMetadata ->
                         val success = _uiState.value as? BookDetailUiState.Success
                         val previousPath = success?.bookDraft?.localFilePath

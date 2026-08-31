@@ -145,6 +145,7 @@ fun AddBookContent(
         contract = ActivityResultContracts.OpenDocument(),
         onResult = { uri ->
             uri?.let {
+                context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 onEvent(AddBookEvent.OnEpubFilePicked(it))
             }
         }
@@ -245,7 +246,9 @@ fun AddBookContent(
         topBar = {
             Surface(
                 shadowElevation = 6.dp,
-                modifier = Modifier.background(Color.Transparent).statusBarsPadding(),
+                modifier = Modifier
+                    .background(Color.Transparent)
+                    .statusBarsPadding(),
             ) {
                 TopAppBar(
                     title = {
@@ -257,7 +260,10 @@ fun AddBookContent(
                         )
                     },
                     navigationIcon = {
-                        IconButton(onClick = onNavigateBack) {
+                        IconButton(onClick = {
+                            onEvent(AddBookEvent.OnDiscard)
+                            onNavigateBack()
+                        }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = stringResource(R.string.back),
@@ -426,7 +432,11 @@ fun AddBookContent(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .clip(RoundedCornerShape(16.dp))
-                                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(16.dp))
+                                .border(
+                                    1.dp,
+                                    MaterialTheme.colorScheme.outlineVariant,
+                                    RoundedCornerShape(16.dp)
+                                )
                         )
                     } else {
                         Surface(
@@ -492,7 +502,9 @@ fun AddBookContent(
                                     onClick = {
                                         basicDocumentLauncher.launch(arrayOf("application/epub+zip"))
                                     },
-                                    modifier = Modifier.height(30.dp).weight(1f),
+                                    modifier = Modifier
+                                        .height(30.dp)
+                                        .weight(1f),
                                     shape = RoundedCornerShape(8.dp),
                                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
                                     colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.secondary),

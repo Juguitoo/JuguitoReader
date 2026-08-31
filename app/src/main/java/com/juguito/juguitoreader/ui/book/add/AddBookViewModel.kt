@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.domain.exception.JuguitoException
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.usecase.book.AddBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBookFromEpubUseCase
@@ -14,6 +15,7 @@ import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.asUiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.utils.FileUtils
+import com.juguito.juguitoreader.utils.FileUtils.deleteFileFromInternalStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -104,36 +106,18 @@ class AddBookViewModel @Inject constructor(
                 )
             }
             is AddBookEvent.OnCoverUrlChanged -> {
-                viewModelScope.launch {
-                    val permanentPath = withContext(Dispatchers.IO) {
-                        FileUtils.saveImageToInternalStorage(application, event.uri)
-                    }
-                    if (permanentPath != null) {
-                        _uiState.value = _uiState.value.copy(
-                            bookDraft = _uiState.value.bookDraft.copy(coverUrl = permanentPath)
-                        )
-                    } else {
-                        _effect.send(
-                            UiEffect.ShowSnackbar(UiText.StringResource(R.string.error_copy_epub))
-                        )
-                    }
+                val previousCover = _uiState.value.bookDraft.coverUrl
+                _uiState.value = _uiState.value.copy(
+                    bookDraft = _uiState.value.bookDraft.copy(coverUrl = event.uri.toString())
+                )
+                viewModelScope.launch(Dispatchers.IO) {
+                    FileUtils.deleteStagingAsset(application, previousCover)
                 }
             }
             is AddBookEvent.OnEpubFilePicked -> {
-                viewModelScope.launch {
-                    val permanentPath = withContext(Dispatchers.IO) {
-                        FileUtils.saveBookToInternalStorage(application, event.uri)
-                    }
-                    if (permanentPath != null) {
-                        _uiState.value = _uiState.value.copy(
-                            bookDraft = _uiState.value.bookDraft.copy(localFilePath = permanentPath)
-                        )
-                    } else {
-                        _effect.send(
-                            UiEffect.ShowSnackbar(UiText.StringResource(R.string.error_copy_epub))
-                        )
-                    }
-                }
+                _uiState.value = _uiState.value.copy(
+                    bookDraft = _uiState.value.bookDraft.copy(localFilePath = event.uri.toString())
+                )
             }
             is AddBookEvent.OnLocalFilePathChanged -> {
                 _uiState.value = _uiState.value.copy(
@@ -156,62 +140,89 @@ class AddBookViewModel @Inject constructor(
             AddBookEvent.OnSaveClick -> {
                 saveBook()
             }
+            AddBookEvent.OnDiscard -> {
+                val cover = _uiState.value.bookDraft.coverUrl
+                viewModelScope.launch(Dispatchers.IO) {
+                    FileUtils.deleteStagingAsset(application, cover)
+                }
+            }
         }
     }
 
     private fun saveBook() {
-        val currentState = _uiState.value
-        val draft = currentState.bookDraft
-
-        if (draft.title.isBlank()) {
-            viewModelScope.launch {
-                _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.error_title_empty)))
-            }
-            return
-        }
-        if (draft.author.isBlank()) {
-            viewModelScope.launch {
-                _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.error_author_empty)))
-            }
-            return
-        }
-
-        _uiState.value = _uiState.value.copy(isLoading = true)
-
         viewModelScope.launch {
-            val newBook = Book(
-                title = draft.title,
-                author = draft.author,
-                publisher = draft.publisher,
-                series = draft.series,
-                seriesOrder = draft.seriesOrder.toDoubleOrNull(),
-                isPhysical = draft.isPhysical,
-                coverUrl = draft.coverUrl,
-                localFilePath = draft.localFilePath,
-                folders = draft.folders,
-                genres = draft.genres,
-            )
+            val currentState = _uiState.value
+            val draft = currentState.bookDraft
 
-            val result = addBookUseCase(newBook)
+            if (draft.title.isBlank()) {
+                _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.error_title_empty)))
+                return@launch
+            }
+            if (draft.author.isBlank()) {
+                _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.error_author_empty)))
+                return@launch
+            }
 
-            result.fold(
-                onSuccess = {
-                    _effect.send(UiEffect.NavigateBack)
-                },
-                onFailure = { exception ->
-                    viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+
+            try {
+                val filesResult = withContext(Dispatchers.IO) {
+                    FileUtils.promotePendingFiles(application, draft.localFilePath, draft.coverUrl)
+                }
+
+                val newBook = Book(
+                    title = draft.title,
+                    author = draft.author,
+                    publisher = draft.publisher,
+                    series = draft.series,
+                    seriesOrder = draft.seriesOrder.toDoubleOrNull(),
+                    isPhysical = draft.isPhysical,
+                    coverUrl = filesResult.coverPath,
+                    localFilePath = filesResult.epubPath,
+                    folders = draft.folders,
+                    genres = draft.genres,
+                )
+
+                val result = addBookUseCase(newBook)
+
+                result.fold(
+                    onSuccess = {
+                        withContext(Dispatchers.IO) {
+                            FileUtils.deleteStagingAsset(application, draft.coverUrl)
+                        }
+                        _effect.send(UiEffect.NavigateBack)
+                    },
+                    onFailure = { exception ->
+                        withContext(Dispatchers.IO) {
+                            if (filesResult.epubPath != null) deleteFileFromInternalStorage(
+                                application,
+                                filesResult.epubPath
+                            )
+                            if (filesResult.coverPath != null) deleteFileFromInternalStorage(
+                                application,
+                                filesResult.coverPath
+                            )
+                        }
                         _effect.send(UiEffect.ShowSnackbar(exception.asUiText()))
                     }
-                }
-            )
+                )
+            } catch (e: JuguitoException) {
+                _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(e.resId)))
+            } finally {
+                _uiState.value = _uiState.value.copy(isLoading = false)
+            }
         }
     }
 
     private fun importEpubData(uri: Uri) {
         viewModelScope.launch {
             runCatching {
+                val previousCover = _uiState.value.bookDraft.coverUrl
                 _uiState.value = _uiState.value.copy(isLoading = true)
-                val book = getBookFromEpubUseCase(application, uri)
+                val book = getBookFromEpubUseCase(application, uri, false)
+                withContext(Dispatchers.IO) {
+                    FileUtils.deleteStagingAsset(application, previousCover)
+                }
 
                 val currentDraft = _uiState.value.bookDraft
                 _uiState.value = _uiState.value.copy(
@@ -228,12 +239,14 @@ class AddBookViewModel @Inject constructor(
                     )
                 )
             }.onSuccess {
+                _uiState.value = _uiState.value.copy(isLoading = false)
                 _effect.send(
                     UiEffect.ShowSnackbar(
                         message = UiText.DynamicString("Datos importados correctamente.")
                     )
                 )
             }.onFailure {
+                _uiState.value = _uiState.value.copy(isLoading = false)
                 _effect.send(
                     UiEffect.ShowSnackbar(
                         message = UiText.StringResource(R.string.something_went_wrong)

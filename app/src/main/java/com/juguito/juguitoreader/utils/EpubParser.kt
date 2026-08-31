@@ -50,7 +50,7 @@ object EpubParser {
      *
      * Malformed or unavailable optional fields are omitted instead of failing the import.
      */
-    fun extractMetadata(context: Context, uri: Uri): EpubMetaData {
+    fun extractMetadata(context: Context, uri: Uri, persistCover: Boolean): EpubMetaData {
         var title: String? = null
         var author: String? = null
         var series: String? = null
@@ -128,7 +128,11 @@ object EpubParser {
                         var entry = zip.nextEntry
                         while (entry != null) {
                             if (entry.name == fullCoverZipPath) {
-                                coverFile = File(context.filesDir, "cover_${System.currentTimeMillis()}.jpg")
+                                coverFile = if (persistCover) {
+                                    File(context.filesDir, "cover_${System.currentTimeMillis()}.jpg")
+                                } else {
+                                    File(context.cacheDir, "covers/cover_${System.currentTimeMillis()}.jpg").also { it.parentFile?.mkdirs() }
+                                }
                                 writeBounded(zip, coverFile, MAX_COVER_BYTES)
                                 coverUrl = coverFile.absolutePath
                                 break
