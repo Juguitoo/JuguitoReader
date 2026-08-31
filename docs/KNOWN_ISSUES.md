@@ -10,10 +10,10 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 | Severidad    | IDs                                                                                  |
 | ------------ | ------------------------------------------------------------------------------------ |
 | **Crítico**  |                                                                                      |
-| **Alto**     | DATA-007, DATA-008, FILE-004                                                           |
+| **Alto**     | DATA-007, DATA-008                                                           |
 | **Medio**    | DATA-004, DATA-006, READER-005…014, FILE-005, UX-001, UX-002, PERF-001, ARCH-002     |
 | **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                         |
-| **Resuelto** | READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
+| **Resuelto** | FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
 
 
 ---
@@ -47,19 +47,6 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 
 
 AddBookUseCase / UpdateBookUseCase: múltiples writes sin `@Transaction`. Fallo intermedio → BD inconsistente.
-
----
-
-
-
-### FILE-004 · Archivos internos huérfanos
-
-
-| Estado | Abierto · v1.2.0 |
-| ------ | ---------------- |
-
-
-EPUB/cover se copian antes de confirmar save. Cancelación o error → archivos abandonados en storage.
 
 ---
 
@@ -287,7 +274,7 @@ Al reemplazar un EPUB, `reading_progress`, `daily_reading` y la extracción en c
 
 **Test:** cobertura unitaria de selección de la operación, cleanup, reconciliación y filtro de Home; test instrumentado de commit y rollback de la transacción Room.
 
-**Residual:** Room y filesystem no comparten transacción. Los candidatos y covers huérfanos siguen bajo FILE-004.
+**Residual:** Room y filesystem no comparten transacción (DATA-008). Huérfanos previos a v1.2.0 no se barreron del disco.
 
 ---
 
@@ -362,6 +349,27 @@ Carga `file://` + `allowFileAccess`. EPUB = HTML de terceros.
 **Fix:** `withContext(Dispatchers.IO)` en ambos use cases; `GetBookFromEpubUseCase` pasa a `suspend`. ViewModels de Add/Detail dejan de envolver redundante.
 
 **Test:** `ParseEpubUseCaseTest`, `GetBookFromEpubUseCaseTest`, `ImportBookFromUriUseCaseTest`, `BookDetailViewModelTest`.
+
+---
+
+
+
+### FILE-004 · Archivos internos huérfanos
+
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `f575581`, `a302657`, `3bb1edf`, `092c7b1`, `e76f776` |
+
+
+EPUB y cover se copiaban a `filesDir` en picker/import antes de confirmar en Room. Cancelar, sustituir o fallar el save dejaba ficheros huérfanos.
+
+**Fix (commit on save):** draft con `content://` o staging en `cacheDir`; `promotePendingFiles` solo al guardar. AddBook y BookDetail hacen rollback de lo promocionado si falla Room; BookDetail borra assets sustituidos y `cache/reader/{id}` al cambiar EPUB (complementa READER-004). Import one-shot (`ImportBookFromUriUseCase`) copia y hace rollback si `addBook` falla. Helpers `deleteStagingAsset` / `deleteFileFromInternalStorage`.
+
+**Test:** `FileUtilsTest`, `GetBookFromEpubUseCaseTest`, `ImportBookFromUriUseCaseTest`, `AddBookViewModelTest`, `BookDetailViewModelTest`.
+
+**Residual:** huérfanos acumulados en instalaciones previas (sin barrido histórico); atomicidad Room + FS sigue en DATA-008.
 
 ---
 
