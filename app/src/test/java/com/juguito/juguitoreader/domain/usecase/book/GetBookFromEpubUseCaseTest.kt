@@ -12,6 +12,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
+import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -30,7 +31,7 @@ class GetBookFromEpubUseCaseTest {
         seriesOrder = null,
         genres = emptyList(),
         publisher = null,
-        coverUrl = null
+        coverUrl = "/cache/covers/cover.jpg",
     )
 
     @Before
@@ -38,6 +39,7 @@ class GetBookFromEpubUseCaseTest {
         useCase = GetBookFromEpubUseCase()
         mockkObject(EpubParser)
         mockkObject(FileUtils)
+        every { uri.toString() } returns "content://com.android.providers.downloads/document/42"
     }
 
     @After
@@ -46,24 +48,37 @@ class GetBookFromEpubUseCaseTest {
     }
 
     @Test
-    fun `invoke extracts metadata and returns book with internal path`() = runTest {
-        every { EpubParser.extractMetadata(any(), any()) } returns metadata
-        every { FileUtils.saveBookToInternalStorage(any(), any()) } returns "internal/path"
+    fun `invoke with persistFiles false keeps epub uri in draft`() = runTest {
+        every { EpubParser.extractMetadata(context, uri, false) } returns metadata
 
-        val book = useCase(context, uri)
+        val book = useCase(context, uri, persistFiles = false)
 
         assertThat(book.title).isEqualTo("Test")
         assertThat(book.author).isEqualTo("Author")
-        assertThat(book.localFilePath).isEqualTo("internal/path")
+        assertThat(book.localFilePath).isEqualTo("content://com.android.providers.downloads/document/42")
+        assertThat(book.coverUrl).isEqualTo("/cache/covers/cover.jpg")
+        verify(exactly = 0) { FileUtils.saveEpubBookToInternalStorage(any(), any()) }
     }
 
     @Test
-    fun `invoke throws when copy to internal storage fails without falling back to content uri`() = runTest {
-        every { EpubParser.extractMetadata(any(), any()) } returns metadata
-        every { FileUtils.saveBookToInternalStorage(any(), any()) } returns null
-        every { uri.toString() } returns "content://com.android.providers.downloads/document/42"
+    fun `invoke with persistFiles true copies epub to internal storage`() = runTest {
+        every { EpubParser.extractMetadata(context, uri, true) } returns metadata
+        every { FileUtils.saveEpubBookToInternalStorage(context, uri) } returns "/data/files/book.epub"
 
-        val exception = runCatching { useCase(context, uri) }.exceptionOrNull()
+        val book = useCase(context, uri, persistFiles = true)
+
+        assertThat(book.localFilePath).isEqualTo("/data/files/book.epub")
+        verify(exactly = 1) { FileUtils.saveEpubBookToInternalStorage(context, uri) }
+    }
+
+    @Test
+    fun `invoke with persistFiles true propagates epub copy failure`() = runTest {
+        every { EpubParser.extractMetadata(context, uri, true) } returns metadata
+        every {
+            FileUtils.saveEpubBookToInternalStorage(context, uri)
+        } throws JuguitoException(R.string.error_copy_epub)
+
+        val exception = runCatching { useCase(context, uri, persistFiles = true) }.exceptionOrNull()
 
         assertThat(exception).isInstanceOf(JuguitoException::class.java)
         assertThat((exception as JuguitoException).resId).isEqualTo(R.string.error_copy_epub)

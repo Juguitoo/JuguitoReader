@@ -6,6 +6,7 @@ import androidx.core.net.toUri
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.domain.exception.JuguitoException
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.model.Genre
@@ -17,13 +18,17 @@ import com.juguito.juguitoreader.testutil.awaitValue
 import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.utils.FileUtils
+import com.juguito.juguitoreader.utils.PromotedBookFiles
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
+import io.mockk.runs
 import io.mockk.unmockkAll
+import io.mockk.verify
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -54,10 +59,12 @@ class AddBookViewModelTest {
 
         mockkStatic(Uri::class)
         mockkStatic("androidx.core.net.UriKt")
-        val uri = mockk<Uri>(relaxed = true)
-        every { Uri.parse(any()) } returns uri
+        val parsedUri = mockk<Uri>(relaxed = true)
+        every { Uri.parse(any()) } returns parsedUri
 
         mockkObject(FileUtils)
+        every { FileUtils.deleteStagingAsset(any(), any()) } just runs
+        every { FileUtils.deleteFileFromInternalStorage(any(), any()) } just runs
 
         every { getFoldersUseCase() } returns flowOf(emptyList())
         every { getGenresUseCase() } returns flowOf(emptyList())
@@ -104,13 +111,30 @@ class AddBookViewModelTest {
     }
 
     @Test
-    fun `onEvent OnCoverUrlChanged calls FileUtils and updates draft`() = runTest {
-        every { FileUtils.saveImageToInternalStorage(any(), any()) } returns "new/path"
+    fun `onEvent OnCoverUrlChanged stores uri in draft and deletes previous staging cover`() = runTest {
+        val oldUri = mockk<Uri>(relaxed = true)
+        every { oldUri.toString() } returns "/cache/covers/old.jpg"
+        viewModel.onEvent(AddBookEvent.OnCoverUrlChanged(oldUri))
 
-        viewModel.onEvent(AddBookEvent.OnCoverUrlChanged("temp/uri".toUri()))
-        viewModel.uiState.awaitValue { it.bookDraft.coverUrl == "new/path" }
+        val newUri = mockk<Uri>(relaxed = true)
+        every { newUri.toString() } returns "content://picker/cover.jpg"
 
-        assertThat(viewModel.uiState.value.bookDraft.coverUrl).isEqualTo("new/path")
+        viewModel.onEvent(AddBookEvent.OnCoverUrlChanged(newUri))
+
+        assertThat(viewModel.uiState.value.bookDraft.coverUrl).isEqualTo("content://picker/cover.jpg")
+        verify { FileUtils.deleteStagingAsset(application, "/cache/covers/old.jpg") }
+        verify(exactly = 0) { FileUtils.saveImageToInternalStorage(any(), any()) }
+    }
+
+    @Test
+    fun `onEvent OnEpubFilePicked stores uri in draft without copying`() = runTest {
+        val uri = mockk<Uri>(relaxed = true)
+        every { uri.toString() } returns "content://picker/book.epub"
+
+        viewModel.onEvent(AddBookEvent.OnEpubFilePicked(uri))
+
+        assertThat(viewModel.uiState.value.bookDraft.localFilePath).isEqualTo("content://picker/book.epub")
+        verify(exactly = 0) { FileUtils.saveEpubBookToInternalStorage(any(), any()) }
     }
 
     @Test
@@ -121,30 +145,72 @@ class AddBookViewModelTest {
     }
 
     @Test
-    fun `onEvent OnEpubFilePicked copies to internal path and updates draft`() = runTest {
-        val uri = mockk<Uri>(relaxed = true)
-        every { FileUtils.saveBookToInternalStorage(any(), any()) } returns "/data/files/book_1.epub"
+    fun `onEvent OnSaveClick promotes files before addBook`() = runTest {
+        val epubUri = mockk<Uri>(relaxed = true)
+        every { epubUri.toString() } returns "content://picker/book.epub"
+        viewModel.onEvent(AddBookEvent.OnTitleChanged("T"))
+        viewModel.onEvent(AddBookEvent.OnAuthorChanged("A"))
+        viewModel.onEvent(AddBookEvent.OnEpubFilePicked(epubUri))
+        every {
+            FileUtils.promotePendingFiles(application, "content://picker/book.epub", null)
+        } returns PromotedBookFiles(epubPath = "/data/files/book.epub", coverPath = null)
+        coEvery { addBookUseCase(any()) } returns Result.success(Unit)
 
-        viewModel.onEvent(AddBookEvent.OnEpubFilePicked(uri))
-        viewModel.uiState.awaitValue { it.bookDraft.localFilePath == "/data/files/book_1.epub" }
+        viewModel.onEvent(AddBookEvent.OnSaveClick)
 
-        assertThat(viewModel.uiState.value.bookDraft.localFilePath).isEqualTo("/data/files/book_1.epub")
-        assertThat(viewModel.uiState.value.bookDraft.localFilePath).doesNotContain("content://")
+        coVerify {
+            addBookUseCase(match { it.localFilePath == "/data/files/book.epub" })
+        }
+        viewModel.effect.test {
+            assertThat(awaitItem()).isEqualTo(UiEffect.NavigateBack)
+        }
     }
 
     @Test
-    fun `onEvent OnEpubFilePicked shows snackbar when copy fails and keeps previous path`() = runTest {
-        viewModel.onEvent(AddBookEvent.OnLocalFilePathChanged("/data/files/existing.epub"))
-        every { FileUtils.saveBookToInternalStorage(any(), any()) } returns null
+    fun `onEvent OnSaveClick shows snackbar and rolls back when addBook fails`() = runTest {
+        viewModel.onEvent(AddBookEvent.OnTitleChanged("T"))
+        viewModel.onEvent(AddBookEvent.OnAuthorChanged("A"))
+        every {
+            FileUtils.promotePendingFiles(any(), any(), any())
+        } returns PromotedBookFiles(
+            epubPath = "/data/files/book.epub",
+            coverPath = "/data/files/cover.jpg",
+        )
+        coEvery { addBookUseCase(any()) } returns Result.failure(
+            JuguitoException(R.string.error_save_book)
+        )
 
-        viewModel.onEvent(AddBookEvent.OnEpubFilePicked(mockk(relaxed = true)))
+        viewModel.onEvent(AddBookEvent.OnSaveClick)
 
         viewModel.effect.test {
             val effect = awaitItem() as UiEffect.ShowSnackbar
-            val uiText = effect.message as UiText.StringResource
-            assertEquals(R.string.error_copy_epub, uiText.resId)
+            assertEquals(R.string.error_save_book, (effect.message as UiText.StringResource).resId)
         }
-        assertThat(viewModel.uiState.value.bookDraft.localFilePath).isEqualTo("/data/files/existing.epub")
+        verify(timeout = 5_000) {
+            FileUtils.deleteFileFromInternalStorage(application, "/data/files/book.epub")
+        }
+        verify(timeout = 5_000) {
+            FileUtils.deleteFileFromInternalStorage(application, "/data/files/cover.jpg")
+        }
+        assertThat(viewModel.uiState.value.isLoading).isFalse()
+    }
+
+    @Test
+    fun `onEvent OnSaveClick shows snackbar when promote fails`() = runTest {
+        viewModel.onEvent(AddBookEvent.OnTitleChanged("T"))
+        viewModel.onEvent(AddBookEvent.OnAuthorChanged("A"))
+        every {
+            FileUtils.promotePendingFiles(any(), any(), any())
+        } throws JuguitoException(R.string.error_copy_epub)
+
+        viewModel.onEvent(AddBookEvent.OnSaveClick)
+
+        viewModel.effect.test {
+            val effect = awaitItem() as UiEffect.ShowSnackbar
+            assertEquals(R.string.error_copy_epub, (effect.message as UiText.StringResource).resId)
+        }
+        assertThat(viewModel.uiState.value.isLoading).isFalse()
+        coVerify(exactly = 0) { addBookUseCase(any()) }
     }
 
     @Test
@@ -158,29 +224,47 @@ class AddBookViewModelTest {
     }
 
     @Test
-    fun `onEvent OnSaveClick calls use case on success`() = runTest {
-        viewModel.onEvent(AddBookEvent.OnTitleChanged("T"))
-        viewModel.onEvent(AddBookEvent.OnAuthorChanged("A"))
-        coEvery { addBookUseCase(any()) } returns Result.success(Unit)
+    fun `onEvent OnDiscard deletes staging cover`() = runTest {
+        val coverUri = mockk<Uri>(relaxed = true)
+        every { coverUri.toString() } returns "/cache/covers/cover.jpg"
+        viewModel.onEvent(AddBookEvent.OnCoverUrlChanged(coverUri))
 
-        viewModel.onEvent(AddBookEvent.OnSaveClick)
+        viewModel.onEvent(AddBookEvent.OnDiscard)
 
-        coVerify { addBookUseCase(any()) }
-        viewModel.effect.test {
-            assertThat(awaitItem()).isEqualTo(UiEffect.NavigateBack)
-        }
+        verify { FileUtils.deleteStagingAsset(application, "/cache/covers/cover.jpg") }
     }
 
     @Test
-    fun `onEvent OnImportEpub updates draft with epub data`() = runTest {
+    fun `onEvent OnImportEpub loads metadata without persisting files`() = runTest {
         val uri = mockk<Uri>(relaxed = true)
-        val book = Book(title = "Epub Title", author = "Epub Author", isPhysical = false)
-        coEvery { getBookFromEpubUseCase(any(), any()) } returns book
+        val book = Book(
+            title = "Epub Title",
+            author = "Epub Author",
+            isPhysical = false,
+            localFilePath = "content://picker/imported.epub",
+            coverUrl = "/cache/covers/imported.jpg",
+        )
+        coEvery { getBookFromEpubUseCase(application, uri, false) } returns book
 
         viewModel.onEvent(AddBookEvent.OnImportEpub(uri))
         viewModel.uiState.awaitValue { it.bookDraft.title == "Epub Title" && !it.isLoading }
 
-        assertThat(viewModel.uiState.value.bookDraft.title).isEqualTo("Epub Title")
+        assertThat(viewModel.uiState.value.bookDraft.localFilePath)
+            .isEqualTo("content://picker/imported.epub")
+        assertThat(viewModel.uiState.value.bookDraft.coverUrl)
+            .isEqualTo("/cache/covers/imported.jpg")
+        coVerify { getBookFromEpubUseCase(application, uri, persistFiles = false) }
+    }
+
+    @Test
+    fun `onEvent OnImportEpub clears loading state on failure`() = runTest {
+        val uri = mockk<Uri>(relaxed = true)
+        coEvery { getBookFromEpubUseCase(application, uri, false) } throws
+            JuguitoException(R.string.error_copy_epub)
+
+        viewModel.onEvent(AddBookEvent.OnImportEpub(uri))
+        viewModel.uiState.awaitValue { !it.isLoading }
+
         assertThat(viewModel.uiState.value.isLoading).isFalse()
     }
 }
