@@ -26,8 +26,7 @@ class UpdateBookUseCase @Inject constructor(
             val folderIds = resolveFolderIds(book.folders, folderRepository)
             val genreIds = resolveGenreIds(book.genres, genreRepository)
             if (persistedBook.localFilePath == book.localFilePath) {
-                bookRepository.updateBook(book)
-                bookRepository.syncCrossReferences(book.id, folderIds, genreIds)
+                bookRepository.updateBookWithCrossRefs(book, folderIds, genreIds)
             } else {
                 bookRepository.updateBookWithNewEpub(book, folderIds, genreIds)
             }

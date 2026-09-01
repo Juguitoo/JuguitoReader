@@ -23,7 +23,11 @@ interface BookRepository {
 
     suspend fun updateBookWithNewEpub(book: Book, folderIds: List<Int>, genreIds: List<Int>)
 
-    suspend fun restoreDeletedBook(snapshot: DeletedBookSnapshot, folderIds : List<Int>, genreIds : List<Int>)
+    suspend fun restoreDeletedBook(snapshot: DeletedBookSnapshot, folderIds: List<Int>, genreIds: List<Int>)
+
+    suspend fun insertBookWithCrossRefs(book: Book, folderIds: List<Int>, genreIds: List<Int>): Long
+
+    suspend fun updateBookWithCrossRefs(book: Book, folderIds: List<Int>, genreIds: List<Int>)
 
     suspend fun syncPendingBooks()
 }

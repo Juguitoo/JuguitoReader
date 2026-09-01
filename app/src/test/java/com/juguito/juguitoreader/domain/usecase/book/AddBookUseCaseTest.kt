@@ -49,23 +49,21 @@ class AddBookUseCaseTest {
     }
 
     @Test
-    fun `invoke with valid book calls insertBook and returns success`() = runBlocking {
+    fun `invoke with valid book calls insertBookWithCrossRefs and returns success`() = runBlocking {
         val book = Book(title = "Valid Title", author = "Valid Author", isPhysical = false)
 
-        coEvery { bookRepository.insertBook(any()) } returns 1L
-        coEvery { bookRepository.syncCrossReferences(any(), any(), any()) } returns Unit
+        coEvery { bookRepository.insertBookWithCrossRefs(any(), any(), any()) } returns 1L
 
         val result = useCase(book)
 
         assertThat(result.isSuccess).isTrue()
-        coVerify(exactly = 1) { bookRepository.insertBook(any()) }
-        coVerify(exactly = 1) { bookRepository.syncCrossReferences(1, any(), any()) }
+        coVerify(exactly = 1) { bookRepository.insertBookWithCrossRefs(book, emptyList(), emptyList()) }
     }
 
     @Test
     fun `invoke with exception in repository returns failure`() = runBlocking {
         val book = Book(title = "Title", author = "Author", isPhysical = false)
-        coEvery { bookRepository.insertBook(any()) } throws Exception("DB Error")
+        coEvery { bookRepository.insertBookWithCrossRefs(any(), any(), any()) } throws Exception("DB Error")
 
         val result = useCase(book)
 
@@ -75,20 +73,19 @@ class AddBookUseCaseTest {
     }
 
     @Test
-    fun `invoke with existing folder and genre id uses that ids in syncCrossReferences`() = runBlocking {
+    fun `invoke with existing folder and genre id uses resolved ids in insertBookWithCrossRefs`() = runBlocking {
         val folder = Folder(id = 5, name = "Sci-Fi-OLD", colorHex = "#FFF")
         val genre = Genre(id = 3, name = "Fairy")
         val book = Book(id = 1, title = "T", author = "A", isPhysical = true, folders = listOf(folder), genres = listOf(genre))
 
         coEvery { folderRepository.getFolderById(5) } returns Folder(id = 5, name = "Science Fiction", colorHex = "#FFF")
         coEvery { genreRepository.getGenreById(3) } returns Genre(id = 3, name = "Fantasy")
-        coEvery { bookRepository.syncCrossReferences(any(), any(), any()) } returns Unit
-        coEvery { bookRepository.insertBook(book) } returns 1L
+        coEvery { bookRepository.insertBookWithCrossRefs(any(), any(), any()) } returns 1L
 
         val result = useCase(book)
 
         assertThat(result.isSuccess).isTrue()
-        coVerify { bookRepository.syncCrossReferences(1, listOf(5), listOf(3)) }
+        coVerify(exactly = 1) { bookRepository.insertBookWithCrossRefs(book, listOf(5), listOf(3)) }
         coVerify(exactly = 0) { folderRepository.getFolderByName(any()) }
         coVerify(exactly = 0) { folderRepository.insertFolder(any()) }
         coVerify(exactly = 0) { genreRepository.getGenreByName(any()) }
@@ -96,7 +93,7 @@ class AddBookUseCaseTest {
     }
 
     @Test
-    fun `invoke with non existing folder and genre calls syncCrossReferences with new ids`() = runBlocking {
+    fun `invoke with non existing folder and genre calls insertBookWithCrossRefs with new ids`() = runBlocking {
         val folder = Folder(id = 0, name = "Sci-Fi", colorHex = "#FFF")
         val genre = Genre(id = 0, name = "Fantasy")
         val book = Book(id = 1, title = "T", author = "A", isPhysical = true, folders = listOf(folder), genres = listOf(genre))
@@ -105,13 +102,12 @@ class AddBookUseCaseTest {
         coEvery { genreRepository.getGenreByName(any()) } returns null
         coEvery { folderRepository.insertFolder(any()) } returns 5L
         coEvery { genreRepository.insertGenre(any()) } returns 20L
-        coEvery { bookRepository.syncCrossReferences(any(), any(), any()) } returns Unit
-        coEvery { bookRepository.insertBook(book) } returns 1L
+        coEvery { bookRepository.insertBookWithCrossRefs(any(), any(), any()) } returns 1L
 
         val result = useCase(book)
 
         assertThat(result.isSuccess).isTrue()
-        coVerify { bookRepository.syncCrossReferences(1, listOf(5), listOf(20)) }
+        coVerify { bookRepository.insertBookWithCrossRefs(book, listOf(5), listOf(20)) }
         coVerify(exactly = 1) { folderRepository.getFolderByName("Sci-Fi") }
         coVerify(exactly = 1) { folderRepository.insertFolder(any()) }
         coVerify(exactly = 1) { genreRepository.getGenreByName("Fantasy") }
@@ -119,22 +115,19 @@ class AddBookUseCaseTest {
     }
 
     @Test
-    fun `invoke with existing folder and genre but with null id calls syncCrossReferences`() = runBlocking {
+    fun `invoke with existing folder and genre by name calls insertBookWithCrossRefs with resolved ids`() = runBlocking {
         val folder = Folder(id = 0, name = "Sci-Fi", colorHex = "#FFF")
         val genre = Genre(id = 0, name = "Fantasy")
         val book = Book(id = 1, title = "T", author = "A", isPhysical = true, folders = listOf(folder), genres = listOf(genre))
 
         coEvery { folderRepository.getFolderByName(any()) } returns Folder(id = 5, name = "Sci-Fi", colorHex = "#FFF")
         coEvery { genreRepository.getGenreByName(any()) } returns Genre(id = 20, name = "Fantasy")
-        coEvery { folderRepository.insertFolder(any()) } returns 5L
-        coEvery { genreRepository.insertGenre(any()) } returns 20L
-        coEvery { bookRepository.syncCrossReferences(any(), any(), any()) } returns Unit
-        coEvery { bookRepository.insertBook(book) } returns 1L
+        coEvery { bookRepository.insertBookWithCrossRefs(any(), any(), any()) } returns 1L
 
         val result = useCase(book)
 
         assertThat(result.isSuccess).isTrue()
-        coVerify { bookRepository.syncCrossReferences(1, listOf(5), listOf(20)) }
+        coVerify { bookRepository.insertBookWithCrossRefs(book, listOf(5), listOf(20)) }
         coVerify(exactly = 1) { folderRepository.getFolderByName("Sci-Fi") }
         coVerify(exactly = 0) { folderRepository.insertFolder(any()) }
         coVerify(exactly = 1) { genreRepository.getGenreByName("Fantasy") }

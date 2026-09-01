@@ -39,6 +39,9 @@ class BookRepositoryImplTest {
         coEvery { database.withTransaction<Unit>(any()) } coAnswers {
             arg<suspend () -> Unit>(1).invoke()
         }
+        coEvery { database.withTransaction<Long>(any()) } coAnswers {
+            arg<suspend () -> Long>(1).invoke()
+        }
         repository = BookRepositoryImpl(
             bookDAO = bookDAO,
             readingProgressDAO = readingProgressDAO,
@@ -115,6 +118,47 @@ class BookRepositoryImplTest {
         repository.syncCrossReferences(1, listOf(1), listOf(2))
 
         coVerify { bookDAO.syncBookCrossRefs(1, listOf(1), listOf(2)) }
+    }
+
+    @Test
+    fun `insertBookWithCrossRefs inserts book and syncs cross refs in transaction`() = runTest {
+        val book = Book(title = "New Book", author = "Author", isPhysical = false)
+        coEvery { bookDAO.insertBook(any()) } returns 100L
+        coEvery { bookDAO.syncBookCrossRefs(any(), any(), any()) } returns Unit
+
+        val id = repository.insertBookWithCrossRefs(book, listOf(5), listOf(3))
+
+        assertThat(id).isEqualTo(100L)
+        coVerify { bookDAO.insertBook(any()) }
+        coVerify { bookDAO.syncBookCrossRefs(100, listOf(5), listOf(3)) }
+    }
+
+    @Test
+    fun `updateBookWithCrossRefs updates book and syncs cross refs`() = runTest {
+        val book = Book(id = 1, title = "Updated", author = "Author", isPhysical = false)
+        coEvery { bookDAO.updateBook(any()) } returns Unit
+        coEvery { bookDAO.syncBookCrossRefs(any(), any(), any()) } returns Unit
+
+        repository.updateBookWithCrossRefs(book, listOf(5), listOf(3))
+
+        coVerify { bookDAO.updateBook(any()) }
+        coVerify { bookDAO.syncBookCrossRefs(1, listOf(5), listOf(3)) }
+    }
+
+    @Test
+    fun `updateBookWithNewEpub updates book syncs cross refs and clears reading data`() = runTest {
+        val book = Book(id = 1, title = "Updated", author = "Author", isPhysical = false)
+        coEvery { bookDAO.updateBook(any()) } returns Unit
+        coEvery { bookDAO.syncBookCrossRefs(any(), any(), any()) } returns Unit
+        coEvery { readingProgressDAO.deleteReadingProgressById(1) } returns Unit
+        coEvery { dailyReadingDAO.deleteBookDailyReadings(1) } returns Unit
+
+        repository.updateBookWithNewEpub(book, listOf(5), listOf(3))
+
+        coVerify { bookDAO.updateBook(any()) }
+        coVerify { bookDAO.syncBookCrossRefs(1, listOf(5), listOf(3)) }
+        coVerify { readingProgressDAO.deleteReadingProgressById(1) }
+        coVerify { dailyReadingDAO.deleteBookDailyReadings(1) }
     }
 
     @Test

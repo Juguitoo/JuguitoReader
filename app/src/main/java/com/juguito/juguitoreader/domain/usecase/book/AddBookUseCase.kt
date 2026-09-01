@@ -24,9 +24,7 @@ class AddBookUseCase @Inject constructor(
             val folderIds = resolveFolderIds(book.folders, folderRepository)
             val genreIds = resolveGenreIds(book.genres, genreRepository)
 
-            val bookId = bookRepository.insertBook(book).toInt()
-
-            bookRepository.syncCrossReferences(bookId, folderIds, genreIds)
+            bookRepository.insertBookWithCrossRefs(book, folderIds, genreIds)
 
             Result.success(Unit)
         } catch (e: Exception) {

@@ -52,24 +52,29 @@ class BookRepositoryImpl @Inject constructor(
         bookDAO.deleteBookById(id)
     }
 
-    override suspend fun updateBookWithNewEpub(
-        book: Book,
-        folderIds: List<Int>,
-        genreIds: List<Int>
-    ) = database.withTransaction {
-        bookDAO.updateBook(book.toEntity())
-        bookDAO.syncBookCrossRefs(book.id, folderIds, genreIds)
+    override suspend fun updateBookWithNewEpub(book: Book, folderIds: List<Int>, genreIds: List<Int>) = database.withTransaction {
+        updateBookWithCrossRefs(book, folderIds, genreIds)
         readingProgressDAO.deleteReadingProgressById(book.id)
         dailyReadingDAO.deleteBookDailyReadings(book.id)
     }
 
     override suspend fun restoreDeletedBook(snapshot: DeletedBookSnapshot, folderIds : List<Int>, genreIds : List<Int>) = database.withTransaction {
-        bookDAO.insertBook(snapshot.book.toEntity())
-        bookDAO.syncBookCrossRefs(snapshot.book.id, folderIds, genreIds)
+        insertBookWithCrossRefs(snapshot.book, folderIds, genreIds)
         snapshot.dailyReadings.forEach { dailyReadingDAO.insert(it.toEntity()) }
         if (snapshot.readingProgress != null) {
             readingProgressDAO.insertReadingProgress(snapshot.readingProgress.toEntity())
         }
+    }
+
+    override suspend fun insertBookWithCrossRefs(book: Book, folderIds: List<Int>, genreIds: List<Int>) : Long = database.withTransaction {
+        val id = bookDAO.insertBook(book.toEntity())
+        bookDAO.syncBookCrossRefs(id.toInt(), folderIds, genreIds)
+        return@withTransaction id
+    }
+
+    override suspend fun updateBookWithCrossRefs(book: Book, folderIds: List<Int>, genreIds: List<Int>) {
+        bookDAO.updateBook(book.toEntity())
+        bookDAO.syncBookCrossRefs(book.id, folderIds, genreIds)
     }
 
     override suspend fun syncPendingBooks() {
