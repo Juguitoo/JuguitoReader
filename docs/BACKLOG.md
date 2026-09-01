@@ -8,7 +8,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 
 ## v1.2.0 — Estabilización (cierre)
 
-> **Scope acordado:** resolver todos los issues abiertos en [KNOWN_ISSUES.md](KNOWN_ISSUES.md) antes de cerrar v1.2.0.
+> **Scope acordado:** resolver los issues abiertos en [KNOWN_ISSUES.md](KNOWN_ISSUES.md) antes de cerrar v1.2.0. **Excluidos del cierre v1.2:** READER-008 y READER-009 (diferidos a v1.4.0 — ver [ROADMAP.md](ROADMAP.md) TAR-31/TAR-32).
 
 ### P0 — Críticos
 
@@ -52,8 +52,6 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | READER-005 | Restaurar brillo al salir del lector                         | `[x]`  | KNOWN_ISSUES |
 | READER-006 | Restaurar system bars al salir del lector                    | `[x]`  | KNOWN_ISSUES |
 | READER-007 | Destruir WebView explícitamente (onRelease)                  | `[x]`  | KNOWN_ISSUES |
-| READER-008 | TOC con #fragment falla                                      | `[ ]`  | KNOWN_ISSUES |
-| READER-009 | EPUB3 nav document incompleto                                | `[ ]`  | KNOWN_ISSUES |
 | READER-010 | Errores unzip silenciados en EpubParser                      | `[ ]`  | KNOWN_ISSUES |
 | FILE-005   | openInputStream null pero devuelve path válido               | `[ ]`  | KNOWN_ISSUES |
 | UX-001     | Loading global al importar (Home)                            | `[ ]`  | KNOWN_ISSUES |
@@ -134,10 +132,12 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 ### v1.4.0
 
 
-| ID     | Tarea                         | Tipo |
-| ------ | ----------------------------- | ---- |
-| TAR-31 | Compatibilidad básica EPUB3   | Feat |
-| TAR-32 | Compatibilidad avanzada EPUB3 | Feat |
+| ID         | Tarea                                      | Tipo | Ref          |
+| ---------- | ------------------------------------------ | ---- | ------------ |
+| TAR-31     | Compatibilidad básica EPUB3                | Feat | ROADMAP      |
+| TAR-32     | Compatibilidad avanzada EPUB3              | Feat | ROADMAP      |
+| READER-008 | TOC con `#fragment` falla                    | Fix  | KNOWN_ISSUES |
+| READER-009 | EPUB3 nav document incompleto              | Fix  | KNOWN_ISSUES |
 
 
 

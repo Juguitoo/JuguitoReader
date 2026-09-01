@@ -14,7 +14,9 @@ import com.juguito.juguitoreader.domain.usecase.book.AddBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBookFromEpubUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
 import com.juguito.juguitoreader.domain.usecase.genre.GetGenresUseCase
+import com.juguito.juguitoreader.testutil.IO_DISPATCHER_TIMEOUT_MS
 import com.juguito.juguitoreader.testutil.awaitValue
+import com.juguito.juguitoreader.testutil.drainIoDispatcher
 import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.utils.FileUtils
@@ -33,6 +35,7 @@ import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -79,7 +82,8 @@ class AddBookViewModelTest {
     }
 
     @After
-    fun teardown() {
+    fun teardown() = runBlocking {
+        drainIoDispatcher()
         Dispatchers.resetMain()
         unmockkAll()
     }
@@ -122,7 +126,9 @@ class AddBookViewModelTest {
         viewModel.onEvent(AddBookEvent.OnCoverUrlChanged(newUri))
 
         assertThat(viewModel.uiState.value.bookDraft.coverUrl).isEqualTo("content://picker/cover.jpg")
-        verify { FileUtils.deleteStagingAsset(application, "/cache/covers/old.jpg") }
+        verify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
+            FileUtils.deleteStagingAsset(application, "/cache/covers/old.jpg")
+        }
         verify(exactly = 0) { FileUtils.saveImageToInternalStorage(any(), any()) }
     }
 
@@ -158,7 +164,7 @@ class AddBookViewModelTest {
 
         viewModel.onEvent(AddBookEvent.OnSaveClick)
 
-        coVerify {
+        coVerify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
             addBookUseCase(match { it.localFilePath == "/data/files/book.epub" })
         }
         viewModel.effect.test {
@@ -186,10 +192,10 @@ class AddBookViewModelTest {
             val effect = awaitItem() as UiEffect.ShowSnackbar
             assertEquals(R.string.error_save_book, (effect.message as UiText.StringResource).resId)
         }
-        verify(timeout = 5_000) {
+        verify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
             FileUtils.deleteFileFromInternalStorage(application, "/data/files/book.epub")
         }
-        verify(timeout = 5_000) {
+        verify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
             FileUtils.deleteFileFromInternalStorage(application, "/data/files/cover.jpg")
         }
         assertThat(viewModel.uiState.value.isLoading).isFalse()
@@ -231,7 +237,9 @@ class AddBookViewModelTest {
 
         viewModel.onEvent(AddBookEvent.OnDiscard)
 
-        verify { FileUtils.deleteStagingAsset(application, "/cache/covers/cover.jpg") }
+        verify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
+            FileUtils.deleteStagingAsset(application, "/cache/covers/cover.jpg")
+        }
     }
 
     @Test

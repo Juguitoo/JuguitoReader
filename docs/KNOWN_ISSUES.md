@@ -11,7 +11,8 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 | ------------ | ------------------------------------------------------------------------------------ |
 | **Crítico**  |                                                                                      |
 | **Alto**     |                                                                                      |
-| **Medio**    | DATA-006, READER-008…014, FILE-005, UX-001, UX-002, PERF-001, ARCH-002     |
+| **Medio**    | DATA-006, READER-010…014, FILE-005, UX-001, UX-002, PERF-001, ARCH-002     |
+| **Diferido** | READER-008, READER-009 → v1.4.0 (TAR-31)                                     |
 | **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                         |
 | **Resuelto** | READER-005, READER-006, READER-007, DATA-008, DATA-004, DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
 
@@ -78,15 +79,27 @@ Falta `stopLoading()`, quitar JS bridge, `destroy()` en `AndroidView.onRelease`.
 
 ### READER-008 · TOC con #fragment
 
+| Campo        | Valor                                      |
+| ------------ | ------------------------------------------ |
+| **Estado**   | **Diferido (v1.4.0)**                      |
+| **Relacionado** | TAR-31, READER-009                      |
+
 `chapter.xhtml#section2` no matchea bien con spine por nombre final → navegación TOC ambigua.
+
+**Nota:** limitación conocida del lector EPUB2 actual. No bloquea v1.2.0; se abordará con compatibilidad EPUB3 / navegación del índice (v1.4.0).
 
 ---
 
-
-
 ### READER-009 · EPUB3 nav incompleto
 
+| Campo        | Valor                                      |
+| ------------ | ------------------------------------------ |
+| **Estado**   | **Diferido (v1.4.0)**                      |
+| **Relacionado** | TAR-31, TAR-32                          |
+
 NCX parseado; falta soporte completo HTML Navigation Document (`properties="nav"`).
+
+**Nota:** EPUB3 parcial — muchos libros EPUB3 siguen leyéndose vía NCX o índice autogenerado desde spine. Soporte nav completo previsto en v1.4.0 (TAR-31).
 
 ---
 
