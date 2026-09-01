@@ -2,7 +2,7 @@
 
 ## Motor y configuración
 
-- **Room** 2.8.4, base de datos `juguito_db`, **versión 10**.
+- **Room** 2.8.4, base de datos `juguito_db`, **versión 11**.
 - Schemas exportados en `app/schemas/com.juguito.juguitoreader.data.local.JuguitoReaderDatabase/`.
 - Config KSP: `room.schemaLocation = $projectDir/schemas`.
 - Política actual: `fallbackToDestructiveMigration(false)`.
@@ -23,7 +23,7 @@ books (1) ──────< book_folders >────── (N) folders
   │                                       
   ├──────< book_genres >────── (N) genres
   │
-  ├────── (1) reading_progress  [book_id PK, sin FK formal en schema]
+  ├────── (1) reading_progress  [FK CASCADE a books]
   │
   └──────< daily_reading        [FK CASCADE a books]
 ```
@@ -57,7 +57,7 @@ books (1) ──────< book_folders >────── (N) folders
 
 ## Migraciones definidas
 
-Solo existen migraciones **6 → 10**:
+Solo existen migraciones **6 → 11**:
 
 
 | Migración | Cambio                                                 |
@@ -66,6 +66,7 @@ Solo existen migraciones **6 → 10**:
 | 7→8       | Columna `total_chapters` en `reading_progress`         |
 | 8→9       | Tabla `daily_reading`                                  |
 | 9→10      | Columna `reading_speed` en `daily_reading`             |
+| 10→11     | FK CASCADE en `reading_progress`; limpia huérfanos     |
 
 
 Definidas en `JuguitoReaderDatabase.kt`, registradas en `DatabaseModule.kt`.
@@ -116,9 +117,9 @@ Patrón correcto implementado en BookRepository.syncCrossReferences y BookDAO.sy
 
 En updates, usar `folder.id` / `genre.id` cuando `id != 0`. Resolver por `name` solo en import EPUB o creación.
 
-### 4. Limpiar `reading_progress` al borrar libro
+### 4. `reading_progress` y borrado de libro
 
-`reading_progress` no tiene FK a `books` en schema v10. Al borrar un libro, eliminar progreso explícitamente o añadir FK en migración futura.
+`reading_progress` tiene FK CASCADE a `books` (schema v11). Al borrar un libro, el progreso se elimina en cascada. El undo desde Home restaura progreso vía `DeletedBookSnapshot` (DATA-007).
 
 ## Queries importantes
 

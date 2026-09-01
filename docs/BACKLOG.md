@@ -48,7 +48,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 
 | ID         | Tarea                                                        | Estado | Ref          |
 | ---------- | ------------------------------------------------------------ | ------ | ------------ |
-| DATA-004   | Cleanup reading_progress al borrar libro                     | `[ ]`  | KNOWN_ISSUES |
+| DATA-004   | Cleanup reading_progress al borrar libro                     | `[x]`  | KNOWN_ISSUES |
 | READER-005 | Restaurar brillo al salir del lector                         | `[ ]`  | KNOWN_ISSUES |
 | READER-006 | Restaurar system bars al salir del lector                    | `[ ]`  | KNOWN_ISSUES |
 | READER-007 | Destruir WebView explícitamente (onRelease)                  | `[ ]`  | KNOWN_ISSUES |

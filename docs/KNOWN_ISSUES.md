@@ -11,9 +11,9 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 | ------------ | ------------------------------------------------------------------------------------ |
 | **Crítico**  |                                                                                      |
 | **Alto**     | DATA-008                                                           |
-| **Medio**    | DATA-004, DATA-006, READER-005…014, FILE-005, UX-001, UX-002, PERF-001, ARCH-002     |
+| **Medio**    | DATA-006, READER-005…014, FILE-005, UX-001, UX-002, PERF-001, ARCH-002     |
 | **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                         |
-| **Resuelto** | DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
+| **Resuelto** | DATA-004, DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
 
 
 ---
@@ -38,14 +38,6 @@ AddBookUseCase / UpdateBookUseCase: múltiples writes sin `@Transaction`. Fallo 
 
 
 ## Medio
-
-
-
-### DATA-004 · reading_progress huérfano al borrar libro
-
-Sin FK a `books`. DeleteBook no limpia progreso.
-
----
 
 
 
@@ -254,9 +246,23 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 
 `daily_reading` tiene FK CASCADE a `books`. Al borrar desde Home, el historial se perdía y el undo solo reinsertaba el libro vía `AddBookUseCase`.
 
-**Fix:** snapshot de `daily_reading` antes del delete (`DeletedBookSnapshot`), restore transaccional en `BookRepository.restoreDeletedBook` vía `RestoreDeletedBookUseCase`. `reading_progress` no se backupa (sin FK CASCADE; sobrevive al delete y se reengancha al restaurar el mismo `book_id`).
+**Fix:** snapshot de `daily_reading` y `reading_progress` antes del delete (`DeletedBookSnapshot`), restore transaccional en `BookRepository.restoreDeletedBook` vía `RestoreDeletedBookUseCase`.
 
 **Test:** `RestoreDeletedBookUseCaseTest`, `BookRepositoryImplTest.restoreDeletedBook`, `HomeViewModelTest` (snapshot + undo).
+
+---
+
+### DATA-004 · reading_progress huérfano al borrar libro
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+
+`reading_progress` no tenía FK a `books`. Al borrar un libro, el progreso quedaba huérfano en BD.
+
+**Fix:** migración 10→11 con FK `ON DELETE CASCADE` en `reading_progress`; undo de Home incluye progreso en `DeletedBookSnapshot` (extensión de DATA-007).
+
+**Test:** `BookDAOTest.deleteBookById_cascades_reading_progress`, `ReadingProgressMigrationTest`, tests unitarios de restore.
 
 ---
 
