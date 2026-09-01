@@ -10,10 +10,10 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 | Severidad    | IDs                                                                                  |
 | ------------ | ------------------------------------------------------------------------------------ |
 | **Crítico**  |                                                                                      |
-| **Alto**     | DATA-007, DATA-008                                                           |
+| **Alto**     | DATA-008                                                           |
 | **Medio**    | DATA-004, DATA-006, READER-005…014, FILE-005, UX-001, UX-002, PERF-001, ARCH-002     |
 | **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                         |
-| **Resuelto** | FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
+| **Resuelto** | DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
 
 
 ---
@@ -21,21 +21,6 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 
 
 ## Alto
-
-
-
-### DATA-007 · Undo delete no restaura daily_reading
-
-
-| Estado | Abierto · v1.2.0 |
-| ------ | ---------------- |
-
-
-`daily_reading` tiene FK CASCADE a `books`. Delete borra historial; `addBookUseCase` en undo no lo recupera.
-
-**Fix:** soft delete, o backup de sesiones antes de delete, o undo antes de confirm CASCADE.
-
----
 
 
 
@@ -260,6 +245,20 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 
 
 ## Resuelto
+
+### DATA-007 · Undo delete no restaura daily_reading
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+
+`daily_reading` tiene FK CASCADE a `books`. Al borrar desde Home, el historial se perdía y el undo solo reinsertaba el libro vía `AddBookUseCase`.
+
+**Fix:** snapshot de `daily_reading` antes del delete (`DeletedBookSnapshot`), restore transaccional en `BookRepository.restoreDeletedBook` vía `RestoreDeletedBookUseCase`. `reading_progress` no se backupa (sin FK CASCADE; sobrevive al delete y se reengancha al restaurar el mismo `book_id`).
+
+**Test:** `RestoreDeletedBookUseCaseTest`, `BookRepositoryImplTest.restoreDeletedBook`, `HomeViewModelTest` (snapshot + undo).
+
+---
 
 ### READER-004 · Crash EPUB con menos capítulos
 

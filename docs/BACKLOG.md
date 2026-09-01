@@ -37,7 +37,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | SEC-003    | Path traversal tras unzip (canonicalPath)                       | `[x]`  | KNOWN_ISSUES |
 | READER-004 | Crash al reemplazar EPUB con menos capítulos (index OOB)        | `[x]`  | KNOWN_ISSUES |
 | FILE-004   | Archivos internos huérfanos (EPUB/cover sin confirmar)          | `[x]`  | KNOWN_ISSUES |
-| DATA-007   | Undo delete no restaura daily_reading (CASCADE)                 | `[ ]`  | KNOWN_ISSUES |
+| DATA-007   | Undo delete no restaura daily_reading (CASCADE)                 | `[x]`  | KNOWN_ISSUES |
 | DATA-008   | AddBook/UpdateBook sin transacción atómica                      | `[ ]`  | KNOWN_ISSUES |
 
 
