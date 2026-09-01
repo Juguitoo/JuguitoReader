@@ -54,10 +54,12 @@ Funcionalidades de v1.2 **completadas** + corrección de bugs del audit (ver [KN
 
 | ID | Tarea | Estado |
 |----|-------|--------|
-| TAR-31 | Compatibilidad básica EPUB3 | Not started |
+| TAR-31 | Compatibilidad básica EPUB3 (nav document, parsing OPF 3.x) | Not started |
 | TAR-32 | Compatibilidad avanzada EPUB3 (Media Overlays, scripts, notas) | Not started |
+| READER-009 | EPUB3 nav document incompleto | Diferido → TAR-31 |
+| READER-008 | TOC con `#fragment` (navegación índice) | Diferido → TAR-31 |
 
-Relacionado con issues READER-008, READER-009 en [KNOWN_ISSUES.md](KNOWN_ISSUES.md).
+Issues READER-008 y READER-009 permanecen en [KNOWN_ISSUES.md](KNOWN_ISSUES.md) como limitaciones conocidas; fuera del cierre de v1.2.0.
 
 ---
 
