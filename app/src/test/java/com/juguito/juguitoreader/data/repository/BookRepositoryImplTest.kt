@@ -1,6 +1,7 @@
 package com.juguito.juguitoreader.data.repository
 
 import com.google.common.truth.Truth.assertThat
+import androidx.room.withTransaction
 import com.juguito.juguitoreader.data.local.JuguitoReaderDatabase
 import com.juguito.juguitoreader.data.local.dao.BookDAO
 import com.juguito.juguitoreader.data.local.dao.DailyReadingDAO
@@ -8,13 +9,18 @@ import com.juguito.juguitoreader.data.local.dao.ReadingProgressDAO
 import com.juguito.juguitoreader.data.local.entity.BookEntity
 import com.juguito.juguitoreader.data.local.entity.BookWithDetails
 import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.domain.model.DailyReading
+import com.juguito.juguitoreader.domain.model.DeletedBookSnapshot
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
@@ -28,12 +34,21 @@ class BookRepositoryImplTest {
 
     @Before
     fun setup() {
+        mockkStatic("androidx.room.RoomDatabaseKt")
+        coEvery { database.withTransaction<Unit>(any()) } coAnswers {
+            arg<suspend () -> Unit>(1).invoke()
+        }
         repository = BookRepositoryImpl(
             bookDAO = bookDAO,
             readingProgressDAO = readingProgressDAO,
             dailyReadingDAO = dailyReadingDAO,
             database = database
         )
+    }
+
+    @After
+    fun teardown() {
+        unmockkStatic("androidx.room.RoomDatabaseKt")
     }
 
     @Test
@@ -108,5 +123,28 @@ class BookRepositoryImplTest {
         repository.deleteBook(1)
 
         coVerify { bookDAO.deleteBookById(1) }
+    }
+
+    @Test
+    fun `restoreDeletedBook inserts book syncs cross refs and daily readings in transaction`() = runTest {
+        val book = Book(id = 1, title = "Title", author = "Author", isPhysical = false)
+        val dailyReading = DailyReading(
+            bookId = 1,
+            date = "2024-01-01",
+            timeSpentMillis = 100,
+            reachedPercentage = 0.5f,
+            readingSpeed = 200
+        )
+        val snapshot = DeletedBookSnapshot(book = book, dailyReadings = listOf(dailyReading))
+
+        coEvery { bookDAO.insertBook(any()) } returns 1L
+        coEvery { bookDAO.syncBookCrossRefs(any(), any(), any()) } returns Unit
+        coEvery { dailyReadingDAO.insert(any()) } returns 1L
+
+        repository.restoreDeletedBook(snapshot, listOf(5), listOf(3))
+
+        coVerify { bookDAO.insertBook(any()) }
+        coVerify { bookDAO.syncBookCrossRefs(1, listOf(5), listOf(3)) }
+        coVerify { dailyReadingDAO.insert(any()) }
     }
 }

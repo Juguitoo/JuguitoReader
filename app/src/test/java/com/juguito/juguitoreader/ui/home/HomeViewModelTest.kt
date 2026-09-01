@@ -4,13 +4,19 @@ import android.content.Context
 import android.net.Uri
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
-import com.juguito.juguitoreader.domain.usecase.book.AddBookUseCase
+import com.juguito.juguitoreader.domain.model.DailyReading
+import com.juguito.juguitoreader.domain.model.DeletedBookSnapshot
 import com.juguito.juguitoreader.domain.usecase.book.DeleteBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
+import com.juguito.juguitoreader.domain.usecase.book.RestoreDeletedBookUseCase
+import com.juguito.juguitoreader.domain.usecase.dailyReading.GetBookDailyReadingsUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgressesUseCase
+import com.juguito.juguitoreader.ui.common.UiText
+import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.utils.FileUtils
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -33,29 +39,24 @@ import org.junit.Test
 class HomeViewModelTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
-    
+
     private lateinit var viewModel: HomeViewModel
     private val context = mockk<Context>(relaxed = true)
     private val getBooksUseCase = mockk<GetBooksUseCase>()
     private val getReadingProgressesUseCase = mockk<GetReadingProgressesUseCase>()
+    private val getBookDailyReadingsUseCase = mockk<GetBookDailyReadingsUseCase>()
     private val importBookFromUriUseCase = mockk<ImportBookFromUriUseCase>()
     private val deleteBookUseCase = mockk<DeleteBookUseCase>()
-    private val addBookUseCase = mockk<AddBookUseCase>()
+    private val restoreDeletedBookUseCase = mockk<RestoreDeletedBookUseCase>()
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         every { getBooksUseCase() } returns flowOf(emptyList())
         every { getReadingProgressesUseCase() } returns flowOf(emptyList())
-        
-        viewModel = HomeViewModel(
-            context,
-            getBooksUseCase,
-            getReadingProgressesUseCase,
-            importBookFromUriUseCase,
-            deleteBookUseCase,
-            addBookUseCase
-        )
+        every { getBookDailyReadingsUseCase(any()) } returns flowOf(emptyList())
+
+        viewModel = createViewModel()
         mockkObject(FileUtils)
     }
 
@@ -65,6 +66,18 @@ class HomeViewModelTest {
         unmockkAll()
     }
 
+    private fun createViewModel(): HomeViewModel {
+        return HomeViewModel(
+            context,
+            getBooksUseCase,
+            getReadingProgressesUseCase,
+            getBookDailyReadingsUseCase,
+            importBookFromUriUseCase,
+            deleteBookUseCase,
+            restoreDeletedBookUseCase
+        )
+    }
+
     @Test
     fun `Success state shows stats and filtered books`() = runTest {
         val books = listOf(
@@ -72,8 +85,8 @@ class HomeViewModelTest {
             Book(id = 2, title = "Book 2", author = "B", isPhysical = false, localFilePath = "path", status = BookStatus.READING)
         )
         every { getBooksUseCase() } returns flowOf(books)
-        
-        viewModel = HomeViewModel(context, getBooksUseCase, getReadingProgressesUseCase, importBookFromUriUseCase, deleteBookUseCase, addBookUseCase)
+
+        viewModel = createViewModel()
 
         viewModel.uiState.test {
             val state = awaitItem()
@@ -98,14 +111,7 @@ class HomeViewModelTest {
         every { getBooksUseCase() } returns flowOf(listOf(readingBook))
         every { getReadingProgressesUseCase() } returns flowOf(emptyList())
 
-        viewModel = HomeViewModel(
-            context,
-            getBooksUseCase,
-            getReadingProgressesUseCase,
-            importBookFromUriUseCase,
-            deleteBookUseCase,
-            addBookUseCase
-        )
+        viewModel = createViewModel()
 
         viewModel.uiState.test {
             val state = awaitItem() as HomeUiState.Success
@@ -115,28 +121,82 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun `onEvent OnDeleteBookClick and then OnUndoDeleteClick calls addBookUseCase`() = runTest {
+    fun `onEvent OnDeleteBookClick snapshots daily readings and calls deleteBookUseCase`() = runTest {
         val book = Book(id = 1, title = "T", author = "A", isPhysical = false)
+        val dailyReading = DailyReading(
+            bookId = 1,
+            date = "2024-01-01",
+            timeSpentMillis = 100,
+            reachedPercentage = 0.5f,
+            readingSpeed = 200
+        )
+        every { getBookDailyReadingsUseCase(1) } returns flowOf(listOf(dailyReading))
         coEvery { deleteBookUseCase(1) } returns Result.success(Unit)
-        coEvery { addBookUseCase(any()) } returns Result.success(Unit)
-        
+
+        viewModel.onEvent(HomeEvent.OnDeleteBookClick(book))
+
+        coVerify { getBookDailyReadingsUseCase(1) }
+        coVerify { deleteBookUseCase(1) }
+    }
+
+    @Test
+    fun `onEvent OnUndoDeleteClick calls restoreDeletedBookUseCase with snapshot`() = runTest {
+        val book = Book(id = 1, title = "T", author = "A", isPhysical = false)
+        val dailyReading = DailyReading(
+            bookId = 1,
+            date = "2024-01-01",
+            timeSpentMillis = 100,
+            reachedPercentage = 0.5f,
+            readingSpeed = 200
+        )
+        val expectedSnapshot = DeletedBookSnapshot(
+            book = book,
+            dailyReadings = listOf(dailyReading),
+            readingProgress = null
+        )
+
+        every { getBookDailyReadingsUseCase(1) } returns flowOf(listOf(dailyReading))
+        coEvery { deleteBookUseCase(1) } returns Result.success(Unit)
+        coEvery { restoreDeletedBookUseCase(any()) } returns Result.success(Unit)
+
         viewModel.onEvent(HomeEvent.OnDeleteBookClick(book))
         viewModel.onEvent(HomeEvent.OnUndoDeleteClick)
-        
-        coVerify { deleteBookUseCase(1) }
-        coVerify { addBookUseCase(book) }
+
+        coVerify { restoreDeletedBookUseCase(expectedSnapshot) }
+    }
+
+    @Test
+    fun `onEvent OnUndoDeleteClick emits restored snackbar on success`() = runTest {
+        val book = Book(id = 1, title = "T", author = "A", isPhysical = false)
+
+        every { getBookDailyReadingsUseCase(1) } returns flowOf(emptyList())
+        coEvery { deleteBookUseCase(1) } returns Result.success(Unit)
+        coEvery { restoreDeletedBookUseCase(any()) } returns Result.success(Unit)
+
+        viewModel.effect.test {
+            viewModel.onEvent(HomeEvent.OnDeleteBookClick(book))
+
+            val deleteEffect = awaitItem() as UiEffect.ShowSnackbar
+            assertThat((deleteEffect.message as UiText.StringResource).resId).isEqualTo(R.string.book_deleted)
+
+            viewModel.onEvent(HomeEvent.OnUndoDeleteClick)
+
+            val restoreEffect = awaitItem() as UiEffect.ShowSnackbar
+            assertThat((restoreEffect.message as UiText.StringResource).resId).isEqualTo(R.string.book_restored)
+        }
     }
 
     @Test
     fun `onEvent OnDeleteConfirmed calls FileUtils delete`() = runTest {
         every { FileUtils.deleteFileFromInternalStorage(any(), any()) } returns Unit
-        
+
         val book = Book(id = 1, title = "T", author = "A", isPhysical = false, coverUrl = "c", localFilePath = "l")
+        every { getBookDailyReadingsUseCase(1) } returns flowOf(emptyList())
         coEvery { deleteBookUseCase(1) } returns Result.success(Unit)
-        
+
         viewModel.onEvent(HomeEvent.OnDeleteBookClick(book))
         viewModel.onEvent(HomeEvent.OnDeleteConfirmed)
-        
+
         coVerify { FileUtils.deleteFileFromInternalStorage(any(), "c") }
         coVerify { FileUtils.deleteFileFromInternalStorage(any(), "l") }
     }
@@ -145,9 +205,9 @@ class HomeViewModelTest {
     fun `onEvent OnImportBook calls use case`() = runTest {
         val uri = mockk<Uri>()
         coEvery { importBookFromUriUseCase(any(), any()) } returns Result.success(Unit)
-        
+
         viewModel.onEvent(HomeEvent.OnImportBook(uri))
-        
+
         coVerify { importBookFromUriUseCase(any(), any()) }
     }
 }
