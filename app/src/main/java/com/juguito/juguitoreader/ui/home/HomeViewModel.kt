@@ -8,10 +8,12 @@ import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.common.ActionUndoManager
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
-import com.juguito.juguitoreader.domain.usecase.book.AddBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.DeleteBookUseCase
+import com.juguito.juguitoreader.domain.model.DeletedBookSnapshot
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
+import com.juguito.juguitoreader.domain.usecase.book.RestoreDeletedBookUseCase
+import com.juguito.juguitoreader.domain.usecase.dailyReading.GetBookDailyReadingsUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgressesUseCase
 import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.asUiText
@@ -25,6 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,9 +37,10 @@ class HomeViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val getBooksUseCase: GetBooksUseCase,
     private val getReadingProgressesUseCase: GetReadingProgressesUseCase,
+    private val getBookDailyReadingsUseCase: GetBookDailyReadingsUseCase,
     private val importBookFromUriUseCase: ImportBookFromUriUseCase,
     private val deleteBookUseCase: DeleteBookUseCase,
-    private val addBookUseCase: AddBookUseCase
+    private val restoreDeletedBookUseCase: RestoreDeletedBookUseCase
 ) : ViewModel() {
 
     private val _internalState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
@@ -45,7 +49,7 @@ class HomeViewModel @Inject constructor(
     private val _effect = Channel<UiEffect>()
     val effect = _effect.receiveAsFlow()
 
-    private val bookUndoManager = ActionUndoManager<Book>()
+    private val bookUndoManager = ActionUndoManager<DeletedBookSnapshot>()
 
     init {
         loadData()
@@ -135,10 +139,15 @@ class HomeViewModel @Inject constructor(
 
     fun deleteBook(book: Book) {
         viewModelScope.launch {
+            val snapshot = DeletedBookSnapshot(
+                book,
+                getBookDailyReadingsUseCase(book.id).first(),
+                null
+            )
             bookUndoManager.executeAction(
-                item = book,
-                immediateAction = { item ->
-                    val result = deleteBookUseCase(item.id)
+                item = snapshot,
+                immediateAction = {
+                    val result = deleteBookUseCase(it.book.id)
                     result.fold(
                         onSuccess = {
                             _effect.send(
@@ -160,16 +169,22 @@ class HomeViewModel @Inject constructor(
                         }
                     )
                 },
-                onConfirm = { item ->
-                    item.coverUrl?.let { path ->
+                onConfirm = {
+                    it.book.coverUrl?.let { path ->
                         FileUtils.deleteFileFromInternalStorage(context, path)
                     }
-                    item.localFilePath?.let { path ->
+                    it.book.localFilePath?.let { path ->
                         FileUtils.deleteFileFromInternalStorage(context, path)
                     }
                 },
-                onUndo = {item ->
-                    addBookUseCase(item)
+                onUndo = {
+                    restoreDeletedBookUseCase(it)
+                        .onSuccess {
+                            _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.book_restored)))
+                        }
+                        .onFailure {
+                            _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.error_restore_book)))
+                        }
                 }
             )
         }

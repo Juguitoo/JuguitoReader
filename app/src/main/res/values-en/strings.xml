@@ -66,6 +66,7 @@
     <string name="pending_books">Pending Books</string>
     <string name="general_stats">General Stats</string>
     <string name="undo">Undo</string>
+    <string name="book_restored">The book was successfully restored.</string>
 
     <!-- Library -->
     <string name="search_library_hint">Search in my library…</string>
@@ -146,6 +147,7 @@
     <string name="error_title_empty">Book title cannot be empty.</string>
     <string name="error_author_empty">Book author cannot be empty.</string>
     <string name="error_save_book">Error saving book: %s</string>
+    <string name="error_restore_book">Error restoring the book</string>
     <string name="error_epub_not_found">The EPUB file book does not exist.</string>
     <string name="error_copy_cover">The cover file could not be copied.</string>
     <string name="error_copy_epub">The EPUB file could not be copied.</string>

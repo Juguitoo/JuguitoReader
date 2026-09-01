@@ -9,6 +9,7 @@ import com.juguito.juguitoreader.data.mapper.toDomain
 import com.juguito.juguitoreader.data.mapper.toEntity
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.repository.BookRepository
+import com.juguito.juguitoreader.domain.model.DeletedBookSnapshot
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -60,6 +61,13 @@ class BookRepositoryImpl @Inject constructor(
         bookDAO.syncBookCrossRefs(book.id, folderIds, genreIds)
         readingProgressDAO.deleteReadingProgressById(book.id)
         dailyReadingDAO.deleteBookDailyReadings(book.id)
+    }
+
+    override suspend fun restoreDeletedBook(snapshot: DeletedBookSnapshot, folderIds : List<Int>, genreIds : List<Int>) = database.withTransaction {
+        bookDAO.insertBook(snapshot.book.toEntity())
+        bookDAO.syncBookCrossRefs(snapshot.book.id, folderIds, genreIds)
+        snapshot.dailyReadings.forEach { dailyReadingDAO.insert(it.toEntity()) }
+        //readingProgressDAO.insertReadingProgress(snapshot.readingProgress.toEntity())
     }
 
     override suspend fun syncPendingBooks() {

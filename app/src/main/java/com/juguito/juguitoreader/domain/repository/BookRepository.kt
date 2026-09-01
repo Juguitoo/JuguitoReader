@@ -1,6 +1,7 @@
 package com.juguito.juguitoreader.domain.repository
 
 import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.domain.model.DeletedBookSnapshot
 import kotlinx.coroutines.flow.Flow
 
 interface BookRepository {
@@ -21,6 +22,8 @@ interface BookRepository {
     suspend fun deleteBook(id: Int)
 
     suspend fun updateBookWithNewEpub(book: Book, folderIds: List<Int>, genreIds: List<Int>)
+
+    suspend fun restoreDeletedBook(snapshot: DeletedBookSnapshot, folderIds : List<Int>, genreIds : List<Int>)
 
     suspend fun syncPendingBooks()
 }

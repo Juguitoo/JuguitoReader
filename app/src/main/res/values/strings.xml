@@ -66,6 +66,7 @@
     <string name="pending_books">Libros pendientes</string>
     <string name="general_stats">Estadísticas generales</string>
     <string name="undo">Deshacer</string>
+    <string name="book_restored">El libro se ha restaurado correctamente.</string>
 
     <!-- Library -->
     <string name="search_library_hint">Buscar en mi biblioteca…</string>
@@ -146,6 +147,7 @@
     <string name="error_title_empty">El título del libro no puede estar vacío.</string>
     <string name="error_author_empty">El autor del libro no puede estar vacío.</string>
     <string name="error_save_book">Error al guardar el libro: %s</string>
+    <string name="error_restore_book">Error al restaurar el libro</string>
     <string name="error_epub_not_found">El libro del fichero epub no existe.</string>
     <string name="error_copy_epub">No se pudo copiar el fichero EPUB.</string>
     <string name="error_copy_cover">No se pudo copiar el fichero de portada.</string>
