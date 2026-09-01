@@ -14,6 +14,7 @@ import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
 import com.juguito.juguitoreader.domain.usecase.book.RestoreDeletedBookUseCase
 import com.juguito.juguitoreader.domain.usecase.dailyReading.GetBookDailyReadingsUseCase
+import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgressByIdUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgressesUseCase
 import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.asUiText
@@ -38,6 +39,7 @@ class HomeViewModel @Inject constructor(
     private val getBooksUseCase: GetBooksUseCase,
     private val getReadingProgressesUseCase: GetReadingProgressesUseCase,
     private val getBookDailyReadingsUseCase: GetBookDailyReadingsUseCase,
+    private val getReadingProgressByIdUseCase: GetReadingProgressByIdUseCase,
     private val importBookFromUriUseCase: ImportBookFromUriUseCase,
     private val deleteBookUseCase: DeleteBookUseCase,
     private val restoreDeletedBookUseCase: RestoreDeletedBookUseCase
@@ -142,7 +144,7 @@ class HomeViewModel @Inject constructor(
             val snapshot = DeletedBookSnapshot(
                 book,
                 getBookDailyReadingsUseCase(book.id).first(),
-                null
+                getReadingProgressByIdUseCase(book.id)
             )
             bookUndoManager.executeAction(
                 item = snapshot,

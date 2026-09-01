@@ -28,7 +28,7 @@ import com.juguito.juguitoreader.data.local.entity.ReadingProgressEntity
         BookFolderCrossRef::class,
         BookGenreCrossRef::class
     ],
-    version = 10,
+    version = 11,
     exportSchema = true
 )
 
@@ -91,6 +91,40 @@ abstract class JuguitoReaderDatabase : RoomDatabase() {
                 db.execSQL("""
                     ALTER TABLE daily_reading ADD COLUMN reading_speed INTEGER NOT NULL DEFAULT 0
                 """.trimIndent())
+            }
+        }
+
+        val MIGRATION_10_11 = object : Migration(10, 11) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    DELETE FROM reading_progress
+                    WHERE book_id NOT IN (SELECT id FROM books)
+                """.trimIndent())
+
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `reading_progress_new` (
+                        `book_id` INTEGER NOT NULL,
+                        `total_chapters` INTEGER NOT NULL DEFAULT 0,
+                        `last_chapter_index` INTEGER NOT NULL,
+                        `scroll_position` REAL NOT NULL,
+                        `last_read_at` INTEGER NOT NULL,
+                        `sync_status` TEXT NOT NULL,
+                        PRIMARY KEY(`book_id`),
+                        FOREIGN KEY(`book_id`) REFERENCES `books`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                """.trimIndent())
+
+                db.execSQL("""
+                    INSERT INTO reading_progress_new (
+                        book_id, total_chapters, last_chapter_index, scroll_position, last_read_at, sync_status
+                    )
+                    SELECT book_id, total_chapters, last_chapter_index, scroll_position, last_read_at, sync_status
+                    FROM reading_progress
+                """.trimIndent())
+
+                db.execSQL("DROP TABLE reading_progress")
+                db.execSQL("ALTER TABLE reading_progress_new RENAME TO reading_progress")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_reading_progress_book_id` ON `reading_progress` (`book_id`)")
             }
         }
     }

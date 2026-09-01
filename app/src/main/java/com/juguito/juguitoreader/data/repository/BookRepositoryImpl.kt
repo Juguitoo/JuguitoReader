@@ -67,7 +67,9 @@ class BookRepositoryImpl @Inject constructor(
         bookDAO.insertBook(snapshot.book.toEntity())
         bookDAO.syncBookCrossRefs(snapshot.book.id, folderIds, genreIds)
         snapshot.dailyReadings.forEach { dailyReadingDAO.insert(it.toEntity()) }
-        //readingProgressDAO.insertReadingProgress(snapshot.readingProgress.toEntity())
+        if (snapshot.readingProgress != null) {
+            readingProgressDAO.insertReadingProgress(snapshot.readingProgress.toEntity())
+        }
     }
 
     override suspend fun syncPendingBooks() {
