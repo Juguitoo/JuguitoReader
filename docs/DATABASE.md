@@ -111,7 +111,7 @@ Al actualizar relaciones M:N de un libro:
 
 **NO** usar solo `INSERT IGNORE`, esto solo añade relaciones; **nunca elimina** relaciones quitadas en UI. 
 
-Patrón correcto implementado en BookRepository.syncCrossReferences y BookDAO.syncBookCrossRefs
+Patrón correcto implementado en `BookDAO.syncBookCrossRefs` y en operaciones transaccionales de `BookRepositoryImpl`: `insertBookWithCrossRefs`, `updateBookWithCrossRefs` (AddBook / UpdateBook / RestoreDeletedBook); `updateBookWithNewEpub` reutiliza `updateBookWithCrossRefs`.
 
 ### 3. Resolver relaciones por ID
 

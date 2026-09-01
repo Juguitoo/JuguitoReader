@@ -10,10 +10,10 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 | Severidad    | IDs                                                                                  |
 | ------------ | ------------------------------------------------------------------------------------ |
 | **Crítico**  |                                                                                      |
-| **Alto**     | DATA-008                                                           |
+| **Alto**     |                                                                                      |
 | **Medio**    | DATA-006, READER-005…014, FILE-005, UX-001, UX-002, PERF-001, ARCH-002     |
 | **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                         |
-| **Resuelto** | DATA-004, DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
+| **Resuelto** | DATA-008, DATA-004, DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
 
 
 ---
@@ -22,22 +22,9 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 
 ## Alto
 
-
-
-### DATA-008 · Operaciones libro + carpetas + géneros no atómicas
-
-
-| Estado | Abierto · v1.2.0 |
-| ------ | ---------------- |
-
-
-AddBookUseCase / UpdateBookUseCase: múltiples writes sin `@Transaction`. Fallo intermedio → BD inconsistente.
+*(Sin issues abiertos en esta severidad.)*
 
 ---
-
-
-
-## Medio
 
 
 
@@ -252,6 +239,23 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 
 ---
 
+### DATA-008 · Operaciones libro + carpetas + géneros no atómicas
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `fe1e2ee`             |
+
+`AddBookUseCase` / `UpdateBookUseCase`: insert/update del libro y sync de cross-refs en llamadas separadas. Fallo intermedio → BD inconsistente (libro sin carpetas/géneros o relaciones desincronizadas).
+
+**Fix:** `insertBookWithCrossRefs` y `updateBookWithCrossRefs` en `BookRepository` (`withTransaction`). Los use cases resuelven IDs en dominio y delegan en una sola operación. `restoreDeletedBook` y `updateBookWithNewEpub` reutilizan los mismos métodos.
+
+**Test:** `AddBookUseCaseTest`, `UpdateBookUseCaseTest`, `BookRepositoryImplTest`.
+
+**Residual:** la resolución de carpetas/géneros (posibles inserts) sigue fuera de la transacción del libro; Room y filesystem no comparten transacción (limitación arquitectural).
+
+---
+
 ### DATA-004 · reading_progress huérfano al borrar libro
 
 | Campo      | Valor                 |
@@ -279,7 +283,7 @@ Al reemplazar un EPUB, `reading_progress`, `daily_reading` y la extracción en c
 
 **Test:** cobertura unitaria de selección de la operación, cleanup, reconciliación y filtro de Home; test instrumentado de commit y rollback de la transacción Room.
 
-**Residual:** Room y filesystem no comparten transacción (DATA-008). Huérfanos previos a v1.2.0 no se barreron del disco.
+**Residual:** Room y filesystem no comparten transacción (limitación arquitectural). Huérfanos previos a v1.2.0 no se barreron del disco.
 
 ---
 
@@ -374,7 +378,7 @@ EPUB y cover se copiaban a `filesDir` en picker/import antes de confirmar en Roo
 
 **Test:** `FileUtilsTest`, `GetBookFromEpubUseCaseTest`, `ImportBookFromUriUseCaseTest`, `AddBookViewModelTest`, `BookDetailViewModelTest`.
 
-**Residual:** huérfanos acumulados en instalaciones previas (sin barrido histórico); atomicidad Room + FS sigue en DATA-008.
+**Residual:** huérfanos acumulados en instalaciones previas (sin barrido histórico); Room y filesystem no comparten transacción (limitación arquitectural).
 
 ---
 

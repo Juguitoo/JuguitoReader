@@ -38,7 +38,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | READER-004 | Crash al reemplazar EPUB con menos capítulos (index OOB)        | `[x]`  | KNOWN_ISSUES |
 | FILE-004   | Archivos internos huérfanos (EPUB/cover sin confirmar)          | `[x]`  | KNOWN_ISSUES |
 | DATA-007   | Undo delete no restaura daily_reading (CASCADE)                 | `[x]`  | KNOWN_ISSUES |
-| DATA-008   | AddBook/UpdateBook sin transacción atómica                      | `[ ]`  | KNOWN_ISSUES |
+| DATA-008   | AddBook/UpdateBook sin transacción atómica                      | `[x]`  | KNOWN_ISSUES |
 
 
 
@@ -88,6 +88,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 
 | ID         | Tarea                                                               | Commit / nota                              |
 | ---------- | ------------------------------------------------------------------- | ------------------------------------------ |
+| DATA-008   | AddBook/UpdateBook transaccionales (libro + cross-refs)             | `fe1e2ee`                                  |
 | READER-004 | Reset transaccional de lectura al reemplazar EPUB                  | `fbf09aa`, `44061a0`, `96b565d`            |
 | SEC-003    | Validación canónica de rutas OPF, manifest y NCX                    | `9f9ef29`, `1fb4e4c`                       |
 | SEC-002    | Límites anti zip bomb en EpubParser (unzip + cover)                 | `11e1d4d`, `14078f0`                       |
