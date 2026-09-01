@@ -21,6 +21,8 @@ import com.juguito.juguitoreader.ui.reader.ReaderEvent
 import com.juguito.juguitoreader.ui.reader.ReaderUiState
 import java.io.File
 
+private const val JS_BRIDGE_NAME = "AndroidBridge"
+
 private data class WebViewHolder(
     var loader: WebViewAssetLoader,
     var baseDir: String
@@ -83,7 +85,7 @@ fun EpubWebView(
                     fun reportWordsRead(words: Int) {
                         onEvent(ReaderEvent.OnReportWordsRead(words))
                     }
-                }, "AndroidBridge")
+                }, JS_BRIDGE_NAME)
 
                 webViewClient = object : WebViewClient() {
                     override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
@@ -293,6 +295,11 @@ fun EpubWebView(
                         document.body.style.setProperty('color', '${state.theme.textColor}', 'important');
                     """.trimIndent()
             webView.evaluateJavascript(themeScript, null)
+        },
+        onRelease = { webView ->
+            webView.stopLoading()
+            webView.removeJavascriptInterface(JS_BRIDGE_NAME)
+            webView.destroy()
         }
     )
 }

@@ -11,9 +11,9 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 | ------------ | ------------------------------------------------------------------------------------ |
 | **Crítico**  |                                                                                      |
 | **Alto**     |                                                                                      |
-| **Medio**    | DATA-006, READER-005…014, FILE-005, UX-001, UX-002, PERF-001, ARCH-002     |
+| **Medio**    | DATA-006, READER-008…014, FILE-005, UX-001, UX-002, PERF-001, ARCH-002     |
 | **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                         |
-| **Resuelto** | DATA-008, DATA-004, DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
+| **Resuelto** | READER-005, READER-006, READER-007, DATA-008, DATA-004, DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
 
 
 ---
@@ -38,23 +38,37 @@ Solo 6→10. En dev aceptable (destructive OK). Antes de open testing: definir p
 
 ### READER-005 · Brillo no se restaura al salir
 
-`ReaderControls` modifica `window.attributes.screenBrightness` sin restore en `DisposableEffect.onDispose`.
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+
+`ReaderControls` modifica `window.attributes.screenBrightness` sin restore al salir del lector.
+
+**Fix:** `ReaderScreen` restaura `BRIGHTNESS_OVERRIDE_NONE` en `DisposableEffect.onDispose` junto con el cleanup de ventana.
 
 ---
-
-
 
 ### READER-006 · System bars ocultas permanentemente
 
-`ReaderScreen` oculta barras; no restaura al salir.
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+
+`ReaderScreen` ocultaba barras al leer; no las restauraba al salir.
+
+**Fix:** `show(systemBars())` en el mismo `onDispose` de `ReaderScreen`.
 
 ---
 
-
-
 ### READER-007 · WebView no destruido
 
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+
 Falta `stopLoading()`, quitar JS bridge, `destroy()` en `AndroidView.onRelease`.
+
+**Fix:** `EpubWebView` implementa `onRelease` con `stopLoading()`, `removeJavascriptInterface` y `destroy()`.
 
 **Relacionado:** READER-012 (proceso de render).
 

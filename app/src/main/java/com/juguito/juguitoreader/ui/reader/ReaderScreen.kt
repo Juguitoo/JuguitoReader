@@ -1,6 +1,7 @@
 package com.juguito.juguitoreader.ui.reader
 
 import android.app.Activity
+import android.view.Window
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -84,10 +85,11 @@ fun ReaderScreen(
         }
     }
 
-    DisposableEffect(Unit) {
-        activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    DisposableEffect(activity) {
+        val window = activity?.window
+        window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         onDispose {
-            activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            window?.let(::restoreReaderWindow)
         }
     }
 
@@ -131,6 +133,15 @@ fun ReaderScreen(
             onEvent = viewModel::onEvent
         )
     }
+}
+
+internal fun restoreReaderWindow(window: Window) {
+    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    window.attributes = window.attributes.apply {
+        screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+    }
+    WindowCompat.getInsetsController(window, window.decorView)
+        .show(WindowInsetsCompat.Type.systemBars())
 }
 
 @Composable
