@@ -53,6 +53,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.ui.reader.BottomBarMode
@@ -92,7 +93,16 @@ fun ReaderControls(
             exit = slideOutVertically(targetOffsetY = { -it })
         ) {
             TopAppBar(
-                title = { Text(text = state.book.title, style = MaterialTheme.typography.titleLarge, maxLines = 1, fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        text = state.book.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { onEvent(ReaderEvent.OnBackRequested) }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) }
                 },
