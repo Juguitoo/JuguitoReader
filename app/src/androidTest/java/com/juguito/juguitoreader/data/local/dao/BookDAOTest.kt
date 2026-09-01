@@ -10,6 +10,7 @@ import com.juguito.juguitoreader.data.local.entity.BookFolderCrossRef
 import com.juguito.juguitoreader.data.local.entity.BookGenreCrossRef
 import com.juguito.juguitoreader.data.local.entity.FolderEntity
 import com.juguito.juguitoreader.data.local.entity.GenreEntity
+import com.juguito.juguitoreader.data.local.entity.ReadingProgressEntity
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.enums.SyncStatus
 import kotlinx.coroutines.flow.first
@@ -79,6 +80,25 @@ class BookDAOTest {
         
         val result = bookDAO.getBookById(1)
         assertThat(result).isNull()
+    }
+
+    @Test
+    fun deleteBookById_cascades_reading_progress() = runBlocking {
+        val book = BookEntity(id = 1, title = "Delete", author = "A", isPhysical = false, createdAt = 0L)
+        bookDAO.insertBook(book)
+        database.readingProgressDAO.insertReadingProgress(
+            ReadingProgressEntity(
+                bookId = 1,
+                totalChapters = 20,
+                lastChapterIndex = 5,
+                scrollPosition = 0.75f,
+                lastReadAt = 100L
+            )
+        )
+
+        bookDAO.deleteBookById(1)
+
+        assertThat(database.readingProgressDAO.getReadingProgressById(1)).isNull()
     }
 
     @Test

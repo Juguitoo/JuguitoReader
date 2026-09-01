@@ -8,6 +8,7 @@ import com.juguito.juguitoreader.data.local.dao.DailyReadingDAO
 import com.juguito.juguitoreader.data.local.dao.ReadingProgressDAO
 import com.juguito.juguitoreader.data.local.entity.BookEntity
 import com.juguito.juguitoreader.data.local.entity.BookWithDetails
+import com.juguito.juguitoreader.domain.model.ReadingProgress
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.DailyReading
 import com.juguito.juguitoreader.domain.model.DeletedBookSnapshot
@@ -135,7 +136,7 @@ class BookRepositoryImplTest {
             reachedPercentage = 0.5f,
             readingSpeed = 200
         )
-        val snapshot = DeletedBookSnapshot(book = book, dailyReadings = listOf(dailyReading))
+        val snapshot = DeletedBookSnapshot(book = book, dailyReadings = listOf(dailyReading), readingProgress = null)
 
         coEvery { bookDAO.insertBook(any()) } returns 1L
         coEvery { bookDAO.syncBookCrossRefs(any(), any(), any()) } returns Unit
@@ -146,5 +147,31 @@ class BookRepositoryImplTest {
         coVerify { bookDAO.insertBook(any()) }
         coVerify { bookDAO.syncBookCrossRefs(1, listOf(5), listOf(3)) }
         coVerify { dailyReadingDAO.insert(any()) }
+        coVerify(exactly = 0) { readingProgressDAO.insertReadingProgress(any()) }
+    }
+
+    @Test
+    fun `restoreDeletedBook inserts reading progress when snapshot includes it`() = runTest {
+        val book = Book(id = 1, title = "Title", author = "Author", isPhysical = false)
+        val readingProgress = ReadingProgress(
+            bookId = 1,
+            totalChapters = 20,
+            lastChapterIndex = 5,
+            scrollPosition = 0.75f,
+            lastReadAt = 100L
+        )
+        val snapshot = DeletedBookSnapshot(
+            book = book,
+            dailyReadings = emptyList(),
+            readingProgress = readingProgress
+        )
+
+        coEvery { bookDAO.insertBook(any()) } returns 1L
+        coEvery { bookDAO.syncBookCrossRefs(any(), any(), any()) } returns Unit
+        coEvery { readingProgressDAO.insertReadingProgress(any()) } returns 1L
+
+        repository.restoreDeletedBook(snapshot, emptyList(), emptyList())
+
+        coVerify { readingProgressDAO.insertReadingProgress(any()) }
     }
 }

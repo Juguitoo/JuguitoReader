@@ -14,6 +14,8 @@ import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
 import com.juguito.juguitoreader.domain.usecase.book.RestoreDeletedBookUseCase
 import com.juguito.juguitoreader.domain.usecase.dailyReading.GetBookDailyReadingsUseCase
+import com.juguito.juguitoreader.domain.model.ReadingProgress
+import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgressByIdUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgressesUseCase
 import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
@@ -45,6 +47,7 @@ class HomeViewModelTest {
     private val getBooksUseCase = mockk<GetBooksUseCase>()
     private val getReadingProgressesUseCase = mockk<GetReadingProgressesUseCase>()
     private val getBookDailyReadingsUseCase = mockk<GetBookDailyReadingsUseCase>()
+    private val getReadingProgressByIdUseCase = mockk<GetReadingProgressByIdUseCase>()
     private val importBookFromUriUseCase = mockk<ImportBookFromUriUseCase>()
     private val deleteBookUseCase = mockk<DeleteBookUseCase>()
     private val restoreDeletedBookUseCase = mockk<RestoreDeletedBookUseCase>()
@@ -55,6 +58,7 @@ class HomeViewModelTest {
         every { getBooksUseCase() } returns flowOf(emptyList())
         every { getReadingProgressesUseCase() } returns flowOf(emptyList())
         every { getBookDailyReadingsUseCase(any()) } returns flowOf(emptyList())
+        coEvery { getReadingProgressByIdUseCase(any()) } returns null
 
         viewModel = createViewModel()
         mockkObject(FileUtils)
@@ -72,6 +76,7 @@ class HomeViewModelTest {
             getBooksUseCase,
             getReadingProgressesUseCase,
             getBookDailyReadingsUseCase,
+            getReadingProgressByIdUseCase,
             importBookFromUriUseCase,
             deleteBookUseCase,
             restoreDeletedBookUseCase
@@ -131,11 +136,13 @@ class HomeViewModelTest {
             readingSpeed = 200
         )
         every { getBookDailyReadingsUseCase(1) } returns flowOf(listOf(dailyReading))
+        coEvery { getReadingProgressByIdUseCase(1) } returns null
         coEvery { deleteBookUseCase(1) } returns Result.success(Unit)
 
         viewModel.onEvent(HomeEvent.OnDeleteBookClick(book))
 
         coVerify { getBookDailyReadingsUseCase(1) }
+        coVerify { getReadingProgressByIdUseCase(1) }
         coVerify { deleteBookUseCase(1) }
     }
 
@@ -149,13 +156,41 @@ class HomeViewModelTest {
             reachedPercentage = 0.5f,
             readingSpeed = 200
         )
+        val readingProgress = ReadingProgress(
+            bookId = 1,
+            totalChapters = 20,
+            lastChapterIndex = 5,
+            scrollPosition = 0.75f,
+            lastReadAt = 100L
+        )
         val expectedSnapshot = DeletedBookSnapshot(
             book = book,
             dailyReadings = listOf(dailyReading),
-            readingProgress = null
+            readingProgress = readingProgress
         )
 
         every { getBookDailyReadingsUseCase(1) } returns flowOf(listOf(dailyReading))
+        coEvery { getReadingProgressByIdUseCase(1) } returns readingProgress
+        coEvery { deleteBookUseCase(1) } returns Result.success(Unit)
+        coEvery { restoreDeletedBookUseCase(any()) } returns Result.success(Unit)
+
+        viewModel.onEvent(HomeEvent.OnDeleteBookClick(book))
+        viewModel.onEvent(HomeEvent.OnUndoDeleteClick)
+
+        coVerify { restoreDeletedBookUseCase(expectedSnapshot) }
+    }
+
+    @Test
+    fun `onEvent OnUndoDeleteClick calls restoreDeletedBookUseCase with null progress when absent`() = runTest {
+        val book = Book(id = 1, title = "T", author = "A", isPhysical = false)
+        val expectedSnapshot = DeletedBookSnapshot(
+            book = book,
+            dailyReadings = emptyList(),
+            readingProgress = null
+        )
+
+        every { getBookDailyReadingsUseCase(1) } returns flowOf(emptyList())
+        coEvery { getReadingProgressByIdUseCase(1) } returns null
         coEvery { deleteBookUseCase(1) } returns Result.success(Unit)
         coEvery { restoreDeletedBookUseCase(any()) } returns Result.success(Unit)
 
@@ -170,6 +205,7 @@ class HomeViewModelTest {
         val book = Book(id = 1, title = "T", author = "A", isPhysical = false)
 
         every { getBookDailyReadingsUseCase(1) } returns flowOf(emptyList())
+        coEvery { getReadingProgressByIdUseCase(1) } returns null
         coEvery { deleteBookUseCase(1) } returns Result.success(Unit)
         coEvery { restoreDeletedBookUseCase(any()) } returns Result.success(Unit)
 
@@ -192,6 +228,7 @@ class HomeViewModelTest {
 
         val book = Book(id = 1, title = "T", author = "A", isPhysical = false, coverUrl = "c", localFilePath = "l")
         every { getBookDailyReadingsUseCase(1) } returns flowOf(emptyList())
+        coEvery { getReadingProgressByIdUseCase(1) } returns null
         coEvery { deleteBookUseCase(1) } returns Result.success(Unit)
 
         viewModel.onEvent(HomeEvent.OnDeleteBookClick(book))

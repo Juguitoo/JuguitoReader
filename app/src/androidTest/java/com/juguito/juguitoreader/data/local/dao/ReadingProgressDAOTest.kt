@@ -5,6 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.juguito.juguitoreader.data.local.JuguitoReaderDatabase
+import com.juguito.juguitoreader.data.local.entity.BookEntity
 import com.juguito.juguitoreader.data.local.entity.ReadingProgressEntity
 import com.juguito.juguitoreader.domain.enums.SyncStatus
 import kotlinx.coroutines.flow.first
@@ -19,6 +20,7 @@ class ReadingProgressDAOTest {
 
     private lateinit var database: JuguitoReaderDatabase
     private lateinit var readingProgressDAO: ReadingProgressDAO
+    private lateinit var bookDAO: BookDAO
 
     @Before
     fun setup() {
@@ -27,6 +29,7 @@ class ReadingProgressDAOTest {
             JuguitoReaderDatabase::class.java
         ).allowMainThreadQueries().build()
         readingProgressDAO = database.readingProgressDAO
+        bookDAO = database.bookDAO
     }
 
     @After
@@ -34,34 +37,45 @@ class ReadingProgressDAOTest {
         database.close()
     }
 
+    private fun insertBook(id: Int) = runBlocking {
+        bookDAO.insertBook(
+            BookEntity(id = id, title = "Title", author = "Author", isPhysical = false, createdAt = 0L)
+        )
+    }
+
     @Test
     fun insertReadingProgresses_and_getAll() = runBlocking {
+        insertBook(1)
+        insertBook(2)
         val list = listOf(
             ReadingProgressEntity(bookId = 1, lastChapterIndex = 0, scrollPosition = 0f, lastReadAt = 0L),
             ReadingProgressEntity(bookId = 2, lastChapterIndex = 0, scrollPosition = 0f, lastReadAt = 1L)
         )
         readingProgressDAO.insertReadingProgresses(list)
-        
+
         val result = readingProgressDAO.getAllReadingProgress().first()
         assertThat(result).hasSize(2)
     }
 
     @Test
     fun getReadingProgressById_returns_correct_one() = runBlocking {
+        insertBook(5)
         val p = ReadingProgressEntity(bookId = 5, lastChapterIndex = 10, scrollPosition = 0.5f, lastReadAt = 100L)
         readingProgressDAO.insertReadingProgress(p)
-        
+
         val result = readingProgressDAO.getReadingProgressById(5)
         assertThat(result?.lastChapterIndex).isEqualTo(10)
     }
 
     @Test
     fun getUnsyncedReadingProgresses_returns_only_unsynced() = runBlocking {
+        insertBook(1)
+        insertBook(2)
         val p1 = ReadingProgressEntity(bookId = 1, lastChapterIndex = 0, scrollPosition = 0f, lastReadAt = 0L, syncStatus = SyncStatus.SYNCED)
         val p2 = ReadingProgressEntity(bookId = 2, lastChapterIndex = 0, scrollPosition = 0f, lastReadAt = 1L, syncStatus = SyncStatus.PENDING_CREATE)
-        
+
         readingProgressDAO.insertReadingProgresses(listOf(p1, p2))
-        
+
         val result = readingProgressDAO.getUnsyncedReadingProgresses()
         assertThat(result).hasSize(1)
         assertThat(result[0].bookId).isEqualTo(2)
@@ -69,7 +83,10 @@ class ReadingProgressDAOTest {
 
     @Test
     fun deleteReadingProgressById_removes_it() = runBlocking {
-        readingProgressDAO.insertReadingProgress(ReadingProgressEntity(bookId = 1, lastChapterIndex = 0, scrollPosition = 0f, lastReadAt = 0L))
+        insertBook(1)
+        readingProgressDAO.insertReadingProgress(
+            ReadingProgressEntity(bookId = 1, lastChapterIndex = 0, scrollPosition = 0f, lastReadAt = 0L)
+        )
         readingProgressDAO.deleteReadingProgressById(1)
         assertThat(readingProgressDAO.getReadingProgressById(1)).isNull()
     }

@@ -49,7 +49,7 @@ class RestoreDeletedBookUseCaseTest {
             reachedPercentage = 0.5f,
             readingSpeed = 200
         )
-        val snapshot = DeletedBookSnapshot(book = book, dailyReadings = listOf(dailyReading))
+        val snapshot = DeletedBookSnapshot(book = book, dailyReadings = listOf(dailyReading), readingProgress = null)
 
         coEvery { folderRepository.getFolderById(5) } returns folder
         coEvery { genreRepository.getGenreById(3) } returns genre
@@ -66,7 +66,7 @@ class RestoreDeletedBookUseCaseTest {
     @Test
     fun `invoke with empty relations calls restoreDeletedBook with empty id lists`() = runTest {
         val book = Book(id = 1, title = "Title", author = "Author", isPhysical = false)
-        val snapshot = DeletedBookSnapshot(book = book, dailyReadings = emptyList())
+        val snapshot = DeletedBookSnapshot(book = book, dailyReadings = emptyList(), readingProgress = null)
 
         coEvery { bookRepository.restoreDeletedBook(any(), any(), any()) } returns Unit
 
@@ -81,7 +81,7 @@ class RestoreDeletedBookUseCaseTest {
     @Test
     fun `invoke returns failure when repository throws`() = runTest {
         val book = Book(id = 1, title = "Title", author = "Author", isPhysical = false)
-        val snapshot = DeletedBookSnapshot(book = book, dailyReadings = emptyList())
+        val snapshot = DeletedBookSnapshot(book = book, dailyReadings = emptyList(), readingProgress = null)
 
         coEvery { bookRepository.restoreDeletedBook(any(), any(), any()) } throws Exception("DB error")
 
