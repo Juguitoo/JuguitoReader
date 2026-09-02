@@ -11,10 +11,10 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 | ------------ | ------------------------------------------------------------------------------------ |
 | **Crítico**  |                                                                                      |
 | **Alto**     |                                                                                      |
-| **Medio**    | DATA-006, READER-010…014, FILE-005, UX-001, UX-002, PERF-001, ARCH-002     |
+| **Medio**    | DATA-006, READER-011…014, FILE-005, UX-001, UX-002, PERF-001, ARCH-002     |
 | **Diferido** | READER-008, READER-009 → v1.4.0 (TAR-31)                                     |
 | **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                         |
-| **Resuelto** | READER-005, READER-006, READER-007, DATA-008, DATA-004, DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
+| **Resuelto** | READER-010, READER-005, READER-006, READER-007, DATA-008, DATA-004, DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
 
 
 ---
@@ -107,7 +107,19 @@ NCX parseado; falta soporte completo HTML Navigation Document (`properties="nav"
 
 ### READER-010 · Errores unzip silenciados
 
-`EpubParser.kt` ~285-287: `printStackTrace()` sin rethrow → extracción incompleta silenciosa.
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+
+
+`extractFullContent` tragaba excepciones de parse con `printStackTrace()`; fallos de unzip podían dejar extracción incompleta; `openInputStream` null en `ensureExtracted` dejaba caché vacía y bloqueaba reintentos.
+
+**Fix:** refactor en `ensureExtracted`, `parseContainerOpfPath`, `parseOpf` y `parseNcx`; fail-fast en container/OPF/spine vacío; NCX opcional con fallback por spine; cleanup de caché si falla la extracción; `openInputStream` null → `IOException`.
+
+**Nota:** FILE-005 sigue abierto — mismo patrón `openInputStream` null en `FileUtils` al copiar a internal storage, no en el lector.
+
+**Test:** `EpubParserExtractTest` (androidTest), `EpubParserSecurityTest`, `ParseEpubUseCaseTest`.
 
 ---
 
@@ -340,11 +352,9 @@ Las rutas declaradas por `container.xml`, el manifest OPF y el NCX se resolvían
 
 `EpubParser.unzip` tenía Zip Slip parcial pero sin tope de bytes descomprimidos ni de entradas.
 
-**Fix:** límites (512 MiB total / 128 MiB por entry / 10 000 entries; cover 20 MiB); contar bytes escritos vía `copyBounded`; abort + `deleteRecursively` del destino; `unzip(InputStream, …)` testeable; `ParseEpubUseCase` → `error_unzip`.
+**Fix:** límites (512 MiB total / 128 MiB por entry / 10 000 entries; cover 20 MiB); contar bytes escritos vía `copyBounded`; abort + `deleteRecursively` del destino; `unzip(InputStream, …)` testeable; `ParseEpubUseCase` → `error_unzip`. Completado en READER-010: parse fail-fast y cleanup de caché en `ensureExtracted`.
 
-**Residual:** otros `printStackTrace` del parser (READER-010).
-
-**Test:** `EpubParserSecurityTest`, `ParseEpubUseCaseTest`.
+**Test:** `EpubParserSecurityTest`, `ParseEpubUseCaseTest`, `EpubParserExtractTest`.
 
 ---
 
