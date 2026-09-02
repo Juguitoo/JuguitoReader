@@ -54,8 +54,8 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | READER-007 | Destruir WebView explícitamente (onRelease)                  | `[x]`  | KNOWN_ISSUES |
 | READER-010 | Errores unzip silenciados en EpubParser                      | `[x]`  | KNOWN_ISSUES |
 | FILE-005   | openInputStream null pero devuelve path válido               | `[x]`  | KNOWN_ISSUES |
-| UX-001     | Loading global al importar (Home)                            | `[ ]`  | KNOWN_ISSUES |
-| UX-002     | Pantallas stuck en Loading tras error                        | `[ ]`  | KNOWN_ISSUES |
+| UX-001     | Loading global al importar (Home)                            | `[x]`  | KNOWN_ISSUES |
+| UX-002     | Pantallas stuck en Loading tras error                        | `[x]`  | KNOWN_ISSUES |
 | PERF-001   | Demasiadas escrituras BD durante scroll                      | `[ ]`  | KNOWN_ISSUES |
 | READER-011 | Conteo palabras duplica al retroceder scroll                 | `[ ]`  | KNOWN_ISSUES |
 | READER-012 | WebView sin onRenderProcessGone (crash si muere el renderer) | `[ ]`  | KNOWN_ISSUES |
@@ -90,8 +90,10 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | READER-004 | Reset transaccional de lectura al reemplazar EPUB                   | `fbf09aa`, `44061a0`, `96b565d`            |
 | SEC-003    | Validación canónica de rutas OPF, manifest y NCX                    | `9f9ef29`, `1fb4e4c`                       |
 | SEC-002    | Límites anti zip bomb en EpubParser (unzip + cover)                 | `11e1d4d`, `14078f0`                       |
-| READER-010 | Fail-fast parse EPUB + cleanup caché en extracción                  | pendiente commit                           |
-| FILE-005   | openInputStream null en FileUtils ya no devuelve path fantasma      | pendiente commit                           |
+| READER-010 | Fail-fast parse EPUB + cleanup caché en extracción                  | `6d21d74`                                  |
+| FILE-005   | openInputStream null en FileUtils ya no devuelve path fantasma      | `deca14f`                                  |
+| UX-001     | Import overlay en Home/Library (sin Loading global)                  | pendiente commit                           |
+| UX-002     | Reset loading tras error en import (Home/Library/AddBook)          | pendiente commit                           |
 | SEC-001    | WebView EPUB vía WebViewAssetLoader (sin file:// / allowFileAccess) | `903dede` (+ webkit `6822276`)             |
 | FILE-003   | Parse/import EPUB I/O en Dispatchers.IO (lector + Home/Library)     | `7f4cf25`, `1bbe4fb`                       |
 | FILE-002   | BookDetail guarda URI en vez de path interno al reemplazar EPUB     | `8cf2a86`, `32e8d83`                       |

@@ -11,11 +11,17 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Crítico**  |                                                                                                                                                                                                                                         |
 | **Alto**     |                                                                                                                                                                                                                                         |
-| **Medio**    | DATA-006, READER-011…014, UX-001, UX-002, PERF-001, ARCH-002                                                                                                                                                                            |
+| **Medio**    | DATA-006, READER-011…014, PERF-001, ARCH-002                                                                                                                                                                                            |
 | **Diferido** | READER-008, READER-009 → v1.4.0 (TAR-31)                                                                                                                                                                                                |
 | **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                                                                                                                                                                            |
-| **Resuelto** | FILE-005, READER-010, READER-005, READER-006, READER-007, DATA-008, DATA-004, DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
+| **Resuelto** | UX-001, UX-002, FILE-005, READER-010, READER-005, READER-006, READER-007, DATA-008, DATA-004, DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
 
+
+
+
+## Crítico
+
+*(Sin issues abiertos en esta severidad.)*
 
 ---
 
@@ -24,6 +30,10 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 *(Sin issues abiertos en esta severidad.)*
 
 ---
+
+## Medio
+
+
 
 ### DATA-006 · Migraciones 1→5 inexistentes
 
@@ -46,6 +56,8 @@ Solo 6→10. En dev aceptable (destructive OK). Antes de open testing: definir p
 
 ---
 
+
+
 ### READER-009 · EPUB3 nav incompleto
 
 
@@ -61,29 +73,21 @@ NCX parseado; falta soporte completo HTML Navigation Document (`properties="nav"
 
 ---
 
-### UX-001 · Loading global al importar
-
-`HomeViewModel.importBook()` → Loading en toda la pantalla.
-
----
-
-### UX-002 · Stuck en Loading tras error
-
-AddBookViewModel, HomeViewModel, LibraryViewModel: no todos los paths de error resetean loading.
-
----
-
 ### PERF-001 · Escrituras excesivas en scroll
 
 Cada update de progreso → Room + `.first()` en preferences. Throttle; guardar al pausar/cambiar capítulo.
 
 ---
 
+
+
 ### READER-011 · Conteo palabras duplica al retroceder
 
 Scroll abajo → arriba → abajo puede recontar palabras ya leídas.
 
 ---
+
+
 
 ### READER-012 · WebView sin onRenderProcessGone
 
@@ -102,6 +106,8 @@ Lint en `EpubWebView`: el HTML corre en un proceso de render aparte. Si muere (O
 
 ---
 
+
+
 ### READER-013 · FOUC al cambiar de capítulo
 
 
@@ -116,6 +122,8 @@ Al pasar de capítulo se ve un instante el HTML del EPUB (sin tema/padding del l
 **Archivo:** `EpubWebView.kt`
 
 ---
+
+
 
 ### READER-014 · Temporizador de sesión perdido durante Loading
 
@@ -132,13 +140,19 @@ Al pasar de capítulo se ve un instante el HTML del EPUB (sin tema/padding del l
 
 ---
 
+
+
 ### ARCH-002 · Auto Backup vs local-only
 
 `allowBackup="true"`, rules vacías → Android puede backup de DB y filesDir.
 
 ---
 
+
+
 ## Mejoras (pre-release)
+
+
 
 ### ARCH-001 · Scaffold sync sin usar
 
@@ -146,11 +160,15 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 
 ---
 
+
+
 ### REL-001 · Release firmado con debug
 
 `app/build.gradle.kts:29`
 
 ---
+
+
 
 ### REL-002 · Release sin R8
 
@@ -158,11 +176,15 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 
 ---
 
+
+
 ### UX-003 · Portrait lock
 
 `AndroidManifest.xml` — coherente con TAR-53 (horizontal) en v1.3.
 
 ---
+
+
 
 ### I18N-001 · Strings hardcodeadas
 
@@ -170,7 +192,11 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 
 ---
 
+
+
 ## Resuelto
+
+
 
 ### DATA-007 · Undo delete no restaura daily_reading
 
@@ -187,6 +213,8 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 **Test:** `RestoreDeletedBookUseCaseTest`, `BookRepositoryImplTest.restoreDeletedBook`, `HomeViewModelTest` (snapshot + undo).
 
 ---
+
+
 
 ### DATA-008 · Operaciones libro + carpetas + géneros no atómicas
 
@@ -207,6 +235,8 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 
 ---
 
+
+
 ### DATA-004 · reading_progress huérfano al borrar libro
 
 
@@ -222,6 +252,8 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 **Test:** `BookDAOTest.deleteBookById_cascades_reading_progress`, `ReadingProgressMigrationTest`, tests unitarios de restore.
 
 ---
+
+
 
 ### READER-004 · Crash EPUB con menos capítulos
 
@@ -242,6 +274,8 @@ Al reemplazar un EPUB, `reading_progress`, `daily_reading` y la extracción en c
 
 ---
 
+
+
 ### SEC-003 · Path traversal tras unzip
 
 
@@ -259,6 +293,8 @@ Las rutas declaradas por `container.xml`, el manifest OPF y el NCX se resolvían
 
 ---
 
+
+
 ### SEC-002 · Posible zip bomb
 
 
@@ -275,6 +311,8 @@ Las rutas declaradas por `container.xml`, el manifest OPF y el NCX se resolvían
 **Test:** `EpubParserSecurityTest`, `ParseEpubUseCaseTest`, `EpubParserExtractTest`.
 
 ---
+
+
 
 ### SEC-001 · WebView inseguro para contenido EPUB
 
@@ -295,6 +333,8 @@ Carga `file://` + `allowFileAccess`. EPUB = HTML de terceros.
 
 ---
 
+
+
 ### FILE-003 · Parse EPUB puede bloquear UI
 
 
@@ -311,6 +351,8 @@ Carga `file://` + `allowFileAccess`. EPUB = HTML de terceros.
 **Test:** `ParseEpubUseCaseTest`, `GetBookFromEpubUseCaseTest`, `ImportBookFromUriUseCaseTest`, `BookDetailViewModelTest`.
 
 ---
+
+
 
 ### FILE-004 · Archivos internos huérfanos
 
@@ -331,12 +373,15 @@ EPUB y cover se copiaban a `filesDir` en picker/import antes de confirmar en Roo
 
 ---
 
+
+
 ### FILE-005 · openInputStream null devuelve path
 
 
 | Campo      | Valor                 |
 | ---------- | --------------------- |
 | **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `deca14f` |
 
 
 `FileUtils.saveImageToInternalStorage` / `saveEpubBookToInternalStorage`: si `openInputStream(uri)` era null, no copiaba pero retornaba `absolutePath` → path fantasma en BD.
@@ -345,12 +390,15 @@ EPUB y cover se copiaban a `filesDir` en picker/import antes de confirmar en Roo
 
 ---
 
+
+
 ### READER-010 · Errores unzip silenciados
 
 
 | Campo      | Valor                 |
 | ---------- | --------------------- |
 | **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `6d21d74` |
 
 
 `extractFullContent` tragaba excepciones de parse con `printStackTrace()`; fallos de unzip podían dejar extracción incompleta; `openInputStream` null en `ensureExtracted` dejaba caché vacía y bloqueaba reintentos.
@@ -360,6 +408,44 @@ EPUB y cover se copiaban a `filesDir` en picker/import antes de confirmar en Roo
 **Test:** `EpubParserExtractTest` (androidTest), `EpubParserSecurityTest`, `ParseEpubUseCaseTest`.
 
 ---
+
+
+
+### UX-001 · Loading global al importar
+
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+
+
+`HomeViewModel` / `LibraryViewModel.importBook()` ponían `UiState.Loading` → spinner a pantalla completa tapando contenido durante import one-shot.
+
+**Fix:** flag `isImporting` aparte del `UiState`; overlay semitransparente sobre `Success`/`Empty`; botones de import deshabilitados o guardados con `!isImporting`.
+
+**Archivos:** `HomeViewModel.kt`, `HomeScreen.kt`, `LibraryViewModel.kt`, `LibraryScreen.kt`.
+
+---
+
+
+
+### UX-002 · Stuck en Loading tras error
+
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+
+
+Tras fallo de import en Home/Library, el estado quedaba en `Loading` sin restaurar la pantalla. AddBook podía dejar `isLoading` activo en algunos paths.
+
+**Fix:** `try/finally` en import de Home/Library; AddBook ya resetea `isLoading` en save/import (validaciones antes de activar loading; `finally` en save).
+
+**Test:** `AddBookViewModelTest` (`OnImportEpub clears loading state on failure`, save rollback paths).
+
+---
+
+
 
 ### READER-005 · Brillo no se restaura al salir
 
@@ -375,6 +461,8 @@ EPUB y cover se copiaban a `filesDir` en picker/import antes de confirmar en Roo
 
 ---
 
+
+
 ### READER-006 · System bars ocultas permanentemente
 
 
@@ -388,6 +476,8 @@ EPUB y cover se copiaban a `filesDir` en picker/import antes de confirmar en Roo
 **Fix:** `show(systemBars())` en el mismo `onDispose` de `ReaderScreen`.
 
 ---
+
+
 
 ### READER-007 · WebView no destruido
 
@@ -405,6 +495,8 @@ Falta `stopLoading()`, quitar JS bridge, `destroy()` en `AndroidView.onRelease`.
 
 ---
 
+
+
 ### FILE-001 · Mezcla content:// y path filesystem
 
 
@@ -419,6 +511,8 @@ Algunas pantallas guardan URI del picker; `EpubParser` usa `File(path)` → fall
 **Relacionado:** `GetBookFromEpubUseCase` fallback `uri.toString()` si copy falla.
 
 ---
+
+
 
 ### FILE-002 · Reemplazar EPUB guarda path incorrecto
 
@@ -435,6 +529,8 @@ Algunas pantallas guardan URI del picker; `EpubParser` usa `File(path)` → fall
 
 ---
 
+
+
 ### DATA-003 · Relaciones resueltas por nombre
 
 
@@ -449,6 +545,8 @@ Algunas pantallas guardan URI del picker; `EpubParser` usa `File(path)` → fall
 **Fix:** usar `id` cuando `id != 0`.
 
 ---
+
+
 
 ### READER-002 · PDF aceptado pero no soportado
 
@@ -467,6 +565,8 @@ Pickers aceptan `application/pdf` pero no hay motor PDF (`PdfRenderer`, pdfium�
 
 ---
 
+
+
 ### DATA-002 · Cross-refs no se sincronizan al editar libro
 
 
@@ -481,6 +581,8 @@ Pickers aceptan `application/pdf` pero no hay motor PDF (`PdfRenderer`, pdfium�
 **Fix:** transacción DELETE + INSERT en junction tables.
 
 ---
+
+
 
 ### DATA-001 · `REPLACE` en updates rompe relaciones FK
 
@@ -497,6 +599,8 @@ Cierra también **READER-003** (progreso usaba `saveBook` → REPLACE).
 
 ---
 
+
+
 ### READER-003 · Actualizar progreso borra metadatos del libro
 
 
@@ -509,6 +613,8 @@ Cierra también **READER-003** (progreso usaba `saveBook` → REPLACE).
 `UpdateReadingProgressUseCase` llamaba `saveBook` (REPLACE). Ahora usa `updateBook`.
 
 ---
+
+
 
 ### READER-001 · `windows.scrollY` typo en JS
 
@@ -523,6 +629,8 @@ Usaba `windows.scrollY` → ReferenceError, progreso/tiempo/palabras no se repor
 
 ---
 
+
+
 ## Cómo mantener este archivo
 
 Ver [MAINTENANCE.md](MAINTENANCE.md). Al resolver un issue:
@@ -530,6 +638,8 @@ Ver [MAINTENANCE.md](MAINTENANCE.md). Al resolver un issue:
 1. Cambiar **Estado** → `Resuelto (vX.Y.Z)` + commit.
 2. Mover ID a sección **Resuelto** (no borrar).
 3. Actualizar [BACKLOG.md](BACKLOG.md) checkbox.
+
+
 
 ## Plantilla nueva entrada
 
