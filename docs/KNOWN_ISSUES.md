@@ -417,6 +417,7 @@ EPUB y cover se copiaban a `filesDir` en picker/import antes de confirmar en Roo
 | Campo      | Valor                 |
 | ---------- | --------------------- |
 | **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `6c5f9f8` |
 
 
 `HomeViewModel` / `LibraryViewModel.importBook()` ponían `UiState.Loading` → spinner a pantalla completa tapando contenido durante import one-shot.
@@ -435,6 +436,7 @@ EPUB y cover se copiaban a `filesDir` en picker/import antes de confirmar en Roo
 | Campo      | Valor                 |
 | ---------- | --------------------- |
 | **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `6c5f9f8` |
 
 
 Tras fallo de import en Home/Library, el estado quedaba en `Loading` sin restaurar la pantalla. AddBook podía dejar `isLoading` activo en algunos paths.
