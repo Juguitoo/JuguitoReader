@@ -138,6 +138,35 @@ class ReaderViewModelTest {
         return vm
     }
 
+    /** VM con el parseo del EPUB aún pendiente: el estado sigue en Loading hasta `advanceUntilIdle()`. */
+    private fun TestScope.createLoadingViewModel(
+        epubContent: EpubContent = EpubContent(baseDir = "", spine = listOf("ch1"), chaptersTree = emptyList())
+    ): ReaderViewModel {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+
+        coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
+        coEvery { getReadingProgressByIdUseCase(1) } returns ReadingProgress(
+            bookId = 1,
+            totalChapters = epubContent.spine.size,
+            lastChapterIndex = 0,
+            scrollPosition = 0f,
+            lastReadAt = 0L
+        )
+
+        return ReaderViewModel(
+            getBookByIdUseCase,
+            getReadingProgressByIdUseCase,
+            getBookDailyReadingsUseCase,
+            updateReadingProgressUseCase,
+            addReadingProgressUseCase,
+            addDailyReadingUseCase,
+            updateBookUseCase,
+            parseEpubUseCase,
+            settingsRepository,
+            savedStateHandle
+        )
+    }
+
     @Test
     fun `initial state is Loading then Error if parse fails`() = runTest {
         coEvery { parseEpubUseCase(any(), any()) } returns Result.failure(Exception("Parse error"))
@@ -496,5 +525,63 @@ class ReaderViewModelTest {
         assertThat(slot.captured.readingSpeed).isEqualTo(200)
 
         job.cancel()
+    }
+
+    @Test
+    fun `READER-014 session timer starts when loading finishes if reader is already resumed`() = runTest {
+        val viewModel = createLoadingViewModel()
+        viewModel.currentTimeProvider = { 1_000L }
+
+        viewModel.onEvent(ReaderEvent.OnStartReading)
+        assertThat(viewModel.uiState.value).isInstanceOf(ReaderUiState.Loading::class.java)
+
+        advanceUntilIdle()
+
+        val slot = slot<DailyReading>()
+        coEvery { addDailyReadingUseCase(capture(slot)) } returns Result.success(Unit)
+        viewModel.currentTimeProvider = { 121_000L }
+
+        viewModel.onEvent(ReaderEvent.OnFinishReading)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { addDailyReadingUseCase(any()) }
+        assertThat(slot.captured.timeSpentMillis).isEqualTo(120_000)
+    }
+
+    @Test
+    fun `READER-014 session timer does not start if reader was paused while loading`() = runTest {
+        val viewModel = createLoadingViewModel()
+        viewModel.currentTimeProvider = { 1_000L }
+
+        viewModel.onEvent(ReaderEvent.OnStartReading)
+        viewModel.onEvent(ReaderEvent.OnFinishReading)
+        advanceUntilIdle()
+
+        viewModel.currentTimeProvider = { 121_000L }
+        viewModel.onEvent(ReaderEvent.OnFinishReading)
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) { addDailyReadingUseCase(any()) }
+    }
+
+    @Test
+    fun `READER-014 repeated OnStartReading keeps the original session start`() = runTest {
+        val viewModel = createLoadingViewModel()
+        viewModel.currentTimeProvider = { 1_000L }
+
+        viewModel.onEvent(ReaderEvent.OnStartReading)
+        advanceUntilIdle()
+
+        viewModel.currentTimeProvider = { 61_000L }
+        viewModel.onEvent(ReaderEvent.OnStartReading)
+
+        val slot = slot<DailyReading>()
+        coEvery { addDailyReadingUseCase(capture(slot)) } returns Result.success(Unit)
+        viewModel.currentTimeProvider = { 121_000L }
+
+        viewModel.onEvent(ReaderEvent.OnFinishReading)
+        advanceUntilIdle()
+
+        assertThat(slot.captured.timeSpentMillis).isEqualTo(120_000)
     }
 }

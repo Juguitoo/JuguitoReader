@@ -78,6 +78,7 @@ class ReaderViewModel @Inject constructor(
     private val bookId: Int = checkNotNull(savedStateHandle["bookId"])
     private var initialPercentage: Int = -1
     private var sessionStartTimeMillis: Long = 0L
+    private var isReaderResumed: Boolean = false
     internal var currentTimeProvider: () -> Long = { System.currentTimeMillis() }
 
     private var persistProgressJob: Job? = null
@@ -141,6 +142,8 @@ class ReaderViewModel @Inject constructor(
                             bookSessions = emptyList()
                         )
 
+                        startSessionTimerIfPossible()
+
                         viewModelScope.launch {
                             getBookDailyReadingsUseCase.invoke(bookId).collect { sessions ->
                                 val currentState = _internalState.value
@@ -159,8 +162,11 @@ class ReaderViewModel @Inject constructor(
     }
 
     fun onEvent(event: ReaderEvent) {
-        val currentState = _internalState.value
-        if (currentState !is ReaderUiState.Success) return
+        // Los eventos de ciclo de vida se procesan aunque el EPUB siga cargando (READER-014).
+        if (event is ReaderEvent.OnStartReading) return onReaderResumed()
+        if (event is ReaderEvent.OnFinishReading) return onReaderPaused()
+
+        val currentState = _internalState.value as? ReaderUiState.Success ?: return
 
         when (event) {
             is ReaderEvent.OnChapterSelected -> {
@@ -201,13 +207,6 @@ class ReaderViewModel @Inject constructor(
             is ReaderEvent.OnStatusPromptResult -> {
                 handlePromptResult(currentState, event.changeToReading)
             }
-            is ReaderEvent.OnFinishReading -> {
-                flushProgressPersist()
-                saveCurrentReadingSession(currentState)
-            }
-            is ReaderEvent.OnStartReading -> {
-                sessionStartTimeMillis = currentTimeProvider()
-            }
             is ReaderEvent.OnToggleSessionsDialog -> {
                 val willShow = !currentState.showSessionsDialog
 
@@ -227,7 +226,30 @@ class ReaderViewModel @Inject constructor(
                     accumulatedReadWords = newAccumulated
                 )
             }
+            is ReaderEvent.OnStartReading, is ReaderEvent.OnFinishReading -> Unit
         }
+    }
+
+    private fun onReaderResumed() {
+        isReaderResumed = true
+        startSessionTimerIfPossible()
+    }
+
+    private fun onReaderPaused() {
+        isReaderResumed = false
+        flushProgressPersist()
+        val currentState = _internalState.value as? ReaderUiState.Success ?: return
+        saveCurrentReadingSession(currentState)
+    }
+
+    /**
+     * El temporizador solo puede arrancar con el lector en primer plano y el EPUB ya cargado.
+     * Es idempotente: mientras haya sesión abierta, no reinicia el instante de inicio (READER-014).
+     */
+    private fun startSessionTimerIfPossible() {
+        if (!isReaderResumed || sessionStartTimeMillis > 0L) return
+        if (_internalState.value !is ReaderUiState.Success) return
+        sessionStartTimeMillis = currentTimeProvider()
     }
 
     private fun updateChapter(currentState: ReaderUiState.Success, newIndex: Int) {
