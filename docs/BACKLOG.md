@@ -53,7 +53,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | READER-006 | Restaurar system bars al salir del lector                    | `[x]`  | KNOWN_ISSUES |
 | READER-007 | Destruir WebView explícitamente (onRelease)                  | `[x]`  | KNOWN_ISSUES |
 | READER-010 | Errores unzip silenciados en EpubParser                      | `[x]`  | KNOWN_ISSUES |
-| FILE-005   | openInputStream null pero devuelve path válido               | `[ ]`  | KNOWN_ISSUES |
+| FILE-005   | openInputStream null pero devuelve path válido               | `[x]`  | KNOWN_ISSUES |
 | UX-001     | Loading global al importar (Home)                            | `[ ]`  | KNOWN_ISSUES |
 | UX-002     | Pantallas stuck en Loading tras error                        | `[ ]`  | KNOWN_ISSUES |
 | PERF-001   | Demasiadas escrituras BD durante scroll                      | `[ ]`  | KNOWN_ISSUES |
@@ -87,10 +87,11 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | ID         | Tarea                                                               | Commit / nota                              |
 | ---------- | ------------------------------------------------------------------- | ------------------------------------------ |
 | DATA-008   | AddBook/UpdateBook transaccionales (libro + cross-refs)             | `fe1e2ee`                                  |
-| READER-004 | Reset transaccional de lectura al reemplazar EPUB                  | `fbf09aa`, `44061a0`, `96b565d`            |
+| READER-004 | Reset transaccional de lectura al reemplazar EPUB                   | `fbf09aa`, `44061a0`, `96b565d`            |
 | SEC-003    | Validación canónica de rutas OPF, manifest y NCX                    | `9f9ef29`, `1fb4e4c`                       |
 | SEC-002    | Límites anti zip bomb en EpubParser (unzip + cover)                 | `11e1d4d`, `14078f0`                       |
 | READER-010 | Fail-fast parse EPUB + cleanup caché en extracción                  | pendiente commit                           |
+| FILE-005   | openInputStream null en FileUtils ya no devuelve path fantasma      | pendiente commit                           |
 | SEC-001    | WebView EPUB vía WebViewAssetLoader (sin file:// / allowFileAccess) | `903dede` (+ webkit `6822276`)             |
 | FILE-003   | Parse/import EPUB I/O en Dispatchers.IO (lector + Home/Library)     | `7f4cf25`, `1bbe4fb`                       |
 | FILE-002   | BookDetail guarda URI en vez de path interno al reemplazar EPUB     | `8cf2a86`, `32e8d83`                       |
@@ -133,12 +134,12 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 ### v1.4.0
 
 
-| ID         | Tarea                                      | Tipo | Ref          |
-| ---------- | ------------------------------------------ | ---- | ------------ |
-| TAR-31     | Compatibilidad básica EPUB3                | Feat | ROADMAP      |
-| TAR-32     | Compatibilidad avanzada EPUB3              | Feat | ROADMAP      |
-| READER-008 | TOC con `#fragment` falla                    | Fix  | KNOWN_ISSUES |
-| READER-009 | EPUB3 nav document incompleto              | Fix  | KNOWN_ISSUES |
+| ID         | Tarea                         | Tipo | Ref          |
+| ---------- | ----------------------------- | ---- | ------------ |
+| TAR-31     | Compatibilidad básica EPUB3   | Feat | ROADMAP      |
+| TAR-32     | Compatibilidad avanzada EPUB3 | Feat | ROADMAP      |
+| READER-008 | TOC con `#fragment` falla     | Fix  | KNOWN_ISSUES |
+| READER-009 | EPUB3 nav document incompleto | Fix  | KNOWN_ISSUES |
 
 
 

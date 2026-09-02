@@ -9,6 +9,7 @@ import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.exception.JuguitoException
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 
 data class PromotedBookFiles(val epubPath: String?, val coverPath: String?)
 
@@ -32,8 +33,8 @@ object FileUtils {
         return try {
             val fileName = "cover_${System.currentTimeMillis()}.jpg"
             val file = File(context.filesDir, fileName)
-            
-            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+            val stream = context.contentResolver.openInputStream(uri) ?: throw IOException("Error al abrir el stream")
+            stream.use { inputStream ->
                 FileOutputStream(file).use { outputStream ->
                     inputStream.copyTo(outputStream)
                 }
@@ -54,7 +55,8 @@ object FileUtils {
             val fileName = "book_${System.currentTimeMillis()}.$extension"
             val file = File(context.filesDir, fileName)
 
-            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+            val stream = context.contentResolver.openInputStream(uri) ?: throw IOException("Error al abrir el stream")
+            stream.use { inputStream ->
                 FileOutputStream(file).use { outputStream ->
                     inputStream.copyTo(outputStream)
                 }
