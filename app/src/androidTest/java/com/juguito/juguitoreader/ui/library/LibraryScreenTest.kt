@@ -24,6 +24,7 @@ class LibraryScreenTest {
             JuguitoReaderTheme {
                 LibraryContent(
                     state = emptyState,
+                    isImporting = false,
                     isSearchVisible = false,
                     showAllFoldersSheet = false,
                     onToggleSearch = {},
@@ -59,6 +60,7 @@ class LibraryScreenTest {
             JuguitoReaderTheme {
                 LibraryContent(
                     state = successState,
+                    isImporting = false,
                     isSearchVisible = false,
                     showAllFoldersSheet = false,
                     onToggleSearch = {},
