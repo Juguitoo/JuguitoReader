@@ -11,10 +11,10 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Crítico**  |                                                                                                                                                                                                                                         |
 | **Alto**     |                                                                                                                                                                                                                                         |
-| **Medio**    | DATA-006, READER-011…014, ARCH-002                                                                                                                                                                                            |
+| **Medio**    | DATA-006, ARCH-002                                                                                                                                                                                            |
 | **Diferido** | READER-008, READER-009 → v1.4.0 (TAR-31)                                                                                                                                                                                                |
 | **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                                                                                                                                                                            |
-| **Resuelto** | PERF-001, UX-001, UX-002, FILE-005, READER-010, READER-005, READER-006, READER-007, DATA-008, DATA-004, DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
+| **Resuelto** | READER-011, READER-012, READER-013, READER-014, READER-015, PERF-001, UX-001, UX-002, FILE-005, READER-010, READER-005, READER-006, READER-007, DATA-008, DATA-004, DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
 
 
 
@@ -73,67 +73,6 @@ NCX parseado; falta soporte completo HTML Navigation Document (`properties="nav"
 
 ---
 
-### READER-011 · Conteo palabras duplica al retroceder
-
-Scroll abajo → arriba → abajo puede recontar palabras ya leídas.
-
----
-
-
-
-### READER-012 · WebView sin onRenderProcessGone
-
-
-| Estado | Abierto · v1.2.0 |
-| ------ | ---------------- |
-
-
-Lint en `EpubWebView`: el HTML corre en un proceso de render aparte. Si muere (OOM, crash de Chromium) y no hay `onRenderProcessGone`, Android mata la app.
-
-**Fix:** implementar el callback, devolver `true`, **no** reutilizar ese `WebView` (quitar del árbol / recrear `AndroidView` o estado Error). Un `return true` vacío evita el crash pero deja el visor muerto.
-
-**Relacionado:** READER-007 (ciclo de vida del WebView). Detectado al cerrar SEC-001; no forma parte de AssetLoader.
-
-**Archivo:** `EpubWebView.kt`
-
----
-
-
-
-### READER-013 · FOUC al cambiar de capítulo
-
-
-| Estado | Abierto · v1.2.0 |
-| ------ | ---------------- |
-
-
-Al pasar de capítulo se ve un instante el HTML del EPUB (sin tema/padding del lector) y luego el CSS inyectado en `onPageFinished`. Más visible tras SEC-001 (el origen sintético pinta el documento antes de `evaluateJavascript`).
-
-**Fix (orientativo):** inyectar CSS en `onPageStarted`, u ocultar el WebView hasta `onPageFinished`; alinear `setBackgroundColor` con el tema al cambiar de capítulo.
-
-**Archivo:** `EpubWebView.kt`
-
----
-
-
-
-### READER-014 · Temporizador de sesión perdido durante Loading
-
-
-| Estado | Abierto · v1.2.0 |
-| ------ | ---------------- |
-
-
-`ReaderScreen` envía `OnStartReading` al recibir `Lifecycle.Event.ON_RESUME`, pero `ReaderViewModel.onEvent` descarta todos los eventos mientras `_internalState` no sea `Success`. Si el EPUB sigue parseándose, el temporizador no comienza y la sesión no se registra hasta que ocurre otro pause/resume.
-
-**Fix orientativo:** conservar si el reader está resumed aunque siga cargando e iniciar el temporizador al publicar `Success`; hacer `OnStartReading` idempotente y detenerlo correctamente en `ON_PAUSE`.
-
-**Archivo:** `ReaderViewModel.kt`, `ReaderScreen.kt`
-
----
-
-
-
 ### ARCH-002 · Auto Backup vs local-only
 
 `allowBackup="true"`, rules vacías → Android puede backup de DB y filesDir.
@@ -187,6 +126,117 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 
 
 ## Resuelto
+
+
+
+### READER-011 · Conteo palabras duplica al retroceder
+
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `fe50fe3`             |
+
+
+**Criterio de producto (revisado):** las palabras solo alimentan el WPM de la sesión. Retroceder el scroll no debe sumar nada, pero **releer sí cuenta** (dentro del mismo capítulo o volviendo a él): es lectura real que consume tiempo de sesión. Descartar relecturas hundiría el WPM.
+
+Con ese criterio, la acumulación por incrementos positivos de `OnReportWordsRead` ya era correcta y el síntoma descrito en el ticket no era un bug. Lo que sí fallaba: al guardar sesión desde el diálogo de sesiones, `saveCurrentReadingSession` reseteaba `accumulatedReadWords` pero la escritura siguiente usaba una copia previa del estado y revertía el reset, arrastrando esas palabras a la sesión siguiente y duplicando su aportación al WPM.
+
+**Fix:** las escrituras posteriores a `saveCurrentReadingSession` usan `updateSuccessState` (lectura fresca del estado) para no revertir el reset. La lógica de acreditación se extrae a `creditWordsRead` con el criterio documentado: `delta.coerceAtLeast(0)` sobre la última posición reportada, reiniciada en `updateChapter`.
+
+**Relacionado:** READER-015 (línea base al restaurar el scroll).
+
+**Archivo:** `ReaderViewModel.kt`, `ReaderUiState.kt`
+
+**Test:** `ReaderViewModelTest` (`READER-011 scrolling backwards adds no words but rereading forward does`, `rereading a chapter credits its words again`, `READER-011 saving a session resets accumulated words`).
+
+---
+
+
+
+### READER-015 · Palabras regaladas al abrir por un capítulo empezado
+
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `fe50fe3`             |
+
+
+La línea base de palabras arrancaba en 0 al cargar el capítulo, pero el lector restaura el scroll a la posición guardada. El primer avance acreditaba de golpe todas las palabras por encima de ese punto sin haberlas leído: reanudar al 60 % de un capítulo regalaba ese 60 % al numerador del WPM. Afectaba a la apertura del libro (navegar entre capítulos restaura a scroll 0) y, por tanto, a la primera sesión de cada apertura.
+
+**Fix:** el script inyectado reporta la posición restaurada con `AndroidBridge.reportInitialWordsRead(...)` justo después de `window.scrollTo`; el ViewModel la fija como `lastReportedChapterWords` sin acreditarla (`OnChapterWordsBaseline`). No se pierde el primer tramo leído de verdad, a diferencia de ignorar el primer reporte.
+
+**Relacionado:** READER-011 (mismo contador).
+
+**Archivo:** `EpubWebView.kt`, `ReaderViewModel.kt`, `ReaderEvent.kt`
+
+**Test:** `ReaderViewModelTest` (`READER-015 restored scroll position is a baseline and credits no words`).
+
+---
+
+
+
+### READER-012 · WebView sin onRenderProcessGone
+
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `2136d05`             |
+
+
+El HTML corre en un proceso de render aparte. Si moría (OOM, crash de Chromium) sin `onRenderProcessGone`, Android mataba la app.
+
+**Fix:** `EpubWebView` implementa el callback: saca el `WebView` del árbol, lo destruye (`releaseWebView`, idempotente y compartido con `onRelease`), devuelve `true` y notifica `ReaderEvent.OnRenderProcessGone`. El ViewModel incrementa `webViewInstanceKey`; `ReaderContent` lo usa como `key(...)` para crear una instancia limpia. Tras `MAX_RENDERER_RECOVERIES` (2) pasa a `Error` en vez de reintentar en bucle.
+
+**Relacionado:** READER-007 (ciclo de vida del WebView).
+
+**Archivo:** `EpubWebView.kt`, `ReaderViewModel.kt`, `ReaderScreen.kt`
+
+**Test:** `ReaderViewModelTest` (`READER-012 render process gone recreates the WebView and then fails with Error`).
+
+---
+
+
+
+### READER-013 · FOUC al cambiar de capítulo
+
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `b63d0c3`             |
+
+
+Al pasar de capítulo se veía un instante el HTML del EPUB sin tema ni padding, y después el CSS inyectado en `onPageFinished`. Agravado por SEC-001: el origen sintético pinta el documento antes de `evaluateJavascript`.
+
+**Fix:** el `WebView` arranca `INVISIBLE` y se oculta de nuevo en `onPageStarted` con el color de fondo del tema; se revela en el callback de `evaluateJavascript` de `onPageFinished`, ya con CSS y scroll restaurado (timeout de seguridad de 2 s por si la inyección no responde). Además, tema y scroll se leen del `WebViewHolder` (valores frescos) en vez de la captura de la primera composición, y `setBackgroundColor` se realinea solo cuando cambia el tema.
+
+**Archivo:** `EpubWebView.kt`
+
+---
+
+
+
+### READER-014 · Temporizador de sesión perdido durante Loading
+
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `a89bce2`             |
+
+
+`ReaderScreen` envía `OnStartReading` en `ON_RESUME`, pero `onEvent` descartaba todo mientras el estado no fuese `Success`. Si el EPUB seguía parseándose, el temporizador no arrancaba y la sesión no se registraba hasta otro pause/resume.
+
+**Fix:** `OnStartReading` / `OnFinishReading` se procesan antes del guard de `Success`. `OnStartReading` marca el lector como resumed y `startSessionTimerIfPossible()` arranca el cronómetro (idempotente: no reinicia una sesión abierta); `loadData` lo vuelve a invocar al publicar `Success`. `OnFinishReading` limpia el flag, hace flush del progreso y cierra la sesión.
+
+**Archivo:** `ReaderViewModel.kt`
+
+**Test:** `ReaderViewModelTest` (`READER-014 session timer starts when loading finishes…`, `…does not start if reader was paused while loading`, `…repeated OnStartReading keeps the original session start`).
+
+---
 
 
 

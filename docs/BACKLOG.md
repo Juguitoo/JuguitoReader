@@ -57,10 +57,11 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | UX-001     | Loading global al importar (Home)                            | `[x]`  | KNOWN_ISSUES |
 | UX-002     | Pantallas stuck en Loading tras error                        | `[x]`  | KNOWN_ISSUES |
 | PERF-001   | Demasiadas escrituras BD durante scroll                      | `[x]`  | KNOWN_ISSUES |
-| READER-011 | Conteo palabras duplica al retroceder scroll                 | `[ ]`  | KNOWN_ISSUES |
-| READER-012 | WebView sin onRenderProcessGone (crash si muere el renderer) | `[ ]`  | KNOWN_ISSUES |
-| READER-013 | FOUC / flicker de HTML al cambiar de capítulo                | `[ ]`  | KNOWN_ISSUES |
-| READER-014 | Temporizador de sesión no inicia si el lector sigue cargando | `[ ]`  | KNOWN_ISSUES |
+| READER-011 | Conteo palabras duplica al retroceder scroll                 | `[x]`  | KNOWN_ISSUES |
+| READER-012 | WebView sin onRenderProcessGone (crash si muere el renderer) | `[x]`  | KNOWN_ISSUES |
+| READER-013 | FOUC / flicker de HTML al cambiar de capítulo                | `[x]`  | KNOWN_ISSUES |
+| READER-014 | Temporizador de sesión no inicia si el lector sigue cargando | `[x]`  | KNOWN_ISSUES |
+| READER-015 | Palabras regaladas al abrir libro por un capítulo empezado    | `[x]`  | KNOWN_ISSUES |
 | ARCH-002   | Revisar allowBackup vs política local-only                   | `[ ]`  | KNOWN_ISSUES |
 
 
@@ -86,6 +87,11 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 
 | ID         | Tarea                                                               | Commit / nota                              |
 | ---------- | ------------------------------------------------------------------- | ------------------------------------------ |
+| READER-011 | Reset de palabras acumuladas al guardar sesión (retroceso no suma)  | `fe50fe3`                                  |
+| READER-015 | Línea base de palabras al restaurar scroll (WPM sin regalos)        | `fe50fe3`                                  |
+| READER-012 | `onRenderProcessGone` + recreación del WebView del lector           | `2136d05`                                  |
+| READER-013 | Lector oculto hasta aplicar CSS/tema (sin FOUC al cambiar capítulo) | `b63d0c3`                                  |
+| READER-014 | Temporizador de sesión arranca aunque el EPUB siga cargando         | `a89bce2`                                  |
 | DATA-008   | AddBook/UpdateBook transaccionales (libro + cross-refs)             | `fe1e2ee`                                  |
 | READER-004 | Reset transaccional de lectura al reemplazar EPUB                   | `fbf09aa`, `44061a0`, `96b565d`            |
 | SEC-003    | Validación canónica de rutas OPF, manifest y NCX                    | `9f9ef29`, `1fb4e4c`                       |
