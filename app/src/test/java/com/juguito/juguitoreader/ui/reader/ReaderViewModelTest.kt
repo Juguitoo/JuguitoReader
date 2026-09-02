@@ -584,4 +584,25 @@ class ReaderViewModelTest {
 
         assertThat(slot.captured.timeSpentMillis).isEqualTo(120_000)
     }
+
+    @Test
+    fun `READER-012 render process gone recreates the WebView and then fails with Error`() = runTest {
+        val viewModel = createLoadingViewModel()
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.onEvent(ReaderEvent.OnRenderProcessGone)
+        advanceUntilIdle()
+        assertThat((viewModel.uiState.value as ReaderUiState.Success).webViewInstanceKey).isEqualTo(1)
+
+        viewModel.onEvent(ReaderEvent.OnRenderProcessGone)
+        advanceUntilIdle()
+        assertThat((viewModel.uiState.value as ReaderUiState.Success).webViewInstanceKey).isEqualTo(2)
+
+        viewModel.onEvent(ReaderEvent.OnRenderProcessGone)
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value).isInstanceOf(ReaderUiState.Error::class.java)
+
+        job.cancel()
+    }
 }

@@ -33,6 +33,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -243,11 +244,13 @@ fun ReaderContent(
             .fillMaxSize()
             .background(Color(state.theme.bgColor.toColorInt())))
         {
-            EpubWebView(
-                state = currentState.value,
-                onEvent = onEvent,
-                onOverscroll = { overscrollDelta = it }
-            )
+            key(state.webViewInstanceKey) {
+                EpubWebView(
+                    state = currentState.value,
+                    onEvent = onEvent,
+                    onOverscroll = { overscrollDelta = it }
+                )
+            }
 
             OverscrollIndicators(
                 overscrollDelta = overscrollDelta

@@ -30,7 +30,8 @@ sealed interface ReaderUiState {
         val showStatusPrompt: Boolean = false,
         val showSessionsDialog: Boolean = false,
         val lastReportedChapterWords: Int = 0,
-        val accumulatedReadWords: Int = 0
+        val accumulatedReadWords: Int = 0,
+        val webViewInstanceKey: Int = 0
     ): ReaderUiState {
         val currentChapterUrl: String
             get() = epubChapterUrl(epubContent.spine[currentChapterIndex])

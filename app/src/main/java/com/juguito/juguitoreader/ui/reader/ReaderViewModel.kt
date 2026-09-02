@@ -16,6 +16,8 @@ import com.juguito.juguitoreader.domain.usecase.reader.ParseEpubUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.AddReadingProgressUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgressByIdUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.UpdateReadingProgressUseCase
+import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.asUiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,11 +31,13 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
 
 private const val PROGRESS_PERSIST_DEBOUNCE_MS = 2_000L
+private const val MAX_RENDERER_RECOVERIES = 2
 
 @HiltViewModel
 class ReaderViewModel @Inject constructor(
@@ -226,8 +230,21 @@ class ReaderViewModel @Inject constructor(
                     accumulatedReadWords = newAccumulated
                 )
             }
+            is ReaderEvent.OnRenderProcessGone -> {
+                handleRenderProcessGone(currentState)
+            }
             is ReaderEvent.OnStartReading, is ReaderEvent.OnFinishReading -> Unit
         }
+    }
+
+    private fun handleRenderProcessGone(currentState: ReaderUiState.Success) {
+        flushProgressPersist()
+
+        if (currentState.webViewInstanceKey >= MAX_RENDERER_RECOVERIES) {
+            _internalState.value = ReaderUiState.Error(UiText.StringResource(R.string.error_reader_render_process_gone))
+            return
+        }
+        updateSuccessState { it.copy(webViewInstanceKey = it.webViewInstanceKey + 1) }
     }
 
     private fun onReaderResumed() {
@@ -327,6 +344,10 @@ class ReaderViewModel @Inject constructor(
         }
         _internalState.value = currentState.copy(accumulatedReadWords = 0)
         sessionStartTimeMillis = 0L
+    }
+
+    private fun updateSuccessState(transform: (ReaderUiState.Success) -> ReaderUiState.Success) {
+        _internalState.update { state -> if (state is ReaderUiState.Success) transform(state) else state }
     }
 
     private fun scheduleProgressPersist(progress: ReadingProgress) {

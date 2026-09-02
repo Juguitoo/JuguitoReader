@@ -152,6 +152,7 @@
     <string name="error_copy_cover">The cover file could not be copied.</string>
     <string name="error_copy_epub">The EPUB file could not be copied.</string>
     <string name="error_epub_extraction">An error occurred while extracting data from the EPUB file. Try again by replacing the EPUB file with a different one.</string>
+    <string name="error_reader_render_process_gone">The reading viewer stopped unexpectedly. Open the book again to continue.</string>
     <string name="error_genre_empty">Genre name cannot be empty.</string>
     <string name="error_genre_exists">A genre named \'%s\' already exists.</string>
     <string name="error_delete_book">Error deleting book</string>

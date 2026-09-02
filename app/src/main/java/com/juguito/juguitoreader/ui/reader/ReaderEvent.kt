@@ -15,5 +15,6 @@ sealed interface ReaderEvent {
     data object OnStartReading: ReaderEvent
     data object OnFinishReading: ReaderEvent
     data object OnToggleSessionsDialog: ReaderEvent
+    data object OnRenderProcessGone: ReaderEvent
     data class OnReportWordsRead(val words: Int): ReaderEvent
 }

@@ -7,6 +7,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.JavascriptInterface
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
@@ -34,6 +35,7 @@ private class WebViewHolder(
     var theme: ReaderTheme,
     var scrollPosition: Float
 ) {
+    var isDestroyed: Boolean = false
     var pendingReveal: Runnable? = null
 }
 
@@ -114,6 +116,13 @@ fun EpubWebView(
                         ).joinToString(separator = "\n")
                         loadedView.evaluateJavascript(script) { revealStyledContent(loadedView, holder) }
                     }
+
+                    override fun onRenderProcessGone(view: WebView?, detail: RenderProcessGoneDetail?): Boolean {
+                        val deadView = view ?: return true
+                        releaseWebView(deadView)
+                        onEvent(ReaderEvent.OnRenderProcessGone)
+                        return true
+                    }
                 }
 
                 val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
@@ -142,35 +151,31 @@ fun EpubWebView(
         update = { webView ->
             val holder = webView.tag as WebViewHolder
 
-            if (holder.baseDir != state.epubContent.baseDir) {
-                holder.baseDir = state.epubContent.baseDir
-                holder.loader = createAssetLoader(webView.context, state.epubContent.baseDir)
-            }
-            holder.scrollPosition = state.readingProgress.scrollPosition
+            if (!holder.isDestroyed) {
+                if (holder.baseDir != state.epubContent.baseDir) {
+                    holder.baseDir = state.epubContent.baseDir
+                    holder.loader = createAssetLoader(webView.context, state.epubContent.baseDir)
+                }
+                holder.scrollPosition = state.readingProgress.scrollPosition
 
-            if (holder.theme != state.theme) {
-                holder.theme = state.theme
-                webView.setBackgroundColor(state.theme.bgColor.toColorInt())
-                webView.evaluateJavascript(themeScript(state.theme), null)
-            }
+                if (holder.theme != state.theme) {
+                    holder.theme = state.theme
+                    webView.setBackgroundColor(state.theme.bgColor.toColorInt())
+                    webView.evaluateJavascript(themeScript(state.theme), null)
+                }
 
-            if (webView.url != state.currentChapterUrl) {
-                webView.loadUrl(state.currentChapterUrl)
-            }
+                if (webView.url != state.currentChapterUrl) {
+                    webView.loadUrl(state.currentChapterUrl)
+                }
 
-            if (webView.settings.textZoom != state.textZoom) {
-                webView.settings.textZoom = state.textZoom
-                webView.evaluateJavascript(restoreScrollScript(state.readingProgress.scrollPosition), null)
+                if (webView.settings.textZoom != state.textZoom) {
+                    webView.settings.textZoom = state.textZoom
+                    webView.evaluateJavascript(restoreScrollScript(state.readingProgress.scrollPosition), null)
+                }
             }
         },
         onRelease = { webView ->
-            val holder = webView.tag as? WebViewHolder
-            holder?.pendingReveal?.let(webView::removeCallbacks)
-            holder?.pendingReveal = null
-
-            webView.stopLoading()
-            webView.removeJavascriptInterface(JS_BRIDGE_NAME)
-            webView.destroy()
+            releaseWebView(webView)
         }
     )
 }
@@ -194,7 +199,20 @@ private fun hideUntilStyled(webView: WebView, holder: WebViewHolder) {
 private fun revealStyledContent(webView: WebView, holder: WebViewHolder) {
     holder.pendingReveal?.let(webView::removeCallbacks)
     holder.pendingReveal = null
-    webView.visibility = View.VISIBLE
+    if (!holder.isDestroyed) webView.visibility = View.VISIBLE
+}
+
+private fun releaseWebView(webView: WebView) {
+    val holder = webView.tag as? WebViewHolder
+    if (holder?.isDestroyed == true) return
+    holder?.isDestroyed = true
+    holder?.pendingReveal?.let(webView::removeCallbacks)
+    holder?.pendingReveal = null
+
+    (webView.parent as? ViewGroup)?.removeView(webView)
+    webView.stopLoading()
+    webView.removeJavascriptInterface(JS_BRIDGE_NAME)
+    webView.destroy()
 }
 
 private fun viewportScript(): String = """
