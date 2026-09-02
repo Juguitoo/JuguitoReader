@@ -19,7 +19,9 @@ import com.juguito.juguitoreader.domain.usecase.readingProgress.UpdateReadingPro
 import com.juguito.juguitoreader.ui.common.asUiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -30,6 +32,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
+
+private const val PROGRESS_PERSIST_DEBOUNCE_MS = 2_000L
 
 @HiltViewModel
 class ReaderViewModel @Inject constructor(
@@ -75,6 +79,11 @@ class ReaderViewModel @Inject constructor(
     private var initialPercentage: Int = -1
     private var sessionStartTimeMillis: Long = 0L
     internal var currentTimeProvider: () -> Long = { System.currentTimeMillis() }
+
+    private var persistProgressJob: Job? = null
+    private var lastPersistedProgress: ReadingProgress? = null
+    internal var progressPersistDebounceMs: Long = PROGRESS_PERSIST_DEBOUNCE_MS
+
     init {
         loadData()
     }
@@ -181,9 +190,7 @@ class ReaderViewModel @Inject constructor(
             is ReaderEvent.OnScrollPositionChanged -> {
                 val updatedProgress = currentState.readingProgress.copy(scrollPosition = event.scrollPosition, lastReadAt = currentTimeProvider())
                 _internalState.value = currentState.copy(readingProgress = updatedProgress)
-                viewModelScope.launch {
-                    updateReadingProgressUseCase.invoke(updatedProgress)
-                }
+                scheduleProgressPersist(updatedProgress)
             }
             is ReaderEvent.OnTimeRemainingChanged -> {
                 _internalState.value = currentState.copy(timeRemaining = event.minutes)
@@ -195,6 +202,7 @@ class ReaderViewModel @Inject constructor(
                 handlePromptResult(currentState, event.changeToReading)
             }
             is ReaderEvent.OnFinishReading -> {
+                flushProgressPersist()
                 saveCurrentReadingSession(currentState)
             }
             is ReaderEvent.OnStartReading -> {
@@ -223,6 +231,8 @@ class ReaderViewModel @Inject constructor(
     }
 
     private fun updateChapter(currentState: ReaderUiState.Success, newIndex: Int) {
+        persistProgressJob?.cancel()
+        persistProgressJob = null
         val spineSize = currentState.epubContent.spine.size
 
         if (newIndex !in 0..<spineSize) return
@@ -240,11 +250,12 @@ class ReaderViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
-            updateReadingProgressUseCase.invoke(updatedProgress)
+            persistProgress(updatedProgress)
         }
     }
 
     private fun handleBackRequest(currentState: ReaderUiState.Success) {
+        flushProgressPersist()
         if (sessionStartTimeMillis > 0L) saveCurrentReadingSession(currentState)
         val currentPercentage = currentState.readingProgress.percentage
         val sessionDelta = currentPercentage - initialPercentage
@@ -262,6 +273,7 @@ class ReaderViewModel @Inject constructor(
 
     private fun handlePromptResult(currentState: ReaderUiState.Success, changeToReading: Boolean) {
         _internalState.value = currentState.copy(showStatusPrompt = false)
+        flushProgressPersist()
 
         viewModelScope.launch {
             if (changeToReading) {
@@ -294,4 +306,33 @@ class ReaderViewModel @Inject constructor(
         _internalState.value = currentState.copy(accumulatedReadWords = 0)
         sessionStartTimeMillis = 0L
     }
+
+    private fun scheduleProgressPersist(progress: ReadingProgress) {
+        persistProgressJob?.cancel()
+        persistProgressJob = viewModelScope.launch {
+            delay(progressPersistDebounceMs)
+            persistProgress(progress)
+        }
+    }
+
+    private fun flushProgressPersist() {
+        persistProgressJob?.cancel()
+        persistProgressJob = null
+        val state = _internalState.value as? ReaderUiState.Success ?: return
+        viewModelScope.launch {
+            persistProgress(state.readingProgress)
+        }
+    }
+
+    private suspend fun persistProgress(progress: ReadingProgress) {
+        if (lastPersistedProgress?.hasSamePersistedValues(progress) == true) return
+        updateReadingProgressUseCase.invoke(progress)
+        lastPersistedProgress = progress
+    }
+
+    private fun ReadingProgress.hasSamePersistedValues(other: ReadingProgress): Boolean =
+        bookId == other.bookId &&
+            totalChapters == other.totalChapters &&
+            lastChapterIndex == other.lastChapterIndex &&
+            scrollPosition == other.scrollPosition
 }

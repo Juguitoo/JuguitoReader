@@ -56,7 +56,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | FILE-005   | openInputStream null pero devuelve path válido               | `[x]`  | KNOWN_ISSUES |
 | UX-001     | Loading global al importar (Home)                            | `[x]`  | KNOWN_ISSUES |
 | UX-002     | Pantallas stuck en Loading tras error                        | `[x]`  | KNOWN_ISSUES |
-| PERF-001   | Demasiadas escrituras BD durante scroll                      | `[ ]`  | KNOWN_ISSUES |
+| PERF-001   | Demasiadas escrituras BD durante scroll                      | `[x]`  | KNOWN_ISSUES |
 | READER-011 | Conteo palabras duplica al retroceder scroll                 | `[ ]`  | KNOWN_ISSUES |
 | READER-012 | WebView sin onRenderProcessGone (crash si muere el renderer) | `[ ]`  | KNOWN_ISSUES |
 | READER-013 | FOUC / flicker de HTML al cambiar de capítulo                | `[ ]`  | KNOWN_ISSUES |
@@ -94,6 +94,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | FILE-005   | openInputStream null en FileUtils ya no devuelve path fantasma      | `deca14f`                                  |
 | UX-001     | Import overlay en Home/Library (sin Loading global)                  | `6c5f9f8`                                  |
 | UX-002     | Reset loading tras error en import (Home/Library/AddBook)          | `6c5f9f8`                                  |
+| PERF-001   | Debounce persistencia reading progress en scroll (flush lifecycle) | —                                          |
 | SEC-001    | WebView EPUB vía WebViewAssetLoader (sin file:// / allowFileAccess) | `903dede` (+ webkit `6822276`)             |
 | FILE-003   | Parse/import EPUB I/O en Dispatchers.IO (lector + Home/Library)     | `7f4cf25`, `1bbe4fb`                       |
 | FILE-002   | BookDetail guarda URI en vez de path interno al reemplazar EPUB     | `8cf2a86`, `32e8d83`                       |

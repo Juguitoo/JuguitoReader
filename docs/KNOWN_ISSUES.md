@@ -11,10 +11,10 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Crítico**  |                                                                                                                                                                                                                                         |
 | **Alto**     |                                                                                                                                                                                                                                         |
-| **Medio**    | DATA-006, READER-011…014, PERF-001, ARCH-002                                                                                                                                                                                            |
+| **Medio**    | DATA-006, READER-011…014, ARCH-002                                                                                                                                                                                            |
 | **Diferido** | READER-008, READER-009 → v1.4.0 (TAR-31)                                                                                                                                                                                                |
 | **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                                                                                                                                                                            |
-| **Resuelto** | UX-001, UX-002, FILE-005, READER-010, READER-005, READER-006, READER-007, DATA-008, DATA-004, DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
+| **Resuelto** | PERF-001, UX-001, UX-002, FILE-005, READER-010, READER-005, READER-006, READER-007, DATA-008, DATA-004, DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
 
 
 
@@ -72,14 +72,6 @@ NCX parseado; falta soporte completo HTML Navigation Document (`properties="nav"
 **Nota:** EPUB3 parcial — muchos libros EPUB3 siguen leyéndose vía NCX o índice autogenerado desde spine. Soporte nav completo previsto en v1.4.0 (TAR-31).
 
 ---
-
-### PERF-001 · Escrituras excesivas en scroll
-
-Cada update de progreso → Room + `.first()` en preferences. Throttle; guardar al pausar/cambiar capítulo.
-
----
-
-
 
 ### READER-011 · Conteo palabras duplica al retroceder
 
@@ -444,6 +436,26 @@ Tras fallo de import en Home/Library, el estado quedaba en `Loading` sin restaur
 **Fix:** `try/finally` en import de Home/Library; AddBook ya resetea `isLoading` en save/import (validaciones antes de activar loading; `finally` en save).
 
 **Test:** `AddBookViewModelTest` (`OnImportEpub clears loading state on failure`, save rollback paths).
+
+---
+
+
+
+### PERF-001 · Escrituras excesivas en scroll
+
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+
+
+Cada `OnScrollPositionChanged` persistía al momento en Room (el debounce JS de 500 ms en WebView no bastaba).
+
+**Fix:** debounce 2 s en `ReaderViewModel` (`scheduleProgressPersist`); UI en memoria al instante; flush en pause (`OnFinishReading`), atrás y cambio de capítulo; deduplicación por capítulo + scroll (`hasSamePersistedValues`).
+
+**Archivo:** `ReaderViewModel.kt`
+
+**Test:** `ReaderViewModelTest` (debounce, flush en pause/back, UI antes de persist).
 
 ---
 

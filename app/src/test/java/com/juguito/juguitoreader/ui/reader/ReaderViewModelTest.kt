@@ -18,6 +18,7 @@ import com.juguito.juguitoreader.domain.usecase.readingProgress.AddReadingProgre
 import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgressByIdUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.UpdateReadingProgressUseCase
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
+import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -27,9 +28,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -90,6 +95,47 @@ class ReaderViewModelTest {
     @After
     fun teardown() {
         Dispatchers.resetMain()
+    }
+
+    private fun TestScope.loadReaderViewModel(
+        epubContent: EpubContent = EpubContent(baseDir = "", spine = listOf("ch1"), chaptersTree = emptyList()),
+        progress: ReadingProgress? = null,
+        debounceMs: Long = 10L,
+        useStandardDispatcher: Boolean = false
+    ): ReaderViewModel {
+        if (useStandardDispatcher) {
+            Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        }
+
+        val resolvedProgress = progress ?: ReadingProgress(
+            bookId = 1,
+            totalChapters = epubContent.spine.size,
+            lastChapterIndex = 0,
+            scrollPosition = 0f,
+            lastReadAt = 0L
+        )
+
+        coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
+        coEvery { getReadingProgressByIdUseCase(1) } returns resolvedProgress
+
+        val vm = ReaderViewModel(
+            getBookByIdUseCase,
+            getReadingProgressByIdUseCase,
+            getBookDailyReadingsUseCase,
+            updateReadingProgressUseCase,
+            addReadingProgressUseCase,
+            addDailyReadingUseCase,
+            updateBookUseCase,
+            parseEpubUseCase,
+            settingsRepository,
+            savedStateHandle
+        )
+        val job = backgroundScope.launch { vm.uiState.collect { } }
+        advanceUntilIdle()
+        clearMocks(updateReadingProgressUseCase, answers = false, recordedCalls = true)
+        vm.progressPersistDebounceMs = debounceMs
+        job.cancel()
+        return vm
     }
 
     @Test
@@ -206,16 +252,77 @@ class ReaderViewModelTest {
     }
 
     @Test
-    fun `onEvent OnScrollPositionChanged updates progress`() = runTest {
-        val epubContent = EpubContent(baseDir = "", spine = listOf("ch1"), chaptersTree = emptyList())
-        coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
-        coEvery { updateReadingProgressUseCase(any()) } returns Result.success(Unit)
-        
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+    fun `onEvent OnScrollPositionChanged updates progress after debounce`() = runTest {
+        val viewModel = loadReaderViewModel(useStandardDispatcher = true)
 
         viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.7f))
+        runCurrent()
+        coVerify(exactly = 0) { updateReadingProgressUseCase(any()) }
 
-        coVerify { updateReadingProgressUseCase(match { it.scrollPosition == 0.7f }) }
+        advanceTimeBy(10)
+        runCurrent()
+
+        coVerify(exactly = 1) { updateReadingProgressUseCase(match { it.scrollPosition == 0.7f }) }
+    }
+
+    @Test
+    fun `multiple scroll events debounce to single persist with latest position`() = runTest {
+        val viewModel = loadReaderViewModel(useStandardDispatcher = true)
+
+        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.3f))
+        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.5f))
+        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.7f))
+        runCurrent()
+
+        coVerify(exactly = 0) { updateReadingProgressUseCase(any()) }
+
+        advanceTimeBy(10)
+        runCurrent()
+
+        coVerify(exactly = 1) { updateReadingProgressUseCase(match { it.scrollPosition == 0.7f }) }
+    }
+
+    @Test
+    fun `onEvent OnScrollPositionChanged updates ui state before persist`() = runTest {
+        val viewModel = loadReaderViewModel(useStandardDispatcher = true)
+
+        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.7f))
+        runCurrent()
+
+        val state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.readingProgress.scrollPosition).isEqualTo(0.7f)
+        coVerify(exactly = 0) { updateReadingProgressUseCase(any()) }
+    }
+
+    @Test
+    fun `onEvent OnFinishReading flushes pending scroll progress`() = runTest {
+        val viewModel = loadReaderViewModel(useStandardDispatcher = true)
+
+        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.7f))
+        runCurrent()
+        coVerify(exactly = 0) { updateReadingProgressUseCase(any()) }
+
+        viewModel.onEvent(ReaderEvent.OnFinishReading)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { updateReadingProgressUseCase(match { it.scrollPosition == 0.7f }) }
+    }
+
+    @Test
+    fun `onEvent OnBackRequested flushes pending scroll progress`() = runTest {
+        val viewModel = loadReaderViewModel(
+            epubContent = EpubContent(baseDir = "", spine = List(10) { "ch$it" }, chaptersTree = emptyList()),
+            useStandardDispatcher = true
+        )
+
+        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.7f))
+        runCurrent()
+        coVerify(exactly = 0) { updateReadingProgressUseCase(any()) }
+
+        viewModel.onEvent(ReaderEvent.OnBackRequested)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { updateReadingProgressUseCase(match { it.scrollPosition == 0.7f }) }
     }
 
     @Test
