@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells.*
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -26,7 +27,7 @@ import androidx.compose.ui.res.stringResource
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
-import com.juguito.juguitoreader.ui.components.EmptyLibraryView
+import com.juguito.juguitoreader.ui.common.components.EmptyLibraryView
 import com.juguito.juguitoreader.ui.components.ErrorView
 import com.juguito.juguitoreader.ui.library.LibraryEvent.*
 import com.juguito.juguitoreader.ui.library.components.AllFoldersSheet
@@ -45,11 +46,13 @@ fun LibraryScreen(
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val isImporting by viewModel.isImporting.collectAsState()
     var isSearchVisible by remember { mutableStateOf(false) }
     var showAllFoldersSheet by remember { mutableStateOf(false) }
 
     LibraryContent(
         state = state,
+        isImporting = isImporting,
         isSearchVisible = isSearchVisible,
         showAllFoldersSheet = showAllFoldersSheet,
         onToggleSearch = { isSearchVisible = it },
@@ -69,6 +72,7 @@ fun LibraryScreen(
 @Composable
 fun LibraryContent(
     state: LibraryUiState,
+    isImporting: Boolean,
     isSearchVisible: Boolean,
     showAllFoldersSheet: Boolean,
     onToggleSearch: (Boolean) -> Unit,
@@ -199,9 +203,12 @@ fun LibraryContent(
                         IconButton(onClick = { onToggleSearch(true) }) {
                             Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_hint))
                         }
-                        IconButton(onClick = {
-                            documentPickerLauncher.launch(arrayOf("application/epub+zip"))
-                        }) {
+                        IconButton(
+                            onClick = {
+                                documentPickerLauncher.launch(arrayOf("application/epub+zip"))
+                            },
+                            enabled = !isImporting
+                        ) {
                             Icon(
                                 imageVector = Icons.Default.UploadFile,
                                 contentDescription = stringResource(R.string.import_book_title),
@@ -231,7 +238,7 @@ fun LibraryContent(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            when (val uiState = state) {
+            when (state) {
                 is LibraryUiState.Loading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
@@ -241,7 +248,7 @@ fun LibraryContent(
 
                 is LibraryUiState.Error -> {
                     ErrorView(
-                        message = uiState.message,
+                        message = state.message,
                         onRetry = { onDismissError() }
                     )
                 }
@@ -249,8 +256,8 @@ fun LibraryContent(
                 is LibraryUiState.Success -> {
                     Column(modifier = Modifier.fillMaxSize()) {
                         FolderSelectorRow(
-                            folders = uiState.folders,
-                            selectedFolder = uiState.selectedFolder,
+                            folders = state.folders,
+                            selectedFolder = state.selectedFolder,
                             onFolderSelected = { folder ->
                                 onEvent(OnSelectedFolderChanged(folder))
                             },
@@ -258,9 +265,9 @@ fun LibraryContent(
                         )
 
                         Box(modifier = Modifier.fillMaxSize()) {
-                            if (uiState.filteredBooks.isEmpty()) {
+                            if (state.filteredBooks.isEmpty()) {
                                 EmptySearchPlaceholder(
-                                    isSearching = uiState.searchText.isNotBlank(),
+                                    isSearching = state.searchText.isNotBlank(),
                                     modifier = Modifier.align(Alignment.Center)
                                 )
                             } else {
@@ -271,7 +278,7 @@ fun LibraryContent(
                                     verticalArrangement = Arrangement.spacedBy(24.dp),
                                     modifier = Modifier.fillMaxSize()
                                 ) {
-                                    items(uiState.filteredBooks, key = { it.id }) { book ->
+                                    items(state.filteredBooks, key = { it.id }) { book ->
                                         BookGridItem(
                                             book = book,
                                             onClick = { onNavigateToReadBook(book.id) },
@@ -295,8 +302,8 @@ fun LibraryContent(
                 is LibraryUiState.Empty -> {
                     Column(modifier = Modifier.fillMaxSize()) {
                         FolderSelectorRow(
-                            folders = uiState.folders,
-                            selectedFolder = uiState.selectedFolder,
+                            folders = state.folders,
+                            selectedFolder = state.selectedFolder,
                             onFolderSelected = { folder ->
                                 onEvent(OnSelectedFolderChanged(folder))
                             },
@@ -307,12 +314,28 @@ fun LibraryContent(
                             EmptyLibraryView(
                                 onNavigateToAddBook = onNavigateToAddBook,
                                 onImportClick = {
-                                    documentPickerLauncher.launch(arrayOf("application/epub+zip"))
+                                    if (!isImporting) {
+                                        documentPickerLauncher.launch(
+                                            arrayOf(
+                                                "application/epub+zip"
+                                            )
+                                        )
+                                    }
                                 },
                                 modifier = Modifier.align(Alignment.Center)
                             )
                         }
                     }
+                }
+            }
+            if (isImporting) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.3f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             }
         }

@@ -40,6 +40,9 @@ class LibraryViewModel @Inject constructor(
     private val _internalState = MutableStateFlow<LibraryUiState>(LibraryUiState.Loading)
     val uiState: StateFlow<LibraryUiState> = _internalState.asStateFlow()
 
+    private val _isImporting = MutableStateFlow(false)
+    val isImporting: StateFlow<Boolean> = _isImporting.asStateFlow()
+
     private val _effect = Channel<UiEffect>()
     val effect = _effect.receiveAsFlow()
 
@@ -122,16 +125,17 @@ class LibraryViewModel @Inject constructor(
     }
 
     fun importBook(uri: Uri) {
-        _internalState.value = LibraryUiState.Loading
         viewModelScope.launch {
-            val result = importBookFromUriUseCase(context, uri)
-
-            result
-                .onSuccess {
-                }.onFailure { exception ->
-                    exception.printStackTrace()
-                    _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.something_went_wrong)))
-                }
+            _isImporting.value = true
+            try {
+                importBookFromUriUseCase(context, uri)
+                    .onFailure { exception ->
+                        exception.printStackTrace()
+                        _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.something_went_wrong)))
+                    }
+            } finally {
+                _isImporting.value = false
+            }
         }
     }
 

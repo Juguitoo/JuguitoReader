@@ -1,4 +1,4 @@
-package com.juguito.juguitoreader.ui.components
+package com.juguito.juguitoreader.ui.common.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,7 +22,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.juguito.juguitoreader.R
-import com.juguito.juguitoreader.ui.common.components.ActionBookCard
 
 @Composable
 fun EmptyLibraryView(

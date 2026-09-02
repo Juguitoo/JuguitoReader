@@ -51,10 +51,11 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
-import com.juguito.juguitoreader.ui.components.EmptyLibraryView
+import com.juguito.juguitoreader.ui.common.components.EmptyLibraryView
 import com.juguito.juguitoreader.ui.components.ErrorView
 import com.juguito.juguitoreader.ui.home.components.BookListSection
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
+import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,10 +70,12 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val homeState by viewModel.uiState.collectAsState()
+    val isImporting by viewModel.isImporting.collectAsState()
 
     HomeContent(
         modifier = modifier,
         state = homeState,
+        isImporting = isImporting,
         snackbarMessage = snackbarMessage,
         onClearSnackbarMessage = onClearSnackbarMessage,
         onNavigateToAddBook = onNavigateToAddBook,
@@ -89,6 +92,7 @@ fun HomeScreen(
 fun HomeContent(
     modifier: Modifier = Modifier,
     state: HomeUiState,
+    isImporting: Boolean = false,
     snackbarMessage: String?,
     onClearSnackbarMessage: () -> Unit,
     onNavigateToAddBook: () -> Unit,
@@ -96,7 +100,7 @@ fun HomeContent(
     onNavigateToReadBook: (Int) -> Unit,
     onOpenDrawer: () -> Unit,
     onEvent: (HomeEvent) -> Unit,
-    effect: kotlinx.coroutines.flow.Flow<UiEffect>
+    effect: Flow<UiEffect>
 ) {
     val context = LocalContext.current
     var bookToDelete by remember { mutableStateOf<Book?>(null) }
@@ -188,9 +192,12 @@ fun HomeContent(
                         }
                     },
                     actions = {
-                        IconButton(onClick = {
-                            documentPickerLauncher.launch(arrayOf("application/epub+zip"))
-                        }) {
+                        IconButton(
+                            onClick = {
+                                documentPickerLauncher.launch(arrayOf("application/epub+zip"))
+                            },
+                            enabled = !isImporting
+                        ) {
                             Icon(
                                 imageVector = Icons.Default.UploadFile,
                                 contentDescription = stringResource(R.string.import_epub),
@@ -229,7 +236,13 @@ fun HomeContent(
                     EmptyLibraryView(
                         onNavigateToAddBook = onNavigateToAddBook,
                         onImportClick = {
-                            documentPickerLauncher.launch(arrayOf("application/epub+zip"))
+                            if (!isImporting) {
+                                documentPickerLauncher.launch(
+                                    arrayOf(
+                                        "application/epub+zip"
+                                    )
+                                )
+                            }
                         }
                     )
                 }
@@ -251,11 +264,13 @@ fun HomeContent(
                                         showActions = true,
                                         onNavigateToAddBook = onNavigateToAddBook,
                                         onImportClick = {
-                                            documentPickerLauncher.launch(
-                                                arrayOf(
-                                                    "application/epub+zip"
+                                            if (!isImporting) {
+                                                documentPickerLauncher.launch(
+                                                    arrayOf(
+                                                        "application/epub+zip"
+                                                    )
                                                 )
-                                            )
+                                            }
                                         },
                                         onBookDetails = onNavigateToBookDetail,
                                         onDeleteBook = { bookToDelete = it },
@@ -285,11 +300,13 @@ fun HomeContent(
                                         showActions = true,
                                         onNavigateToAddBook = onNavigateToAddBook,
                                         onImportClick = {
-                                            documentPickerLauncher.launch(
-                                                arrayOf(
-                                                    "application/epub+zip"
+                                            if (!isImporting) {
+                                                documentPickerLauncher.launch(
+                                                    arrayOf(
+                                                        "application/epub+zip"
+                                                    )
                                                 )
-                                            )
+                                            }
                                         },
                                         onBookDetails = onNavigateToBookDetail,
                                         onDeleteBook = { bookToDelete = it },
@@ -320,6 +337,16 @@ fun HomeContent(
 
  */
                     }
+                }
+            }
+            if (isImporting) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.3f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             }
         }

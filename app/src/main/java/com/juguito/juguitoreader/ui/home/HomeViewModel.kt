@@ -8,8 +8,8 @@ import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.common.ActionUndoManager
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
-import com.juguito.juguitoreader.domain.usecase.book.DeleteBookUseCase
 import com.juguito.juguitoreader.domain.model.DeletedBookSnapshot
+import com.juguito.juguitoreader.domain.usecase.book.DeleteBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
 import com.juguito.juguitoreader.domain.usecase.book.RestoreDeletedBookUseCase
@@ -52,6 +52,8 @@ class HomeViewModel @Inject constructor(
     val effect = _effect.receiveAsFlow()
 
     private val bookUndoManager = ActionUndoManager<DeletedBookSnapshot>()
+    private val _isImporting = MutableStateFlow(false)
+    val isImporting: StateFlow<Boolean> = _isImporting.asStateFlow()
 
     init {
         loadData()
@@ -123,14 +125,16 @@ class HomeViewModel @Inject constructor(
     }
 
     fun importBook(uri: Uri) {
-        _internalState.value = HomeUiState.Loading
         viewModelScope.launch {
-            val result = importBookFromUriUseCase(context, uri)
-
-            result.onSuccess {
-            }.onFailure { exception ->
-                exception.printStackTrace()
-                _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.something_went_wrong)))
+            _isImporting.value = true
+            try {
+                importBookFromUriUseCase(context, uri)
+                    .onFailure { exception ->
+                        exception.printStackTrace()
+                        _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.something_went_wrong)))
+                    }
+            } finally {
+                _isImporting.value = false
             }
         }
     }
