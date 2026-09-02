@@ -447,6 +447,7 @@ Tras fallo de import en Home/Library, el estado quedaba en `Loading` sin restaur
 | Campo      | Valor                 |
 | ---------- | --------------------- |
 | **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `e815a1d` |
 
 
 Cada `OnScrollPositionChanged` persistía al momento en Room (el debounce JS de 500 ms en WebView no bastaba).
