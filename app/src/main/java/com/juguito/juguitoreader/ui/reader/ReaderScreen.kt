@@ -238,7 +238,6 @@ fun ReaderContent(
             }
         }
     ) {
-        val currentScrollY = rememberUpdatedState(state.readingProgress.scrollPosition)
         val currentState = rememberUpdatedState(state)
         Box(modifier = Modifier
             .fillMaxSize()
@@ -246,7 +245,6 @@ fun ReaderContent(
         {
             EpubWebView(
                 state = currentState.value,
-                currentScrollY = currentScrollY.value,
                 onEvent = onEvent,
                 onOverscroll = { overscrollDelta = it }
             )
