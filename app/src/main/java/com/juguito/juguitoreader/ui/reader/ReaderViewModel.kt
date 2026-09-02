@@ -166,7 +166,6 @@ class ReaderViewModel @Inject constructor(
     }
 
     fun onEvent(event: ReaderEvent) {
-        // Los eventos de ciclo de vida se procesan aunque el EPUB siga cargando (READER-014).
         if (event is ReaderEvent.OnStartReading) return onReaderResumed()
         if (event is ReaderEvent.OnFinishReading) return onReaderPaused()
 
@@ -212,29 +211,33 @@ class ReaderViewModel @Inject constructor(
                 handlePromptResult(currentState, event.changeToReading)
             }
             is ReaderEvent.OnToggleSessionsDialog -> {
-                val willShow = !currentState.showSessionsDialog
-
-                if (willShow) {
+                if (currentState.showSessionsDialog) {
+                    updateSuccessState { it.copy(showSessionsDialog = false) }
+                } else {
                     saveCurrentReadingSession(currentState)
                     sessionStartTimeMillis = currentTimeProvider()
-                    _internalState.value = currentState.copy(showSessionsDialog = true)
-                } else {
-                    _internalState.value = currentState.copy(showSessionsDialog = false)
+                    updateSuccessState { it.copy(showSessionsDialog = true) }
                 }
             }
             is ReaderEvent.OnReportWordsRead -> {
-                val delta = event.words - currentState.lastReportedChapterWords
-                val newAccumulated = if (delta > 0) currentState.accumulatedReadWords + delta else currentState.accumulatedReadWords
-                _internalState.value = currentState.copy(
-                    lastReportedChapterWords = event.words,
-                    accumulatedReadWords = newAccumulated
-                )
+                creditWordsRead(currentState, event.words)
+            }
+            is ReaderEvent.OnChapterWordsBaseline -> {
+                _internalState.value = currentState.copy(lastReportedChapterWords = event.words)
             }
             is ReaderEvent.OnRenderProcessGone -> {
                 handleRenderProcessGone(currentState)
             }
-            is ReaderEvent.OnStartReading, is ReaderEvent.OnFinishReading -> Unit
         }
+    }
+
+    private fun creditWordsRead(currentState: ReaderUiState.Success, words: Int) {
+        val delta = words - currentState.lastReportedChapterWords
+
+        _internalState.value = currentState.copy(
+            lastReportedChapterWords = words,
+            accumulatedReadWords = currentState.accumulatedReadWords + delta.coerceAtLeast(0)
+        )
     }
 
     private fun handleRenderProcessGone(currentState: ReaderUiState.Success) {
@@ -259,10 +262,6 @@ class ReaderViewModel @Inject constructor(
         saveCurrentReadingSession(currentState)
     }
 
-    /**
-     * El temporizador solo puede arrancar con el lector en primer plano y el EPUB ya cargado.
-     * Es idempotente: mientras haya sesión abierta, no reinicia el instante de inicio (READER-014).
-     */
     private fun startSessionTimerIfPossible() {
         if (!isReaderResumed || sessionStartTimeMillis > 0L) return
         if (_internalState.value !is ReaderUiState.Success) return
@@ -303,7 +302,7 @@ class ReaderViewModel @Inject constructor(
             val shouldPrompt = settingsRepository.promptStatusChangeFlow.first()
             val autoStart = settingsRepository.autoStartReadingFlow.first()
             if (currentState.book.status == BookStatus.PENDING && sessionDelta >= 15 && !autoStart && shouldPrompt) {
-                _internalState.value = currentState.copy(showStatusPrompt = true)
+                updateSuccessState { it.copy(showStatusPrompt = true) }
             } else {
                 _effect.send(UiEffect.NavigateBack)
             }
@@ -311,7 +310,7 @@ class ReaderViewModel @Inject constructor(
     }
 
     private fun handlePromptResult(currentState: ReaderUiState.Success, changeToReading: Boolean) {
-        _internalState.value = currentState.copy(showStatusPrompt = false)
+        updateSuccessState { it.copy(showStatusPrompt = false) }
         flushProgressPersist()
 
         viewModelScope.launch {
@@ -342,7 +341,7 @@ class ReaderViewModel @Inject constructor(
                 addDailyReadingUseCase.invoke(dailyReading)
             }
         }
-        _internalState.value = currentState.copy(accumulatedReadWords = 0)
+        updateSuccessState { it.copy(accumulatedReadWords = 0) }
         sessionStartTimeMillis = 0L
     }
 

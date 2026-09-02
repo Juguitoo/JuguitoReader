@@ -480,7 +480,81 @@ class ReaderViewModelTest {
     }
 
     @Test
-    fun `updateChapter resets lastReportedChapterWords but keeps accumulatedReadWords`() = runTest {
+    fun `READER-011 scrolling backwards adds no words but rereading forward does`() = runTest {
+        val epubContent = EpubContent(baseDir = "", spine = listOf("ch1"), chaptersTree = emptyList())
+        coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
+
+        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(500))
+        var state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.accumulatedReadWords).isEqualTo(500)
+
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(200))
+        state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.accumulatedReadWords).isEqualTo(500)
+        assertThat(state.lastReportedChapterWords).isEqualTo(200)
+
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(500))
+        state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.accumulatedReadWords).isEqualTo(800)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `READER-015 restored scroll position is a baseline and credits no words`() = runTest {
+        val epubContent = EpubContent(baseDir = "", spine = listOf("ch1"), chaptersTree = emptyList())
+        coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
+
+        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.onEvent(ReaderEvent.OnChapterWordsBaseline(600))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(600))
+
+        var state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.lastReportedChapterWords).isEqualTo(600)
+        assertThat(state.accumulatedReadWords).isEqualTo(0)
+
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(750))
+
+        state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.accumulatedReadWords).isEqualTo(150)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `rereading a chapter credits its words again`() = runTest {
+        val epubContent = EpubContent(baseDir = "", spine = listOf("ch1", "ch2"), chaptersTree = emptyList())
+        coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
+
+        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(300))
+        viewModel.onEvent(ReaderEvent.OnNextChapter)
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(400))
+        viewModel.onEvent(ReaderEvent.OnPreviousChapter)
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(300))
+
+        val state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.accumulatedReadWords).isEqualTo(1_000)
+        assertThat(state.lastReportedChapterWords).isEqualTo(300)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `changing chapter keeps accumulated words of the session`() = runTest {
         val epubContent = EpubContent(baseDir = "", spine = listOf("ch1", "ch2"), chaptersTree = emptyList())
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
 
@@ -493,8 +567,33 @@ class ReaderViewModelTest {
         viewModel.onEvent(ReaderEvent.OnNextChapter)
 
         val state = viewModel.uiState.value as ReaderUiState.Success
-        assertThat(state.lastReportedChapterWords).isEqualTo(0)
         assertThat(state.accumulatedReadWords).isEqualTo(200)
+        assertThat(state.lastReportedChapterWords).isEqualTo(0)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `READER-011 saving a session resets accumulated words`() = runTest {
+        val epubContent = EpubContent(baseDir = "", spine = listOf("ch1"), chaptersTree = emptyList())
+        coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
+
+        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.currentTimeProvider = { 1_000L }
+        viewModel.onEvent(ReaderEvent.OnStartReading)
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(400))
+
+        viewModel.currentTimeProvider = { 121_000L }
+        viewModel.onEvent(ReaderEvent.OnToggleSessionsDialog)
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.showSessionsDialog).isTrue()
+        assertThat(state.accumulatedReadWords).isEqualTo(0)
 
         job.cancel()
     }

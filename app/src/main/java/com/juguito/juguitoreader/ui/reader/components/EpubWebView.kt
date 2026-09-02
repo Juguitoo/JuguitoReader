@@ -92,6 +92,10 @@ fun EpubWebView(
                     fun reportWordsRead(words: Int) {
                         onEvent(ReaderEvent.OnReportWordsRead(words))
                     }
+                    @JavascriptInterface
+                    fun reportInitialWordsRead(words: Int) {
+                        onEvent(ReaderEvent.OnChapterWordsBaseline(words))
+                    }
                 }, JS_BRIDGE_NAME)
 
                 webViewClient = object : WebViewClient() {
@@ -287,28 +291,25 @@ private fun restoreScrollScript(scrollPosition: Float): String = """
 """.trimIndent()
 
 private fun behaviorScript(scrollPosition: Float): String = """
-    function updateReadingTime() {
-        var text = document.body.innerText;
-        var totalWords = text.split(/\s+/).length;
-
+    function currentScrollPercent() {
         var scrollableHeight = document.body.scrollHeight - window.innerHeight;
-        var scrollPercent = 1.0;
-        if (scrollableHeight > 0) {
-            if (window.scrollY >= scrollableHeight - 5) {
-                scrollPercent = 1.0;
-            } else {
-                scrollPercent = window.scrollY / scrollableHeight;
-            }
-        }
-        if (scrollPercent > 1) scrollPercent = 1;
-        if (scrollPercent < 0) scrollPercent = 0;
+        if (scrollableHeight <= 0) return 1.0;
+        if (window.scrollY >= scrollableHeight - 5) return 1.0;
+        return Math.max(0, Math.min(1, window.scrollY / scrollableHeight));
+    }
 
-        var wordsRead = totalWords * scrollPercent;
-        var wordsLeft = totalWords * (1 - scrollPercent);
-        var minutesLeft = Math.ceil(wordsLeft / 250);
+    function currentWordsRead() {
+        var totalWords = document.body.innerText.split(/\s+/).length;
+        return Math.round(totalWords * currentScrollPercent());
+    }
+
+    function updateReadingTime() {
+        var totalWords = document.body.innerText.split(/\s+/).length;
+        var scrollPercent = currentScrollPercent();
+        var minutesLeft = Math.ceil(totalWords * (1 - scrollPercent) / 250);
 
         AndroidBridge.reportTimeRemaining(minutesLeft);
-        AndroidBridge.reportWordsRead(Math.round(wordsRead));
+        AndroidBridge.reportWordsRead(Math.round(totalWords * scrollPercent));
     }
 
     var scrollableHeight = document.body.scrollHeight - window.innerHeight;
@@ -319,21 +320,13 @@ private fun behaviorScript(scrollPosition: Float): String = """
         window.scrollTo(0, scrollableHeight * targetPos);
     }
 
+    AndroidBridge.reportInitialWordsRead(currentWordsRead());
+
     var scrollTimeout;
     window.onscroll = function() {
         clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(function() {
-            var scrollableHeight = document.body.scrollHeight - window.innerHeight;
-            var scrollPercent = 1.0;
-            if (scrollableHeight > 0) {
-                if (window.scrollY >= scrollableHeight - 5) {
-                    scrollPercent = 1.0;
-                } else {
-                    scrollPercent = window.scrollY / scrollableHeight;
-                }
-            }
-            scrollPercent = Math.max(0, Math.min(1, scrollPercent));
-            AndroidBridge.reportScrollPosition(scrollPercent);
+            AndroidBridge.reportScrollPosition(currentScrollPercent());
             updateReadingTime();
         }, 500);
     }
