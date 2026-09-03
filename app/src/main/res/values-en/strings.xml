@@ -167,6 +167,9 @@
     <string name="error_update_progress">Error updating progress</string>
     <string name="error_unzip">Error extracting EPUB file. Possible malicious file.</string>
 
+    <!-- EpubParser -->
+    <string name="epub_chapter_title">Chapter %d</string>
+
     <!-- Enums -->
     <string name="theme_juguito">Juguito</string>
     <string name="theme_pastel">Pastel</string>

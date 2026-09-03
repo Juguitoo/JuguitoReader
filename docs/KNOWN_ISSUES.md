@@ -13,7 +13,7 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 | **Alto**     |                                                                                                                                                                                                                                         |
 | **Medio**    |                                                                                                                                                                                                                               |
 | **Diferido** | READER-008, READER-009 → v1.4.0 (TAR-31)                                                                                                                                                                                                |
-| **Mejora**   | REL-001, REL-002, UX-003, I18N-001                                                                                                                                                                                                      |
+| **Mejora**   | REL-001, REL-002, UX-003                                                                                                                                                                                                                |
 | **Resuelto** | ARCH-001, ARCH-002, READER-011, READER-012, READER-013, READER-014, READER-015, PERF-001, UX-001, UX-002, FILE-005, READER-010, READER-005, READER-006, READER-007, DATA-008, DATA-004, DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
 
 
@@ -88,14 +88,6 @@ NCX parseado; falta soporte completo HTML Navigation Document (`properties="nav"
 ### UX-003 · Portrait lock
 
 `AndroidManifest.xml` — coherente con TAR-53 (horizontal) en v1.3.
-
----
-
-
-
-### I18N-001 · Strings hardcodeadas
-
-`EpubParser.kt`, `FileUtils.kt` — mover a strings.xml.
 
 ---
 
