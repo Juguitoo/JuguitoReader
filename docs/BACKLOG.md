@@ -12,8 +12,6 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 >
 > **Tras cerrar:** build a **pruebas cerradas** (Play). Pulido y backup manual van en **v1.2.1 / v1.2.2**; producción abierta tras **TAR-59**.
 
-
-
 ### P0 — Críticos
 
 
@@ -23,8 +21,6 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | DATA-002   | Sync cross-refs en transacción (UpdateBookUseCase)                    | `[x]`  | KNOWN_ISSUES |
 | READER-002 | PDF aceptado en picker pero no soportado — quitar                     | `[x]`  | KNOWN_ISSUES |
 | READER-003 | UpdateReadingProgressUseCase usa saveBook(REPLACE) → borra relaciones | `[x]`  | KNOWN_ISSUES |
-
-
 
 
 ### P1 — Altos (audit)
@@ -43,8 +39,6 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | FILE-004   | Archivos internos huérfanos (EPUB/cover sin confirmar)          | `[x]`  | KNOWN_ISSUES |
 | DATA-007   | Undo delete no restaura daily_reading (CASCADE)                 | `[x]`  | KNOWN_ISSUES |
 | DATA-008   | AddBook/UpdateBook sin transacción atómica                      | `[x]`  | KNOWN_ISSUES |
-
-
 
 
 ### P2 — Medios (audit)
@@ -69,14 +63,12 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | ARCH-002   | Revisar allowBackup vs política local-only (→ TAR-59 / no Google full backup) | `[x]`  | KNOWN_ISSUES |
 
 
-
-
 ### P3 — Mejoras / limpieza v1.2
 
 
 | ID        | Tarea                                                                      | Estado | Ref          |
 | --------- | -------------------------------------------------------------------------- | ------ | ------------ |
-| CLEAN-001 | Eliminar scaffold sync (SyncStatus, deps Supabase, TODOs)                  | `[ ]`  | KNOWN_ISSUES |
+| ARCH-001  | Eliminar scaffold sync (SyncStatus, deps Supabase, TODOs)                  | `[x]`  | KNOWN_ISSUES |
 | CLEAN-002 | SortOption.displayName → strings.xml                                       | `[ ]`  |              |
 | DATA-009  | Separar INSERT/UPDATE en ReadingProgressDAO (higiene; REPLACE no rompe FK) | `[ ]`  | DATABASE.md  |
 | I18N-001  | Strings hardcodeadas en EpubParser, FileUtils                              | `[ ]`  | KNOWN_ISSUES |
@@ -84,53 +76,46 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | DOC-001   | Documentación base (README, docs/, rules)                                  | `[x]`  |              |
 
 
-
-
 ### Resueltos en v1.2.0
 
 
-| ID         | Tarea                                                               | Commit / nota                              |
-| ---------- | ------------------------------------------------------------------- | ------------------------------------------ |
+| ID         | Tarea                                                                  | Commit / nota                              |
+| ---------- | ---------------------------------------------------------------------- | ------------------------------------------ |
+| ARCH-001   | Eliminar scaffold sync (SyncStatus, deps Supabase, TODOs)              | `c4aaa81` (CLEAN-001)                      |
 | ARCH-002   | `allowBackup=false` + excludes en `data_extraction_rules` (local-only) | `853a3a4`                                  |
-| READER-011 | Reset de palabras acumuladas al guardar sesión (retroceso no suma)  | `fe50fe3`                                  |
-| READER-015 | Línea base de palabras al restaurar scroll (WPM sin regalos)        | `fe50fe3`                                  |
-| READER-012 | `onRenderProcessGone` + recreación del WebView del lector           | `2136d05`                                  |
-| READER-013 | Lector oculto hasta aplicar CSS/tema (sin FOUC al cambiar capítulo) | `b63d0c3`                                  |
-| READER-014 | Temporizador de sesión arranca aunque el EPUB siga cargando         | `a89bce2`                                  |
-| DATA-008   | AddBook/UpdateBook transaccionales (libro + cross-refs)             | `fe1e2ee`                                  |
-| READER-004 | Reset transaccional de lectura al reemplazar EPUB                   | `fbf09aa`, `44061a0`, `96b565d`            |
-| SEC-003    | Validación canónica de rutas OPF, manifest y NCX                    | `9f9ef29`, `1fb4e4c`                       |
-| SEC-002    | Límites anti zip bomb en EpubParser (unzip + cover)                 | `11e1d4d`, `14078f0`                       |
-| READER-010 | Fail-fast parse EPUB + cleanup caché en extracción                  | `6d21d74`                                  |
-| FILE-005   | openInputStream null en FileUtils ya no devuelve path fantasma      | `deca14f`                                  |
-| UX-001     | Import overlay en Home/Library (sin Loading global)                 | `6c5f9f8`                                  |
-| UX-002     | Reset loading tras error en import (Home/Library/AddBook)           | `6c5f9f8`                                  |
-| PERF-001   | Debounce persistencia reading progress en scroll (flush lifecycle)  | `e815a1d`                                  |
-| SEC-001    | WebView EPUB vía WebViewAssetLoader (sin file:// / allowFileAccess) | `903dede` (+ webkit `6822276`)             |
-| FILE-003   | Parse/import EPUB I/O en Dispatchers.IO (lector + Home/Library)     | `7f4cf25`, `1bbe4fb`                       |
-| FILE-002   | BookDetail guarda URI en vez de path interno al reemplazar EPUB     | `8cf2a86`, `32e8d83`                       |
-| FILE-001   | Mezcla content:// URI vs path en filesystem                         | `906b659`, `32e8d83`                       |
-| DATA-003   | Resolver relaciones por ID, no por nombre                           | `901ad24`, `d26e95c`                       |
-| READER-002 | PDF aceptado en picker pero no soportado — quitar                   | `6ac4c4a`                                  |
-| DATA-002   | Sync cross-refs en transacción (UpdateBookUseCase)                  | `06fe93b`                                  |
-| DATA-001   | Separar INSERT / UPDATE (Book, Folder, Genre)                       | `3b6823c`, `ed6a26d`, `41257b4`, `28a8981` |
-| READER-003 | Progress update usaba saveBook(REPLACE)                             | `41257b4` (vía DATA-001)                   |
-| READER-001 | `windows.scrollY` → `window.scrollY`                                | `737d185`                                  |
+| READER-011 | Reset de palabras acumuladas al guardar sesión (retroceso no suma)     | `fe50fe3`                                  |
+| READER-015 | Línea base de palabras al restaurar scroll (WPM sin regalos)           | `fe50fe3`                                  |
+| READER-012 | `onRenderProcessGone` + recreación del WebView del lector              | `2136d05`                                  |
+| READER-013 | Lector oculto hasta aplicar CSS/tema (sin FOUC al cambiar capítulo)    | `b63d0c3`                                  |
+| READER-014 | Temporizador de sesión arranca aunque el EPUB siga cargando            | `a89bce2`                                  |
+| DATA-008   | AddBook/UpdateBook transaccionales (libro + cross-refs)                | `fe1e2ee`                                  |
+| READER-004 | Reset transaccional de lectura al reemplazar EPUB                      | `fbf09aa`, `44061a0`, `96b565d`            |
+| SEC-003    | Validación canónica de rutas OPF, manifest y NCX                       | `9f9ef29`, `1fb4e4c`                       |
+| SEC-002    | Límites anti zip bomb en EpubParser (unzip + cover)                    | `11e1d4d`, `14078f0`                       |
+| READER-010 | Fail-fast parse EPUB + cleanup caché en extracción                     | `6d21d74`                                  |
+| FILE-005   | openInputStream null en FileUtils ya no devuelve path fantasma         | `deca14f`                                  |
+| UX-001     | Import overlay en Home/Library (sin Loading global)                    | `6c5f9f8`                                  |
+| UX-002     | Reset loading tras error en import (Home/Library/AddBook)              | `6c5f9f8`                                  |
+| PERF-001   | Debounce persistencia reading progress en scroll (flush lifecycle)     | `e815a1d`                                  |
+| SEC-001    | WebView EPUB vía WebViewAssetLoader (sin file:// / allowFileAccess)    | `903dede` (+ webkit `6822276`)             |
+| FILE-003   | Parse/import EPUB I/O en Dispatchers.IO (lector + Home/Library)        | `7f4cf25`, `1bbe4fb`                       |
+| FILE-002   | BookDetail guarda URI en vez de path interno al reemplazar EPUB        | `8cf2a86`, `32e8d83`                       |
+| FILE-001   | Mezcla content:// URI vs path en filesystem                            | `906b659`, `32e8d83`                       |
+| DATA-003   | Resolver relaciones por ID, no por nombre                              | `901ad24`, `d26e95c`                       |
+| READER-002 | PDF aceptado en picker pero no soportado — quitar                      | `6ac4c4a`                                  |
+| DATA-002   | Sync cross-refs en transacción (UpdateBookUseCase)                     | `06fe93b`                                  |
+| DATA-001   | Separar INSERT / UPDATE (Book, Folder, Genre)                          | `3b6823c`, `ed6a26d`, `41257b4`, `28a8981` |
+| READER-003 | Progress update usaba saveBook(REPLACE)                                | `41257b4` (vía DATA-001)                   |
+| READER-001 | `windows.scrollY` → `window.scrollY`                                   | `737d185`                                  |
 
 
 ---
 
-
-
 ## Pendientes por versión
-
-
 
 ### v1.2.x — Post-estabilización (closed testing → producción)
 
 > **Publicación:** v1.2.0 → pruebas cerradas. Iterar 1.2.1 / 1.2.2 en closed testing. **Producción Play** cuando esté TAR-59 (backup manual). Detalle en [ROADMAP.md](ROADMAP.md).
-
-
 
 #### v1.2.1 — Store polish
 
@@ -141,16 +126,12 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | TAR-58 | Changelog / novedades in-app por versión                  | Feat | `[ ]`  |
 
 
-
-
 #### v1.2.2 — Backup manual *(gate producción)*
 
 
 | ID     | Tarea                                                              | Tipo | Estado |
 | ------ | ------------------------------------------------------------------ | ---- | ------ |
 | TAR-59 | Export / import manual de datos (backup local; alternativa a nube) | Feat | `[ ]`  |
-
-
 
 
 ### v1.3.0
@@ -170,8 +151,6 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | TAR-56 | Colapsar sección gestión en drawer          | Feat |
 
 
-
-
 ### v1.4.0
 
 
@@ -181,8 +160,6 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | TAR-32     | Compatibilidad avanzada EPUB3 | Feat | ROADMAP      |
 | READER-008 | TOC con `#fragment` falla     | Fix  | KNOWN_ISSUES |
 | READER-009 | EPUB3 nav document incompleto | Fix  | KNOWN_ISSUES |
-
-
 
 
 ### v2.0.0 / v3.0.0
@@ -196,8 +173,6 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 
 ---
 
-
-
 ## P1 — Pre-release Play Store
 
 
@@ -210,8 +185,6 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 
 
 ---
-
-
 
 ## Done — histórico
 
@@ -256,8 +229,6 @@ v1.0.0 – v1.1.0 – v1.2.0 features (clic para expandir)
 
 
 ---
-
-
 
 ## Commits con IDs
 

@@ -13,8 +13,8 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 | **Alto**     |                                                                                                                                                                                                                                         |
 | **Medio**    | DATA-006                                                                                                                                                                                                                                |
 | **Diferido** | READER-008, READER-009 → v1.4.0 (TAR-31)                                                                                                                                                                                                |
-| **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                                                                                                                                                                            |
-| **Resuelto** | ARCH-002, READER-011, READER-012, READER-013, READER-014, READER-015, PERF-001, UX-001, UX-002, FILE-005, READER-010, READER-005, READER-006, READER-007, DATA-008, DATA-004, DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
+| **Mejora**   | REL-001, REL-002, UX-003, I18N-001                                                                                                                                                                                                      |
+| **Resuelto** | ARCH-001, ARCH-002, READER-011, READER-012, READER-013, READER-014, READER-015, PERF-001, UX-001, UX-002, FILE-005, READER-010, READER-005, READER-006, READER-007, DATA-008, DATA-004, DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
 
 
 
@@ -37,7 +37,7 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 
 ### DATA-006 · Migraciones 1→5 inexistentes
 
-Solo 6→10. En dev aceptable (destructive OK). Antes de open testing: definir política.
+Solo 6→12. En dev aceptable (destructive OK). Antes de open testing: definir política.
 
 ---
 
@@ -77,14 +77,6 @@ NCX parseado; falta soporte completo HTML Navigation Document (`properties="nav"
 
 
 
-### ARCH-001 · Scaffold sync sin usar
-
-Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
-
----
-
-
-
 ### REL-001 · Release firmado con debug
 
 `app/build.gradle.kts:29`
@@ -118,6 +110,30 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 
 
 ## Resuelto
+
+
+
+### ARCH-001 · Scaffold sync sin usar
+
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `c4aaa81`             |
+| **Ticket** | CLEAN-001             |
+
+
+Deps de Supabase (`auth-kt`, `postgrest-kt`) y Ktor, enum `SyncStatus`, columna `sync_status` en Room y stubs `syncPending*()` / `getUnsynced*()` eran scaffold de TAR-13, nunca conectado.
+
+**Fix:** eliminación del enum, converters, campos de dominio/entidad, queries y TODOs; deps Gradle fuera del catálogo. Migración Room 11→12 reconstruye `books`, `folders`, `genres` y `reading_progress` sin `sync_status`. La nube de pago sigue en TAR-29 (v2), a reimplementar desde cero.
+
+**Archivos:** entities, mappers, DAOs, repositorios, `JuguitoReaderDatabase`, `libs.versions.toml`
+
+**Test:** `SyncStatusRemovalMigrationTest` (11→12 preserva filas e índices UNIQUE).
+
+**Relacionado:** TAR-29 (cloud, pospuesto).
+
+---
 
 
 

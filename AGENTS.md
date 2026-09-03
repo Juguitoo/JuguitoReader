@@ -79,7 +79,7 @@ UI (Compose + ViewModel) → UseCase → Repository (interface) → RepositoryIm
 
 - **27 use cases** en `domain/usecase/`
 - **11 ViewModels** con patrón `UiState` / `Event` / `UiEffect`
-- **Room v10** — ver [docs/DATABASE.md](docs/DATABASE.md)
+- **Room v12** — ver [docs/DATABASE.md](docs/DATABASE.md)
 - **Sin backend** — sync cloud eliminado del roadmap cercano; app 100 % local
 
 

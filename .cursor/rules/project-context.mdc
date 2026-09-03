@@ -9,7 +9,7 @@ App Android: lector EPUB + gestor de lecturas (digitales y físicos). Pre-releas
 
 ## Stack
 
-Kotlin 2.4 · Compose · Material 3 · Hilt · Room v10 · DataStore · Coroutines/Flow
+Kotlin 2.4 · Compose · Material 3 · Hilt · Room v12 · DataStore · Coroutines/Flow
 
 ## Arquitectura
 
@@ -25,7 +25,7 @@ Clean Architecture + MVVM. Flujo: ViewModel → UseCase → Repository → DAO.
 ## Producto
 
 - Libros físicos (`isPhysical`) son feature permanente — gestor de lecturas, no solo lector.
-- Sin backend en roadmap cercano; eliminar scaffold sync si se toca.
+- Sin backend en roadmap cercano (scaffold sync eliminado en CLEAN-001).
 
 ## Documentación
 

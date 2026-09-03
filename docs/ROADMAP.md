@@ -34,8 +34,7 @@ Funcionalidades de v1.2 **completadas** + corrección de bugs del audit (ver [KN
 
 #### Trabajo pendiente v1.2.0
 
-- [ ] Resolver issues abiertos del audit ([BACKLOG.md — v1.2.0](BACKLOG.md#v120--estabilización-cierre)) — ARCH-002 hecho
-- [ ] Eliminar scaffold sync (CLEAN-001)
+- [ ] Resolver issues abiertos del audit ([BACKLOG.md — v1.2.0](BACKLOG.md#v120--estabilización-cierre)) — ARCH-002 y CLEAN-001 hechos
 - [ ] Subir build a **pruebas cerradas** (no producción)
 
 ### v1.2.1 — Store polish (closed testing)
@@ -96,7 +95,7 @@ Issues READER-008 y READER-009 permanecen en [KNOWN_ISSUES.md](KNOWN_ISSUES.md) 
 |----|-------|--------|
 | TAR-29 | Conexión Supabase/Dropbox, arquitectura local-first | Not started |
 
-**Decisión actual:** eliminar scaffold sync de v1.x. Reimplementar cuando el producto local esté maduro.
+**Decisión actual:** scaffold sync de v1.x eliminado (CLEAN-001 / ARCH-001). Reimplementar cuando el producto local esté maduro.
 
 ---
 
@@ -120,7 +119,7 @@ Issues READER-008 y READER-009 permanecen en [KNOWN_ISSUES.md](KNOWN_ISSUES.md) 
 | TAR-9 | Capa ViewModel |
 | TAR-10 | Interfaz principal (Home) |
 | TAR-11 | Formulario libros |
-| TAR-13 | Configurar Supabase *(scaffold — eliminar en v1.2)* |
+| TAR-13 | Configurar Supabase *(scaffold — eliminado en CLEAN-001)* |
 | TAR-14 | Casos de uso |
 | TAR-15 | Detalle libro |
 | TAR-16 | Biblioteca |

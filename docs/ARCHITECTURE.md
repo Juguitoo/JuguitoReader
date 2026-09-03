@@ -172,7 +172,7 @@ Centralizada en `ui/navigation/JuguitoApp.kt`:
 
 ### Domain enums en entities Room
 
-`BookStatus`, `SyncStatus` se usan directamente en entities. Pragmático en monolito; complicaría modularización Gradle futura.
+`BookStatus` se usa directamente en entities. Pragmático en monolito; complicaría modularización Gradle futura.
 
 ### Modelos domain como `class` + `copy()` manual
 
