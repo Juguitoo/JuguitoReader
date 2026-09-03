@@ -9,9 +9,11 @@ interface ReadingProgressRepository {
 
     suspend fun getReadingProgressById(bookId: Int): ReadingProgress?
 
-    suspend fun saveReadingProgress(readingProgress: ReadingProgress): Long
+    suspend fun insertReadingProgress(readingProgress: ReadingProgress): Long
 
-    suspend fun saveReadingProgresses(readingProgresses: List<ReadingProgress>)
+    suspend fun insertReadingProgresses(readingProgresses: List<ReadingProgress>)
+
+    suspend fun updateReadingProgress(readingProgress: ReadingProgress)
 
     suspend fun deleteProgress(bookId: Int)
 }

@@ -4,17 +4,21 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.juguito.juguitoreader.data.local.entity.ReadingProgressEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ReadingProgressDAO {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     suspend fun insertReadingProgress(readingProgressEntity: ReadingProgressEntity): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     suspend fun insertReadingProgresses(readingProgressEntities: List<ReadingProgressEntity>)
+
+    @Update
+    suspend fun updateReadingProgress(readingProgressEntity: ReadingProgressEntity)
 
     @Query("SELECT * FROM reading_progress")
     fun getAllReadingProgress(): Flow<List<ReadingProgressEntity>>

@@ -11,7 +11,7 @@ class AddReadingProgressUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(readingProgress: ReadingProgress): Result<Unit> {
         return try {
-            repository.saveReadingProgress(readingProgress)
+            repository.insertReadingProgress(readingProgress)
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()

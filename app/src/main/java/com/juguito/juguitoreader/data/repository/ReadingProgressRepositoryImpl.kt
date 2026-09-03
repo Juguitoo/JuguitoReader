@@ -20,12 +20,16 @@ class ReadingProgressRepositoryImpl @Inject constructor(
         return readingProgressDAO.getReadingProgressById(bookId)?.toDomain()
     }
 
-    override suspend fun saveReadingProgress(readingProgress: ReadingProgress): Long {
+    override suspend fun insertReadingProgress(readingProgress: ReadingProgress): Long {
         return readingProgressDAO.insertReadingProgress(readingProgress.toEntity())
     }
 
-    override suspend fun saveReadingProgresses(readingProgresses: List<ReadingProgress>) {
+    override suspend fun insertReadingProgresses(readingProgresses: List<ReadingProgress>) {
         readingProgressDAO.insertReadingProgresses(readingProgresses.map { it.toEntity()})
+    }
+
+    override suspend fun updateReadingProgress(readingProgress: ReadingProgress) {
+        readingProgressDAO.updateReadingProgress(readingProgress.toEntity())
     }
 
     override suspend fun deleteProgress(bookId: Int) {

@@ -18,7 +18,7 @@ class UpdateReadingProgressUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(readingProgress: ReadingProgress): Result<Unit> {
         return try {
-            progressRepository.saveReadingProgress(readingProgress)
+            progressRepository.updateReadingProgress(readingProgress)
 
             val book = bookRepository.getBookById(readingProgress.bookId) ?: return Result.success(Unit)
 
