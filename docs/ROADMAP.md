@@ -34,7 +34,7 @@ Funcionalidades de v1.2 **completadas** + corrección de bugs del audit (ver [KN
 
 #### Trabajo pendiente v1.2.0
 
-- [ ] Resolver issues abiertos del audit ([BACKLOG.md — v1.2.0](BACKLOG.md#v120--estabilización-cierre)), incl. ARCH-002
+- [ ] Resolver issues abiertos del audit ([BACKLOG.md — v1.2.0](BACKLOG.md#v120--estabilización-cierre)) — ARCH-002 hecho
 - [ ] Eliminar scaffold sync (CLEAN-001)
 - [ ] Subir build a **pruebas cerradas** (no producción)
 
@@ -52,7 +52,7 @@ Funcionalidades de v1.2 **completadas** + corrección de bugs del audit (ver [KN
 | TAR-59 | Export / import manual de datos (backup local controlado por el usuario) | Not started |
 
 **Notas:**
-- ARCH-002: desactivar o limitar Auto Backup de Google (no regalar restore completo vía Google Drive). El valor de “no perder datos” lo cubre TAR-59; sync/nube de pago sigue en TAR-29.
+- ARCH-002 **hecho:** sin Auto Backup / D2D de Google (`allowBackup=false` + `data_extraction_rules`). El valor de “no perder datos” lo cubre TAR-59; sync/nube de pago sigue en TAR-29.
 - TAR-59 es requisito acordado antes de pasar de closed testing a **producción** en Play.
 
 ---

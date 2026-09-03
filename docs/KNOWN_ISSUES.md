@@ -11,10 +11,10 @@ Registro vivo de bugs, riesgos y anti-patrones. **Consultar antes de modificar R
 | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Crítico**  |                                                                                                                                                                                                                                         |
 | **Alto**     |                                                                                                                                                                                                                                         |
-| **Medio**    | DATA-006, ARCH-002                                                                                                                                                                                            |
+| **Medio**    | DATA-006                                                                                                                                                                                                                                |
 | **Diferido** | READER-008, READER-009 → v1.4.0 (TAR-31)                                                                                                                                                                                                |
 | **Mejora**   | ARCH-001, REL-001, REL-002, UX-003, I18N-001                                                                                                                                                                                            |
-| **Resuelto** | READER-011, READER-012, READER-013, READER-014, READER-015, PERF-001, UX-001, UX-002, FILE-005, READER-010, READER-005, READER-006, READER-007, DATA-008, DATA-004, DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
+| **Resuelto** | ARCH-002, READER-011, READER-012, READER-013, READER-014, READER-015, PERF-001, UX-001, UX-002, FILE-005, READER-010, READER-005, READER-006, READER-007, DATA-008, DATA-004, DATA-007, FILE-004, READER-004, SEC-003, SEC-002, SEC-001, FILE-003, FILE-001, FILE-002, DATA-003, READER-002, READER-001, DATA-001, READER-003, DATA-002 |
 
 
 
@@ -73,16 +73,6 @@ NCX parseado; falta soporte completo HTML Navigation Document (`properties="nav"
 
 ---
 
-### ARCH-002 · Auto Backup vs local-only
-
-`allowBackup="true"`, rules vacías → Android puede backup de DB y filesDir.
-
-**Decisión de producto (v1.2.x):** limitar o desactivar Auto Backup de Google para no canibalizar el valor de restore/sync. Puente local: **TAR-59** (export/import manual) antes de producción Play; nube de pago sigue en **TAR-29** (v2). Ver [ROADMAP.md](ROADMAP.md) estrategia v1.2.x.
-
----
-
-
-
 ## Mejoras (pre-release)
 
 
@@ -128,6 +118,27 @@ Deps Supabase/Ktor, `SyncStatus`, `syncPending*()` TODO. **Eliminar en v1.2.0.**
 
 
 ## Resuelto
+
+
+
+### ARCH-002 · Auto Backup vs local-only
+
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `853a3a4`             |
+
+
+`allowBackup="true"` con rules vacías permitía Auto Backup / D2D de DB y `filesDir`, en conflicto con política local-only y con el valor futuro de backup manual (TAR-59) / nube de pago (TAR-29).
+
+**Fix:** `allowBackup="false"`, `fullBackupContent="false"`, y `data_extraction_rules.xml` con excludes totales en `cloud-backup` y `device-transfer`. Eliminado `backup_rules.xml` del template.
+
+**Archivos:** `AndroidManifest.xml`, `res/xml/data_extraction_rules.xml`
+
+**Relacionado:** TAR-59 (export/import manual — gate producción Play).
+
+---
 
 
 

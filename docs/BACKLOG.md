@@ -12,6 +12,8 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 >
 > **Tras cerrar:** build a **pruebas cerradas** (Play). Pulido y backup manual van en **v1.2.1 / v1.2.2**; producción abierta tras **TAR-59**.
 
+
+
 ### P0 — Críticos
 
 
@@ -48,23 +50,23 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 ### P2 — Medios (audit)
 
 
-| ID         | Tarea                                                        | Estado | Ref          |
-| ---------- | ------------------------------------------------------------ | ------ | ------------ |
-| DATA-004   | Cleanup reading_progress al borrar libro                     | `[x]`  | KNOWN_ISSUES |
-| READER-005 | Restaurar brillo al salir del lector                         | `[x]`  | KNOWN_ISSUES |
-| READER-006 | Restaurar system bars al salir del lector                    | `[x]`  | KNOWN_ISSUES |
-| READER-007 | Destruir WebView explícitamente (onRelease)                  | `[x]`  | KNOWN_ISSUES |
-| READER-010 | Errores unzip silenciados en EpubParser                      | `[x]`  | KNOWN_ISSUES |
-| FILE-005   | openInputStream null pero devuelve path válido               | `[x]`  | KNOWN_ISSUES |
-| UX-001     | Loading global al importar (Home)                            | `[x]`  | KNOWN_ISSUES |
-| UX-002     | Pantallas stuck en Loading tras error                        | `[x]`  | KNOWN_ISSUES |
-| PERF-001   | Demasiadas escrituras BD durante scroll                      | `[x]`  | KNOWN_ISSUES |
-| READER-011 | Conteo palabras duplica al retroceder scroll                 | `[x]`  | KNOWN_ISSUES |
-| READER-012 | WebView sin onRenderProcessGone (crash si muere el renderer) | `[x]`  | KNOWN_ISSUES |
-| READER-013 | FOUC / flicker de HTML al cambiar de capítulo                | `[x]`  | KNOWN_ISSUES |
-| READER-014 | Temporizador de sesión no inicia si el lector sigue cargando | `[x]`  | KNOWN_ISSUES |
-| READER-015 | Palabras regaladas al abrir libro por un capítulo empezado   | `[x]`  | KNOWN_ISSUES |
-| ARCH-002   | Revisar allowBackup vs política local-only (→ TAR-59 / no Google full backup) | `[ ]`  | KNOWN_ISSUES |
+| ID         | Tarea                                                                         | Estado | Ref          |
+| ---------- | ----------------------------------------------------------------------------- | ------ | ------------ |
+| DATA-004   | Cleanup reading_progress al borrar libro                                      | `[x]`  | KNOWN_ISSUES |
+| READER-005 | Restaurar brillo al salir del lector                                          | `[x]`  | KNOWN_ISSUES |
+| READER-006 | Restaurar system bars al salir del lector                                     | `[x]`  | KNOWN_ISSUES |
+| READER-007 | Destruir WebView explícitamente (onRelease)                                   | `[x]`  | KNOWN_ISSUES |
+| READER-010 | Errores unzip silenciados en EpubParser                                       | `[x]`  | KNOWN_ISSUES |
+| FILE-005   | openInputStream null pero devuelve path válido                                | `[x]`  | KNOWN_ISSUES |
+| UX-001     | Loading global al importar (Home)                                             | `[x]`  | KNOWN_ISSUES |
+| UX-002     | Pantallas stuck en Loading tras error                                         | `[x]`  | KNOWN_ISSUES |
+| PERF-001   | Demasiadas escrituras BD durante scroll                                       | `[x]`  | KNOWN_ISSUES |
+| READER-011 | Conteo palabras duplica al retroceder scroll                                  | `[x]`  | KNOWN_ISSUES |
+| READER-012 | WebView sin onRenderProcessGone (crash si muere el renderer)                  | `[x]`  | KNOWN_ISSUES |
+| READER-013 | FOUC / flicker de HTML al cambiar de capítulo                                 | `[x]`  | KNOWN_ISSUES |
+| READER-014 | Temporizador de sesión no inicia si el lector sigue cargando                  | `[x]`  | KNOWN_ISSUES |
+| READER-015 | Palabras regaladas al abrir libro por un capítulo empezado                    | `[x]`  | KNOWN_ISSUES |
+| ARCH-002   | Revisar allowBackup vs política local-only (→ TAR-59 / no Google full backup) | `[x]`  | KNOWN_ISSUES |
 
 
 
@@ -89,6 +91,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 
 | ID         | Tarea                                                               | Commit / nota                              |
 | ---------- | ------------------------------------------------------------------- | ------------------------------------------ |
+| ARCH-002   | `allowBackup=false` + excludes en `data_extraction_rules` (local-only) | `853a3a4`                                  |
 | READER-011 | Reset de palabras acumuladas al guardar sesión (retroceso no suma)  | `fe50fe3`                                  |
 | READER-015 | Línea base de palabras al restaurar scroll (WPM sin regalos)        | `fe50fe3`                                  |
 | READER-012 | `onRenderProcessGone` + recreación del WebView del lector           | `2136d05`                                  |
@@ -125,8 +128,6 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 
 ### v1.2.x — Post-estabilización (closed testing → producción)
 
-
-
 > **Publicación:** v1.2.0 → pruebas cerradas. Iterar 1.2.1 / 1.2.2 en closed testing. **Producción Play** cuando esté TAR-59 (backup manual). Detalle en [ROADMAP.md](ROADMAP.md).
 
 
@@ -134,10 +135,11 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 #### v1.2.1 — Store polish
 
 
-| ID     | Tarea                                                         | Tipo | Estado |
-| ------ | ------------------------------------------------------------- | ---- | ------ |
-| TAR-57 | Pantalla About (licencia, creador, créditos p. ej. icono)     | Feat | `[ ]`  |
-| TAR-58 | Changelog / novedades in-app por versión                      | Feat | `[ ]`  |
+| ID     | Tarea                                                     | Tipo | Estado |
+| ------ | --------------------------------------------------------- | ---- | ------ |
+| TAR-57 | Pantalla About (licencia, creador, créditos p. ej. icono) | Feat | `[ ]`  |
+| TAR-58 | Changelog / novedades in-app por versión                  | Feat | `[ ]`  |
+
 
 
 
@@ -147,6 +149,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | ID     | Tarea                                                              | Tipo | Estado |
 | ------ | ------------------------------------------------------------------ | ---- | ------ |
 | TAR-59 | Export / import manual de datos (backup local; alternativa a nube) | Feat | `[ ]`  |
+
 
 
 
