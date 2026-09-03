@@ -1,5 +1,7 @@
 package com.juguito.juguitoreader.domain.model
 
+import androidx.annotation.StringRes
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
 
 data class BookCriteria(
@@ -9,14 +11,14 @@ data class BookCriteria(
     val sortBy: SortOption = SortOption.CREATED_AT_DESC
 )
 
-enum class SortOption(val displayName: String) {
-    TITLE_ASC("Título (A-Z)"),
-    TITLE_DESC("Título (Z-A)"),
-    RATING_DESC("Mejor nota"),
-    RATING_ASC("Peor nota"),
-    CREATED_AT_DESC("Más reciente"),
-    CREATED_AT_ASC("Más antiguo"),
-    SERIES_ORDER_ASC("Orden en la saga")
+enum class SortOption(@StringRes val displayName: Int) {
+    TITLE_ASC(R.string.sort_title_asc),
+    TITLE_DESC(R.string.sort_title_desc),
+    RATING_DESC(R.string.sort_rating_desc),
+    RATING_ASC(R.string.sort_rating_asc),
+    CREATED_AT_DESC(R.string.sort_created_at_desc),
+    CREATED_AT_ASC(R.string.sort_created_at_asc),
+    SERIES_ORDER_ASC(R.string.series_order)
 }
 
 fun List<Book>.applyCriteria(criteria: BookCriteria): List<Book> {

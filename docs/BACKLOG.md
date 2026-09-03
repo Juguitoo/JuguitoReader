@@ -69,7 +69,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | ID        | Tarea                                                                      | Estado | Ref          |
 | --------- | -------------------------------------------------------------------------- | ------ | ------------ |
 | ARCH-001  | Eliminar scaffold sync (SyncStatus, deps Supabase, TODOs)                  | `[x]`  | KNOWN_ISSUES |
-| CLEAN-002 | SortOption.displayName → strings.xml                                       | `[ ]`  |              |
+| CLEAN-002 | SortOption.displayName → strings.xml                                       | `[x]`  |              |
 | DATA-009  | Separar INSERT/UPDATE en ReadingProgressDAO (higiene; REPLACE no rompe FK) | `[ ]`  | DATABASE.md  |
 | I18N-001  | Strings hardcodeadas en EpubParser, FileUtils                              | `[ ]`  | KNOWN_ISSUES |
 | GIT-001   | Rama v1.2.0 → eliminada                                                    | `[x]`  | GIT_WORKFLOW |

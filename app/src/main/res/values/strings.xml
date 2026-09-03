@@ -204,6 +204,12 @@
     <string name="all_sagas">Todas las sagas</string>
     <string name="other_filters">Otros filtros</string>
     <string name="series_order">Orden en la saga</string>
+    <string name="sort_title_asc">Título (A-Z)</string>
+    <string name="sort_title_desc">Título (Z-A)</string>
+    <string name="sort_rating_desc">Mejor nota</string>
+    <string name="sort_rating_asc">Peor nota</string>
+    <string name="sort_created_at_desc">Más reciente</string>
+    <string name="sort_created_at_asc">Más antiguo</string>
 
     <string name="reading_progress">Progreso de lectura</string>
     <string name="start_date_label">Fecha Inicio</string>

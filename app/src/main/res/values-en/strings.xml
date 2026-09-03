@@ -204,6 +204,12 @@
     <string name="all_sagas">All sagas</string>
     <string name="other_filters">Other filters</string>
     <string name="series_order">Order in saga</string>
+    <string name="sort_title_asc">Title (A-Z)</string>
+    <string name="sort_title_desc">Title (Z-A)</string>
+    <string name="sort_rating_desc">Best rating</string>
+    <string name="sort_rating_asc">Worst rating</string>
+    <string name="sort_created_at_desc">Most recent</string>
+    <string name="sort_created_at_asc">Oldest</string>
 
     <string name="reading_progress">Reading progress</string>
     <string name="start_date_label">Start Date</string>
