@@ -51,4 +51,4 @@ FK CASCADE a `books` (schema v12). Delete de libro elimina progreso automáticam
 
 ## Referencia
 
-Detalle completo: docs/KNOWN_ISSUES.md (DATA-001 a DATA-004), docs/DATABASE.md
+Anti-patrones: docs/KNOWN_ISSUES.md + docs/DATABASE.md; detalle DATA-001..004: docs/archive/v1.2.0.md

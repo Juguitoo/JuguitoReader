@@ -73,7 +73,7 @@ Definidas en `JuguitoReaderDatabase.kt`, registradas en `DatabaseModule.kt`.
 
 ## Reglas de integridad (obligatorias)
 
-Ver [KNOWN_ISSUES.md](KNOWN_ISSUES.md) para el detalle. Resumen:
+Resumen abajo. Anti-patrones vivos: [KNOWN_ISSUES.md](KNOWN_ISSUES.md). Detalle histórico: [archive/v1.2.0.md](archive/v1.2.0.md) (DATA-001..004).
 
 ### 1. Nunca `@Insert(REPLACE)` para updates
 

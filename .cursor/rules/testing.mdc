@@ -43,4 +43,4 @@ Descripción en backticks = comportamiento esperado.
 ## Al fixear KNOWN_ISSUES
 
 Añadir test de regresión que falle antes del fix y pase después.
-Prioridad: DATA-001 rename folder keeps book relations.
+Al cerrar el issue: quitar de docs/KNOWN_ISSUES.md + BACKLOG; fila en docs/archive/vX.Y.Z.md.

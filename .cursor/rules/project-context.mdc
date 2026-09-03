@@ -29,9 +29,9 @@ Clean Architecture + MVVM. Flujo: ViewModel → UseCase → Repository → DAO.
 
 ## Documentación
 
-- README.md, AGENTS.md, docs/ARCHITECTURE.md, docs/DATABASE.md, docs/KNOWN_ISSUES.md
-- Antes de tocar Room: leer KNOWN_ISSUES DATA-001 a DATA-004
-- **Mantener docs vivos:** ver docs/MAINTENANCE.md — actualizar al resolver bugs, cambiar ramas o arquitectura; eliminar notas obsoletas, no acumularlas
+- README.md, AGENTS.md, docs/ARCHITECTURE.md, docs/DATABASE.md, docs/KNOWN_ISSUES.md (abiertos); cerrado en docs/archive/
+- Antes de tocar Room: anti-patrones en KNOWN_ISSUES + DATABASE.md; detalle DATA-001..004 en archive/v1.2.0.md
+- **Mantener docs vivos:** ver docs/MAINTENANCE.md — vivos cortos; cerrado → archive por versión
 
 ## Commits
 

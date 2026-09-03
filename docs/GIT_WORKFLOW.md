@@ -23,7 +23,7 @@ hotfix/*             → correcciones urgentes desde main
 
 La rama `v1.2.0` es una **feature branch** (trabajo de v1.2, no release finalizada). Plan:
 
-1. Cerrar estabilización (issues v1.2.0 en [BACKLOG.md](BACKLOG.md)).
+1. Cerrar estabilización (v1.2.0 en [archive/v1.2.0.md](archive/v1.2.0.md)).
 2. Merge a `dev`.
 3. Renombrar o eliminar `v1.2.0`.
 4. Crear `release/v1.2.0` **solo** para QA final antes de `main`.

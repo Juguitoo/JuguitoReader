@@ -92,10 +92,10 @@ UI (Compose + ViewModel) → UseCase → Repository (interface) → RepositoryIm
 
 | Área                       | Leer primero                                                                                  |
 | -------------------------- | --------------------------------------------------------------------------------------------- |
-| Room / DAOs / relaciones   | [docs/DATABASE.md](docs/DATABASE.md), [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md)            |
+| Room / DAOs / relaciones   | [docs/DATABASE.md](docs/DATABASE.md), [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md); histórico DATA en [docs/archive/v1.2.0.md](docs/archive/v1.2.0.md) |
 | Nueva pantalla / ViewModel | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)                                                  |
 | Git / releases             | [docs/GIT_WORKFLOW.md](docs/GIT_WORKFLOW.md)                                                  |
-| Prioridades y tareas       | [docs/ROADMAP.md](docs/ROADMAP.md), [docs/BACKLOG.md](docs/BACKLOG.md) — fuente única en repo |
+| Prioridades y tareas       | [docs/ROADMAP.md](docs/ROADMAP.md), [docs/BACKLOG.md](docs/BACKLOG.md); cerrado en [docs/archive/](docs/archive/) |
 | Mantener docs al día       | [docs/MAINTENANCE.md](docs/MAINTENANCE.md)                                                    |
 
 
@@ -128,11 +128,11 @@ Referenciar IDs del backlog cuando existan: `fix: DATA-001 replace breaks FK rel
 
 ## Issues críticos conocidos
 
-No reintroducir estos anti-patrones — detalle en [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md):
+No reintroducir estos anti-patrones — resumen en [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md); detalle en [docs/archive/v1.2.0.md](docs/archive/v1.2.0.md) y [docs/DATABASE.md](docs/DATABASE.md):
 
-1. `@Insert(REPLACE)` **en updates** — rompe FK CASCADE (carpetas, géneros, libros). (Resueltas instancias anteriores DATA-001)
-2. **Cross-refs solo con INSERT IGNORE** — no elimina relaciones al editar. (Resuelto instancias anteriores DATA-002)
-3. **Resolución de carpetas/géneros por nombre** — falla tras renombrar entidades. (Resuelto instancias anteriores DATA-003)
+1. `@Insert(REPLACE)` **en updates** — rompe FK CASCADE (carpetas, géneros, libros). (DATA-001, resuelto v1.2.0)
+2. **Cross-refs solo con INSERT IGNORE** — no elimina relaciones al editar. (DATA-002, resuelto v1.2.0)
+3. **Resolución de carpetas/géneros por nombre** — falla tras renombrar entidades. (DATA-003, resuelto v1.2.0)
 
 
 

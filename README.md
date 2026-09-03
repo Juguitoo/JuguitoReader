@@ -80,11 +80,12 @@ Módulo único: `:app`.
 |-----------|-----------|
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Capas, flujos, decisiones de diseño |
 | [docs/DATABASE.md](docs/DATABASE.md) | Schema Room, migraciones, reglas de integridad |
-| [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) | Errores graves conocidos y cómo evitarlos |
+| [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) | Bugs/riesgos abiertos + anti-patrones |
 | [docs/GIT_WORKFLOW.md](docs/GIT_WORKFLOW.md) | Ramas, commits, releases |
 | [docs/MAINTENANCE.md](docs/MAINTENANCE.md) | Cuándo y cómo actualizar la documentación |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Fases y versiones |
-| [docs/BACKLOG.md](docs/BACKLOG.md) | Tareas priorizadas |
+| [docs/BACKLOG.md](docs/BACKLOG.md) | Trabajo activo (por versión) |
+| [docs/archive/](docs/archive/) | Histórico cerrado por versión |
 | [AGENTS.md](AGENTS.md) | Guía para asistentes IA en este repo |
 
 ## Licencia

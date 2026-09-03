@@ -8,7 +8,18 @@ Esta documentación es **parte del proyecto**, no un snapshot. Debe actualizarse
 
 > Si un dato en docs/ deja de ser cierto, **editar o eliminar** el dato — no acumular notas obsoletas.
 
-Ejemplo: la nota sobre renombrar `v1.2.0` desaparece cuando la rama se reorganice, no queda para siempre en GIT_WORKFLOW.
+---
+
+## Mapa de fuentes
+
+| Qué | Dónde |
+|-----|-------|
+| Trabajo activo (tabla + versión) | [BACKLOG.md](BACKLOG.md) |
+| Bugs / riesgos abiertos | [KNOWN_ISSUES.md](KNOWN_ISSUES.md) |
+| Visión por versión | [ROADMAP.md](ROADMAP.md) |
+| Trabajo cerrado | [archive/](archive/) (`vX.Y.Z.md`) |
+
+**Notion no se usa.** Todo vive en el repo.
 
 ---
 
@@ -16,97 +27,67 @@ Ejemplo: la nota sobre renombrar `v1.2.0` desaparece cuando la rama se reorganic
 
 | Evento | Archivos a tocar |
 |--------|------------------|
-| Bug encontrado | `KNOWN_ISSUES.md` + checkbox en `BACKLOG.md` |
-| Bug resuelto | `KNOWN_ISSUES.md` → Resuelto; `BACKLOG.md` `[x]`; commit con ID |
-| Nueva feature / tarea | `BACKLOG.md` + `ROADMAP.md` si cambia versión |
-| Tarea completada | `BACKLOG.md` → Done; quitar de pendientes; actualizar `ROADMAP.md` si aplica |
+| Bug encontrado | Fila en `KNOWN_ISSUES.md` + fila en `BACKLOG.md` (misma ID, columna Versión) |
+| Bug resuelto | Quitar de ambos vivos; fila en `archive/vX.Y.Z.md`; commit con ID |
+| Nueva feature / tarea | `BACKLOG.md` (+ `ROADMAP.md` si cambia el milestone) |
+| Tarea completada | Quitar de `BACKLOG.md`; añadir a `archive/vX.Y.Z.md`; `ROADMAP.md` si cierra fase |
+| Cierre de versión | Completar `archive/vX.Y.Z.md`; limpiar vivos; marcar fase en ROADMAP |
 | Cambio arquitectura | `ARCHITECTURE.md` + rule `.cursor/rules/architecture.mdc` si aplica |
 | Cambio Room / schema | `DATABASE.md` + `room-data.mdc` |
-| Cambio ramas git | `GIT_WORKFLOW.md` — **solo estado actual**, sin historial de ramas muertas |
-| Cambio CI / hooks | `.github/workflows/test.yml`, `docs/GIT_WORKFLOW.md` |
-| Nueva versión release | `ROADMAP.md`, `GIT_WORKFLOW.md` (si aplica), bump en README si relevante |
-| Decisión producto (p. ej. sync) | `ROADMAP.md`, `AGENTS.md`, `KNOWN_ISSUES.md` |
+| Cambio ramas git | `GIT_WORKFLOW.md` — solo estado actual |
+| Cambio CI / hooks | `.github/workflows/…`, `GIT_WORKFLOW.md` |
+| Decisión producto | `ROADMAP.md`, `AGENTS.md` si aplica |
 
 ---
 
 ## Reglas por tipo de doc
 
-### Documentos **vivos** (cambian seguido)
+### Vivos (cambian seguido)
 
-- `BACKLOG.md` — checkboxes, prioridades
-- `KNOWN_ISSUES.md` — estados Abierto/Resuelto
-- `GIT_WORKFLOW.md` — sección "Estado actual del repo" (tabla de ramas)
+- `BACKLOG.md` — solo pendientes; orden por versión próxima → lejana
+- `KNOWN_ISSUES.md` — solo bugs/riesgos abiertos o diferidos (+ anti-patrones cortos)
+- `GIT_WORKFLOW.md` — tabla de ramas actual
 
-**Obsoleto → borrar o actualizar.** No dejar avisos temporales más de una versión.
+### Estables
 
-### Documentos **estables** (cambian poco)
+- `ARCHITECTURE.md`, `DATABASE.md`, `README.md`
 
-- `ARCHITECTURE.md` — actualizar solo si cambia patrón o capa
-- `DATABASE.md` — actualizar en migraciones
-- `README.md` — stack, quick start
+### Históricos
 
-### Documentos **históricos** (no borrar, marcar resuelto)
-
-- Entradas en `KNOWN_ISSUES.md` sección **Resuelto**
-- Tareas en `BACKLOG.md` → Done
+- `docs/archive/vX.Y.Z.md` — no borrar; corregir solo hechos erróneos
 
 ---
 
-## Git workflow doc — patrón recomendado
+## Añadir / cerrar tareas
 
-En `GIT_WORKFLOW.md`, usar:
+### Nueva tarea
 
-```markdown
-## Estado actual del repo
+1. ID: `TAR-xxx` (feat) o prefijos (`DATA-`, `READER-`, …).
+2. Fila en `BACKLOG.md` con columna **Versión**.
+3. Si es bug → también `KNOWN_ISSUES.md`.
+4. Si es milestone nuevo → nota en `ROADMAP.md`.
 
-| Rama | Rol |
-|------|-----|
-| `main` | Estable |
-| `dev` | Integración |
-| `feature/xxx` | Trabajo activo |
-```
+### Cerrar tarea
 
-Cuando `v1.2.0` se mergee y renombre: **sustituir la fila**, no añadir "ya no usar v1.2.0".
-
----
-
-## Quién mantiene
-
-- **Hugo:** decisiones producto, prioridades, cierre de versiones.
-- **IA (WORKER/AGENT):** actualizar docs al implementar fixes o cuando Hugo pida revisión de docs.
-- Al abrir sesión SUPERVISOR: leer `BACKLOG.md` + `KNOWN_ISSUES.md` antes de proponer trabajo.
-
----
-
-## Gestión de tareas (fuente única: este repo)
-
-**Notion ya no se usa.** Tareas, roadmap e issues viven solo en:
-
-| Qué | Dónde |
-|-----|-------|
-| Prioridades y checkboxes | `BACKLOG.md` |
-| Fases por versión | `ROADMAP.md` |
-| Bugs y anti-patrones | `KNOWN_ISSUES.md` |
-
-### Añadir una tarea nueva
-
-1. Asignar ID: `TAR-xxx` (features) o reutilizar prefijos existentes (`DATA-`, `READER-`, etc.).
-2. Entrada en `BACKLOG.md` en la sección de la versión correspondiente.
-3. Si es milestone nuevo, añadir fila en `ROADMAP.md`.
-4. Commits opcionales con ID: `feat: TAR-57 descripción`.
-
-### Cerrar una tarea
-
-1. Marcar `[x]` en `BACKLOG.md`.
-2. Mover a sección **Done** (no borrar).
-3. Si era la última de una fase, marcar fase completada en `ROADMAP.md`.
+1. Quitar fila del BACKLOG vivo (y de KNOWN_ISSUES si era bug).
+2. Añadir fila al `archive/vX.Y.Z.md` de la versión donde se cerró.
+3. Si era la última de una fase, actualizar `ROADMAP.md`.
 
 ---
 
 ## Checklist post-release
 
-- [ ] Issues de la versión → Resuelto en KNOWN_ISSUES
-- [ ] BACKLOG Done actualizado
-- [ ] ROADMAP: fase marcada completada
-- [ ] GIT_WORKFLOW: tabla ramas actualizada
-- [ ] Tag git creado (`vX.Y.Z`)
+- [ ] Issues de la versión en `archive/vX.Y.Z.md`
+- [ ] BACKLOG / KNOWN_ISSUES sin filas de esa versión
+- [ ] ROADMAP: fase completada + enlace archive
+- [ ] `archive/README.md` lista la versión
+- [ ] GIT_WORKFLOW: ramas actualizadas
+- [ ] Tag git (`vX.Y.Z`)
+
+---
+
+## Quién mantiene
+
+- **Hugo:** producto, prioridades, cierre de versiones.
+- **IA (WORKER/AGENT):** actualizar docs al implementar o cuando Hugo pida revisión.
+- Al abrir sesión SUPERVISOR: leer `BACKLOG.md` + `KNOWN_ISSUES.md` (y archive solo si hace falta contexto histórico).
