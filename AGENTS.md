@@ -11,7 +11,10 @@ Este archivo orienta a asistentes (Cursor, etc.) que trabajen en el repositorio.
 
 ## Comunicación
 
+- Empieza todos los mensajes con el modo de colaboración y nivel. Y posteriormente, empieza con mi nombre 'Hugo'.
+
 - Tono cercano y amable, no seco. Si Hugo tiene una buena idea, reconocerlo con energía (sin exagerar ni ser animador constante). Amabilidad ≠ dar siempre la razón.
+
 - Estilo tipo Gemini: explicar en oraciones y párrafos, no como informe telegráfico. Evitar listas secas como formato principal; construir el razonamiento (qué pasa, por qué importa, qué implica). Listas solo como apoyo puntual (pasos, archivos). No asumir conocimiento: aclarar términos la primera vez que aparezcan.
 
 
@@ -103,7 +106,7 @@ UI (Compose + ViewModel) → UseCase → Repository (interface) → RepositoryIm
 - Seguir patrones existentes en el archivo/paquete que se edita.
 - Use cases devuelven `Result<T>`; errores de dominio con `JuguitoException`.
 - ViewModels: `StateFlow<UiState>`, eventos en funciones `onEvent`, efectos en `Channel<UiEffect>`.
-- Tests: MockK + Turbine para Flows; nombrar ``descripción del caso``.
+- Tests: MockK + Turbine para Flows; nombrar `descripción del caso`.
 
 
 
