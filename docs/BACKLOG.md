@@ -9,6 +9,8 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 ## v1.2.0 — Estabilización (cierre)
 
 > **Scope acordado:** resolver los issues abiertos en [KNOWN_ISSUES.md](KNOWN_ISSUES.md) antes de cerrar v1.2.0. **Excluidos del cierre v1.2:** READER-008 y READER-009 (diferidos a v1.4.0 — ver [ROADMAP.md](ROADMAP.md) TAR-31/TAR-32).
+>
+> **Tras cerrar:** build a **pruebas cerradas** (Play). Pulido y backup manual van en **v1.2.1 / v1.2.2**; producción abierta tras **TAR-59**.
 
 ### P0 — Críticos
 
@@ -61,8 +63,8 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | READER-012 | WebView sin onRenderProcessGone (crash si muere el renderer) | `[x]`  | KNOWN_ISSUES |
 | READER-013 | FOUC / flicker de HTML al cambiar de capítulo                | `[x]`  | KNOWN_ISSUES |
 | READER-014 | Temporizador de sesión no inicia si el lector sigue cargando | `[x]`  | KNOWN_ISSUES |
-| READER-015 | Palabras regaladas al abrir libro por un capítulo empezado    | `[x]`  | KNOWN_ISSUES |
-| ARCH-002   | Revisar allowBackup vs política local-only                   | `[ ]`  | KNOWN_ISSUES |
+| READER-015 | Palabras regaladas al abrir libro por un capítulo empezado   | `[x]`  | KNOWN_ISSUES |
+| ARCH-002   | Revisar allowBackup vs política local-only (→ TAR-59 / no Google full backup) | `[ ]`  | KNOWN_ISSUES |
 
 
 
@@ -76,7 +78,7 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | CLEAN-002 | SortOption.displayName → strings.xml                                       | `[ ]`  |              |
 | DATA-009  | Separar INSERT/UPDATE en ReadingProgressDAO (higiene; REPLACE no rompe FK) | `[ ]`  | DATABASE.md  |
 | I18N-001  | Strings hardcodeadas en EpubParser, FileUtils                              | `[ ]`  | KNOWN_ISSUES |
-| GIT-001   | Renombrar rama v1.2.0 → feature/* o merge dev                              | `[ ]`  | GIT_WORKFLOW |
+| GIT-001   | Rama v1.2.0 → eliminada                                                    | `[x]`  | GIT_WORKFLOW |
 | DOC-001   | Documentación base (README, docs/, rules)                                  | `[x]`  |              |
 
 
@@ -98,9 +100,9 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 | SEC-002    | Límites anti zip bomb en EpubParser (unzip + cover)                 | `11e1d4d`, `14078f0`                       |
 | READER-010 | Fail-fast parse EPUB + cleanup caché en extracción                  | `6d21d74`                                  |
 | FILE-005   | openInputStream null en FileUtils ya no devuelve path fantasma      | `deca14f`                                  |
-| UX-001     | Import overlay en Home/Library (sin Loading global)                  | `6c5f9f8`                                  |
-| UX-002     | Reset loading tras error en import (Home/Library/AddBook)          | `6c5f9f8`                                  |
-| PERF-001   | Debounce persistencia reading progress en scroll (flush lifecycle) | `e815a1d`                                  |
+| UX-001     | Import overlay en Home/Library (sin Loading global)                 | `6c5f9f8`                                  |
+| UX-002     | Reset loading tras error en import (Home/Library/AddBook)           | `6c5f9f8`                                  |
+| PERF-001   | Debounce persistencia reading progress en scroll (flush lifecycle)  | `e815a1d`                                  |
 | SEC-001    | WebView EPUB vía WebViewAssetLoader (sin file:// / allowFileAccess) | `903dede` (+ webkit `6822276`)             |
 | FILE-003   | Parse/import EPUB I/O en Dispatchers.IO (lector + Home/Library)     | `7f4cf25`, `1bbe4fb`                       |
 | FILE-002   | BookDetail guarda URI en vez de path interno al reemplazar EPUB     | `8cf2a86`, `32e8d83`                       |
@@ -118,6 +120,33 @@ Backlog del proyecto (fuente única). Incluye issues del audit + features planif
 
 
 ## Pendientes por versión
+
+
+
+### v1.2.x — Post-estabilización (closed testing → producción)
+
+
+
+> **Publicación:** v1.2.0 → pruebas cerradas. Iterar 1.2.1 / 1.2.2 en closed testing. **Producción Play** cuando esté TAR-59 (backup manual). Detalle en [ROADMAP.md](ROADMAP.md).
+
+
+
+#### v1.2.1 — Store polish
+
+
+| ID     | Tarea                                                         | Tipo | Estado |
+| ------ | ------------------------------------------------------------- | ---- | ------ |
+| TAR-57 | Pantalla About (licencia, creador, créditos p. ej. icono)     | Feat | `[ ]`  |
+| TAR-58 | Changelog / novedades in-app por versión                      | Feat | `[ ]`  |
+
+
+
+#### v1.2.2 — Backup manual *(gate producción)*
+
+
+| ID     | Tarea                                                              | Tipo | Estado |
+| ------ | ------------------------------------------------------------------ | ---- | ------ |
+| TAR-59 | Export / import manual de datos (backup local; alternativa a nube) | Feat | `[ ]`  |
 
 
 

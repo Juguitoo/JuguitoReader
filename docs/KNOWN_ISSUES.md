@@ -77,6 +77,8 @@ NCX parseado; falta soporte completo HTML Navigation Document (`properties="nav"
 
 `allowBackup="true"`, rules vacías → Android puede backup de DB y filesDir.
 
+**Decisión de producto (v1.2.x):** limitar o desactivar Auto Backup de Google para no canibalizar el valor de restore/sync. Puente local: **TAR-59** (export/import manual) antes de producción Play; nube de pago sigue en **TAR-29** (v2). Ver [ROADMAP.md](ROADMAP.md) estrategia v1.2.x.
+
 ---
 
 

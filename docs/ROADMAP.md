@@ -6,11 +6,21 @@ Roadmap del proyecto. Fuente única de verdad junto con [BACKLOG.md](BACKLOG.md)
 
 ---
 
-## v1.2.x — Cierre de estabilización *(en curso)*
+## v1.2.x — Estabilización + pulido pre-producción *(en curso)*
 
-Funcionalidades de v1.2 **completadas** + corrección de bugs del audit (ver [KNOWN_ISSUES.md](KNOWN_ISSUES.md), scope v1.2.0 en [BACKLOG.md](BACKLOG.md)).
+Línea de versiones **v1.2.x** hasta estar listos para producción en Play Store. La nube de pago (TAR-29 / v2) queda después; el backup **manual** local es el puente gratuito.
 
-### Features Done
+### Estrategia de publicación
+
+1. **v1.2.0** — Cerrar bugs/auditoría → subir a **pruebas cerradas** (closed testing) en Play Console.
+2. **v1.2.1 / v1.2.2** — Seguir iterando en closed testing (pulido + backup manual; corregir lo que salga en pruebas).
+3. **Producción (Play Store abierta)** — Solo cuando esté listo el **backup/export-import manual (TAR-59)** y el resto del cierre 1.2.x. No publicar en producción solo con estabilización de bugs.
+
+### v1.2.0 — Cierre de estabilización
+
+Funcionalidades de v1.2 **completadas** + corrección de bugs del audit (ver [KNOWN_ISSUES.md](KNOWN_ISSUES.md), scope en [BACKLOG.md](BACKLOG.md)).
+
+#### Features Done
 
 | ID | Tarea |
 |----|-------|
@@ -22,11 +32,28 @@ Funcionalidades de v1.2 **completadas** + corrección de bugs del audit (ver [KN
 | TAR-46 | Porcentaje en portadas (libros leyendo) |
 | TAR-55 | Ajuste tema neon (contrastes) |
 
-### Trabajo pendiente v1.2.0
+#### Trabajo pendiente v1.2.0
 
-- [ ] Resolver issues P0/P1 del audit ([BACKLOG.md — v1.2.0 estabilización](BACKLOG.md#v120--estabilización-cierre))
+- [ ] Resolver issues abiertos del audit ([BACKLOG.md — v1.2.0](BACKLOG.md#v120--estabilización-cierre)), incl. ARCH-002
 - [ ] Eliminar scaffold sync (CLEAN-001)
-- [ ] Reorganizar rama git `v1.2.0` → `feature/*` o merge a `dev` (GIT-001)
+- [ ] Subir build a **pruebas cerradas** (no producción)
+
+### v1.2.1 — Store polish (closed testing)
+
+| ID | Tarea | Estado |
+|----|-------|--------|
+| TAR-57 | Pantalla About (licencia, creador, créditos — p. ej. icono) | Not started |
+| TAR-58 | Changelog / “novedades” in-app por versión | Not started |
+
+### v1.2.2 — Backup manual *(gate producción)*
+
+| ID | Tarea | Estado |
+|----|-------|--------|
+| TAR-59 | Export / import manual de datos (backup local controlado por el usuario) | Not started |
+
+**Notas:**
+- ARCH-002: desactivar o limitar Auto Backup de Google (no regalar restore completo vía Google Drive). El valor de “no perder datos” lo cubre TAR-59; sync/nube de pago sigue en TAR-29.
+- TAR-59 es requisito acordado antes de pasar de closed testing a **producción** en Play.
 
 ---
 
@@ -126,14 +153,18 @@ Issues READER-008 y READER-009 permanecen en [KNOWN_ISSUES.md](KNOWN_ISSUES.md) 
 
 ---
 
-## Pre-publicación Play Store *(sin versión asignada aún)*
+## Pre-publicación Play Store
 
+Alineado con la estrategia v1.2.x:
+
+- **Closed testing:** tras v1.2.0 (bugs) — ir subiendo 1.2.1 / 1.2.2 en el mismo track.
+- **Producción:** tras TAR-59 (backup manual) + checklist release.
 - Keystore release + R8 (REL-001, REL-002)
-- CI básico (REL-003)
-- Política migraciones DB
+- CI básico (REL-003) — hecho
+- Política migraciones DB (DATA-006)
 - Privacy policy
 
-Ver [BACKLOG.md — P1](BACKLOG.md#p1--pre-release).
+Ver [BACKLOG.md — Pre-release](BACKLOG.md#p1--pre-release-play-store).
 
 ---
 
