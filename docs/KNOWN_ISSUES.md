@@ -97,6 +97,20 @@ NCX parseado; falta soporte completo HTML Navigation Document (`properties="nav"
 
 
 
+### I18N-001 · Strings hardcodeadas
+
+
+| Campo      | Valor                 |
+| ---------- | --------------------- |
+| **Estado** | **Resuelto (v1.2.0)** |
+| **Commit** | `8347a76`             |
+
+`"Capítulo ${i + 1}"` en `EpubParser.kt` (auto-generación de índice de capítulos) movido a `R.string.epub_chapter_title` (`strings.xml` ES/EN). El authority de FileProvider en `FileUtils.kt` es identificador técnico, no string UI — no aplica.
+
+---
+
+
+
 ### ARCH-001 · Scaffold sync sin usar
 
 
