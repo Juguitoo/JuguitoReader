@@ -58,7 +58,4 @@ interface BookDAO {
 
     @Query("DELETE FROM books WHERE id = :bookId")
     suspend fun deleteBookById(bookId: Int)
-
-    @Query("SELECT * FROM books WHERE sync_status != 'SYNCED'")
-    suspend fun getUnsyncedBooks(): List<BookEntity>
 }

@@ -40,7 +40,7 @@ Resolución por `name` solo en import EPUB o creación.
 
 ## reading_progress
 
-FK CASCADE a `books` (schema v11). Delete de libro elimina progreso automáticamente; undo desde Home lo restaura con `DeletedBookSnapshot`.
+FK CASCADE a `books` (schema v12). Delete de libro elimina progreso automáticamente; undo desde Home lo restaura con `DeletedBookSnapshot`.
 
 ## Migraciones
 

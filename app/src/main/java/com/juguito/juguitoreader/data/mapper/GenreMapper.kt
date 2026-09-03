@@ -8,7 +8,6 @@ fun GenreEntity.toDomain(): Genre {
     return Genre(
         id = id,
         name = name,
-        syncStatus = syncStatus,
         createdAt = createdAt
     )
 }
@@ -17,7 +16,6 @@ fun Genre.toEntity(): GenreEntity {
     return GenreEntity(
         id = id,
         name = name,
-        syncStatus = syncStatus,
         createdAt = createdAt
     )
 }
@@ -27,7 +25,6 @@ fun GenreWithCountEntity.toDomain(): Genre {
         id = genre.id,
         name = genre.name,
         bookCount = bookCount,
-        syncStatus = genre.syncStatus,
         createdAt = genre.createdAt
     )
 }

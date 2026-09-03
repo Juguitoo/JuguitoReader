@@ -81,21 +81,17 @@ dependencies {
     // Testing
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
+    implementation(libs.kotlinx.coroutines.android)
     testImplementation(libs.turbine)
     testImplementation(libs.truth)
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.truth)
-
+    
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
-
-    // Supabase y Ktor
-    implementation(libs.postgrest.kt)
-    implementation(libs.auth.kt)
-    implementation(libs.ktor.client.android)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

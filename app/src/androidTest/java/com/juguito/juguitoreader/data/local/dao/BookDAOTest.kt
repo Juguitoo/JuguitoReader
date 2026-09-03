@@ -12,7 +12,6 @@ import com.juguito.juguitoreader.data.local.entity.FolderEntity
 import com.juguito.juguitoreader.data.local.entity.GenreEntity
 import com.juguito.juguitoreader.data.local.entity.ReadingProgressEntity
 import com.juguito.juguitoreader.domain.enums.BookStatus
-import com.juguito.juguitoreader.domain.enums.SyncStatus
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -99,18 +98,6 @@ class BookDAOTest {
         bookDAO.deleteBookById(1)
 
         assertThat(database.readingProgressDAO.getReadingProgressById(1)).isNull()
-    }
-
-    @Test
-    fun getUnsyncedBooks_returns_only_unsynced() = runBlocking {
-        val syncedBook = BookEntity(title = "S", author = "A", isPhysical = false, syncStatus = SyncStatus.SYNCED, createdAt = 0L)
-        val unsyncedBook = BookEntity(title = "U", author = "A", isPhysical = false, syncStatus = SyncStatus.PENDING_CREATE, createdAt = 1L)
-        
-        bookDAO.insertBooks(listOf(syncedBook, unsyncedBook))
-        
-        val unsynced = bookDAO.getUnsyncedBooks()
-        assertThat(unsynced).hasSize(1)
-        assertThat(unsynced[0].title).isEqualTo("U")
     }
 
     @Test

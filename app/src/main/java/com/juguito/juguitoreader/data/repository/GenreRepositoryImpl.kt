@@ -49,8 +49,4 @@ class GenreRepositoryImpl @Inject constructor(
     override suspend fun deleteGenre(id: Int) {
         genreDAO.deleteGenreById(id)
     }
-
-    override suspend fun syncPendingGenres() {
-        TODO("Not yet implemented")
-    }
 }

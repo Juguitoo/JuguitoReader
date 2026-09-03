@@ -22,6 +22,4 @@ interface GenreRepository {
     suspend fun updateGenres(genres: List<Genre>)
 
     suspend fun deleteGenre(id: Int)
-
-    suspend fun syncPendingGenres()
 }

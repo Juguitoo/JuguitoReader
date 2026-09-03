@@ -28,7 +28,7 @@ import com.juguito.juguitoreader.data.local.entity.ReadingProgressEntity
         BookFolderCrossRef::class,
         BookGenreCrossRef::class
     ],
-    version = 11,
+    version = 12,
     exportSchema = true
 )
 
@@ -124,6 +124,96 @@ abstract class JuguitoReaderDatabase : RoomDatabase() {
 
                 db.execSQL("DROP TABLE reading_progress")
                 db.execSQL("ALTER TABLE reading_progress_new RENAME TO reading_progress")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_reading_progress_book_id` ON `reading_progress` (`book_id`)")
+            }
+        }
+
+        val MIGRATION_11_12 = object : Migration(11, 12) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `books_new` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `title` TEXT NOT NULL,
+                        `author` TEXT NOT NULL,
+                        `publisher` TEXT,
+                        `series` TEXT,
+                        `series_order` REAL,
+                        `is_physical` INTEGER NOT NULL,
+                        `status` TEXT NOT NULL,
+                        `rating` REAL NOT NULL,
+                        `comment` TEXT,
+                        `start_date` INTEGER,
+                        `end_date` INTEGER,
+                        `cover_url` TEXT,
+                        `local_file_path` TEXT,
+                        `created_at` INTEGER NOT NULL
+                    )
+                """.trimIndent())
+                db.execSQL("""
+                    INSERT INTO `books_new` (
+                        id, title, author, publisher, series, series_order, is_physical, status, rating,
+                        comment, start_date, end_date, cover_url, local_file_path, created_at
+                    )
+                    SELECT
+                        id, title, author, publisher, series, series_order, is_physical, status, rating,
+                        comment, start_date, end_date, cover_url, local_file_path, created_at
+                    FROM `books`
+                """.trimIndent())
+                db.execSQL("DROP TABLE `books`")
+                db.execSQL("ALTER TABLE `books_new` RENAME TO `books`")
+
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `folders_new` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `name` TEXT NOT NULL,
+                        `description` TEXT,
+                        `color_hex` TEXT NOT NULL,
+                        `created_at` INTEGER NOT NULL
+                    )
+                """.trimIndent())
+                db.execSQL("""
+                    INSERT INTO `folders_new` (id, name, description, color_hex, created_at)
+                    SELECT id, name, description, color_hex, created_at FROM `folders`
+                """.trimIndent())
+                db.execSQL("DROP TABLE `folders`")
+                db.execSQL("ALTER TABLE `folders_new` RENAME TO `folders`")
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_folders_name` ON `folders` (`name`)")
+
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `genres_new` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `name` TEXT NOT NULL,
+                        `created_at` INTEGER NOT NULL
+                    )
+                """.trimIndent())
+                db.execSQL("""
+                    INSERT INTO `genres_new` (id, name, created_at)
+                    SELECT id, name, created_at FROM `genres`
+                """.trimIndent())
+                db.execSQL("DROP TABLE `genres`")
+                db.execSQL("ALTER TABLE `genres_new` RENAME TO `genres`")
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_genres_name` ON `genres` (`name`)")
+
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `reading_progress_new` (
+                        `book_id` INTEGER NOT NULL,
+                        `total_chapters` INTEGER NOT NULL DEFAULT 0,
+                        `last_chapter_index` INTEGER NOT NULL,
+                        `scroll_position` REAL NOT NULL,
+                        `last_read_at` INTEGER NOT NULL,
+                        PRIMARY KEY(`book_id`),
+                        FOREIGN KEY(`book_id`) REFERENCES `books`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                db.execSQL("""
+                    INSERT INTO `reading_progress_new` (
+                        book_id, total_chapters, last_chapter_index, scroll_position, last_read_at
+                    )
+                    SELECT book_id, total_chapters, last_chapter_index, scroll_position, last_read_at
+                    FROM `reading_progress`
+                """.trimIndent())
+                db.execSQL("DROP TABLE `reading_progress`")
+                db.execSQL("ALTER TABLE `reading_progress_new` RENAME TO `reading_progress`")
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_reading_progress_book_id` ON `reading_progress` (`book_id`)")
             }
         }

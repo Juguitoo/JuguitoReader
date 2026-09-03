@@ -1,7 +1,6 @@
 package com.juguito.juguitoreader.domain.model
 
 import com.juguito.juguitoreader.domain.enums.BookStatus
-import com.juguito.juguitoreader.domain.enums.SyncStatus
 
 class Book(
     val id: Int = 0,
@@ -18,7 +17,6 @@ class Book(
     val endDate: Long? = null,
     val coverUrl: String? = null,
     val localFilePath: String? = null,
-    val syncStatus: SyncStatus = SyncStatus.PENDING_CREATE,
 
     val folders: List<Folder> = emptyList(),
     val genres: List<Genre> = emptyList(),
@@ -40,7 +38,6 @@ fun Book.copy(
     endDate: Long? = this.endDate,
     coverUrl: String? = this.coverUrl,
     localFilePath: String? = this.localFilePath,
-    syncStatus: SyncStatus = this.syncStatus,
     folders: List<Folder> = this.folders,
     genres: List<Genre> = this.genres,
     readingProgress: ReadingProgress? = this.readingProgress,
@@ -61,7 +58,6 @@ fun Book.copy(
         endDate = endDate,
         coverUrl = coverUrl,
         localFilePath = localFilePath,
-        syncStatus = syncStatus,
         folders = folders,
         genres = genres,
         readingProgress = readingProgress,

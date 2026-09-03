@@ -8,7 +8,6 @@ import com.juguito.juguitoreader.data.local.JuguitoReaderDatabase
 import com.juguito.juguitoreader.data.local.entity.BookEntity
 import com.juguito.juguitoreader.data.local.entity.BookGenreCrossRef
 import com.juguito.juguitoreader.data.local.entity.GenreEntity
-import com.juguito.juguitoreader.domain.enums.SyncStatus
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -59,18 +58,6 @@ class GenreDAOTest {
         assertThat(result).hasSize(1)
         assertThat(result[0].genre.name).isEqualTo("Action")
         assertThat(result[0].bookCount).isEqualTo(2)
-    }
-
-    @Test
-    fun getUnsyncedGenres_returns_only_unsynced() = runBlocking {
-        val g1 = GenreEntity(name = "S", syncStatus = SyncStatus.SYNCED, createdAt = 0L)
-        val g2 = GenreEntity(name = "U", syncStatus = SyncStatus.PENDING_UPDATE, createdAt = 1L)
-        
-        genreDAO.insertGenres(listOf(g1, g2))
-        
-        val unsynced = genreDAO.getUnsyncedGenres()
-        assertThat(unsynced).hasSize(1)
-        assertThat(unsynced[0].name).isEqualTo("U")
     }
 
     @Test

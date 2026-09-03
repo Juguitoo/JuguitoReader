@@ -44,8 +44,4 @@ class FolderRepositoryImpl @Inject constructor(
     override suspend fun deleteFolder(id: Int) {
         folderDAO.deleteFolderById(id)
     }
-
-    override suspend fun syncPendingFolders() {
-        TODO("Not yet implemented")
-    }
 }

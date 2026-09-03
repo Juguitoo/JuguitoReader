@@ -2,7 +2,6 @@ package com.juguito.juguitoreader.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.juguito.juguitoreader.data.local.entity.GenreEntity
@@ -44,7 +43,4 @@ interface GenreDAO {
 
     @Query("DELETE FROM genres WHERE id = :genreId")
     suspend fun deleteGenreById(genreId: Int)
-
-    @Query("SELECT * FROM genres WHERE sync_status != 'SYNCED'")
-    suspend fun getUnsyncedGenres(): List<GenreEntity>
 }

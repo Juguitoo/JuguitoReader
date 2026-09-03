@@ -8,7 +8,6 @@ import com.juguito.juguitoreader.data.local.JuguitoReaderDatabase
 import com.juguito.juguitoreader.data.local.entity.BookEntity
 import com.juguito.juguitoreader.data.local.entity.BookFolderCrossRef
 import com.juguito.juguitoreader.data.local.entity.FolderEntity
-import com.juguito.juguitoreader.domain.enums.SyncStatus
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -60,18 +59,6 @@ class FolderDAOTest {
         val result = folderDAO.getFoldersWithBookCount().first()
         assertThat(result).hasSize(1)
         assertThat(result[0].bookCount).isEqualTo(1)
-    }
-
-    @Test
-    fun getUnsyncedFolders_returns_only_unsynced() = runBlocking {
-        val f1 = FolderEntity(name = "S", colorHex = "#000", syncStatus = SyncStatus.SYNCED, createdAt = 0L)
-        val f2 = FolderEntity(name = "U", colorHex = "#000", syncStatus = SyncStatus.PENDING_CREATE, createdAt = 1L)
-        
-        folderDAO.insertFolders(listOf(f1, f2))
-        
-        val unsynced = folderDAO.getUnsyncedFolders()
-        assertThat(unsynced).hasSize(1)
-        assertThat(unsynced[0].name).isEqualTo("U")
     }
 
     @Test

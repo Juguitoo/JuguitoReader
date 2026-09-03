@@ -20,7 +20,6 @@ fun BookWithDetails.toDomain(): Book {
         endDate = book.endDate,
         coverUrl = book.coverUrl,
         localFilePath = book.localFilePath,
-        syncStatus = book.syncStatus,
         createdAt = book.createdAt,
         folders = folders.map{ it.toDomain() },
         genres = genres.map{ it.toDomain() },
@@ -44,7 +43,6 @@ fun Book.toEntity(): BookEntity {
         endDate = endDate,
         coverUrl = coverUrl,
         localFilePath = localFilePath,
-        syncStatus = syncStatus,
         createdAt = createdAt
     )
 }

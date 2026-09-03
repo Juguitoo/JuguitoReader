@@ -76,8 +76,4 @@ class BookRepositoryImpl @Inject constructor(
         bookDAO.updateBook(book.toEntity())
         bookDAO.syncBookCrossRefs(book.id, folderIds, genreIds)
     }
-
-    override suspend fun syncPendingBooks() {
-        TODO("Not yet implemented")
-    }
 }

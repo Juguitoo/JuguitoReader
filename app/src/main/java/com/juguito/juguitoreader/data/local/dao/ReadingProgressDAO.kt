@@ -24,7 +24,4 @@ interface ReadingProgressDAO {
 
     @Query("DELETE FROM reading_progress WHERE book_id = :bookId")
     suspend fun  deleteReadingProgressById(bookId: Int)
-
-    @Query("SELECT * FROM reading_progress WHERE sync_status != 'SYNCED'")
-    suspend fun getUnsyncedReadingProgresses(): List<ReadingProgressEntity>
 }

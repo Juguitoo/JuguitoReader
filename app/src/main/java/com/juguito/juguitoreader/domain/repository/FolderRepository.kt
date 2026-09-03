@@ -20,6 +20,4 @@ interface FolderRepository {
     suspend fun updateFolders(folders: List<Folder>)
 
     suspend fun deleteFolder(id: Int)
-
-    suspend fun syncPendingFolders()
 }

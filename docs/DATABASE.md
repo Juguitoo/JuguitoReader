@@ -2,7 +2,7 @@
 
 ## Motor y configuración
 
-- **Room** 2.8.4, base de datos `juguito_db`, **versión 11**.
+- **Room** 2.8.4, base de datos `juguito_db`, **versión 12**.
 - Schemas exportados en `app/schemas/com.juguito.juguitoreader.data.local.JuguitoReaderDatabase/`.
 - Config KSP: `room.schemaLocation = $projectDir/schemas`.
 - Política actual: `fallbackToDestructiveMigration(false)`.
@@ -51,13 +51,12 @@ books (1) ──────< book_folders >────── (N) folders
 `RoomConverters.kt` persiste enums como `String`:
 
 - `BookStatus`
-- `SyncStatus` *(pendiente de eliminar — ver BACKLOG CLEAN-001)*
 
 
 
 ## Migraciones definidas
 
-Solo existen migraciones **6 → 11**:
+Solo existen migraciones **6 → 12**:
 
 
 | Migración | Cambio                                                 |
@@ -67,6 +66,7 @@ Solo existen migraciones **6 → 11**:
 | 8→9       | Tabla `daily_reading`                                  |
 | 9→10      | Columna `reading_speed` en `daily_reading`             |
 | 10→11     | FK CASCADE en `reading_progress`; limpia huérfanos     |
+| 11→12     | Elimina columna `sync_status` (scaffold cloud)         |
 
 
 Definidas en `JuguitoReaderDatabase.kt`, registradas en `DatabaseModule.kt`.
@@ -119,13 +119,12 @@ En updates, usar `folder.id` / `genre.id` cuando `id != 0`. Resolver por `name` 
 
 ### 4. `reading_progress` y borrado de libro
 
-`reading_progress` tiene FK CASCADE a `books` (schema v11). Al borrar un libro, el progreso se elimina en cascada. El undo desde Home restaura progreso vía `DeletedBookSnapshot` (DATA-007).
+`reading_progress` tiene FK CASCADE a `books` (schema v12). Al borrar un libro, el progreso se elimina en cascada. El undo desde Home restaura progreso vía `DeletedBookSnapshot` (DATA-007).
 
 ## Queries importantes
 
 - `BookDAO.getAllBooks()` — `@Transaction` + `BookWithDetails` con `@Relation` y `@Junction`.
 - `FolderDAO.getFoldersWithBookCount()` — subquery COUNT en junction.
-- Filtro unsynced (legacy sync, pendiente eliminar): `sync_status != 'SYNCED'`.
 
 
 
@@ -144,4 +143,5 @@ En updates, usar `folder.id` / `genre.id` cuando `id != 0`. Resolver por `name` 
 Instrumentados en `app/src/androidTest/.../dao/`:
 
 - `BookDAOTest`, `FolderDAOTest`, `GenreDAOTest`, `ReadingProgressDAOTest`
+- `ReadingProgressMigrationTest` (10→11), `SyncStatusRemovalMigrationTest` (11→12)
 

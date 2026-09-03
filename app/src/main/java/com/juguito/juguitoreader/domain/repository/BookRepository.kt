@@ -28,6 +28,4 @@ interface BookRepository {
     suspend fun insertBookWithCrossRefs(book: Book, folderIds: List<Int>, genreIds: List<Int>): Long
 
     suspend fun updateBookWithCrossRefs(book: Book, folderIds: List<Int>, genreIds: List<Int>)
-
-    suspend fun syncPendingBooks()
 }

@@ -4,7 +4,6 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.juguito.juguitoreader.domain.enums.BookStatus
-import com.juguito.juguitoreader.domain.enums.SyncStatus
 
 @Entity(tableName = "books")
 data class BookEntity(
@@ -22,6 +21,5 @@ data class BookEntity(
     @ColumnInfo(name = "end_date") val endDate: Long? = null,
     @ColumnInfo(name = "cover_url") val coverUrl: String? = null,
     @ColumnInfo(name = "local_file_path") val localFilePath: String? = null,
-    @ColumnInfo(name = "sync_status") val syncStatus: SyncStatus = SyncStatus.PENDING_CREATE,
     @ColumnInfo(name = "created_at") val createdAt: Long
     )

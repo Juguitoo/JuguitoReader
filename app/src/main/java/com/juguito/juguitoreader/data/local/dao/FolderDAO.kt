@@ -2,7 +2,6 @@ package com.juguito.juguitoreader.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.juguito.juguitoreader.data.local.entity.FolderEntity
@@ -41,7 +40,4 @@ interface FolderDAO {
 
     @Query("DELETE FROM folders WHERE id = :folderId")
     suspend fun deleteFolderById(folderId: Int)
-
-    @Query("SELECT * FROM folders WHERE sync_status != 'SYNCED'")
-    suspend fun getUnsyncedFolders(): List<FolderEntity>
 }

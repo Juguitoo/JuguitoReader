@@ -10,7 +10,6 @@ fun FolderEntity.toDomain(): Folder {
         name = name,
         colorHex = colorHex,
         description = description,
-        syncStatus = syncStatus,
         createdAt = createdAt
     )
 }
@@ -21,7 +20,6 @@ fun Folder.toEntity(): FolderEntity {
         name = name,
         description = description,
         colorHex = colorHex,
-        syncStatus = syncStatus,
         createdAt = createdAt
     )
 }
@@ -33,7 +31,6 @@ fun FolderWithCountEntity.toDomain(): Folder {
         colorHex = folder.colorHex,
         description = folder.description,
         bookCount = bookCount,
-        syncStatus = folder.syncStatus,
         createdAt = folder.createdAt
     )
 }

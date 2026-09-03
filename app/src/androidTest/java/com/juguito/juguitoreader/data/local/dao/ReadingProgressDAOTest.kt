@@ -7,7 +7,6 @@ import com.google.common.truth.Truth.assertThat
 import com.juguito.juguitoreader.data.local.JuguitoReaderDatabase
 import com.juguito.juguitoreader.data.local.entity.BookEntity
 import com.juguito.juguitoreader.data.local.entity.ReadingProgressEntity
-import com.juguito.juguitoreader.domain.enums.SyncStatus
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -65,20 +64,6 @@ class ReadingProgressDAOTest {
 
         val result = readingProgressDAO.getReadingProgressById(5)
         assertThat(result?.lastChapterIndex).isEqualTo(10)
-    }
-
-    @Test
-    fun getUnsyncedReadingProgresses_returns_only_unsynced() = runBlocking {
-        insertBook(1)
-        insertBook(2)
-        val p1 = ReadingProgressEntity(bookId = 1, lastChapterIndex = 0, scrollPosition = 0f, lastReadAt = 0L, syncStatus = SyncStatus.SYNCED)
-        val p2 = ReadingProgressEntity(bookId = 2, lastChapterIndex = 0, scrollPosition = 0f, lastReadAt = 1L, syncStatus = SyncStatus.PENDING_CREATE)
-
-        readingProgressDAO.insertReadingProgresses(listOf(p1, p2))
-
-        val result = readingProgressDAO.getUnsyncedReadingProgresses()
-        assertThat(result).hasSize(1)
-        assertThat(result[0].bookId).isEqualTo(2)
     }
 
     @Test
