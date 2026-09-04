@@ -259,8 +259,15 @@ class BookDetailViewModel @Inject constructor(
 
             try {
                 val filesResult = withContext(Dispatchers.IO) {
-                    FileUtils.promotePendingFiles(application, draft.localFilePath, draft.coverUrl)
+                    FileUtils.promotePendingFiles(
+                        application,
+                        epubCandidate = if (draft.localFilePath != current.book.localFilePath) draft.localFilePath else null,
+                        coverCandidate = if (draft.coverUrl != current.book.coverUrl) draft.coverUrl else null
+                    )
                 }
+
+                val epubPath = filesResult.epubPath ?: current.book.localFilePath
+                val coverPath = filesResult.coverPath ?: current.book.coverUrl
 
                 val updatedBook = Book(
                     id = current.book.id,
@@ -275,8 +282,8 @@ class BookDetailViewModel @Inject constructor(
                     comment = current.comment,
                     startDate = current.startDate,
                     endDate = current.endDate,
-                    coverUrl = filesResult.coverPath,
-                    localFilePath = filesResult.epubPath,
+                    coverUrl = coverPath,
+                    localFilePath = epubPath,
                     folders = draft.folders,
                     genres = draft.genres,
                     createdAt = current.book.createdAt
@@ -289,10 +296,10 @@ class BookDetailViewModel @Inject constructor(
                 result.fold(
                     onSuccess = {
                         withContext(Dispatchers.IO) {
-                            if (filesResult.coverPath != current.book.coverUrl) {
+                            if (filesResult.coverPath != null && filesResult.coverPath != current.book.coverUrl) {
                                 deleteFileFromInternalStorage(application, current.book.coverUrl)
                             }
-                            if (filesResult.epubPath != current.book.localFilePath) {
+                            if (filesResult.epubPath != null && filesResult.epubPath != current.book.localFilePath) {
                                 deleteFileFromInternalStorage(application, current.book.localFilePath)
                                 FileUtils.deleteReaderCache(application, updatedBook.id)
                             }
@@ -302,7 +309,7 @@ class BookDetailViewModel @Inject constructor(
                             it.copy(
                                 isEditMode = false,
                                 book = updatedBook,
-                                bookDraft = draft.copy(coverUrl = filesResult.coverPath, localFilePath = filesResult.epubPath)
+                                bookDraft = draft.copy(coverUrl = coverPath, localFilePath = epubPath)
                             )
                         }
                         _effect.send(ShowSnackbar(StringResource(R.string.save_success)))

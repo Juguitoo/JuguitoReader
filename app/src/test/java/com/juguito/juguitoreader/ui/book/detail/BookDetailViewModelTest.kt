@@ -244,6 +244,79 @@ class BookDetailViewModelTest {
     }
 
     @Test
+    fun `FILE-006 OnSaveClick does not pass unchanged persisted paths to promote`() = runTest {
+        loadDigitalBook()
+        coEvery { updateBookUseCase(any()) } returns Result.success(Unit)
+
+        viewModel.onEvent(BookDetailEvent.OnSaveClick)
+
+        verify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
+            FileUtils.promotePendingFiles(application, null, null)
+        }
+        coVerify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
+            updateBookUseCase(match {
+                it.localFilePath == "/data/files/persisted.epub" &&
+                    it.coverUrl == "/data/files/persisted.jpg"
+            })
+        }
+        verify(exactly = 0) {
+            FileUtils.deleteFileFromInternalStorage(any(), "/data/files/persisted.epub")
+        }
+        verify(exactly = 0) {
+            FileUtils.deleteFileFromInternalStorage(any(), "/data/files/persisted.jpg")
+        }
+    }
+
+    @Test
+    fun `FILE-006 OnSaveClick promotes only new cover and keeps persisted epub`() = runTest {
+        loadDigitalBook()
+        viewModel.onEvent(BookDetailEvent.OnCoverUrlChanged("content://picker/cover.jpg"))
+        every {
+            FileUtils.promotePendingFiles(application, null, "content://picker/cover.jpg")
+        } returns PromotedBookFiles(
+            epubPath = null,
+            coverPath = "/data/files/new.jpg",
+        )
+        coEvery { updateBookUseCase(any()) } returns Result.success(Unit)
+
+        viewModel.onEvent(BookDetailEvent.OnSaveClick)
+
+        verify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
+            FileUtils.promotePendingFiles(application, null, "content://picker/cover.jpg")
+        }
+        coVerify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
+            updateBookUseCase(match {
+                it.localFilePath == "/data/files/persisted.epub" &&
+                    it.coverUrl == "/data/files/new.jpg"
+            })
+        }
+        verify(exactly = 0) {
+            FileUtils.deleteFileFromInternalStorage(any(), "/data/files/persisted.epub")
+        }
+    }
+
+    @Test
+    fun `FILE-006 OnSaveClick does not delete persisted epub when new cover promote fails`() = runTest {
+        loadDigitalBook()
+        viewModel.onEvent(BookDetailEvent.OnCoverUrlChanged("content://picker/cover.jpg"))
+        every {
+            FileUtils.promotePendingFiles(application, null, "content://picker/cover.jpg")
+        } throws JuguitoException(R.string.error_copy_cover)
+
+        viewModel.onEvent(BookDetailEvent.OnSaveClick)
+
+        viewModel.effect.test {
+            val effect = awaitItem() as UiEffect.ShowSnackbar
+            assertEquals(R.string.error_copy_cover, (effect.message as UiText.StringResource).resId)
+        }
+        coVerify(exactly = 0) { updateBookUseCase(any()) }
+        verify(exactly = 0) { FileUtils.deleteFileFromInternalStorage(any(), any()) }
+        val success = viewModel.uiState.value as BookDetailUiState.Success
+        assertThat(success.book.localFilePath).isEqualTo("/data/files/persisted.epub")
+        assertThat(success.book.coverUrl).isEqualTo("/data/files/persisted.jpg")
+    }
+
+    @Test
     fun `onEvent OnSaveClick promotes files before updateBook`() = runTest {
         loadDigitalBook()
         every {
