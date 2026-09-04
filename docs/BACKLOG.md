@@ -8,19 +8,16 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 
 | Versión | ID | Tarea | Tipo | Estado | Ref |
 |---------|-----|-------|------|--------|-----|
-| v1.2.0 | UX-025 | Flag físico: ocultar / no exigir UI de EPUB | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | FILE-009 | Undo Home: confirmar el pending antes del siguiente delete | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | DATA-013 | BookDetail delete: respetar `Result.failure` | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-005 | Registry: pintar error de carga (no empty) | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-007 | Snackbar import EPUB → `strings.xml` | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-009 | Orden de saga: permitir decimales | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-010 | Settings: labels de tema lector i18n | Fix | `[ ]` | KNOWN_ISSUES |
-| v1.2.0 | UX-018 | Home: empty/cta si solo hay físicos o sin EPUB | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-019 | Library Empty: sheet de carpetas usable o oculto | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-021 | Detail: error de libro missing correcto + i18n | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | FILE-010 | Home confirm delete: `deleteReaderCache` | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | FILE-013 | Back en edit: discard staging | Fix | `[ ]` | KNOWN_ISSUES |
-| v1.2.0 | FILE-017 | Validar digital-con-fichero / físico-sin-lector | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | READER-021 | ETA del lector con WPM real (sesión/día) | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | DATA-014 | Merge WPM diario en Long para evitar overflow | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | DATA-016 | `getAllGenreNames()` suspend | Fix | `[ ]` | KNOWN_ISSUES |

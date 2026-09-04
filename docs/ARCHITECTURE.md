@@ -123,7 +123,7 @@ El reader combina settings de DataStore (tema, zoom, brillo) con el estado del l
 AddBookScreen → AddBookUseCase(isPhysical = true, localFilePath = null)
 ```
 
-Aparece en Registry y Library pero no en listas de lectura de Home (filtra `!isPhysical && localFilePath != null`).
+Aparece en Registry y Library pero no en listas de lectura de Home (filtra `!isPhysical && localFilePath != null`). Si hay libros pero ninguno es digital con EPUB, Home sigue en `Success` (no `Empty`) y la UI explica que Inicio no los muestra (UX-018). La UI de Add/Detail oculta el picker de EPUB si `isPhysical`. Al guardar un físico se fuerza `localFilePath = null` y se borra el fichero previo (si lo había). Un digital **puede** no tener EPUB todavía; Library abre detalle en vez del lector (UX-003).
 
 ### Borrado con undo
 
