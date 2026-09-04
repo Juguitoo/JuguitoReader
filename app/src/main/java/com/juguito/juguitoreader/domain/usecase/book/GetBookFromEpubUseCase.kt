@@ -14,8 +14,13 @@ class GetBookFromEpubUseCase @Inject constructor() {
     suspend operator fun invoke(context: Context, uri: Uri, persistFiles: Boolean): Book {
         return withContext(Dispatchers.IO) {
             val metadata = EpubParser.extractMetadata(context, uri, persistFiles)
-            val internalPath = if (persistFiles) FileUtils.saveEpubBookToInternalStorage(context, uri) else uri.toString()
-
+            val internalPath = try {
+                if (persistFiles) FileUtils.saveEpubBookToInternalStorage(context, uri)
+                else uri.toString()
+            } catch (e: Exception) {
+                if (persistFiles) FileUtils.deleteFileFromInternalStorage(context, metadata.coverUrl)
+                throw e
+            }
             return@withContext Book(
                 title = metadata.title ?: "",
                 author = metadata.author ?: "",

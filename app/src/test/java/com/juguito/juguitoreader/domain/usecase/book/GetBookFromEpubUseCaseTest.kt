@@ -82,5 +82,6 @@ class GetBookFromEpubUseCaseTest {
 
         assertThat(exception).isInstanceOf(JuguitoException::class.java)
         assertThat((exception as JuguitoException).resId).isEqualTo(R.string.error_copy_epub)
+        verify { FileUtils.deleteFileFromInternalStorage(context, metadata.coverUrl) }
     }
 }
