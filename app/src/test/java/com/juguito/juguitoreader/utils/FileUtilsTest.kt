@@ -60,6 +60,21 @@ class FileUtilsTest {
     }
 
     @Test
+    fun `promotePendingFiles copies cover from cacheDir to filesDir`() {
+        val cacheCover = File(appCacheDir, "covers/cover.jpg").apply {
+            parentFile?.mkdirs()
+            writeText("cover-bytes")
+        }
+
+        val result = FileUtils.promotePendingFiles(context, null, cacheCover.absolutePath)
+
+        assertThat(result.coverPath).isNotNull()
+        assertThat(result.coverPath).startsWith(appFilesDir.absolutePath)
+        assertThat(File(result.coverPath!!).readText()).isEqualTo("cover-bytes")
+        assertThat(cacheCover.exists()).isTrue()
+    }
+
+    @Test
     fun `deleteStagingAsset removes cache files only`() {
         val cacheFile = File(appCacheDir, "covers/cover.jpg").apply {
             parentFile?.mkdirs()

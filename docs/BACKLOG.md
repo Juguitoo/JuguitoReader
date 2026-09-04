@@ -8,8 +8,6 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 
 | Versión | ID | Tarea | Tipo | Estado | Ref |
 |---------|-----|-------|------|--------|-----|
-| v1.2.0 | FILE-006 | Rollback de promote no debe borrar EPUB/cover ya internos | Fix | `[ ]` | KNOWN_ISSUES |
-| v1.2.0 | FILE-007 | Promover cover de `cacheDir` al guardar (Add Book import EPUB) | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | FILE-008 | Rollback de cover si falla el copy del EPUB (`persistFiles=true`) | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-003 | Library: físico / sin EPUB → detalle, no lector | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-004 | Snackbar carpeta: resolver `folder_created` a string | Fix | `[ ]` | KNOWN_ISSUES |

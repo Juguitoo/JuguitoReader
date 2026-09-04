@@ -3,6 +3,7 @@ package com.juguito.juguitoreader.utils
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
+import androidx.annotation.StringRes
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import com.juguito.juguitoreader.R
@@ -123,7 +124,17 @@ object FileUtils {
                 epubPath = if (epubCandidate.startsWith(context.filesDir.absolutePath)) epubCandidate else saveEpubBookToInternalStorage(context, epubCandidate.toUri())
             }
             if (coverCandidate != null) {
-                coverPath = if (coverCandidate.startsWith(context.filesDir.absolutePath)) coverCandidate else saveImageToInternalStorage(context, coverCandidate.toUri())
+                coverPath = when {
+                    coverCandidate.startsWith(context.filesDir.absolutePath) -> coverCandidate
+                    coverCandidate.startsWith(context.cacheDir.absolutePath) ->
+                        copyCacheFileToFilesDir(
+                            context,
+                            File(coverCandidate),
+                            "cover_${System.currentTimeMillis()}.jpg",
+                            R.string.error_copy_cover,
+                        )
+                    else -> saveImageToInternalStorage(context, coverCandidate.toUri())
+                }
             }
             return PromotedBookFiles(epubPath, coverPath)
         } catch (e: JuguitoException) {
@@ -137,5 +148,28 @@ object FileUtils {
         if (path.isNullOrBlank()) return
         if (!path.startsWith(context.cacheDir.absolutePath)) return
         runCatching { File(path).delete() }
+    }
+
+    private fun copyCacheFileToFilesDir(
+        context: Context,
+        source: File,
+        fileName: String,
+        @StringRes errorRes: Int,
+    ): String {
+        if (!source.isFile || !source.absolutePath.startsWith(context.cacheDir.absolutePath)) {
+            throw JuguitoException(errorRes)
+        }
+        return try {
+            val dest = File(context.filesDir, fileName)
+            source.inputStream().use { input ->
+                FileOutputStream(dest).use { output -> input.copyTo(output) }
+            }
+            dest.absolutePath
+        } catch (e: JuguitoException) {
+            throw e
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw JuguitoException(errorRes)
+        }
     }
 }
