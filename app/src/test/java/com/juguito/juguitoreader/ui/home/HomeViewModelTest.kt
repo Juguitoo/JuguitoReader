@@ -126,6 +126,56 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun `empty catalog emits Empty`() = runTest {
+        viewModel.uiState.test {
+            assertThat(awaitItem()).isEqualTo(HomeUiState.Empty)
+        }
+    }
+
+    @Test
+    fun `physical books only emit Success with empty shelves not Empty`() = runTest {
+        val books = listOf(
+            Book(id = 1, title = "Paper", author = "A", isPhysical = true, status = BookStatus.READING)
+        )
+        every { getBooksUseCase() } returns flowOf(books)
+
+        viewModel = createViewModel()
+
+        viewModel.uiState.test {
+            val state = awaitItem()
+            assertThat(state).isInstanceOf(HomeUiState.Success::class.java)
+            val success = state as HomeUiState.Success
+            assertThat(success.stats.totalBooksCount).isEqualTo(1)
+            assertThat(success.readingBooks).isEmpty()
+            assertThat(success.pendingBooks).isEmpty()
+        }
+    }
+
+    @Test
+    fun `digital book without EPUB is omitted from shelves`() = runTest {
+        val books = listOf(
+            Book(
+                id = 1,
+                title = "Soon",
+                author = "A",
+                isPhysical = false,
+                localFilePath = null,
+                status = BookStatus.PENDING
+            )
+        )
+        every { getBooksUseCase() } returns flowOf(books)
+
+        viewModel = createViewModel()
+
+        viewModel.uiState.test {
+            val success = awaitItem() as HomeUiState.Success
+            assertThat(success.stats.totalBooksCount).isEqualTo(1)
+            assertThat(success.pendingBooks).isEmpty()
+            assertThat(success.readingBooks).isEmpty()
+        }
+    }
+
+    @Test
     fun `onEvent OnDeleteBookClick snapshots daily readings and calls deleteBookUseCase`() = runTest {
         val book = Book(id = 1, title = "T", author = "A", isPhysical = false)
         val dailyReading = DailyReading(

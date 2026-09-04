@@ -190,6 +190,8 @@
     <string name="something_went_wrong">Algo ha salido mal</string>
     <string name="empty_library_title">Tu biblioteca está vacía</string>
     <string name="empty_library_subtitle">Añade tu primer libro para empezar</string>
+    <string name="empty_home_readable_title">Nada que leer aquí</string>
+    <string name="empty_home_readable_subtitle">Inicio solo muestra libros digitales con EPUB. Los físicos y los que aún no tienen archivo están en Biblioteca.</string>
     <string name="new_text">Nuevo</string>
 
     <!-- Components -->

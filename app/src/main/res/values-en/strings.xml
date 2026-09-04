@@ -190,6 +190,8 @@
     <string name="something_went_wrong">Something went wrong</string>
     <string name="empty_library_title">Your library is empty</string>
     <string name="empty_library_subtitle">Add your first book to start</string>
+    <string name="empty_home_readable_title">Nothing to read here</string>
+    <string name="empty_home_readable_subtitle">Home only shows digital books with an EPUB. Physical books and titles without a file are in Library.</string>
     <string name="new_text">New</string>
 
     <!-- Components -->

@@ -54,4 +54,30 @@ class HomeScreenTest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         composeTestRule.onNodeWithText(context.getString(R.string.empty_library_title)).assertIsDisplayed()
     }
+
+    @Test
+    fun homeScreen_success_with_empty_shelves_shows_readable_empty() {
+        composeTestRule.setContent {
+            JuguitoReaderTheme {
+                HomeContent(
+                    state = HomeUiState.Success(
+                        readingBooks = emptyList(),
+                        pendingBooks = emptyList(),
+                        stats = StatsUiState(totalBooksCount = 2)
+                    ),
+                    snackbarMessage = null,
+                    onClearSnackbarMessage = {},
+                    onNavigateToAddBook = {},
+                    onNavigateToBookDetail = {},
+                    onNavigateToReadBook = {},
+                    onOpenDrawer = {},
+                    onEvent = {},
+                    effect = emptyFlow()
+                )
+            }
+        }
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        composeTestRule.onNodeWithText(context.getString(R.string.empty_home_readable_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.empty_library_title)).assertDoesNotExist()
+    }
 }

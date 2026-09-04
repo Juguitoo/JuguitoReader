@@ -248,37 +248,31 @@ fun HomeContent(
                     )
                 }
                 is HomeUiState.Success -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = 24.dp)
-                    ) {
-                        item {
-                            Column(modifier = Modifier.fillMaxWidth()) {
+                    val hasReading = state.readingBooks.isNotEmpty()
+                    val hasPending = state.pendingBooks.isNotEmpty()
 
-                                val hasReading = state.readingBooks.isNotEmpty()
-                                val hasPending = state.pendingBooks.isNotEmpty()
-
-                                if (!hasReading && !hasPending) {
-                                    BookListSection(
-                                        title = stringResource(R.string.your_shelf),
-                                        books = emptyList(),
-                                        showActions = true,
-                                        onNavigateToAddBook = onNavigateToAddBook,
-                                        onImportClick = {
-                                            if (!isImporting) {
-                                                documentPickerLauncher.launch(
-                                                    arrayOf(
-                                                        "application/epub+zip"
-                                                    )
-                                                )
-                                            }
-                                        },
-                                        onBookDetails = onNavigateToBookDetail,
-                                        onDeleteBook = { bookToDelete = it },
-                                        onReadBook = onNavigateToReadBook
+                    if (!hasReading && !hasPending) {
+                        EmptyLibraryView(
+                            onNavigateToAddBook = onNavigateToAddBook,
+                            onImportClick = {
+                                if (!isImporting) {
+                                    documentPickerLauncher.launch(
+                                        arrayOf(
+                                            "application/epub+zip"
+                                        )
                                     )
                                 }
-                                else {
+                            },
+                            title = stringResource(R.string.empty_home_readable_title),
+                            subtitle = stringResource(R.string.empty_home_readable_subtitle)
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(bottom = 24.dp)
+                        ) {
+                            item {
+                                Column(modifier = Modifier.fillMaxWidth()) {
                                     if (hasReading) {
                                         BookListSection(
                                             title = stringResource(R.string.continue_reading),
@@ -313,30 +307,30 @@ fun HomeContent(
                                         onDeleteBook = { bookToDelete = it },
                                         onReadBook = onNavigateToReadBook
                                     )
-                                }
 
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(12.dp)
-                                        .background(Color(0xFF5F4934))
-                                )
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(12.dp)
+                                            .background(Color(0xFF5F4934))
+                                    )
+                                }
                             }
-                        }
 /*
-                        item {
-                            Text(
-                                text = "Estadísticas generales".uppercase(),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
-                                letterSpacing = 1.sp
-                            )
-                            StatsSection(statsUiState = state.stats)
-                        }
+                            item {
+                                Text(
+                                    text = "Estadísticas generales".uppercase(),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+                                    letterSpacing = 1.sp
+                                )
+                                StatsSection(statsUiState = state.stats)
+                            }
 
  */
+                        }
                     }
                 }
             }
