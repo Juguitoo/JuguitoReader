@@ -55,6 +55,9 @@ class HomeViewModel @Inject constructor(
     private val _isImporting = MutableStateFlow(false)
     val isImporting: StateFlow<Boolean> = _isImporting.asStateFlow()
 
+    private val _pendingUndoBookId = MutableStateFlow<Int?>(null)
+    val pendingUndoBookId: StateFlow<Int?> = _pendingUndoBookId.asStateFlow()
+
     init {
         loadData()
     }
@@ -108,12 +111,20 @@ class HomeViewModel @Inject constructor(
 
     fun onEvent(event: HomeEvent) {
         when (event) {
-            is HomeEvent.OnDeleteBookClick -> {deleteBook(event.book)}
+            is HomeEvent.OnDeleteBookClick -> deleteBook(event.book)
             is HomeEvent.OnDeleteConfirmed -> {
-                viewModelScope.launch { bookUndoManager.confirmPending() }
+                viewModelScope.launch {
+                    if (_pendingUndoBookId.value != event.bookId) return@launch
+                    _pendingUndoBookId.value = null
+                    bookUndoManager.confirmPendingIf { it.book.id == event.bookId }
+                }
             }
             is HomeEvent.OnUndoDeleteClick -> {
-                viewModelScope.launch { bookUndoManager.undoPending() }
+                viewModelScope.launch {
+                    if (_pendingUndoBookId.value != event.bookId) return@launch
+                    _pendingUndoBookId.value = null
+                    bookUndoManager.undoPendingIf { it.book.id == event.bookId }
+                }
             }
             is HomeEvent.OnDismissError -> {
                 viewModelScope.launch { dismissError() }
@@ -152,20 +163,15 @@ class HomeViewModel @Inject constructor(
             )
             bookUndoManager.executeAction(
                 item = snapshot,
-                immediateAction = {
-                    val result = deleteBookUseCase(it.book.id)
+                immediateAction = { deleted ->
+                    val result = deleteBookUseCase(deleted.book.id)
                     result.fold(
                         onSuccess = {
-                            _effect.send(
-                                UiEffect.ShowSnackbar(
-                                    message = UiText.StringResource(R.string.book_deleted),
-                                    actionLabel = UiText.StringResource(R.string.undo),
-                                    actionPayload = "undo_delete"
-                                )
-                            )
+                            _pendingUndoBookId.value = deleted.book.id
                             true
                         },
                         onFailure = { error ->
+                            _pendingUndoBookId.value = null
                             _effect.send(
                                 UiEffect.ShowSnackbar(
                                     message = error.asUiText()

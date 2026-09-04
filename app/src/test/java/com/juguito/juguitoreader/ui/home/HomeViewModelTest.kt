@@ -225,9 +225,11 @@ class HomeViewModelTest {
         coEvery { restoreDeletedBookUseCase(any()) } returns Result.success(Unit)
 
         viewModel.onEvent(HomeEvent.OnDeleteBookClick(book))
-        viewModel.onEvent(HomeEvent.OnUndoDeleteClick)
+        assertThat(viewModel.pendingUndoBookId.value).isEqualTo(1)
+        viewModel.onEvent(HomeEvent.OnUndoDeleteClick(1))
 
         coVerify { restoreDeletedBookUseCase(expectedSnapshot) }
+        assertThat(viewModel.pendingUndoBookId.value).isNull()
     }
 
     @Test
@@ -245,7 +247,7 @@ class HomeViewModelTest {
         coEvery { restoreDeletedBookUseCase(any()) } returns Result.success(Unit)
 
         viewModel.onEvent(HomeEvent.OnDeleteBookClick(book))
-        viewModel.onEvent(HomeEvent.OnUndoDeleteClick)
+        viewModel.onEvent(HomeEvent.OnUndoDeleteClick(1))
 
         coVerify { restoreDeletedBookUseCase(expectedSnapshot) }
     }
@@ -261,11 +263,9 @@ class HomeViewModelTest {
 
         viewModel.effect.test {
             viewModel.onEvent(HomeEvent.OnDeleteBookClick(book))
+            assertThat(viewModel.pendingUndoBookId.value).isEqualTo(1)
 
-            val deleteEffect = awaitItem() as UiEffect.ShowSnackbar
-            assertThat((deleteEffect.message as UiText.StringResource).resId).isEqualTo(R.string.book_deleted)
-
-            viewModel.onEvent(HomeEvent.OnUndoDeleteClick)
+            viewModel.onEvent(HomeEvent.OnUndoDeleteClick(1))
 
             val restoreEffect = awaitItem() as UiEffect.ShowSnackbar
             assertThat((restoreEffect.message as UiText.StringResource).resId).isEqualTo(R.string.book_restored)
@@ -282,10 +282,45 @@ class HomeViewModelTest {
         coEvery { deleteBookUseCase(1) } returns Result.success(Unit)
 
         viewModel.onEvent(HomeEvent.OnDeleteBookClick(book))
-        viewModel.onEvent(HomeEvent.OnDeleteConfirmed)
+        viewModel.onEvent(HomeEvent.OnDeleteConfirmed(1))
 
         coVerify { FileUtils.deleteFileFromInternalStorage(any(), "c") }
         coVerify { FileUtils.deleteFileFromInternalStorage(any(), "l") }
+        assertThat(viewModel.pendingUndoBookId.value).isNull()
+    }
+
+    @Test
+    fun `second delete confirms first pending files and keeps undo for second`() = runTest {
+        every { FileUtils.deleteFileFromInternalStorage(any(), any()) } returns Unit
+
+        val bookA = Book(id = 1, title = "A", author = "A", isPhysical = false, coverUrl = "cA", localFilePath = "lA")
+        val bookB = Book(id = 2, title = "B", author = "B", isPhysical = false, coverUrl = "cB", localFilePath = "lB")
+        every { getBookDailyReadingsUseCase(any()) } returns flowOf(emptyList())
+        coEvery { getReadingProgressByIdUseCase(any()) } returns null
+        coEvery { deleteBookUseCase(any()) } returns Result.success(Unit)
+        coEvery { restoreDeletedBookUseCase(any()) } returns Result.success(Unit)
+
+        viewModel.onEvent(HomeEvent.OnDeleteBookClick(bookA))
+        assertThat(viewModel.pendingUndoBookId.value).isEqualTo(1)
+
+        viewModel.onEvent(HomeEvent.OnDeleteBookClick(bookB))
+        assertThat(viewModel.pendingUndoBookId.value).isEqualTo(2)
+
+        coVerify { FileUtils.deleteFileFromInternalStorage(any(), "cA") }
+        coVerify { FileUtils.deleteFileFromInternalStorage(any(), "lA") }
+        coVerify(exactly = 0) { FileUtils.deleteFileFromInternalStorage(any(), "cB") }
+        coVerify(exactly = 0) { FileUtils.deleteFileFromInternalStorage(any(), "lB") }
+
+        viewModel.onEvent(HomeEvent.OnDeleteConfirmed(1))
+        coVerify(exactly = 0) { FileUtils.deleteFileFromInternalStorage(any(), "cB") }
+
+        viewModel.onEvent(HomeEvent.OnUndoDeleteClick(2))
+        coVerify {
+            restoreDeletedBookUseCase(
+                DeletedBookSnapshot(book = bookB, dailyReadings = emptyList(), readingProgress = null)
+            )
+        }
+        assertThat(viewModel.pendingUndoBookId.value).isNull()
     }
 
     @Test

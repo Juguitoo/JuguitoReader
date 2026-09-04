@@ -72,11 +72,13 @@ fun HomeScreen(
 ) {
     val homeState by viewModel.uiState.collectAsState()
     val isImporting by viewModel.isImporting.collectAsState()
+    val pendingUndoBookId by viewModel.pendingUndoBookId.collectAsState()
 
     HomeContent(
         modifier = modifier,
         state = homeState,
         isImporting = isImporting,
+        pendingUndoBookId = pendingUndoBookId,
         snackbarMessage = snackbarMessage,
         onClearSnackbarMessage = onClearSnackbarMessage,
         onNavigateToAddBook = onNavigateToAddBook,
@@ -94,6 +96,7 @@ fun HomeContent(
     modifier: Modifier = Modifier,
     state: HomeUiState,
     isImporting: Boolean = false,
+    pendingUndoBookId: Int? = null,
     snackbarMessage: Int?,
     onClearSnackbarMessage: () -> Unit,
     onNavigateToAddBook: () -> Unit,
@@ -106,6 +109,8 @@ fun HomeContent(
     val context = LocalContext.current
     var bookToDelete by remember { mutableStateOf<Book?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
+    val bookDeletedMessage = stringResource(R.string.book_deleted)
+    val undoLabel = stringResource(R.string.undo)
 
     if (bookToDelete != null) {
         bookToDelete?.let {
@@ -121,27 +126,29 @@ fun HomeContent(
         }
     }
 
+    LaunchedEffect(pendingUndoBookId) {
+        val bookId = pendingUndoBookId ?: return@LaunchedEffect
+
+        val result = snackbarHostState.showSnackbar(
+            message = bookDeletedMessage,
+            actionLabel = undoLabel,
+            duration = SnackbarDuration.Short
+        )
+
+        when (result) {
+            SnackbarResult.ActionPerformed -> onEvent(HomeEvent.OnUndoDeleteClick(bookId))
+            SnackbarResult.Dismissed -> onEvent(HomeEvent.OnDeleteConfirmed(bookId))
+        }
+    }
+
     ObserveAsEvents(effect) { uiEffect ->
         when (uiEffect) {
             is UiEffect.ShowSnackbar -> {
-                val result = snackbarHostState.showSnackbar(
+                snackbarHostState.showSnackbar(
                     message = uiEffect.message.asString(context),
                     actionLabel = uiEffect.actionLabel?.asString(context),
                     duration = SnackbarDuration.Short
                 )
-
-                when (result) {
-                    SnackbarResult.ActionPerformed -> {
-                        if (uiEffect.actionPayload == "undo_delete") {
-                            onEvent(HomeEvent.OnUndoDeleteClick)
-                        }
-                    }
-                    SnackbarResult.Dismissed -> {
-                        if (uiEffect.actionPayload == "undo_delete") {
-                            onEvent(HomeEvent.OnDeleteConfirmed)
-                        }
-                    }
-                }
             }
             else -> Unit
         }

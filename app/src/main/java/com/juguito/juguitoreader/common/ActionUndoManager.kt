@@ -11,6 +11,8 @@ class ActionUndoManager<T> {
         onConfirm: suspend (T) -> Unit,
         onUndo: suspend (T) -> Unit
     ) {
+        confirmPending()
+
         tempItem = item
         confirmAction = onConfirm
         undoAction = onUndo
@@ -21,17 +23,27 @@ class ActionUndoManager<T> {
     }
 
     suspend fun undoPending() {
-        tempItem?.let {item ->
+        tempItem?.let { item ->
             undoAction?.invoke(item)
         }
         clear()
     }
 
     suspend fun confirmPending() {
-        tempItem?.let {item ->
+        tempItem?.let { item ->
             confirmAction?.invoke(item)
         }
         clear()
+    }
+
+    suspend fun confirmPendingIf(predicate: (T) -> Boolean) {
+        val item = tempItem ?: return
+        if (predicate(item)) confirmPending()
+    }
+
+    suspend fun undoPendingIf(predicate: (T) -> Boolean) {
+        val item = tempItem ?: return
+        if (predicate(item)) undoPending()
     }
 
     private fun clear() {
