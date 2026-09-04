@@ -490,4 +490,48 @@ class BookDetailViewModelTest {
             assertThat(state).isInstanceOf(BookDetailUiState.Error::class.java)
         }
     }
+
+    @Test
+    fun `FILE-017 OnSaveClick physical drops persisted epub and deletes file`() = runTest {
+        loadDigitalBook()
+        viewModel.onEvent(BookDetailEvent.OnIsPhysicalChanged(true))
+        coEvery { updateBookUseCase(any()) } returns Result.success(Unit)
+
+        viewModel.onEvent(BookDetailEvent.OnSaveClick)
+
+        verify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
+            FileUtils.promotePendingFiles(application, null, null)
+        }
+        coVerify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
+            updateBookUseCase(match { it.isPhysical && it.localFilePath == null })
+        }
+        verify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
+            FileUtils.deleteFileFromInternalStorage(any(), "/data/files/persisted.epub")
+        }
+        verify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
+            FileUtils.deleteReaderCache(any(), 1)
+        }
+        verify(exactly = 0) {
+            FileUtils.deleteFileFromInternalStorage(any(), "/data/files/persisted.jpg")
+        }
+    }
+
+    @Test
+    fun `FILE-017 OnSaveClick digital with cleared path persists null and deletes file`() = runTest {
+        loadDigitalBook()
+        viewModel.onEvent(BookDetailEvent.OnLocalFilePathChanged(null))
+        coEvery { updateBookUseCase(any()) } returns Result.success(Unit)
+
+        viewModel.onEvent(BookDetailEvent.OnSaveClick)
+
+        coVerify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
+            updateBookUseCase(match { !it.isPhysical && it.localFilePath == null })
+        }
+        verify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
+            FileUtils.deleteFileFromInternalStorage(any(), "/data/files/persisted.epub")
+        }
+        verify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
+            FileUtils.deleteReaderCache(any(), 1)
+        }
+    }
 }

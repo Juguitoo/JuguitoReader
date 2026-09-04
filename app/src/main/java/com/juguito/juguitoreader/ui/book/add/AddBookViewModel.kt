@@ -167,7 +167,11 @@ class AddBookViewModel @Inject constructor(
 
             try {
                 val filesResult = withContext(Dispatchers.IO) {
-                    FileUtils.promotePendingFiles(application, draft.localFilePath, draft.coverUrl)
+                    FileUtils.promotePendingFiles(
+                        application,
+                        if (draft.isPhysical) null else draft.localFilePath,
+                        draft.coverUrl,
+                    )
                 }
 
                 val newBook = Book(
@@ -178,7 +182,7 @@ class AddBookViewModel @Inject constructor(
                     seriesOrder = draft.seriesOrder.toDoubleOrNull(),
                     isPhysical = draft.isPhysical,
                     coverUrl = filesResult.coverPath,
-                    localFilePath = filesResult.epubPath,
+                    localFilePath = if (draft.isPhysical) null else filesResult.epubPath,
                     folders = draft.folders,
                     genres = draft.genres,
                 )

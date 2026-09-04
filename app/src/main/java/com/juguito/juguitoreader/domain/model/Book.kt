@@ -24,6 +24,9 @@ class Book(
     val createdAt: Long = System.currentTimeMillis()
 )
 
+fun Book.withoutEpubIfPhysical(): Book =
+    if (isPhysical && localFilePath != null) copy(localFilePath = null) else this
+
 fun Book.copy(
     title: String = this.title,
     author: String = this.author,

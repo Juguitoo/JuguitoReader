@@ -3,6 +3,7 @@ package com.juguito.juguitoreader.domain.usecase.book
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.exception.JuguitoException
 import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.domain.model.withoutEpubIfPhysical
 import com.juguito.juguitoreader.domain.repository.BookRepository
 import com.juguito.juguitoreader.domain.repository.FolderRepository
 import com.juguito.juguitoreader.domain.repository.GenreRepository
@@ -22,13 +23,16 @@ class UpdateBookUseCase @Inject constructor(
 
         return try {
             val persistedBook = bookRepository.getBookById(book.id) ?: throw Exception()
+            val toSave = book.withoutEpubIfPhysical()
 
-            val folderIds = resolveFolderIds(book.folders, folderRepository)
-            val genreIds = resolveGenreIds(book.genres, genreRepository)
-            if (persistedBook.localFilePath == book.localFilePath) {
-                bookRepository.updateBookWithCrossRefs(book, folderIds, genreIds)
+            val folderIds = resolveFolderIds(toSave.folders, folderRepository)
+            val genreIds = resolveGenreIds(toSave.genres, genreRepository)
+            val replacingEpub = persistedBook.localFilePath != toSave.localFilePath &&
+                toSave.localFilePath != null
+            if (replacingEpub) {
+                bookRepository.updateBookWithNewEpub(toSave, folderIds, genreIds)
             } else {
-                bookRepository.updateBookWithNewEpub(book, folderIds, genreIds)
+                bookRepository.updateBookWithCrossRefs(toSave, folderIds, genreIds)
             }
             Result.success(Unit)
         } catch (_: Exception) {

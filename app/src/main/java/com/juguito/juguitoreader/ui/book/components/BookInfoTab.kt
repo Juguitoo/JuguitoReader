@@ -120,34 +120,36 @@ fun BookInfoTab(
                     }
                 }
 
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = onPickFile, modifier = Modifier.weight(1f)) {
-                            Icon(Icons.Default.FileUpload, contentDescription = null)
-                            Spacer(Modifier.width(8.dp))
-                            Text(stringResource(R.string.change))
-                        }
-                        if (draft.localFilePath != null) {
-                            IconButton(onClick = {
-                                onEvent(
-                                    BookDetailEvent.OnLocalFilePathChanged(
-                                        null
+                if (!draft.isPhysical) {
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Button(onClick = onPickFile, modifier = Modifier.weight(1f)) {
+                                Icon(Icons.Default.FileUpload, contentDescription = null)
+                                Spacer(Modifier.width(8.dp))
+                                Text(stringResource(R.string.change))
+                            }
+                            if (draft.localFilePath != null) {
+                                IconButton(onClick = {
+                                    onEvent(
+                                        BookDetailEvent.OnLocalFilePathChanged(
+                                            null
+                                        )
                                     )
-                                )
-                            }) {
-                                Icon(
-                                    Icons.Default.Delete,
-                                    contentDescription = stringResource(R.string.remove_file),
-                                    tint = MaterialTheme.colorScheme.error
-                                )
+                                }) {
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = stringResource(R.string.remove_file),
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
+                                }
                             }
                         }
+                        val fileName = FileUtils.getFileNameFromUri(context, draft.localFilePath)
+                        Text(text = fileName, style = MaterialTheme.typography.bodySmall, maxLines = 2)
                     }
-                    val fileName = FileUtils.getFileNameFromUri(context, draft.localFilePath)
-                    Text(text = fileName, style = MaterialTheme.typography.bodySmall, maxLines = 2)
                 }
             }
 

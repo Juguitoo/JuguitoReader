@@ -258,15 +258,20 @@ class BookDetailViewModel @Inject constructor(
             updateSuccessState { it.copy(isActionLoading = true) }
 
             try {
+                val dropEpub = draft.isPhysical || draft.localFilePath == null
                 val filesResult = withContext(Dispatchers.IO) {
                     FileUtils.promotePendingFiles(
                         application,
-                        epubCandidate = if (draft.localFilePath != current.book.localFilePath) draft.localFilePath else null,
+                        epubCandidate = if (!dropEpub && draft.localFilePath != current.book.localFilePath) {
+                            draft.localFilePath
+                        } else {
+                            null
+                        },
                         coverCandidate = if (draft.coverUrl != current.book.coverUrl) draft.coverUrl else null
                     )
                 }
 
-                val epubPath = filesResult.epubPath ?: current.book.localFilePath
+                val epubPath = if (dropEpub) null else (filesResult.epubPath ?: current.book.localFilePath)
                 val coverPath = filesResult.coverPath ?: current.book.coverUrl
 
                 val updatedBook = Book(
@@ -299,7 +304,7 @@ class BookDetailViewModel @Inject constructor(
                             if (filesResult.coverPath != null && filesResult.coverPath != current.book.coverUrl) {
                                 deleteFileFromInternalStorage(application, current.book.coverUrl)
                             }
-                            if (filesResult.epubPath != null && filesResult.epubPath != current.book.localFilePath) {
+                            if (current.book.localFilePath != null && current.book.localFilePath != epubPath) {
                                 deleteFileFromInternalStorage(application, current.book.localFilePath)
                                 FileUtils.deleteReaderCache(application, updatedBook.id)
                             }

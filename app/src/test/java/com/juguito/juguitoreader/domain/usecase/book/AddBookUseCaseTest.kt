@@ -133,4 +133,26 @@ class AddBookUseCaseTest {
         coVerify(exactly = 1) { genreRepository.getGenreByName("Fantasy") }
         coVerify(exactly = 0) { genreRepository.insertGenre(any()) }
     }
+
+    @Test
+    fun `invoke with physical book strips leftover epub path`() = runBlocking {
+        val book = Book(
+            title = "T",
+            author = "A",
+            isPhysical = true,
+            localFilePath = "/data/files/book.epub",
+        )
+        coEvery { bookRepository.insertBookWithCrossRefs(any(), any(), any()) } returns 1L
+
+        val result = useCase(book)
+
+        assertThat(result.isSuccess).isTrue()
+        coVerify {
+            bookRepository.insertBookWithCrossRefs(
+                match { it.isPhysical && it.localFilePath == null },
+                emptyList(),
+                emptyList(),
+            )
+        }
+    }
 }

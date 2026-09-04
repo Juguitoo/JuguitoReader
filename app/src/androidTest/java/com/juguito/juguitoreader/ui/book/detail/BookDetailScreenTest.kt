@@ -64,5 +64,6 @@ class BookDetailScreenTest {
         }
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         composeTestRule.onNodeWithText(context.getString(R.string.edit_book)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.change)).assertDoesNotExist()
     }
 }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -276,12 +277,14 @@ fun AddBookContent(
                         titleContentColor = Color.White
                     ),
                     actions = {
-                        IconButton(onClick = {showImportDialog = true}) {
-                            Icon(
-                                imageVector = Icons.Default.Download,
-                                contentDescription = stringResource(R.string.autocomplete_epub),
-                                tint = Color.White
-                            )
+                        if (!state.bookDraft.isPhysical) {
+                            IconButton(onClick = { showImportDialog = true }) {
+                                Icon(
+                                    imageVector = Icons.Default.Download,
+                                    contentDescription = stringResource(R.string.autocomplete_epub),
+                                    tint = Color.White
+                                )
+                            }
                         }
                     }
                 )
@@ -415,14 +418,20 @@ fun AddBookContent(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(IntrinsicSize.Min),
+                    .then(
+                        if (state.bookDraft.isPhysical) Modifier
+                        else Modifier.height(IntrinsicSize.Min)
+                    ),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.Top
             ) {
                 Box(
                     modifier = Modifier
                         .width(110.dp)
-                        .fillMaxHeight()
+                        .then(
+                            if (state.bookDraft.isPhysical) Modifier.aspectRatio(0.7f)
+                            else Modifier.fillMaxHeight()
+                        )
                 ) {
                     if (!state.bookDraft.coverUrl.isNullOrBlank()) {
                         AsyncImage(
@@ -457,71 +466,95 @@ fun AddBookContent(
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .fillMaxHeight(),
+                        .then(
+                            if (state.bookDraft.isPhysical) Modifier
+                            else Modifier.fillMaxHeight()
+                        ),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f),
-                        shape = RoundedCornerShape(20.dp),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(12.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
+                    if (!state.bookDraft.isPhysical) {
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(20.dp),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                         ) {
-                            Icon(
-                                Icons.Default.UploadFile,
-                                contentDescription = null,
-                                modifier = Modifier.size(32.dp),
-                                tint = MaterialTheme.colorScheme.secondary
-                            )
+                            Column(
+                                modifier = Modifier.padding(12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.UploadFile,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(32.dp),
+                                    tint = MaterialTheme.colorScheme.secondary
+                                )
 
-                            Text(
-                                text = stringResource(R.string.reading_file),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                                Text(
+                                    text = stringResource(R.string.reading_file),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
 
-                            val fileName = getFileNameFromUri(context, state.bookDraft.localFilePath)
-                            Text(
-                                text = fileName,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                maxLines = 1,
-                                textAlign = TextAlign.Center
-                            )
+                                val fileName =
+                                    getFileNameFromUri(context, state.bookDraft.localFilePath)
+                                Text(
+                                    text = fileName,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    textAlign = TextAlign.Center
+                                )
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                                Spacer(modifier = Modifier.height(8.dp))
 
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                OutlinedButton(
-                                    onClick = {
-                                        basicDocumentLauncher.launch(arrayOf("application/epub+zip"))
-                                    },
-                                    modifier = Modifier
-                                        .height(30.dp)
-                                        .weight(1f),
-                                    shape = RoundedCornerShape(8.dp),
-                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
-                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.secondary),
-                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp)
-                                ) {
-                                    Text(
-                                        text = if (state.bookDraft.localFilePath == null) stringResource(R.string.select) else stringResource(R.string.change),
-                                        style = MaterialTheme.typography.labelMedium
-                                    )
-                                }
-
-                                if (state.bookDraft.localFilePath != null) {
-                                    IconButton(
-                                        onClick = { onEvent(AddBookEvent.OnLocalFilePathChanged(null)) },
-                                        modifier = Modifier.size(30.dp)
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    OutlinedButton(
+                                        onClick = {
+                                            basicDocumentLauncher.launch(arrayOf("application/epub+zip"))
+                                        },
+                                        modifier = Modifier
+                                            .height(30.dp)
+                                            .weight(1f),
+                                        shape = RoundedCornerShape(8.dp),
+                                        border = BorderStroke(
+                                            1.dp,
+                                            MaterialTheme.colorScheme.secondary
+                                        ),
+                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.secondary),
+                                        contentPadding = PaddingValues(
+                                            horizontal = 16.dp,
+                                            vertical = 0.dp
+                                        )
                                     ) {
-                                        Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.remove_file), tint = MaterialTheme.colorScheme.error)
+                                        Text(
+                                            text = if (state.bookDraft.localFilePath == null) stringResource(
+                                                R.string.select
+                                            ) else stringResource(R.string.change),
+                                            style = MaterialTheme.typography.labelMedium
+                                        )
+                                    }
+
+                                    if (state.bookDraft.localFilePath != null) {
+                                        IconButton(
+                                            onClick = {
+                                                onEvent(
+                                                    AddBookEvent.OnLocalFilePathChanged(
+                                                        null
+                                                    )
+                                                )
+                                            },
+                                            modifier = Modifier.size(30.dp)
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Delete,
+                                                contentDescription = stringResource(R.string.remove_file),
+                                                tint = MaterialTheme.colorScheme.error
+                                            )
+                                        }
                                     }
                                 }
                             }

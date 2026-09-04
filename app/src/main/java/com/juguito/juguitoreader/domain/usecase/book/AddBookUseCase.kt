@@ -3,6 +3,7 @@ package com.juguito.juguitoreader.domain.usecase.book
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.exception.JuguitoException
 import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.domain.model.withoutEpubIfPhysical
 import com.juguito.juguitoreader.domain.repository.BookRepository
 import com.juguito.juguitoreader.domain.repository.FolderRepository
 import com.juguito.juguitoreader.domain.repository.GenreRepository
@@ -23,8 +24,9 @@ class AddBookUseCase @Inject constructor(
         return try {
             val folderIds = resolveFolderIds(book.folders, folderRepository)
             val genreIds = resolveGenreIds(book.genres, genreRepository)
+            val toSave = book.withoutEpubIfPhysical()
 
-            bookRepository.insertBookWithCrossRefs(book, folderIds, genreIds)
+            bookRepository.insertBookWithCrossRefs(toSave, folderIds, genreIds)
 
             Result.success(Unit)
         } catch (e: Exception) {

@@ -173,6 +173,29 @@ class AddBookViewModelTest {
     }
 
     @Test
+    fun `onEvent OnSaveClick physical does not promote leftover epub`() = runTest {
+        val epubUri = mockk<Uri>(relaxed = true)
+        every { epubUri.toString() } returns "content://picker/book.epub"
+        viewModel.onEvent(AddBookEvent.OnTitleChanged("T"))
+        viewModel.onEvent(AddBookEvent.OnAuthorChanged("A"))
+        viewModel.onEvent(AddBookEvent.OnEpubFilePicked(epubUri))
+        viewModel.onEvent(AddBookEvent.OnIsPhysicalChanged(true))
+        every {
+            FileUtils.promotePendingFiles(application, null, null)
+        } returns PromotedBookFiles(epubPath = null, coverPath = null)
+        coEvery { addBookUseCase(any()) } returns Result.success(Unit)
+
+        viewModel.onEvent(AddBookEvent.OnSaveClick)
+
+        verify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
+            FileUtils.promotePendingFiles(application, null, null)
+        }
+        coVerify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
+            addBookUseCase(match { it.isPhysical && it.localFilePath == null })
+        }
+    }
+
+    @Test
     fun `onEvent OnSaveClick shows snackbar and rolls back when addBook fails`() = runTest {
         viewModel.onEvent(AddBookEvent.OnTitleChanged("T"))
         viewModel.onEvent(AddBookEvent.OnAuthorChanged("A"))

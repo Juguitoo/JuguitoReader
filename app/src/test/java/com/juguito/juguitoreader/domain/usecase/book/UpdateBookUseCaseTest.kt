@@ -155,6 +155,62 @@ class UpdateBookUseCaseTest {
     }
 
     @Test
+    fun `invoke with physical leftover epub strips path without resetting reading data`() = runTest {
+        coEvery { bookRepository.getBookById(1) } returns Book(
+            id = 1,
+            title = "Persisted",
+            author = "Author",
+            isPhysical = false,
+            localFilePath = "old.epub",
+        )
+        val book = Book(
+            id = 1,
+            title = "T",
+            author = "A",
+            isPhysical = true,
+            localFilePath = "old.epub",
+        )
+        coEvery { bookRepository.updateBookWithCrossRefs(any(), any(), any()) } returns Unit
+
+        val result = useCase(book)
+
+        assertThat(result.isSuccess).isTrue()
+        coVerify {
+            bookRepository.updateBookWithCrossRefs(
+                match { it.isPhysical && it.localFilePath == null },
+                emptyList(),
+                emptyList(),
+            )
+        }
+        coVerify(exactly = 0) { bookRepository.updateBookWithNewEpub(any(), any(), any()) }
+    }
+
+    @Test
+    fun `invoke clearing digital epub does not reset reading data`() = runTest {
+        coEvery { bookRepository.getBookById(1) } returns Book(
+            id = 1,
+            title = "Persisted",
+            author = "Author",
+            isPhysical = false,
+            localFilePath = "old.epub",
+        )
+        val book = Book(
+            id = 1,
+            title = "T",
+            author = "A",
+            isPhysical = false,
+            localFilePath = null,
+        )
+        coEvery { bookRepository.updateBookWithCrossRefs(any(), any(), any()) } returns Unit
+
+        val result = useCase(book)
+
+        assertThat(result.isSuccess).isTrue()
+        coVerify { bookRepository.updateBookWithCrossRefs(book, emptyList(), emptyList()) }
+        coVerify(exactly = 0) { bookRepository.updateBookWithNewEpub(any(), any(), any()) }
+    }
+
+    @Test
     fun `invoke returns failure when persisted book does not exist`() = runTest {
         coEvery { bookRepository.getBookById(1) } returns null
 
