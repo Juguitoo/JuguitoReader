@@ -281,7 +281,11 @@ fun LibraryContent(
                                     items(state.filteredBooks, key = { it.id }) { book ->
                                         BookGridItem(
                                             book = book,
-                                            onClick = { onNavigateToReadBook(book.id) },
+                                            onClick = {
+                                                val canOpenReader = !book.isPhysical && !book.localFilePath.isNullOrBlank()
+                                                if (canOpenReader) onNavigateToReadBook(book.id)
+                                                else onNavigateToBookDetail(book.id)
+                                            },
                                             onDetailClick = { onNavigateToBookDetail(book.id) },
                                             onStatusChange = { newStatus ->
                                                 onEvent(

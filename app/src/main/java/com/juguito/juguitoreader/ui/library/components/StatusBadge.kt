@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.sp
 import com.juguito.juguitoreader.domain.enums.BookStatus
 
 @Composable
-fun StatusBadge(status: BookStatus, percentage: Int, modifier: Modifier = Modifier) {
+fun StatusBadge(status: BookStatus, percentage: Int?, modifier: Modifier = Modifier) {
     if (status == BookStatus.PENDING) return
 
     val color = when (status) {
@@ -44,7 +44,7 @@ fun StatusBadge(status: BookStatus, percentage: Int, modifier: Modifier = Modifi
                 letterSpacing = 1.sp
             )
 
-            if (status == BookStatus.READING) {
+            if (status == BookStatus.READING && percentage != null) {
                 Text(
                     text = "${percentage}%",
                     color = Color.White.copy(alpha = 0.75f),

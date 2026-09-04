@@ -72,6 +72,7 @@
     <string name="search_library_hint">Buscar en mi biblioteca…</string>
     <string name="all_books">Todos los libros</string>
     <string name="clear_search">Limpiar búsqueda</string>
+    <string name="physical_badge">Físico</string>
 
     <!-- Management -->
     <string name="content_manager">Gestor de contenido</string>

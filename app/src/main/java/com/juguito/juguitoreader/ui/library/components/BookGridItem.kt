@@ -22,6 +22,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +42,8 @@ import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.ui.common.toUiText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.sp
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BookGridItem(
@@ -89,9 +92,31 @@ fun BookGridItem(
                 }
             }
 
+            if (book.isPhysical) {
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(6.dp),
+                    shape = RoundedCornerShape(4.dp),
+                    color = MaterialTheme.colorScheme.tertiaryContainer,
+                    shadowElevation = 2.dp
+                ) {
+                    Text(
+                        text = stringResource(R.string.physical_badge).uppercase(),
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        color = MaterialTheme.colorScheme.onTertiaryContainer,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 9.sp,
+                        letterSpacing = 0.5.sp,
+                        maxLines = 1
+                    )
+                }
+            }
+
             StatusBadge(
                 status = book.status,
-                percentage = book.readingProgress?.percentage ?: 0,
+                percentage = if (!book.isPhysical) book.readingProgress?.percentage ?: 0 else null,
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
 

@@ -72,6 +72,7 @@
     <string name="search_library_hint">Search in my library…</string>
     <string name="all_books">All Books</string>
     <string name="clear_search">Clear search</string>
+    <string name="physical_badge">Physical</string>
 
     <!-- Management -->
     <string name="content_manager">Content Manager</string>
