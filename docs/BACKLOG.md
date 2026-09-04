@@ -8,7 +8,6 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 
 | Versión | ID | Tarea | Tipo | Estado | Ref |
 |---------|-----|-------|------|--------|-----|
-| v1.2.0 | UX-004 | Snackbar carpeta: resolver `folder_created` a string | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-025 | Flag físico: ocultar / no exigir UI de EPUB | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | FILE-009 | Undo Home: confirmar el pending antes del siguiente delete | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | DATA-013 | BookDetail delete: respetar `Result.failure` | Fix | `[ ]` | KNOWN_ISSUES |
