@@ -8,7 +8,6 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 
 | Versión | ID | Tarea | Tipo | Estado | Ref |
 |---------|-----|-------|------|--------|-----|
-| v1.2.0 | FILE-009 | Undo Home: confirmar el pending antes del siguiente delete | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | DATA-013 | BookDetail delete: respetar `Result.failure` | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-005 | Registry: pintar error de carga (no empty) | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-007 | Snackbar import EPUB → `strings.xml` | Fix | `[ ]` | KNOWN_ISSUES |

@@ -129,12 +129,12 @@ Aparece en Registry y Library pero no en listas de lectura de Home (filtra `!isP
 
 ```
 HomeViewModel → DeleteBookUseCase (BD inmediato)
-  → Snackbar con undo
-  → confirmPending: borra archivos (cover, EPUB)
-  → undoPending: AddBookUseCase restaura
+  → pendingUndoBookId (StateFlow) → Snackbar en LaunchedEffect
+  → nuevo delete: confirmPending del anterior (ficheros) + sustituye pending
+  → confirm: borra archivos (cover, EPUB); undo: RestoreDeletedBookUseCase
 ```
 
-Ver `common/ActionUndoManager.kt`.
+El undo de delete es estado (ventana viva), no `UiEffect` one-shot. Ver `common/ActionUndoManager.kt`.
 
 ## Navegación
 
