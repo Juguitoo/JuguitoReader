@@ -219,13 +219,13 @@ fun JuguitoApp() {
                 composable(route = "home") { backStackEntry ->
                     val savedStateHandle = backStackEntry.savedStateHandle
                     val snackbarMessage by savedStateHandle
-                        .getStateFlow<String?>("snackbar_result", null)
+                        .getStateFlow<Int?>("snackbar_result", null)
                         .collectAsState()
 
                     HomeScreen(
                         snackbarMessage = snackbarMessage,
                         onClearSnackbarMessage = {
-                            savedStateHandle.remove<String>("snackbar_result")
+                            savedStateHandle.remove<Int>("snackbar_result")
                         },
                         onOpenDrawer = { scope.launch { drawerState.open() } },
                         onNavigateToAddBook = {
@@ -256,7 +256,7 @@ fun JuguitoApp() {
                         onFolderSavedSuccessfully = {
                             navController.previousBackStackEntry
                                 ?.savedStateHandle
-                                ?.set("snackbar_result", "folder_created")
+                                ?.set("snackbar_result", R.string.folder_created)
                             navController.popBackStack()
                         }
                     )
@@ -271,7 +271,7 @@ fun JuguitoApp() {
                         onFolderSavedSuccessfully = {
                             navController.previousBackStackEntry
                                 ?.savedStateHandle
-                                ?.set("snackbar_result", "folder_created")
+                                ?.set("snackbar_result", R.string.folder_updated)
                             navController.popBackStack()
                         }
                     )
@@ -280,13 +280,13 @@ fun JuguitoApp() {
                 composable(route = "management") { backStackEntry ->
                     val savedStateHandle = backStackEntry.savedStateHandle
                     val snackbarMessage by savedStateHandle
-                        .getStateFlow<String?>("snackbar_result", null)
+                        .getStateFlow<Int?>("snackbar_result", null)
                         .collectAsState()
 
                     ManagementScreen(
                         managementMessage = snackbarMessage,
                         onClearManagementMessage = {
-                            savedStateHandle.remove<String>("snackbar_result")
+                            savedStateHandle.remove<Int>("snackbar_result")
                         },
                         onNavigateBack = { navController.popBackStack() },
                         onNavigateToEditFolder = { folderId ->

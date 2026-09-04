@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
+import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.common.components.EmptyLibraryView
 import com.juguito.juguitoreader.ui.components.ErrorView
@@ -61,7 +62,7 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    snackbarMessage: String?,
+    snackbarMessage: Int?,
     onClearSnackbarMessage: () -> Unit,
     onNavigateToAddBook: () -> Unit,
     onNavigateToBookDetail: (Int) -> Unit,
@@ -93,7 +94,7 @@ fun HomeContent(
     modifier: Modifier = Modifier,
     state: HomeUiState,
     isImporting: Boolean = false,
-    snackbarMessage: String?,
+    snackbarMessage: Int?,
     onClearSnackbarMessage: () -> Unit,
     onNavigateToAddBook: () -> Unit,
     onNavigateToBookDetail: (Int) -> Unit,
@@ -115,7 +116,7 @@ fun HomeContent(
 
     LaunchedEffect(snackbarMessage) {
         snackbarMessage?.let { message ->
-            snackbarHostState.showSnackbar(message)
+            snackbarHostState.showSnackbar(UiText.StringResource(message).asString(context))
             onClearSnackbarMessage()
         }
     }

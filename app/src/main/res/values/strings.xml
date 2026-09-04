@@ -262,6 +262,7 @@
     <string name="create_genre">Crear género</string>
     <string name="all">Todos</string>
     <string name="folder_created">Carpeta creada con éxito</string>
+    <string name="folder_updated">Carpeta editada con éxito</string>
     <string name="your_personal_library">Tu biblioteca personal</string>
     <string name="standard">Estándar</string>
     <string name="deep">Intenso</string>

@@ -262,6 +262,7 @@
     <string name="create_genre">Create genre</string>
     <string name="all">All</string>
     <string name="folder_created">Folder created successfully</string>
+    <string name="folder_updated">Folder updated successfully</string>
     <string name="your_personal_library">Your personal library</string>
     <string name="standard">Standard</string>
     <string name="deep">Deep</string>

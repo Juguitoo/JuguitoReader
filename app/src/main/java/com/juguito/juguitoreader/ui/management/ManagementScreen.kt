@@ -77,6 +77,7 @@ import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.model.Genre
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
+import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.JuguitoDialog
 import com.juguito.juguitoreader.ui.genre.AddGenreDialog
@@ -86,7 +87,7 @@ import kotlinx.coroutines.flow.Flow
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManagementScreen(
-    managementMessage: String? = null,
+    managementMessage: Int? = null,
     onClearManagementMessage: () -> Unit,
     onNavigateBack: () -> Unit,
     onNavigateToEditFolder: (Int) -> Unit,
@@ -112,7 +113,7 @@ fun ManagementScreen(
 fun ManagementContent(
     state: ManagementUiState,
     onEvent: (ManagementEvent) -> Unit,
-    managementMessage: String?,
+    managementMessage: Int?,
     onClearManagementMessage: () -> Unit,
     onNavigateBack: () -> Unit,
     onNavigateToEditFolder: (Int) -> Unit,
@@ -125,7 +126,7 @@ fun ManagementContent(
 
     LaunchedEffect(managementMessage) {
         managementMessage?.let {
-            snackbarHostState.showSnackbar(it)
+            snackbarHostState.showSnackbar(UiText.StringResource(it).asString(context))
             onClearManagementMessage()
         }
     }
