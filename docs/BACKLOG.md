@@ -4,10 +4,50 @@ Fuente única de **trabajo activo**. Histórico cerrado en [archive/](archive/).
 
 **Leyenda:** `[ ]` pendiente · `[~]` en progreso · `[x]` hecho (al cerrar → mover a archive y quitar de aquí)
 
-Orden: versión más próxima → más lejana. Una sola tabla.
+Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no asignada.
 
 | Versión | ID | Tarea | Tipo | Estado | Ref |
 |---------|-----|-------|------|--------|-----|
+| v1.2.0 | FILE-006 | Rollback de promote no debe borrar EPUB/cover ya internos | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | FILE-007 | Promover cover de `cacheDir` al guardar (Add Book import EPUB) | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | FILE-008 | Rollback de cover si falla el copy del EPUB (`persistFiles=true`) | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | UX-003 | Library: físico / sin EPUB → detalle, no lector | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | UX-004 | Snackbar carpeta: resolver `folder_created` a string | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | UX-025 | Flag físico: ocultar / no exigir UI de EPUB | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | FILE-009 | Undo Home: confirmar el pending antes del siguiente delete | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | DATA-013 | BookDetail delete: respetar `Result.failure` | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | UX-005 | Registry: pintar error de carga (no empty) | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | UX-007 | Snackbar import EPUB → `strings.xml` | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | UX-009 | Orden de saga: permitir decimales | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | UX-010 | Settings: labels de tema lector i18n | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | UX-018 | Home: empty/cta si solo hay físicos o sin EPUB | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | UX-019 | Library Empty: sheet de carpetas usable o oculto | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | UX-021 | Detail: error de libro missing correcto + i18n | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | FILE-010 | Home confirm delete: `deleteReaderCache` | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | FILE-013 | Back en edit: discard staging | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | FILE-017 | Validar digital-con-fichero / físico-sin-lector | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | READER-021 | ETA del lector con WPM real (sesión/día) | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | DATA-014 | Merge WPM diario en Long para evitar overflow | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | DATA-016 | `getAllGenreNames()` suspend | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | FILE-011 | `takePersistableUriPermission` en `runCatching` (o quitar) | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | DATA-011 | Bloquear drawer en add/update; no resucitar carpeta/género al guardar | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | UX-008 | Registry: ordenar columna Inicio por la fecha de la celda (`startDate`) | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | UX-015 | Home delete: no disparar `onEvent` en composition | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | UX-017 | Registry LazyColumn: `key = { it.id }` | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | FILE-012 | Cleanup staging cámara / FileProvider | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | FILE-015 | Gate de Save/import contra doble tap | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | DATA-017 | Unique name: constraint (residual si DATA-011 cierra el hueco) | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | DATA-010 | `updateBookWithCrossRefs` en `withTransaction` | Fix | `[ ]` | KNOWN_ISSUES |
+| — | READER-016 | No descartar sesión/WPM en pausas ≤60s | Fix | `[ ]` | KNOWN_ISSUES |
+| — | UX-011 | Drawer: `launchSingleTop` / `popUpTo` | Fix | `[ ]` | KNOWN_ISSUES |
+| — | UX-012 | Poder limpiar fechas inicio/fin | Fix | `[ ]` | KNOWN_ISSUES |
+| — | UX-013 | DatePicker: medianoche UTC del día local | Fix | `[ ]` | KNOWN_ISSUES |
+| — | UX-020 | Cancel edit Detail no debe tirar drafts del tab Registry | Fix | `[ ]` | KNOWN_ISSUES |
+| — | READER-019 | Capítulos no scrolleables: reportar 100 % | Fix | `[ ]` | KNOWN_ISSUES |
+| — | UX-023 | Ocultar overscroll en primer/último capítulo | Fix | `[ ]` | KNOWN_ISSUES |
+| — | UX-024 | Barra de controles con scroll intra-capítulo | Fix | `[ ]` | KNOWN_ISSUES |
+| — | SEC-004 | Acotar `AndroidBridge` (no fiar WPM a JS del EPUB) | Fix | `[ ]` | KNOWN_ISSUES |
+| — | READER-017 | Ignorar eventos JS del capítulo anterior | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.1 | TAR-57 | Pantalla About (licencia, creador, créditos p. ej. icono) | Feat | `[ ]` | ROADMAP |
 | v1.2.1 | TAR-58 | Changelog / novedades in-app por versión | Feat | `[ ]` | ROADMAP |
 | v1.2.2 | TAR-59 | Export / import manual de datos (backup local; gate producción Play) | Feat | `[ ]` | ROADMAP |

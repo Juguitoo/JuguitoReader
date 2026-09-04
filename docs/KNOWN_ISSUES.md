@@ -8,18 +8,68 @@ Consultar antes de tocar Room, reader, importación o relaciones M:N.
 
 ## Issues abiertos
 
-Una sola tabla, orden de introducción. Si el comentario se queda corto, detalle bajo la tabla e indicarlo con un (1) o el número que le siga al ultimo detalle.
+Una sola tabla. Orden: target v1.2.0 → sin versión (`—`) → diferidos. Si el comentario se queda corto, detalle bajo la tabla e indicarlo con un (1) o el número que le siga al último detalle.
 
 
-| ID         | Título               | Severidad | Estado   | Target | Comentario                                                                                                                                | Relacionado        |
-| ---------- | -------------------- | --------- | -------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| READER-008 | TOC con `#fragment`  | Medio     | Diferido | v1.4.0 | `chapter.xhtml#section2` no matchea bien con spine por nombre final → TOC ambigua. Limitación del lector EPUB2 actual; no bloquea v1.2.x. | TAR-31, READER-009 |
-| READER-009 | EPUB3 nav incompleto | Medio     | Diferido | v1.4.0 | NCX parseado; falta soporte completo del HTML Navigation Document (`properties="nav"`). Muchos EPUB3 siguen vía NCX o índice desde spine. | TAR-31, TAR-32     |
+| ID         | Título                                                                  | Severidad | Estado   | Target | Comentario                                                                                                                                     | Relacionado        |
+| ---------- | ----------------------------------------------------------------------- | --------- | -------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| FILE-006   | Rollback de `promotePendingFiles` borra ficheros ya internos            | Alto      | Abierto  | v1.2.0 | Si el EPUB/cover ya está en `filesDir` y falla el otro promote, el `catch` borra el path existente. (1)                                        | FILE-007           |
+| FILE-007   | Cover en `cacheDir` no se promueve al guardar                           | Alto      | Abierto  | v1.2.0 | Add Book importa EPUB con `persistFiles=false`; la cover queda en caché y `promotePendingFiles` solo acepta `filesDir`. (2)                    | FILE-006           |
+| FILE-008   | Cover huérfana si falla el copy del EPUB                                | Medio     | Abierto  | v1.2.0 | Import Home/Library (`persistFiles=true`): cover a `filesDir` y luego copy EPUB. Si el copy falla, no hay rollback de la cover.                | FILE-007           |
+| UX-003     | Library abre el lector en físico / sin EPUB                             | Alto      | Abierto  | v1.2.0 | El grid llama siempre a `onNavigateToReadBook`. Home sí filtra. El lector exige path y puede mostrar `error_epub_not_found` crudo.             | FILE-017, UX-025   |
+| UX-004     | Snackbar de carpeta muestra la clave cruda                              | Alto      | Abierto  | v1.2.0 | `snackbar_result = "folder_created"` se pinta literal, también tras editar.                                                                    | UX-007             |
+| UX-025     | Flag físico no oculta la UI de EPUB                                     | Bajo      | Abierto  | v1.2.0 | Se puede adjuntar EPUB a un físico; Library sigue “leyendo”.                                                                                   | FILE-017, UX-003   |
+| FILE-009   | Undo de Home de un solo hueco                                           | Alto      | Abierto  | v1.2.0 | Segundo delete antes de dismiss pisa el pending: ficheros del primero huérfanos; undo aplica al segundo.                                       | FILE-010           |
+| DATA-013   | BookDetail delete ignora `Result.failure`                               | Medio     | Abierto  | v1.2.0 | `DeleteBookUseCase` no lanza; `runCatching` trata el `Result` como éxito → borra ficheros y pop. (3)                                           | FILE-009           |
+| UX-005     | Error de carga en Registry parece lista vacía                           | Medio     | Abierto  | v1.2.0 | `errorMessage` se setea y no se lee en la UI.                                                                                                  |                    |
+| UX-007     | Snackbar de import EPUB hardcodeado en ES                               | Medio     | Abierto  | v1.2.0 | Add Book: `DynamicString("Datos importados correctamente.")`.                                                                                  | UX-004, UX-010     |
+| UX-009     | Orden de saga rechaza decimales                                         | Medio     | Abierto  | v1.2.0 | `all { it.isDigit() }` bloquea `1.5`; el modelo es `Double`.                                                                                   |                    |
+| UX-010     | Temas del lector en Settings en inglés                                  | Medio     | Abierto  | v1.2.0 | Labels via `enum.name` (Sepia/Day/Night), no `strings.xml`.                                                                                    | UX-007             |
+| UX-018     | Home “estantería vacía” con solo físicos / sin EPUB                     | Medio     | Abierto  | v1.2.0 | Success con listas vacías (filtro digital+path); no Empty ni explicación.                                                                      | UX-003             |
+| UX-019     | Sheet de carpetas muerta en Library Empty                               | Bajo      | Abierto  | v1.2.0 | `FolderSelectorRow` visible en Empty; el sheet solo si `Success`.                                                                              |                    |
+| UX-021     | Libro inexistente: error engañoso / hardcode ES                         | Medio     | Abierto  | v1.2.0 | Null → `error_epub_not_found`. Fallo de carga → `"Error al cargar el libro"`.                                                                  | UX-003             |
+| FILE-010   | Confirm de delete en Home no borra `cache/reader`                       | Bajo      | Abierto  | v1.2.0 | Detail sí llama `deleteReaderCache`.                                                                                                           | FILE-009           |
+| FILE-013   | Back en edit deja ficheros de staging                                   | Bajo      | Abierto  | v1.2.0 | Solo Close (`OnEditModeChanged(false)`) intenta cleanup.                                                                                       | FILE-012           |
+| FILE-017   | Digital sin fichero / físico con EPUB permitidos                        | Medio     | Abierto  | v1.2.0 | No hay validación `!isPhysical ⇒ path`. Combinado con UX-003 abre el lector roto.                                                              | UX-003, UX-025     |
+| READER-021 | ETA del lector fija a 250 WPM                                           | Bajo      | Abierto  | v1.2.0 | Ignora velocidad de sesión / diaria.                                                                                                           | TAR-19             |
+| DATA-014   | Overflow `Int` al fusionar WPM diario                                   | Bajo      | Abierto  | v1.2.0 | `readingSpeed * timeSpentMillis` en `Int` si el día es muy largo.                                                                              |                    |
+| DATA-016   | `GenreDAO.getAllGenreNames()` no es `suspend`                           | Bajo      | Abierto  | v1.2.0 | Query síncrona; `AddGenresUseCase` puede llamarla en Main.                                                                                     |                    |
+| FILE-011   | `takePersistableUriPermission` sin catch                                | Alto      | Abierto  | v1.2.0 | Tras el picker se llama siempre. Algunos providers no dan grant persistente → crash. Tras copiar a `filesDir` el persistable no hace falta.    |                    |
+| DATA-011   | Add/update dejan el draft expuesto (drawer) y pueden resucitar carpetas | Medio     | Abierto  | v1.2.0 | Bloquear el drawer (y otras rutas) mientras hay un add/update intermedio. Si un id del draft ya no existe, no insertar por nombre. (5)         | DATA-003, DATA-017 |
+| UX-008     | Columna Inicio del Registry ordena por `createdAt`                      | Medio     | Abierto  | v1.2.0 | Ordenar por la fecha que se ve en la celda (`startDate`), no por alta en la app.                                                               |                    |
+| UX-015     | Delete en Home como side-effect de composición                          | Medio     | Abierto  | v1.2.0 | `onEvent(OnDeleteBookClick)` corre en el cuerpo del Composable, no en `LaunchedEffect`. Puede dispararse dos veces.                            | FILE-009           |
+| UX-017     | Registry `LazyColumn` sin `key`                                         | Medio     | Abierto  | v1.2.0 | `items(filteredBooks)` sin `key = { it.id }`. El comentario en edición puede pegarse a otra fila al ordenar.                                   |                    |
+| FILE-012   | Staging de cámara no se limpia                                          | Bajo      | Abierto  | v1.2.0 | Draft guarda `content://` del FileProvider; `deleteStagingAsset` solo borra paths bajo `cacheDir`.                                             | FILE-013           |
+| FILE-015   | Save/import sin gate de doble tap                                       | Bajo      | Abierto  | v1.2.0 | Dos toques rápidos en Guardar pueden lanzar dos `saveBook()` en paralelo.                                                                      |                    |
+| DATA-017   | Unique name carpeta/género: check-then-insert                           | Bajo      | Abierto  | v1.2.0 | El caso del libro queda cubierto por DATA-011. Residual: dos altas de carpeta a la vez.                                                        | DATA-011           |
+| DATA-010   | `updateBookWithCrossRefs` sin transacción                               | Medio     | Abierto  | v1.2.0 | Insert sí es `withTransaction`; update no. Si falla el sync, el metadato ya está guardado.                                                     |                    |
+| READER-016 | Sesión / WPM se descartan en pausas ≤60s                                | Alto      | Abierto  | —      | `ON_PAUSE` resetea timer y palabras aunque no persista. Rotación no aplica (portrait lock); sí al ir a recents o abrir el diálogo de sesiones. |                    |
+| UX-011     | Drawer apila destinos duplicados                                        | Medio     | Abierto  | —      | Solo Home hace `popUpTo`. Library → Registry → Library hincha el back stack.                                                                   | DATA-011           |
+| UX-012     | No hay forma de limpiar fechas inicio/fin                               | Medio     | Abierto  | —      | Date picker solo Confirm/Cancel. Registry + Detail.                                                                                            | UX-013             |
+| UX-013     | DatePicker puede marcar el día incorrecto                               | Medio     | Abierto  | —      | `initialSelectedDateMillis = currentTimeMillis()` (instant), no medianoche UTC del día local.                                                  | UX-012             |
+| UX-020     | Cancelar edit en Detail tira drafts del tab Registry                    | Medio     | Abierto  | —      | El tab Registry edita sin `isEditMode`; Cancel restaura status/rating/fechas/comentario del `book`.                                            |                    |
+| READER-019 | Capítulos cortos no reportan progreso                                   | Medio     | Abierto  | —      | Sin scroll no hay `onscroll` → `scrollPosition` queda 0 aunque el capítulo quepa en pantalla.                                                  |                    |
+| UX-023     | Overscroll en primer/último capítulo                                    | Bajo      | Abierto  | —      | El affordance se pinta; `OnNext`/`OnPrevious` no-op fuera de rango.                                                                            |                    |
+| UX-024     | Barra de controles ignora scroll del capítulo                           | Bajo      | Abierto  | —      | `(chapterIndex+1)/spine.size` → “completo” al empezar el último.                                                                               | READER-019         |
+| SEC-004    | EPUB malicioso puede abusar de `AndroidBridge`                          | Medio     | Abierto  | —      | Residual SEC-001: JS del libro puede inflar WPM/progreso y cambiar de capítulo.                                                                | SEC-001            |
+| READER-017 | JS stale tras cambio de capítulo                                        | Alto      | Abierto  | —      | El debounce 500 ms del capítulo anterior puede llegar con el estado ya a scroll 0 / palabras 0. (4)                                            |                    |
+| READER-008 | TOC con `#fragment`                                                     | Medio     | Diferido | v1.4.0 | `chapter.xhtml#section2` no matchea bien con spine por nombre final → TOC ambigua.                                                             | TAR-31, READER-009 |
+| READER-009 | EPUB3 nav incompleto                                                    | Medio     | Diferido | v1.4.0 | NCX parseado; falta soporte completo del HTML Navigation Document (`properties="nav"`).                                                        | TAR-31, TAR-32     |
 
+
+### Detalle
+
+**(1) FILE-006.** El rollback debe borrar solo paths **recién copiados**, no los que ya vivían en `filesDir`.
+
+**(2) FILE-007.** Solo el flujo Add Book → importar EPUB → Guardar (Home/Library copian en caliente y no pisan esto).
+
+**(3) DATA-013.** Usar `result.fold` como Home. Borrar ficheros y `NavigateBack` solo en `Result.success`.
+
+**(4) READER-017.** Ejemplo: scroll cerca del final → overscroll al siguiente capítulo en menos de 500 ms → el timeout del HTML viejo manda `reportScrollPosition(1.0)` al capítulo nuevo (ya reseteado).
+
+**(5) DATA-011.** Decisión de producto: en pantallas add/update (libro, carpeta, etc.) no se abre el drawer ni se navega a otra vista dejando el formulario a medias. Complemento: si un id del draft ya no existe, omitir la relación, no `insert` por nombre. Con el drawer bloqueado, DATA-017 (resolve al guardar) deja de ser alcanzable.
 
 ---
-
-
 
 ## Anti-patrones (no reintroducir)
 
@@ -35,8 +85,6 @@ Instancias corregidas en v1.2.0 — detalle en [archive/v1.2.0.md](archive/v1.2.
 
 
 ---
-
-
 
 ## Cómo mantener
 
