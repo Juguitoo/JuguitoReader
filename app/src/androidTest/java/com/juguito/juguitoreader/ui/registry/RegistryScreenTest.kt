@@ -58,4 +58,29 @@ class RegistryScreenTest {
         composeTestRule.onNodeWithText("1984").assertIsDisplayed()
         composeTestRule.onNodeWithText("Orwell").assertIsDisplayed()
     }
+
+    @Test
+    fun registryScreen_shows_error_instead_of_empty_table() {
+        val state = RegistryUiState(
+            errorMessage = "Load failed",
+            isLoading = false
+        )
+
+        composeTestRule.setContent {
+            JuguitoReaderTheme {
+                RegistryContent(
+                    state = state,
+                    onEvent = {},
+                    onOpenDrawer = {},
+                    onNavigateToAddBook = {},
+                    onNavigateToBookDetail = {}
+                )
+            }
+        }
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        composeTestRule.onNodeWithText(context.getString(R.string.something_went_wrong)).assertIsDisplayed()
+        composeTestRule.onNodeWithText("Load failed").assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.retry)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.book_col), ignoreCase = true).assertDoesNotExist()
+    }
 }

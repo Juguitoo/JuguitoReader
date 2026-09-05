@@ -50,6 +50,7 @@ class RegistryViewModel @Inject constructor(
                     val filtered = books.applyCriteria(_uiState.value.criteria)
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
+                        errorMessage = null,
                         books = books,
                         filteredBooks = filtered
                     )
@@ -78,6 +79,12 @@ class RegistryViewModel @Inject constructor(
             }
             is RegistryEvent.OnCommentChanged -> {
                 updateBookField(event.bookId) { it.copy(comment = event.comment) }
+            }
+            is RegistryEvent.OnDismissError -> {
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = null
+                )
+                loadData()
             }
             
             // Eventos de Filtrado

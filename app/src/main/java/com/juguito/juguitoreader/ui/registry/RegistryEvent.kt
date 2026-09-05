@@ -10,6 +10,7 @@ sealed interface RegistryEvent{
     data class OnStatusChanged(val bookId: Int, val status: BookStatus): RegistryEvent
     data class OnStartDateChanged(val bookId: Int, val startDate: Long?): RegistryEvent
     data class OnEndDateChanged(val bookId: Int, val endDate: Long?): RegistryEvent
+    data object OnDismissError: RegistryEvent
 
     // Filtros y Búsqueda
     data class OnSearchTextChanged(val text: String): RegistryEvent

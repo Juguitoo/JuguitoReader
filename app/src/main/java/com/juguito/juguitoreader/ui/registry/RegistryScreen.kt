@@ -40,6 +40,7 @@ import com.juguito.juguitoreader.ui.common.toUiText
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.SortOption
+import com.juguito.juguitoreader.ui.components.ErrorView
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import java.text.SimpleDateFormat
 import java.util.*
@@ -162,6 +163,11 @@ fun RegistryContent(
         Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
             if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else if (state.errorMessage != null) {
+                ErrorView(
+                    message = state.errorMessage,
+                    onRetry = { onEvent(RegistryEvent.OnDismissError) }
+                )
             } else {
                 val horizontalScrollState = rememberScrollState()
 

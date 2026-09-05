@@ -2,6 +2,7 @@ package com.juguito.juguitoreader.ui.registry
 
 import android.app.Application
 import com.google.common.truth.Truth.assertThat
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.BookCriteria
@@ -13,6 +14,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -27,13 +29,16 @@ class RegistryViewModelTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
     private lateinit var viewModel: RegistryViewModel
-    private val application = mockk<Application>()
+    private val application = mockk<Application>(relaxed = true)
     private val getBooksUseCase = mockk<GetBooksUseCase>()
     private val updateBookUseCase = mockk<UpdateBookUseCase>()
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
+        every {
+            application.getString(R.string.something_went_wrong, *emptyArray())
+        } returns "Algo ha salido mal"
         every { getBooksUseCase() } returns flowOf(emptyList())
         viewModel = RegistryViewModel(application, getBooksUseCase, updateBookUseCase)
     }
@@ -83,5 +88,33 @@ class RegistryViewModelTest {
 
         viewModel.onEvent(RegistryEvent.OnClearFilters)
         assertThat(viewModel.uiState.value.criteria.series).isNull()
+    }
+
+    @Test
+    fun `loadData catch sets errorMessage and stops loading`() = runTest {
+        every { getBooksUseCase() } returns flow { throw RuntimeException("db down") }
+        viewModel = RegistryViewModel(application, getBooksUseCase, updateBookUseCase)
+
+        val state = viewModel.uiState.value
+        assertThat(state.isLoading).isFalse()
+        assertThat(state.errorMessage).isEqualTo("Algo ha salido mal")
+        assertThat(state.books).isEmpty()
+    }
+
+    @Test
+    fun `onEvent OnDismissError reloads books and clears error`() = runTest {
+        every { getBooksUseCase() } returns flow { throw RuntimeException("db down") }
+        viewModel = RegistryViewModel(application, getBooksUseCase, updateBookUseCase)
+        assertThat(viewModel.uiState.value.errorMessage).isEqualTo("Algo ha salido mal")
+
+        val book = Book(id = 1, title = "1984", author = "Orwell", isPhysical = true)
+        every { getBooksUseCase() } returns flowOf(listOf(book))
+
+        viewModel.onEvent(RegistryEvent.OnDismissError)
+
+        val state = viewModel.uiState.value
+        assertThat(state.errorMessage).isNull()
+        assertThat(state.isLoading).isFalse()
+        assertThat(state.books).containsExactly(book)
     }
 }
