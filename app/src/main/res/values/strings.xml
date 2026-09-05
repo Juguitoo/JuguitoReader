@@ -50,6 +50,7 @@
     <string name="change_cover">Cambiar portada</string>
     <string name="save_book">Guardar Libro</string>
     <string name="autocomplete_epub">Autocompletar con EPUB</string>
+    <string name="import_epub_successfull">Datos importados correctamente.</string>
 
     <!-- Book Detail -->
     <string name="edit_book">Editar Libro</string>

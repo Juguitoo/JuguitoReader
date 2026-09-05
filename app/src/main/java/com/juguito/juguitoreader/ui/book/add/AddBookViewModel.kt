@@ -246,7 +246,7 @@ class AddBookViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(isLoading = false)
                 _effect.send(
                     UiEffect.ShowSnackbar(
-                        message = UiText.DynamicString("Datos importados correctamente.")
+                        message = UiText.StringResource(R.string.import_epub_successfull)
                     )
                 )
             }.onFailure {

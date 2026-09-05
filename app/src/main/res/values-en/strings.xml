@@ -50,6 +50,7 @@
     <string name="change_cover">Change cover</string>
     <string name="save_book">Save Book</string>
     <string name="autocomplete_epub">Autofill with EPUB</string>
+    <string name="import_epub_successfull">Data imported successfully.</string>
 
     <!-- Book Detail -->
     <string name="edit_book">Edit Book</string>
