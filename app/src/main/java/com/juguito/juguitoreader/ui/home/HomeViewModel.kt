@@ -188,6 +188,7 @@ class HomeViewModel @Inject constructor(
                     it.book.localFilePath?.let { path ->
                         FileUtils.deleteFileFromInternalStorage(context, path)
                     }
+                    FileUtils.deleteReaderCache(context, it.book.id)
                 },
                 onUndo = {
                     restoreDeletedBookUseCase(it)

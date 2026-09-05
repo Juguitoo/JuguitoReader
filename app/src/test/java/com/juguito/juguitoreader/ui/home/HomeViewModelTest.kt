@@ -62,6 +62,7 @@ class HomeViewModelTest {
 
         viewModel = createViewModel()
         mockkObject(FileUtils)
+        every { FileUtils.deleteReaderCache(any(), any()) } returns true
     }
 
     @After
@@ -286,6 +287,7 @@ class HomeViewModelTest {
 
         coVerify { FileUtils.deleteFileFromInternalStorage(any(), "c") }
         coVerify { FileUtils.deleteFileFromInternalStorage(any(), "l") }
+        coVerify { FileUtils.deleteReaderCache(any(), 1) }
         assertThat(viewModel.pendingUndoBookId.value).isNull()
     }
 
