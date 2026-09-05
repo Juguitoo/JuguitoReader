@@ -187,6 +187,7 @@
     <string name="status_dropped">Dropped</string>
 
     <!-- Error/Empty Views -->
+    <string name="reader_night">Night</string>
     <string name="something_went_wrong">Something went wrong</string>
     <string name="empty_library_title">Your library is empty</string>
     <string name="empty_library_subtitle">Add your first book to start</string>
@@ -269,4 +270,6 @@
     <string name="standard">Standard</string>
     <string name="deep">Deep</string>
     <string name="selected_check">Selected</string>
+    <string name="reader_day">Day</string>
+    <string name="reader_sepia">Sepia</string>
 </resources>

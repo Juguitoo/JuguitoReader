@@ -186,6 +186,10 @@
     <string name="status_finished">Finalizado</string>
     <string name="status_dropped">Abandonado</string>
 
+    <string name="reader_day">Día</string>
+    <string name="reader_sepia">Sepia</string>
+    <string name="reader_night">Noche</string>
+
     <!-- Error/Empty Views -->
     <string name="something_went_wrong">Algo ha salido mal</string>
     <string name="empty_library_title">Tu biblioteca está vacía</string>

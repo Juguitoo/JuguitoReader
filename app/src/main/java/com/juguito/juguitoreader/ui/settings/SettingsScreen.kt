@@ -111,10 +111,9 @@ fun SettingsScreen(
                 SettingsSelectorRow(
                     icon = Icons.Default.AutoStories,
                     title = stringResource(R.string.reader_background),
-                    subtitle = state.readerTheme.name.lowercase()
-                        .replaceFirstChar { it.uppercase() },
+                    subtitle = state.readerTheme.toUiText().asString(),
                     options = ReaderTheme.entries.map {
-                        it to it.name.lowercase().replaceFirstChar { c -> c.uppercase() }
+                        it to it.toUiText().asString()
                     },
                     selectedOption = state.readerTheme,
                     onOptionSelected = { viewModel.onEvent(SettingsEvent.OnReaderThemeChanged(it)) }
