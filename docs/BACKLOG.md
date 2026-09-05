@@ -16,7 +16,6 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 | v1.2.0 | UX-008 | Registry: ordenar columna Inicio por la fecha de la celda (`startDate`) | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-015 | Home delete: no disparar `onEvent` en composition | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-017 | Registry LazyColumn: `key = { it.id }` | Fix | `[ ]` | KNOWN_ISSUES |
-| v1.2.0 | FILE-012 | Cleanup staging cámara / FileProvider | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | FILE-015 | Gate de Save/import contra doble tap | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | DATA-017 | Unique name: constraint (residual si DATA-011 cierra el hueco) | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | DATA-010 | `updateBookWithCrossRefs` en `withTransaction` | Fix | `[ ]` | KNOWN_ISSUES |
