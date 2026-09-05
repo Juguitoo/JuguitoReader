@@ -8,7 +8,6 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 
 | Versión | ID | Tarea | Tipo | Estado | Ref |
 |---------|-----|-------|------|--------|-----|
-| v1.2.0 | READER-021 | ETA del lector con WPM real (sesión/día) | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | DATA-014 | Merge WPM diario en Long para evitar overflow | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | DATA-016 | `getAllGenreNames()` suspend | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | FILE-011 | `takePersistableUriPermission` en `runCatching` (o quitar) | Fix | `[ ]` | KNOWN_ISSUES |
