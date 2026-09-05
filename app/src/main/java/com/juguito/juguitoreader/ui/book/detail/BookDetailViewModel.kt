@@ -134,8 +134,11 @@ class BookDetailViewModel @Inject constructor(
                 updateSuccessState { it.copy(bookDraft = it.bookDraft.copy(series = event.series)) }
             }
             is BookDetailEvent.OnSeriesOrderChanged -> {
-                if (event.seriesOrder.length <= 4 && event.seriesOrder.all { it.isDigit() }) {
-                    updateSuccessState { it.copy(bookDraft = it.bookDraft.copy(seriesOrder = event.seriesOrder)) }
+                val sanitizedInput = event.seriesOrder.replace(',', '.')
+                val decimalRegex = Regex("""^\d{0,2}(\.\d{0,2})?$""")
+
+                if (decimalRegex.matches(sanitizedInput)) {
+                    updateSuccessState { it.copy(bookDraft = it.bookDraft.copy(seriesOrder = sanitizedInput)) }
                 }
             }
             is BookDetailEvent.OnIsPhysicalChanged -> {

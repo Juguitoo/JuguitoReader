@@ -94,9 +94,11 @@ class AddBookViewModel @Inject constructor(
                 )
             }
             is AddBookEvent.OnSeriesOrderChanged -> {
-                if (event.seriesOrder.length <= 4 && event.seriesOrder.all { it.isDigit() }) {
+                val sanitizedInput = event.seriesOrder.replace(',', '.')
+                val decimalRegex = Regex("""^\d{0,2}(\.\d{0,2})?$""")
+                if (decimalRegex.matches(sanitizedInput)) {
                     _uiState.value = _uiState.value.copy(
-                        bookDraft = _uiState.value.bookDraft.copy(seriesOrder = event.seriesOrder)
+                        bookDraft = _uiState.value.bookDraft.copy(seriesOrder = sanitizedInput)
                     )
                 }
             }

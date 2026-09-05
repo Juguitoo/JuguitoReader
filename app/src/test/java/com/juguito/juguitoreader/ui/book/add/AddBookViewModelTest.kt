@@ -298,4 +298,28 @@ class AddBookViewModelTest {
 
         assertThat(viewModel.uiState.value.isLoading).isFalse()
     }
+
+    @Test
+    fun `onEvent OnSeriesOrderChanged allows decimals and rejects invalid input`() = runTest {
+        viewModel.onEvent(AddBookEvent.OnSeriesOrderChanged("1.5"))
+        assertThat(viewModel.uiState.value.bookDraft.seriesOrder).isEqualTo("1.5")
+
+        viewModel.onEvent(AddBookEvent.OnSeriesOrderChanged("1,5"))
+        assertThat(viewModel.uiState.value.bookDraft.seriesOrder).isEqualTo("1.5")
+
+        viewModel.onEvent(AddBookEvent.OnSeriesOrderChanged("12.34"))
+        assertThat(viewModel.uiState.value.bookDraft.seriesOrder).isEqualTo("12.34")
+
+        viewModel.onEvent(AddBookEvent.OnSeriesOrderChanged("1."))
+        assertThat(viewModel.uiState.value.bookDraft.seriesOrder).isEqualTo("1.")
+
+        viewModel.onEvent(AddBookEvent.OnSeriesOrderChanged("12.345"))
+        assertThat(viewModel.uiState.value.bookDraft.seriesOrder).isEqualTo("1.")
+
+        viewModel.onEvent(AddBookEvent.OnSeriesOrderChanged("abc"))
+        assertThat(viewModel.uiState.value.bookDraft.seriesOrder).isEqualTo("1.")
+
+        viewModel.onEvent(AddBookEvent.OnSeriesOrderChanged("100"))
+        assertThat(viewModel.uiState.value.bookDraft.seriesOrder).isEqualTo("1.")
+    }
 }

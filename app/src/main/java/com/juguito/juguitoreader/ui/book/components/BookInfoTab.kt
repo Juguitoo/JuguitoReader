@@ -185,7 +185,7 @@ fun BookInfoTab(
                 OutlinedTextField(
                     value = draft.seriesOrder,
                     onValueChange = { onEvent(BookDetailEvent.OnSeriesOrderChanged(it)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
                     label = { Text(stringResource(R.string.series_order_label)) },
                     modifier = Modifier.width(90.dp),

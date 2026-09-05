@@ -343,7 +343,7 @@ fun AddBookContent(
                 OutlinedTextField(
                     value = state.bookDraft.seriesOrder,
                     onValueChange = { onEvent(AddBookEvent.OnSeriesOrderChanged(it)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
                     label = { Text(stringResource(R.string.series_order_label)) },
                     shape = RoundedCornerShape(12.dp)
