@@ -274,4 +274,6 @@
     <string name="standard">Estándar</string>
     <string name="deep">Intenso</string>
     <string name="selected_check">Seleccionado</string>
+    <string name="error_loading_data">Error al cargar los datos.</string>
+    <string name="error_book_not_found">Libro no encontrado</string>
 </resources>

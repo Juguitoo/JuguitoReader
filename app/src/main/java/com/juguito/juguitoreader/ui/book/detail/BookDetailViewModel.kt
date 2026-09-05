@@ -110,11 +110,11 @@ class BookDetailViewModel @Inject constructor(
                         availableGenres = availableGenres
                     )
                 } else {
-                    _uiState.value = BookDetailUiState.Error(StringResource(R.string.error_epub_not_found).asString(application))
+                    _uiState.value = BookDetailUiState.Error(StringResource(R.string.error_book_not_found).asString(application))
                 }
             }.onFailure { exception ->
                 exception.printStackTrace()
-                _uiState.value = BookDetailUiState.Error("Error al cargar el libro")
+                _uiState.value = BookDetailUiState.Error(StringResource(R.string.error_loading_data).asString(application))
             }
         }
     }

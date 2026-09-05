@@ -273,4 +273,6 @@
     <string name="selected_check">Selected</string>
     <string name="reader_day">Day</string>
     <string name="reader_sepia">Sepia</string>
+    <string name="error_loading_data">Error loading data</string>
+    <string name="error_book_not_found">Book not found</string>
 </resources>
