@@ -13,7 +13,6 @@ Una sola tabla. Orden: target v1.2.0 → sin versión (`—`) → diferidos. Si 
 
 | ID         | Título                                                                  | Severidad | Estado   | Target | Comentario                                                                                                                                     | Relacionado        |
 | ---------- | ----------------------------------------------------------------------- | --------- | -------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| UX-005     | Error de carga en Registry parece lista vacía                           | Medio     | Abierto  | v1.2.0 | `errorMessage` se setea y no se lee en la UI.                                                                                                  |                    |
 | UX-007     | Snackbar de import EPUB hardcodeado en ES                               | Medio     | Abierto  | v1.2.0 | Add Book: `DynamicString("Datos importados correctamente.")`.                                                                                  | UX-010             |
 | UX-009     | Orden de saga rechaza decimales                                         | Medio     | Abierto  | v1.2.0 | `all { it.isDigit() }` bloquea `1.5`; el modelo es `Double`.                                                                                   |                    |
 | UX-010     | Temas del lector en Settings en inglés                                  | Medio     | Abierto  | v1.2.0 | Labels via `enum.name` (Sepia/Day/Night), no `strings.xml`.                                                                                    | UX-007             |
@@ -48,8 +47,6 @@ Una sola tabla. Orden: target v1.2.0 → sin versión (`—`) → diferidos. Si 
 
 
 ### Detalle
-
-**(1) DATA-013.** Usar `result.fold` como Home. Borrar ficheros y `NavigateBack` solo en `Result.success`.
 
 **(2) READER-017.** Ejemplo: scroll cerca del final → overscroll al siguiente capítulo en menos de 500 ms → el timeout del HTML viejo manda `reportScrollPosition(1.0)` al capítulo nuevo (ya reseteado).
 

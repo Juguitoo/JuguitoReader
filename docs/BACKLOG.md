@@ -8,7 +8,6 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 
 | Versión | ID | Tarea | Tipo | Estado | Ref |
 |---------|-----|-------|------|--------|-----|
-| v1.2.0 | UX-005 | Registry: pintar error de carga (no empty) | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-007 | Snackbar import EPUB → `strings.xml` | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-009 | Orden de saga: permitir decimales | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-010 | Settings: labels de tema lector i18n | Fix | `[ ]` | KNOWN_ISSUES |
