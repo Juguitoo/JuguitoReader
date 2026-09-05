@@ -17,6 +17,7 @@ import com.juguito.juguitoreader.domain.usecase.readingProgress.AddReadingProgre
 import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgressByIdUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.UpdateReadingProgressUseCase
 import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.domain.exception.JuguitoException
 import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.asUiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
@@ -84,7 +85,6 @@ class ReaderViewModel @Inject constructor(
     private var sessionStartTimeMillis: Long = 0L
     private var isReaderResumed: Boolean = false
     internal var currentTimeProvider: () -> Long = { System.currentTimeMillis() }
-
     private var persistProgressJob: Job? = null
     private var lastPersistedProgress: ReadingProgress? = null
     internal var progressPersistDebounceMs: Long = PROGRESS_PERSIST_DEBOUNCE_MS
@@ -104,9 +104,9 @@ class ReaderViewModel @Inject constructor(
                 val initialTheme = runCatching { ReaderTheme.valueOf(themeStr) }.getOrDefault(ReaderTheme.SEPIA)
 
                 val book = getBookByIdUseCase.invoke(bookId)
-                    ?: throw Exception("error_epub_not_found")
+                    ?: throw JuguitoException(R.string.error_book_not_found)
                 val localPath = book.localFilePath
-                    ?: throw Exception("error_epub_not_found")
+                    ?: throw JuguitoException(R.string.error_epub_not_found)
 
                 val parseResult = parseEpubUseCase.invoke(bookId, localPath)
                 parseResult.fold(
@@ -284,7 +284,8 @@ class ReaderViewModel @Inject constructor(
         _internalState.value = currentState.copy(
             currentChapterIndex = newIndex,
             readingProgress = updatedProgress,
-            lastReportedChapterWords = 0
+            lastReportedChapterWords = 0,
+            timeRemaining = null
         )
 
         viewModelScope.launch {

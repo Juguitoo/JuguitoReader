@@ -24,6 +24,7 @@ import androidx.webkit.WebViewAssetLoader
 import com.juguito.juguitoreader.ui.reader.ReaderEvent
 import com.juguito.juguitoreader.ui.reader.ReaderTheme
 import com.juguito.juguitoreader.ui.reader.ReaderUiState
+import com.juguito.juguitoreader.utils.resolveWpm
 import java.io.File
 
 private const val JS_BRIDGE_NAME = "AndroidBridge"
@@ -33,7 +34,8 @@ private class WebViewHolder(
     var loader: WebViewAssetLoader,
     var baseDir: String,
     var theme: ReaderTheme,
-    var scrollPosition: Float
+    var scrollPosition: Float,
+    var wpm: Int
 ) {
     var isDestroyed: Boolean = false
     var pendingReveal: Runnable? = null
@@ -55,7 +57,8 @@ fun EpubWebView(
                 loader = createAssetLoader(context, state.epubContent.baseDir),
                 baseDir = state.epubContent.baseDir,
                 theme = state.theme,
-                scrollPosition = state.readingProgress.scrollPosition
+                scrollPosition = state.readingProgress.scrollPosition,
+                wpm = resolveWpm(state.bookSessions)
             )
 
             WebView(context).apply {
@@ -116,7 +119,7 @@ fun EpubWebView(
                         val script = listOf(
                             viewportScript(),
                             styleScript(holder.theme),
-                            behaviorScript(holder.scrollPosition)
+                            behaviorScript(holder.scrollPosition, holder.wpm)
                         ).joinToString(separator = "\n")
                         loadedView.evaluateJavascript(script) { revealStyledContent(loadedView, holder) }
                     }
@@ -168,8 +171,17 @@ fun EpubWebView(
                     webView.evaluateJavascript(themeScript(state.theme), null)
                 }
 
+                val newWpm = resolveWpm(state.bookSessions)
+                val wpmChanged = holder.wpm != newWpm
+                holder.wpm = newWpm
+
                 if (webView.url != state.currentChapterUrl) {
                     webView.loadUrl(state.currentChapterUrl)
+                } else if (wpmChanged) {
+                    webView.evaluateJavascript(
+                        "wpm = $newWpm; if (typeof updateReadingTime === 'function') updateReadingTime();",
+                        null
+                    )
                 }
 
                 if (webView.settings.textZoom != state.textZoom) {
@@ -287,10 +299,13 @@ private fun restoreScrollScript(scrollPosition: Float): String = """
         } else if (scrollableHeight > 0) {
             window.scrollTo(0, scrollableHeight * targetPos);
         }
+        if (typeof updateReadingTime === 'function') updateReadingTime();
     }, 100);
 """.trimIndent()
 
-private fun behaviorScript(scrollPosition: Float): String = """
+private fun behaviorScript(scrollPosition: Float, wpm: Int): String = """
+    var wpm = $wpm;
+
     function currentScrollPercent() {
         var scrollableHeight = document.body.scrollHeight - window.innerHeight;
         if (scrollableHeight <= 0) return 1.0;
@@ -306,21 +321,23 @@ private fun behaviorScript(scrollPosition: Float): String = """
     function updateReadingTime() {
         var totalWords = document.body.innerText.split(/\s+/).length;
         var scrollPercent = currentScrollPercent();
-        var minutesLeft = Math.ceil(totalWords * (1 - scrollPercent) / 250);
+        var minutesLeft = Math.ceil(totalWords * (1 - scrollPercent) / wpm);
 
         AndroidBridge.reportTimeRemaining(minutesLeft);
         AndroidBridge.reportWordsRead(Math.round(totalWords * scrollPercent));
     }
 
-    var scrollableHeight = document.body.scrollHeight - window.innerHeight;
     var targetPos = $scrollPosition;
-    if (targetPos > 1.1) {
-        window.scrollTo(0, targetPos);
-    } else if (scrollableHeight > 0) {
-        window.scrollTo(0, scrollableHeight * targetPos);
-    }
-
-    AndroidBridge.reportInitialWordsRead(currentWordsRead());
+    setTimeout(function() {
+        var scrollableHeight = document.body.scrollHeight - window.innerHeight;
+        if (targetPos > 1.1) {
+            window.scrollTo(0, targetPos);
+        } else if (scrollableHeight > 0) {
+            window.scrollTo(0, scrollableHeight * targetPos);
+        }
+        AndroidBridge.reportInitialWordsRead(currentWordsRead());
+        updateReadingTime();
+    }, 100);
 
     var scrollTimeout;
     window.onscroll = function() {

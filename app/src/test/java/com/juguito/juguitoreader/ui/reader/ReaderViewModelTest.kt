@@ -281,6 +281,27 @@ class ReaderViewModelTest {
     }
 
     @Test
+    fun `onEvent chapter navigation clears stale time remaining`() = runTest {
+        val epubContent = EpubContent(baseDir = "", spine = listOf("ch1", "ch2"), chaptersTree = emptyList())
+        coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
+        coEvery { updateReadingProgressUseCase(any()) } returns Result.success(Unit)
+
+        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.onEvent(ReaderEvent.OnTimeRemainingChanged(0))
+        viewModel.onEvent(ReaderEvent.OnNextChapter)
+
+        val state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.timeRemaining).isNull()
+        assertThat(state.currentChapterIndex).isEqualTo(1)
+
+        job.cancel()
+    }
+
+    @Test
     fun `onEvent OnScrollPositionChanged updates progress after debounce`() = runTest {
         val viewModel = loadReaderViewModel(useStandardDispatcher = true)
 
