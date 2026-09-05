@@ -8,11 +8,6 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 
 | Versión | ID | Tarea | Tipo | Estado | Ref |
 |---------|-----|-------|------|--------|-----|
-| v1.2.0 | UX-007 | Snackbar import EPUB → `strings.xml` | Fix | `[ ]` | KNOWN_ISSUES |
-| v1.2.0 | UX-009 | Orden de saga: permitir decimales | Fix | `[ ]` | KNOWN_ISSUES |
-| v1.2.0 | UX-010 | Settings: labels de tema lector i18n | Fix | `[ ]` | KNOWN_ISSUES |
-| v1.2.0 | UX-019 | Library Empty: sheet de carpetas usable o oculto | Fix | `[ ]` | KNOWN_ISSUES |
-| v1.2.0 | UX-021 | Detail: error de libro missing correcto + i18n | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | FILE-010 | Home confirm delete: `deleteReaderCache` | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | FILE-013 | Back en edit: discard staging | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | READER-021 | ETA del lector con WPM real (sesión/día) | Fix | `[ ]` | KNOWN_ISSUES |
