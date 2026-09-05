@@ -40,7 +40,6 @@ class BookDetailViewModel @Inject constructor(
     private val application: Application,
     private val getBookByIdUseCase: GetBookByIdUseCase,
     private val updateBookUseCase: UpdateBookUseCase,
-    private val getBookFromEpubUseCase: GetBookFromEpubUseCase,
     private val getFoldersUseCase: GetFoldersUseCase,
     private val getGenresUseCase: GetGenresUseCase,
     private val deleteBookUseCase: DeleteBookUseCase,
@@ -216,26 +215,29 @@ class BookDetailViewModel @Inject constructor(
                 val current = _uiState.value as? BookDetailUiState.Success ?: return
                 viewModelScope.launch {
                     updateSuccessState { it.copy(isActionLoading = true) }
-                    runCatching {
-                        deleteBookUseCase(current.book.id)
-                    }.onSuccess {
-                        updateSuccessState { it.copy(isActionLoading = false) }
-                        withContext(Dispatchers.IO) {
-                            if (current.book.localFilePath != null) deleteFileFromInternalStorage(
-                                application,
-                                current.book.localFilePath
-                            )
-                            if (current.book.coverUrl != null) deleteFileFromInternalStorage(
-                                application,
-                                current.book.coverUrl
-                            )
-                            FileUtils.deleteReaderCache(application, current.book.id)
+
+                    val result = deleteBookUseCase(current.book.id)
+                    result.fold(
+                        onSuccess = {
+                            updateSuccessState { it.copy(isActionLoading = false) }
+                            withContext(Dispatchers.IO) {
+                                if (current.book.localFilePath != null) deleteFileFromInternalStorage(
+                                    application,
+                                    current.book.localFilePath
+                                )
+                                if (current.book.coverUrl != null) deleteFileFromInternalStorage(
+                                    application,
+                                    current.book.coverUrl
+                                )
+                                FileUtils.deleteReaderCache(application, current.book.id)
+                            }
+                            _effect.send(UiEffect.NavigateBack)
+                        },
+                        onFailure = {
+                            updateSuccessState { it.copy(isActionLoading = false) }
+                            _effect.send(ShowSnackbar(StringResource(R.string.error_delete_book)))
                         }
-                        _effect.send(UiEffect.NavigateBack)
-                    }.onFailure {
-                        updateSuccessState { it.copy(isActionLoading = false) }
-                        _effect.send(ShowSnackbar(StringResource(R.string.error_delete_book)))
-                    }
+                    )
                 }
             }
         }

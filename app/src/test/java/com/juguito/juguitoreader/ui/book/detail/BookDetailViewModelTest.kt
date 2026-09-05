@@ -56,7 +56,6 @@ class BookDetailViewModelTest {
     private val application = mockk<Application>(relaxed = true)
     private val getBookByIdUseCase = mockk<GetBookByIdUseCase>()
     private val updateBookUseCase = mockk<UpdateBookUseCase>()
-    private val getBookFromEpubUseCase = mockk<GetBookFromEpubUseCase>()
     private val getFoldersUseCase = mockk<GetFoldersUseCase>()
     private val getGenresUseCase = mockk<GetGenresUseCase>()
     private val deleteBookUseCase = mockk<DeleteBookUseCase>()
@@ -90,7 +89,6 @@ class BookDetailViewModelTest {
             application,
             getBookByIdUseCase,
             updateBookUseCase,
-            getBookFromEpubUseCase,
             getFoldersUseCase,
             getGenresUseCase,
             deleteBookUseCase,
@@ -229,7 +227,6 @@ class BookDetailViewModelTest {
         val success = viewModel.uiState.value as BookDetailUiState.Success
         assertThat(success.bookDraft.localFilePath).isEqualTo("content://documents/book.epub")
         verify(exactly = 0) { FileUtils.saveEpubBookToInternalStorage(any(), any()) }
-        coVerify(exactly = 0) { getBookFromEpubUseCase(any(), any(), any()) }
     }
 
     @Test
@@ -468,7 +465,7 @@ class BookDetailViewModelTest {
     @Test
     fun `onEvent OnDeleteClick shows snackbar when delete throws`() = runTest {
         loadDigitalBook()
-        coEvery { deleteBookUseCase(1) } throws RuntimeException("delete failed")
+        coEvery { deleteBookUseCase(1) } returns Result.failure(JuguitoException(R.string.error_delete_book))
 
         viewModel.onEvent(BookDetailEvent.OnDeleteClick)
 
