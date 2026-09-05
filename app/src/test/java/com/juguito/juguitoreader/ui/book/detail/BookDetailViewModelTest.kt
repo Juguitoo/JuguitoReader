@@ -13,7 +13,6 @@ import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.model.Genre
 import com.juguito.juguitoreader.domain.usecase.book.DeleteBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBookByIdUseCase
-import com.juguito.juguitoreader.domain.usecase.book.GetBookFromEpubUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
 import com.juguito.juguitoreader.domain.usecase.genre.GetGenresUseCase
@@ -201,7 +200,7 @@ class BookDetailViewModelTest {
 
     @Test
     fun `onEvent OnEditModeChanged false deletes staging cover from draft`() = runTest {
-        viewModel.onEvent(BookDetailEvent.OnCoverUrlChanged("/cache/covers/staging.jpg"))
+        viewModel.onEvent(BookDetailEvent.OnCoverChanged("/cache/covers/staging.jpg"))
         viewModel.onEvent(BookDetailEvent.OnEditModeChanged(false))
 
         verify { FileUtils.deleteStagingAsset(application, "/cache/covers/staging.jpg") }
@@ -209,7 +208,7 @@ class BookDetailViewModelTest {
 
     @Test
     fun `onEvent OnDiscard deletes staging cover and navigates back`() = runTest {
-        viewModel.onEvent(BookDetailEvent.OnCoverUrlChanged("/cache/covers/staging.jpg"))
+        viewModel.onEvent(BookDetailEvent.OnCoverChanged("/cache/covers/staging.jpg"))
         viewModel.onEvent(BookDetailEvent.OnDiscard)
 
         verify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
@@ -221,11 +220,15 @@ class BookDetailViewModelTest {
     }
 
     @Test
-    fun `onEvent OnCoverUrlChanged stores uri in draft without copying`() = runTest {
-        viewModel.onEvent(BookDetailEvent.OnCoverUrlChanged("content://picker/cover.jpg"))
+    fun `onEvent OnCoverChanged stores path in draft and deletes previous staging cover`() = runTest {
+        viewModel.onEvent(BookDetailEvent.OnCoverChanged("/cache/images/old.jpg"))
+        viewModel.onEvent(BookDetailEvent.OnCoverChanged("content://picker/cover.jpg"))
 
         val success = viewModel.uiState.value as BookDetailUiState.Success
         assertThat(success.bookDraft.coverUrl).isEqualTo("content://picker/cover.jpg")
+        verify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
+            FileUtils.deleteStagingAsset(application, "/cache/images/old.jpg")
+        }
         verify(exactly = 0) { FileUtils.saveImageToInternalStorage(any(), any()) }
     }
 
@@ -280,7 +283,7 @@ class BookDetailViewModelTest {
     @Test
     fun `FILE-006 OnSaveClick promotes only new cover and keeps persisted epub`() = runTest {
         loadDigitalBook()
-        viewModel.onEvent(BookDetailEvent.OnCoverUrlChanged("content://picker/cover.jpg"))
+        viewModel.onEvent(BookDetailEvent.OnCoverChanged("content://picker/cover.jpg"))
         every {
             FileUtils.promotePendingFiles(application, null, "content://picker/cover.jpg")
         } returns PromotedBookFiles(
@@ -308,7 +311,7 @@ class BookDetailViewModelTest {
     @Test
     fun `FILE-006 OnSaveClick does not delete persisted epub when new cover promote fails`() = runTest {
         loadDigitalBook()
-        viewModel.onEvent(BookDetailEvent.OnCoverUrlChanged("content://picker/cover.jpg"))
+        viewModel.onEvent(BookDetailEvent.OnCoverChanged("content://picker/cover.jpg"))
         every {
             FileUtils.promotePendingFiles(application, null, "content://picker/cover.jpg")
         } throws JuguitoException(R.string.error_copy_cover)

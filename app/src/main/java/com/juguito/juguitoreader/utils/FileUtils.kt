@@ -15,16 +15,19 @@ import java.io.IOException
 data class PromotedBookFiles(val epubPath: String?, val coverPath: String?)
 
 object FileUtils {
-    fun getTempImageUri(context: Context): Uri {
+
+    fun createTempImageFile(context: Context): File {
         val directory = File(context.cacheDir, "images")
         directory.mkdirs()
-        val file = File(directory, "temp_image_${System.currentTimeMillis()}.jpg")
-        return FileProvider.getUriForFile(
+        return File(directory, "temp_image_${System.currentTimeMillis()}.jpg")
+    }
+
+    fun getUriForFile(context: Context, file: File): Uri =
+        FileProvider.getUriForFile(
             context,
             "com.juguito.juguitoreader.fileprovider",
             file
         )
-    }
 
     fun saveImageToInternalStorage(context: Context, uri: Uri): String? {
         if (uri.path?.startsWith(context.filesDir.absolutePath) == true) {

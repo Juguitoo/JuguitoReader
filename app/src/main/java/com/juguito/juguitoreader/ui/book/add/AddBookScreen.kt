@@ -86,6 +86,7 @@ import com.juguito.juguitoreader.ui.components.JuguitoDialog
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import com.juguito.juguitoreader.utils.FileUtils
 import com.juguito.juguitoreader.utils.FileUtils.getFileNameFromUri
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -120,13 +121,13 @@ fun AddBookContent(
     val context = LocalContext.current
     var showImportDialog by remember { mutableStateOf(false) }
     var showImageSourceDialog by remember { mutableStateOf(false) }
-    var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
+    var tempCameraFile by remember { mutableStateOf<File?>(null) }
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
             uri?.let {
-                onEvent(AddBookEvent.OnCoverUrlChanged(it))
+                onEvent(AddBookEvent.OnCoverChanged(it.toString()))
             }
         }
     )
@@ -135,10 +136,11 @@ fun AddBookContent(
         contract = ActivityResultContracts.TakePicture(),
         onResult = { success ->
             if (success) {
-                tempCameraUri?.let {
-                    onEvent(AddBookEvent.OnCoverUrlChanged(it))
-                }
+                tempCameraFile?.let { onEvent(AddBookEvent.OnCoverChanged(it.absolutePath)) }
+            } else {
+                tempCameraFile?.delete()
             }
+            tempCameraFile = null
         }
     )
 
@@ -205,9 +207,9 @@ fun AddBookContent(
                         icon = Icons.Default.PhotoCamera,
                         onClick = {
                             showImageSourceDialog = false
-                            val uri = FileUtils.getTempImageUri(context)
-                            tempCameraUri = uri
-                            cameraLauncher.launch(uri)
+                            val file = FileUtils.createTempImageFile(context)
+                            tempCameraFile = file
+                            cameraLauncher.launch(FileUtils.getUriForFile(context, file))
                         }
                     )
                 }

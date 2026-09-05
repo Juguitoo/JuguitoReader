@@ -107,10 +107,10 @@ class AddBookViewModel @Inject constructor(
                     bookDraft = _uiState.value.bookDraft.copy(isPhysical = event.isPhysical)
                 )
             }
-            is AddBookEvent.OnCoverUrlChanged -> {
+            is AddBookEvent.OnCoverChanged -> {
                 val previousCover = _uiState.value.bookDraft.coverUrl
                 _uiState.value = _uiState.value.copy(
-                    bookDraft = _uiState.value.bookDraft.copy(coverUrl = event.uri.toString())
+                    bookDraft = _uiState.value.bookDraft.copy(coverUrl = event.coverPath)
                 )
                 viewModelScope.launch(Dispatchers.IO) {
                     FileUtils.deleteStagingAsset(application, previousCover)

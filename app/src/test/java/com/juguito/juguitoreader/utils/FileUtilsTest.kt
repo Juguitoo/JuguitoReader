@@ -90,6 +90,15 @@ class FileUtilsTest {
     }
 
     @Test
+    fun `createTempImageFile is under cache images`() {
+        val file = FileUtils.createTempImageFile(context)
+
+        assertThat(file.absolutePath).startsWith(appCacheDir.absolutePath)
+        assertThat(file.parentFile?.name).isEqualTo("images")
+        assertThat(File(appCacheDir, "images").isDirectory).isTrue()
+    }
+
+    @Test
     fun `deleteFileFromInternalStorage removes files under filesDir only`() {
         val internalFile = File(appFilesDir, "book.epub").apply { writeText("epub") }
         val cacheFile = File(appCacheDir, "book.epub").apply { writeText("cache") }

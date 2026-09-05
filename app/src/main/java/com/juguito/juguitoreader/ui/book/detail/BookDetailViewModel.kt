@@ -12,7 +12,6 @@ import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.model.Genre
 import com.juguito.juguitoreader.domain.usecase.book.DeleteBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBookByIdUseCase
-import com.juguito.juguitoreader.domain.usecase.book.GetBookFromEpubUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
 import com.juguito.juguitoreader.domain.usecase.genre.GetGenresUseCase
@@ -144,8 +143,12 @@ class BookDetailViewModel @Inject constructor(
             is BookDetailEvent.OnIsPhysicalChanged -> {
                 updateSuccessState { it.copy(bookDraft = it.bookDraft.copy(isPhysical = event.isPhysical)) }
             }
-            is BookDetailEvent.OnCoverUrlChanged -> {
-                updateSuccessState { it.copy(bookDraft = it.bookDraft.copy(coverUrl = event.coverUrl)) }
+            is BookDetailEvent.OnCoverChanged -> {
+                val previousCover = (_uiState.value as? BookDetailUiState.Success)?.bookDraft?.coverUrl
+                updateSuccessState { it.copy(bookDraft = it.bookDraft.copy(coverUrl = event.coverPath)) }
+                viewModelScope.launch(Dispatchers.IO) {
+                    FileUtils.deleteStagingAsset(application, previousCover)
+                }
             }
             is BookDetailEvent.OnEpubFilePicked -> {
                 updateSuccessState { it.copy(bookDraft = it.bookDraft.copy(localFilePath = event.uri.toString())) }

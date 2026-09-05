@@ -2,7 +2,6 @@ package com.juguito.juguitoreader.ui.book.add
 
 import android.app.Application
 import android.net.Uri
-import androidx.core.net.toUri
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.juguito.juguitoreader.R
@@ -115,19 +114,13 @@ class AddBookViewModelTest {
     }
 
     @Test
-    fun `onEvent OnCoverUrlChanged stores uri in draft and deletes previous staging cover`() = runTest {
-        val oldUri = mockk<Uri>(relaxed = true)
-        every { oldUri.toString() } returns "/cache/covers/old.jpg"
-        viewModel.onEvent(AddBookEvent.OnCoverUrlChanged(oldUri))
-
-        val newUri = mockk<Uri>(relaxed = true)
-        every { newUri.toString() } returns "content://picker/cover.jpg"
-
-        viewModel.onEvent(AddBookEvent.OnCoverUrlChanged(newUri))
+    fun `onEvent OnCoverChanged stores path in draft and deletes previous staging cover`() = runTest {
+        viewModel.onEvent(AddBookEvent.OnCoverChanged("/cache/images/old.jpg"))
+        viewModel.onEvent(AddBookEvent.OnCoverChanged("content://picker/cover.jpg"))
 
         assertThat(viewModel.uiState.value.bookDraft.coverUrl).isEqualTo("content://picker/cover.jpg")
         verify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
-            FileUtils.deleteStagingAsset(application, "/cache/covers/old.jpg")
+            FileUtils.deleteStagingAsset(application, "/cache/images/old.jpg")
         }
         verify(exactly = 0) { FileUtils.saveImageToInternalStorage(any(), any()) }
     }
@@ -254,14 +247,12 @@ class AddBookViewModelTest {
 
     @Test
     fun `onEvent OnDiscard deletes staging cover`() = runTest {
-        val coverUri = mockk<Uri>(relaxed = true)
-        every { coverUri.toString() } returns "/cache/covers/cover.jpg"
-        viewModel.onEvent(AddBookEvent.OnCoverUrlChanged(coverUri))
+        viewModel.onEvent(AddBookEvent.OnCoverChanged("/cache/images/cover.jpg"))
 
         viewModel.onEvent(AddBookEvent.OnDiscard)
 
         verify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
-            FileUtils.deleteStagingAsset(application, "/cache/covers/cover.jpg")
+            FileUtils.deleteStagingAsset(application, "/cache/images/cover.jpg")
         }
     }
 

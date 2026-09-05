@@ -1,7 +1,6 @@
 package com.juguito.juguitoreader.ui.book.detail
 
 import android.content.Intent
-import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -63,6 +62,7 @@ import com.juguito.juguitoreader.ui.components.JuguitoDialog
 import com.juguito.juguitoreader.ui.registry.RegistryDatePickerDialog
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import com.juguito.juguitoreader.utils.FileUtils
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,13 +98,13 @@ fun BookDetailContent(
     var showEndDatePicker by remember { mutableStateOf(false) }
     var showImageSourceDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
-    var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
+    var tempCameraFile by remember { mutableStateOf<File?>(null) }
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
             uri?.let {
-                onEvent(BookDetailEvent.OnCoverUrlChanged(it.toString()))
+                onEvent(BookDetailEvent.OnCoverChanged(it.toString()))
             }
         }
     )
@@ -113,10 +113,11 @@ fun BookDetailContent(
         contract = ActivityResultContracts.TakePicture(),
         onResult = { success ->
             if (success) {
-                tempCameraUri?.let {
-                    onEvent(BookDetailEvent.OnCoverUrlChanged(it.toString()))
-                }
+                tempCameraFile?.let { onEvent(BookDetailEvent.OnCoverChanged(it.absolutePath)) }
+            } else {
+                tempCameraFile?.delete()
             }
+            tempCameraFile = null
         }
     )
 
@@ -214,9 +215,9 @@ fun BookDetailContent(
                         icon = Icons.Default.PhotoCamera,
                         onClick = {
                             showImageSourceDialog = false
-                            val uri = FileUtils.getTempImageUri(context)
-                            tempCameraUri = uri
-                            cameraLauncher.launch(uri)
+                            val file = FileUtils.createTempImageFile(context)
+                            tempCameraFile = file
+                            cameraLauncher.launch(FileUtils.getUriForFile(context, file))
                         }
                     )
                 }
