@@ -305,15 +305,6 @@ fun LibraryContent(
 
                 is LibraryUiState.Empty -> {
                     Column(modifier = Modifier.fillMaxSize()) {
-                        FolderSelectorRow(
-                            folders = state.folders,
-                            selectedFolder = state.selectedFolder,
-                            onFolderSelected = { folder ->
-                                onEvent(OnSelectedFolderChanged(folder))
-                            },
-                            onExpandClick = { onShowAllFoldersSheet(true) }
-                        )
-
                         Box(modifier = Modifier.fillMaxSize()) {
                             EmptyLibraryView(
                                 onNavigateToAddBook = onNavigateToAddBook,
