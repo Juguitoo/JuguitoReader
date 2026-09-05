@@ -208,6 +208,19 @@ class BookDetailViewModelTest {
     }
 
     @Test
+    fun `onEvent OnDiscard deletes staging cover and navigates back`() = runTest {
+        viewModel.onEvent(BookDetailEvent.OnCoverUrlChanged("/cache/covers/staging.jpg"))
+        viewModel.onEvent(BookDetailEvent.OnDiscard)
+
+        verify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
+            FileUtils.deleteStagingAsset(application, "/cache/covers/staging.jpg")
+        }
+        viewModel.effect.test {
+            assertThat(awaitItem()).isEqualTo(UiEffect.NavigateBack)
+        }
+    }
+
+    @Test
     fun `onEvent OnCoverUrlChanged stores uri in draft without copying`() = runTest {
         viewModel.onEvent(BookDetailEvent.OnCoverUrlChanged("content://picker/cover.jpg"))
 

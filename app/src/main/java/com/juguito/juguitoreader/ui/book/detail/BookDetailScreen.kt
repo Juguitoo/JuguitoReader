@@ -2,6 +2,7 @@ package com.juguito.juguitoreader.ui.book.detail
 
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -146,6 +147,8 @@ fun BookDetailContent(
         }
     }
 
+    BackHandler { onEvent(BookDetailEvent.OnDiscard) }
+
     if (showStartDatePicker && state is BookDetailUiState.Success) {
         RegistryDatePickerDialog(
             initialDate = state.startDate,
@@ -251,8 +254,14 @@ fun BookDetailContent(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back), tint = Color.White)
+                    IconButton(
+                        onClick = { onEvent(BookDetailEvent.OnDiscard) }
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back),
+                            tint = Color.White
+                        )
                     }
                 },
                 actions = {

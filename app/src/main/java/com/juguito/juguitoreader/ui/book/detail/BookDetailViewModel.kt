@@ -243,6 +243,16 @@ class BookDetailViewModel @Inject constructor(
                     )
                 }
             }
+
+            is BookDetailEvent.OnDiscard -> {
+                val coverUrl = (_uiState.value as? BookDetailUiState.Success)?.bookDraft?.coverUrl
+                viewModelScope.launch {
+                    withContext(Dispatchers.IO) {
+                        FileUtils.deleteStagingAsset(application, coverUrl)
+                    }
+                    _effect.send(UiEffect.NavigateBack)
+                }
+            }
         }
     }
 
