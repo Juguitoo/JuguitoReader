@@ -19,17 +19,6 @@ hotfix/*             → correcciones urgentes desde main
 | `release/` | Estabilización pre-release (QA) | `release/v1.2.0` |
 | `hotfix/` | Fix urgente en producción | `hotfix/crash-on-import` |
 
-### Transición v1.2.0 → gitflow
-
-La rama `v1.2.0` es una **feature branch** (trabajo de v1.2, no release finalizada). Plan:
-
-1. Cerrar estabilización (v1.2.0 en [archive/v1.2.0.md](archive/v1.2.0.md)).
-2. Merge a `dev`.
-3. Renombrar o eliminar `v1.2.0`.
-4. Crear `release/v1.2.0` **solo** para QA final antes de `main`.
-
-> Tras completar el paso 3, **actualizar la tabla "Estado actual"** abajo y eliminar referencias a `v1.2.0` en este doc. Ver [MAINTENANCE.md](MAINTENANCE.md).
-
 ## Flujo día a día
 
 ```
@@ -124,6 +113,6 @@ Los hooks **no se versionan** en `.git/hooks/`; hay que reinstalar tras un clone
 |------|-----|
 | `main` | Estable |
 | `dev` | Integración |
-| `v1.2.0` | Feature branch v1.2 — **pendiente merge/rename** (GIT-001) |
+| `release/v1.2.0` | QA / pruebas cerradas Play |
 
 Ver [ROADMAP.md](ROADMAP.md) · Mantener esta tabla al día: [MAINTENANCE.md](MAINTENANCE.md)
