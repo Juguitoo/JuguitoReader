@@ -72,7 +72,7 @@ class BookRepositoryImpl @Inject constructor(
         return@withTransaction id
     }
 
-    override suspend fun updateBookWithCrossRefs(book: Book, folderIds: List<Int>, genreIds: List<Int>) {
+    override suspend fun updateBookWithCrossRefs(book: Book, folderIds: List<Int>, genreIds: List<Int>) = database.withTransaction {
         bookDAO.updateBook(book.toEntity())
         bookDAO.syncBookCrossRefs(book.id, folderIds, genreIds)
     }

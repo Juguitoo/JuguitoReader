@@ -134,13 +134,14 @@ class BookRepositoryImplTest {
     }
 
     @Test
-    fun `updateBookWithCrossRefs updates book and syncs cross refs`() = runTest {
+    fun `DATA-010 updateBookWithCrossRefs runs update and sync inside a transaction`() = runTest {
         val book = Book(id = 1, title = "Updated", author = "Author", isPhysical = false)
         coEvery { bookDAO.updateBook(any()) } returns Unit
         coEvery { bookDAO.syncBookCrossRefs(any(), any(), any()) } returns Unit
 
         repository.updateBookWithCrossRefs(book, listOf(5), listOf(3))
 
+        coVerify { database.withTransaction<Unit>(any()) }
         coVerify { bookDAO.updateBook(any()) }
         coVerify { bookDAO.syncBookCrossRefs(1, listOf(5), listOf(3)) }
     }
