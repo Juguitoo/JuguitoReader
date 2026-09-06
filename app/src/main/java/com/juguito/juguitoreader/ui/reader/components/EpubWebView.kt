@@ -6,7 +6,6 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.JavascriptInterface
 import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -70,36 +69,7 @@ fun EpubWebView(
                 setBackgroundColor(state.theme.bgColor.toColorInt())
                 visibility = View.INVISIBLE
 
-                addJavascriptInterface(object : Any() {
-                    @JavascriptInterface
-                    fun reportScrollPosition(y: Float) {
-                        onEvent(ReaderEvent.OnScrollPositionChanged(y))
-                    }
-                    @JavascriptInterface
-                    fun reportTimeRemaining(minutes: Int) {
-                        onEvent(ReaderEvent.OnTimeRemainingChanged(minutes))
-                    }
-                    @JavascriptInterface
-                    fun goToNextChapter() {
-                        onEvent(ReaderEvent.OnNextChapter)
-                    }
-                    @JavascriptInterface
-                    fun goToPreviousChapter() {
-                        onEvent(ReaderEvent.OnPreviousChapter)
-                    }
-                    @JavascriptInterface
-                    fun updateOverscroll(delta: Float) {
-                        onOverscroll(delta)
-                    }
-                    @JavascriptInterface
-                    fun reportWordsRead(words: Int) {
-                        onEvent(ReaderEvent.OnReportWordsRead(words))
-                    }
-                    @JavascriptInterface
-                    fun reportInitialWordsRead(words: Int) {
-                        onEvent(ReaderEvent.OnChapterWordsBaseline(words))
-                    }
-                }, JS_BRIDGE_NAME)
+                addJavascriptInterface(AndroidBridge(onEvent, onOverscroll), JS_BRIDGE_NAME)
 
                 webViewClient = object : WebViewClient() {
                     override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
