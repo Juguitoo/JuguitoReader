@@ -215,7 +215,10 @@ fun RegistryContent(
                             EmptyRegistryState(TotalTableWidth)
                         } else {
                             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                                items(state.filteredBooks) { book ->
+                                items(
+                                    items = state.filteredBooks,
+                                    key = { it.id }
+                                ) { book ->
                                     RegistryRow(
                                         book = book,
                                         onEvent = onEvent,
@@ -312,13 +315,13 @@ fun TableHeaderItem(
                 fontSize = 13.sp
             )
             if (sortOption != null) {
-                val icon = when {
-                    currentSort == SortOption.TITLE_ASC && sortOption == SortOption.TITLE_ASC -> Icons.Default.ArrowUpward
-                    currentSort == SortOption.TITLE_DESC && sortOption == SortOption.TITLE_ASC -> Icons.Default.ArrowDownward
-                    currentSort == SortOption.RATING_DESC && sortOption == SortOption.RATING_DESC -> Icons.Default.ArrowDownward
-                    currentSort == SortOption.RATING_ASC && sortOption == SortOption.RATING_DESC -> Icons.Default.ArrowUpward
-                    currentSort == SortOption.STARTED_AT_DESC && sortOption == SortOption.STARTED_AT_DESC -> Icons.Default.ArrowDownward
-                    currentSort == SortOption.STARTED_AT_ASC && sortOption == SortOption.STARTED_AT_DESC -> Icons.Default.ArrowUpward
+                val icon = when (currentSort) {
+                    SortOption.TITLE_ASC if sortOption == SortOption.TITLE_ASC -> Icons.Default.ArrowUpward
+                    SortOption.TITLE_DESC if sortOption == SortOption.TITLE_ASC -> Icons.Default.ArrowDownward
+                    SortOption.RATING_DESC if sortOption == SortOption.RATING_DESC -> Icons.Default.ArrowDownward
+                    SortOption.RATING_ASC if sortOption == SortOption.RATING_DESC -> Icons.Default.ArrowUpward
+                    SortOption.STARTED_AT_DESC if sortOption == SortOption.STARTED_AT_DESC -> Icons.Default.ArrowDownward
+                    SortOption.STARTED_AT_ASC if sortOption == SortOption.STARTED_AT_DESC -> Icons.Default.ArrowUpward
                     else -> null
                 }
                 if (icon != null) {

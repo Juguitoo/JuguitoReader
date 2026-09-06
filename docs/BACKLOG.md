@@ -8,7 +8,6 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 
 | Versión | ID | Tarea | Tipo | Estado | Ref |
 |---------|-----|-------|------|--------|-----|
-| v1.2.0 | UX-017 | Registry LazyColumn: `key = { it.id }` | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | FILE-015 | Gate de Save/import contra doble tap | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | DATA-017 | Unique name: constraint (residual: dos altas de carpeta a la vez) | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | DATA-010 | `updateBookWithCrossRefs` en `withTransaction` | Fix | `[ ]` | KNOWN_ISSUES |
