@@ -8,14 +8,11 @@ Consultar antes de tocar Room, reader, importación o relaciones M:N.
 
 ## Issues abiertos
 
-Una sola tabla. Orden: target v1.2.0 → sin versión (`—`) → diferidos. Si el comentario se queda corto, detalle bajo la tabla e indicarlo con un (1) o el número que le siga al último detalle.
+Una sola tabla. Orden: sin versión (`—`) → diferidos. Si el comentario se queda corto, detalle bajo la tabla e indicarlo con un (1) o el número que le siga al último detalle.
 
 
 | ID         | Título                                                                  | Severidad | Estado   | Target | Comentario                                                                                                                                     | Relacionado        |
 | ---------- | ----------------------------------------------------------------------- | --------- | -------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| FILE-015   | Save/import sin gate de doble tap                                       | Bajo      | Abierto  | v1.2.0 | Dos toques rápidos en Guardar pueden lanzar dos `saveBook()` en paralelo.                                                                      |                    |
-| DATA-017   | Unique name carpeta/género: check-then-insert                           | Bajo      | Abierto  | v1.2.0 | El caso del libro queda cubierto: add/update ya no resuelven por nombre un id borrado. Residual: dos altas de carpeta a la vez.               | DATA-011           |
-| DATA-010   | `updateBookWithCrossRefs` sin transacción                               | Medio     | Abierto  | v1.2.0 | Insert sí es `withTransaction`; update no. Si falla el sync, el metadato ya está guardado.                                                     |                    |
 | READER-016 | Sesión / WPM se descartan en pausas ≤60s                                | Alto      | Abierto  | —      | `ON_PAUSE` resetea timer y palabras aunque no persista. Rotación no aplica (portrait lock); sí al ir a recents o abrir el diálogo de sesiones. |                    |
 | UX-011     | Drawer apila destinos duplicados                                        | Medio     | Abierto  | —      | Solo Home hace `popUpTo`. Library → Registry → Library hincha el back stack.                                                                   | DATA-011           |
 | UX-012     | No hay forma de limpiar fechas inicio/fin                               | Medio     | Abierto  | —      | Date picker solo Confirm/Cancel. Registry + Detail.                                                                                            | UX-013             |
