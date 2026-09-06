@@ -11,6 +11,7 @@ import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -97,5 +98,22 @@ class FolderViewModelTest {
         viewModel.onEvent(FolderEvent.OnSaveClick)
         
         coVerify { updateFolderUseCase(match { it.id == 1 && it.name == "Updated Name" }) }
+    }
+
+    @Test
+    fun `DATA-017 OnSaveClick twice calls addFolder once`() = runTest {
+        viewModel = FolderViewModel(addFolderUseCase, updateFolderUseCase, getFolderByIdUseCase, SavedStateHandle())
+        viewModel.onEvent(FolderEvent.OnNameChanged("New Folder"))
+        val latch = CompletableDeferred<Result<Unit>>()
+        coEvery { addFolderUseCase(any()) } coAnswers { latch.await() }
+
+        try {
+            viewModel.onEvent(FolderEvent.OnSaveClick)
+            viewModel.onEvent(FolderEvent.OnSaveClick)
+
+            coVerify(exactly = 1) { addFolderUseCase(any()) }
+        } finally {
+            latch.complete(Result.success(Unit))
+        }
     }
 }

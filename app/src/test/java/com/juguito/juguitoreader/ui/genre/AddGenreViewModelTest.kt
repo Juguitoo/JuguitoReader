@@ -4,7 +4,9 @@ import com.google.common.truth.Truth.assertThat
 import com.juguito.juguitoreader.domain.usecase.genre.AddGenreUseCase
 import com.juguito.juguitoreader.ui.common.UiText
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -52,5 +54,20 @@ class AddGenreViewModelTest {
 
         val uiText = viewModel.error.value as UiText.DynamicString
         assertThat(uiText.value).isEqualTo("Error message")
+    }
+
+    @Test
+    fun `DATA-017 saveGenre twice calls use case once`() = runTest {
+        val latch = CompletableDeferred<Result<Unit>>()
+        coEvery { addGenreUseCase(any()) } coAnswers { latch.await() }
+
+        try {
+            viewModel.saveGenre("Fantasy") {}
+            viewModel.saveGenre("Fantasy") {}
+
+            coVerify(exactly = 1) { addGenreUseCase(any()) }
+        } finally {
+            latch.complete(Result.success(Unit))
+        }
     }
 }

@@ -70,6 +70,7 @@ class FolderViewModel @Inject constructor(
 
     private fun saveFolder() {
         val currentState = _uiState.value
+        if (currentState.isLoading) return
 
         if (currentState.name.isBlank()) {
             viewModelScope.launch {

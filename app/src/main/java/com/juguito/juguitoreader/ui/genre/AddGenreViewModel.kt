@@ -20,7 +20,11 @@ class AddGenreViewModel @Inject constructor(
     private val _error = MutableStateFlow<UiText?>(null)
     val error: StateFlow<UiText?> = _error.asStateFlow()
 
+    private var isSaving = false
+
     fun saveGenre(name: String, onSuccess: () -> Unit) {
+        if (isSaving) return
+        isSaving = true
         viewModelScope.launch {
             _error.value = null
 
@@ -29,6 +33,7 @@ class AddGenreViewModel @Inject constructor(
             result.fold(
                 onSuccess = { onSuccess() },
                 onFailure = { exception ->
+                    isSaving = false
                     _error.value = exception.asUiText()
                 }
             )
