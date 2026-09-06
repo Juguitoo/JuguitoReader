@@ -133,6 +133,7 @@ No reintroducir estos anti-patrones — resumen en [docs/KNOWN_ISSUES.md](docs/K
 1. `@Insert(REPLACE)` **en updates** — rompe FK CASCADE (carpetas, géneros, libros). (DATA-001, resuelto v1.2.0)
 2. **Cross-refs solo con INSERT IGNORE** — no elimina relaciones al editar. (DATA-002, resuelto v1.2.0)
 3. **Resolución de carpetas/géneros por nombre** — falla tras renombrar entidades. (DATA-003, resuelto v1.2.0)
+4. **Insertar carpeta/género por nombre si el id del draft ya no existe** — resucita entidades borradas; omitir la relación. (DATA-011, resuelto v1.2.0)
 
 
 

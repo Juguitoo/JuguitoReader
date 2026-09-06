@@ -135,6 +135,26 @@ class AddBookUseCaseTest {
     }
 
     @Test
+    fun `invoke with stale folder and genre ids omits relations instead of inserting by name`() = runBlocking {
+        val folder = Folder(id = 5, name = "Sci-Fi", colorHex = "#FFF")
+        val genre = Genre(id = 3, name = "Fantasy")
+        val book = Book(title = "T", author = "A", isPhysical = true, folders = listOf(folder), genres = listOf(genre))
+
+        coEvery { folderRepository.getFolderById(5) } returns null
+        coEvery { genreRepository.getGenreById(3) } returns null
+        coEvery { bookRepository.insertBookWithCrossRefs(any(), any(), any()) } returns 1L
+
+        val result = useCase(book)
+
+        assertThat(result.isSuccess).isTrue()
+        coVerify { bookRepository.insertBookWithCrossRefs(book, emptyList(), emptyList()) }
+        coVerify(exactly = 0) { folderRepository.getFolderByName(any()) }
+        coVerify(exactly = 0) { folderRepository.insertFolder(any()) }
+        coVerify(exactly = 0) { genreRepository.getGenreByName(any()) }
+        coVerify(exactly = 0) { genreRepository.insertGenre(any()) }
+    }
+
+    @Test
     fun `invoke with physical book strips leftover epub path`() = runBlocking {
         val book = Book(
             title = "T",

@@ -8,12 +8,11 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 
 | Versión | ID | Tarea | Tipo | Estado | Ref |
 |---------|-----|-------|------|--------|-----|
-| v1.2.0 | DATA-011 | Bloquear drawer en add/update; no resucitar carpeta/género al guardar | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-008 | Registry: ordenar columna Inicio por la fecha de la celda (`startDate`) | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-015 | Home delete: no disparar `onEvent` en composition | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-017 | Registry LazyColumn: `key = { it.id }` | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | FILE-015 | Gate de Save/import contra doble tap | Fix | `[ ]` | KNOWN_ISSUES |
-| v1.2.0 | DATA-017 | Unique name: constraint (residual si DATA-011 cierra el hueco) | Fix | `[ ]` | KNOWN_ISSUES |
+| v1.2.0 | DATA-017 | Unique name: constraint (residual: dos altas de carpeta a la vez) | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | DATA-010 | `updateBookWithCrossRefs` en `withTransaction` | Fix | `[ ]` | KNOWN_ISSUES |
 | — | READER-016 | No descartar sesión/WPM en pausas ≤60s | Fix | `[ ]` | KNOWN_ISSUES |
 | — | UX-011 | Drawer: `launchSingleTop` / `popUpTo` | Fix | `[ ]` | KNOWN_ISSUES |

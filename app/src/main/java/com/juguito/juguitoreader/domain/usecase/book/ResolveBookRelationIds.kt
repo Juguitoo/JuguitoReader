@@ -5,24 +5,24 @@ import com.juguito.juguitoreader.domain.model.Genre
 import com.juguito.juguitoreader.domain.repository.FolderRepository
 import com.juguito.juguitoreader.domain.repository.GenreRepository
 
-internal suspend fun resolveFolderIds(folders: List<Folder>, folderRepository: FolderRepository) : List<Int> {
-    return folders.map { folder ->
+internal suspend fun resolveFolderIds(folders: List<Folder>, folderRepository: FolderRepository): List<Int> {
+    return folders.mapNotNull { folder ->
         if (folder.id != 0) {
-            val existing = folderRepository.getFolderById(folder.id)
-            if (existing != null) return@map existing.id
+            folderRepository.getFolderById(folder.id)?.id
+        } else {
+            folderRepository.getFolderByName(folder.name)?.id
+                ?: folderRepository.insertFolder(folder).toInt()
         }
-        val byName = folderRepository.getFolderByName(folder.name)
-        return@map byName?.id ?: folderRepository.insertFolder(folder).toInt()
     }
 }
 
-internal suspend fun resolveGenreIds(genres: List<Genre>, genreRepository: GenreRepository) : List<Int> {
-    return genres.map { genre ->
+internal suspend fun resolveGenreIds(genres: List<Genre>, genreRepository: GenreRepository): List<Int> {
+    return genres.mapNotNull { genre ->
         if (genre.id != 0) {
-            val existing = genreRepository.getGenreById(genre.id)
-            if (existing != null) return@map existing.id
+            genreRepository.getGenreById(genre.id)?.id
+        } else {
+            genreRepository.getGenreByName(genre.name)?.id
+                ?: genreRepository.insertGenre(genre).toInt()
         }
-        val byName = genreRepository.getGenreByName(genre.name)
-        return@map byName?.id ?: genreRepository.insertGenre(genre).toInt()
     }
 }

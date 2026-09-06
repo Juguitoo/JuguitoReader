@@ -36,7 +36,8 @@ Al actualizar relaciones de un libro:
 ## Resolver por ID (DATA-003)
 
 En updates de libros, usar `folder.id` / `genre.id` cuando `id != 0`.
-Resolución por `name` solo en import EPUB o creación.
+Si el id ya no existe, omitir la relación — no insertar por nombre (DATA-011).
+Resolución por `name` solo cuando `id == 0` (creación / import EPUB).
 
 ## reading_progress
 

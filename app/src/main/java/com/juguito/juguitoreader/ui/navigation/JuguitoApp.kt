@@ -88,7 +88,7 @@ fun JuguitoApp() {
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        gesturesEnabled = currentRoute != "reader/{bookId}",
+        gesturesEnabled = areDrawerGesturesEnabled(currentRoute) && !showAddGenreDialog,
         drawerContent = {
             ModalDrawerSheet(
                 modifier = Modifier.fillMaxWidth(0.75f),
@@ -351,6 +351,17 @@ fun JuguitoApp() {
                 }
             }
         }
+    }
+}
+
+internal fun areDrawerGesturesEnabled(route: String?): Boolean {
+    return when (route) {
+        "add_book",
+        "add_folder",
+        "edit_folder/{folderId}",
+        "book_detail/{bookId}",
+        "reader/{bookId}" -> false
+        else -> true
     }
 }
 

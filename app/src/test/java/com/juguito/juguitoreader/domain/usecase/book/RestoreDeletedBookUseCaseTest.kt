@@ -64,6 +64,34 @@ class RestoreDeletedBookUseCaseTest {
     }
 
     @Test
+    fun `invoke omits stale folder and genre ids instead of inserting by name`() = runTest {
+        val folder = Folder(id = 5, name = "Sci-Fi", colorHex = "#FFF")
+        val genre = Genre(id = 3, name = "Fantasy")
+        val book = Book(
+            id = 1,
+            title = "Title",
+            author = "Author",
+            isPhysical = false,
+            folders = listOf(folder),
+            genres = listOf(genre)
+        )
+        val snapshot = DeletedBookSnapshot(book = book, dailyReadings = emptyList(), readingProgress = null)
+
+        coEvery { folderRepository.getFolderById(5) } returns null
+        coEvery { genreRepository.getGenreById(3) } returns null
+        coEvery { bookRepository.restoreDeletedBook(any(), any(), any()) } returns Unit
+
+        val result = useCase(snapshot)
+
+        assertThat(result.isSuccess).isTrue()
+        coVerify { bookRepository.restoreDeletedBook(snapshot, emptyList(), emptyList()) }
+        coVerify(exactly = 0) { folderRepository.getFolderByName(any()) }
+        coVerify(exactly = 0) { folderRepository.insertFolder(any()) }
+        coVerify(exactly = 0) { genreRepository.getGenreByName(any()) }
+        coVerify(exactly = 0) { genreRepository.insertGenre(any()) }
+    }
+
+    @Test
     fun `invoke with empty relations calls restoreDeletedBook with empty id lists`() = runTest {
         val book = Book(id = 1, title = "Title", author = "Author", isPhysical = false)
         val snapshot = DeletedBookSnapshot(book = book, dailyReadings = emptyList(), readingProgress = null)

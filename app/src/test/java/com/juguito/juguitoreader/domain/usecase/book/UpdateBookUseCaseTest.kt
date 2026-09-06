@@ -125,6 +125,26 @@ class UpdateBookUseCaseTest {
     }
 
     @Test
+    fun `invoke with stale folder and genre ids omits relations instead of inserting by name`() = runTest {
+        val folder = Folder(id = 5, name = "Sci-Fi", colorHex = "#FFF")
+        val genre = Genre(id = 3, name = "Fantasy")
+        val book = Book(id = 1, title = "T", author = "A", isPhysical = true, folders = listOf(folder), genres = listOf(genre))
+
+        coEvery { folderRepository.getFolderById(5) } returns null
+        coEvery { genreRepository.getGenreById(3) } returns null
+        coEvery { bookRepository.updateBookWithCrossRefs(any(), any(), any()) } returns Unit
+
+        val result = useCase(book)
+
+        assertThat(result.isSuccess).isTrue()
+        coVerify { bookRepository.updateBookWithCrossRefs(book, emptyList(), emptyList()) }
+        coVerify(exactly = 0) { folderRepository.getFolderByName(any()) }
+        coVerify(exactly = 0) { folderRepository.insertFolder(any()) }
+        coVerify(exactly = 0) { genreRepository.getGenreByName(any()) }
+        coVerify(exactly = 0) { genreRepository.insertGenre(any()) }
+    }
+
+    @Test
     fun `invoke with changed EPUB resets reading data with resolved relation ids`() = runTest {
         val folder = Folder(id = 0, name = "Sci-Fi", colorHex = "#FFF")
         val genre = Genre(id = 0, name = "Fantasy")

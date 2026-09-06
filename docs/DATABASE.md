@@ -115,7 +115,7 @@ Patrón correcto implementado en `BookDAO.syncBookCrossRefs` y en operaciones tr
 
 ### 3. Resolver relaciones por ID
 
-En updates, usar `folder.id` / `genre.id` cuando `id != 0`. Resolver por `name` solo en import EPUB o creación.
+En updates, usar `folder.id` / `genre.id` cuando `id != 0`. Si ese id ya no existe, **omitir la relación** — no hacer `insert` por nombre (resucitaría carpetas/géneros borrados). Resolver por `name` solo cuando `id == 0` (género nuevo en el formulario, import EPUB).
 
 ### 4. `reading_progress` y borrado de libro
 
