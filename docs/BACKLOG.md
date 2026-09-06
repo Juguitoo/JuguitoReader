@@ -8,7 +8,6 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 
 | Versión | ID | Tarea | Tipo | Estado | Ref |
 |---------|-----|-------|------|--------|-----|
-| v1.2.0 | FILE-011 | `takePersistableUriPermission` en `runCatching` (o quitar) | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | DATA-011 | Bloquear drawer en add/update; no resucitar carpeta/género al guardar | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-008 | Registry: ordenar columna Inicio por la fecha de la celda (`startDate`) | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.0 | UX-015 | Home delete: no disparar `onEvent` en composition | Fix | `[ ]` | KNOWN_ISSUES |
