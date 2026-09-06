@@ -39,7 +39,7 @@ interface GenreDAO {
     fun getGenresWithBookCount(): Flow<List<GenreWithCountEntity>>
 
     @Query("SELECT name FROM genres")
-    fun getAllGenreNames(): List<String>
+    suspend fun getAllGenreNames(): List<String>
 
     @Query("DELETE FROM genres WHERE id = :genreId")
     suspend fun deleteGenreById(genreId: Int)

@@ -63,7 +63,7 @@ class GenreRepositoryImplTest {
 
     @Test
     fun `getAllGenreNames returns list of names`() = runTest {
-        every { genreDAO.getAllGenreNames() } returns listOf("A", "B")
+        coEvery { genreDAO.getAllGenreNames() } returns listOf("A", "B")
 
         val result = repository.getAllGenreNames()
 
