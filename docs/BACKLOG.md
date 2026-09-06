@@ -21,7 +21,6 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 | v1.2.1 | TAR-57 | Pantalla About (licencia, creador, créditos p. ej. icono) | Feat | `[ ]` | ROADMAP |
 | v1.2.1 | TAR-58 | Changelog / novedades in-app por versión | Feat | `[ ]` | ROADMAP |
 | v1.2.2 | TAR-59 | Export / import manual de datos (backup local; gate producción Play) | Feat | `[ ]` | ROADMAP |
-| Pre-release | REL-001 | Keystore release (no debug) | Chore | `[ ]` | |
 | Pre-release | REL-002 | Habilitar R8 / ProGuard | Chore | `[ ]` | |
 | Pre-release | DATA-006 | Migraciones DB 1→5 o política destructive en dev | Chore | `[ ]` | DATABASE |
 | v1.3.0 | TAR-19 | Recopilación de estadísticas | Feat | `[ ]` | ROADMAP |

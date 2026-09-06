@@ -56,7 +56,7 @@ TAR-30 — Visor EPUB propio (EPUB → Compose).
 
 - **Closed testing:** tras v1.2.0; seguir con 1.2.1 / 1.2.2.
 - **Producción:** tras TAR-59 + checklist release.
-- Keystore + R8 (REL-001, REL-002); CI (REL-003 hecho); política migraciones (DATA-006); privacy policy.
+- Keystore (REL-001 hecho); R8 (REL-002); CI (REL-003 hecho); política migraciones (DATA-006); privacy policy.
 
 Detalle en [BACKLOG.md](BACKLOG.md).
 
