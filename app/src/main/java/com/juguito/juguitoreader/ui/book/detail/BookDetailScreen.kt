@@ -1,6 +1,5 @@
 package com.juguito.juguitoreader.ui.book.detail
 
-import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -38,8 +37,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import com.juguito.juguitoreader.R
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,9 +46,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.ui.book.components.BookInfoTab
 import com.juguito.juguitoreader.ui.book.components.RegistryTab
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
@@ -125,7 +124,6 @@ fun BookDetailContent(
         contract = ActivityResultContracts.OpenDocument(),
         onResult = { uri ->
             uri?.let {
-                context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 onEvent(BookDetailEvent.OnEpubFilePicked(it))
             }
         }

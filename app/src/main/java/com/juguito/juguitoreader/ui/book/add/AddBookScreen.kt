@@ -1,7 +1,5 @@
 package com.juguito.juguitoreader.ui.book.add
 
-import android.content.Intent
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -148,7 +146,6 @@ fun AddBookContent(
         contract = ActivityResultContracts.OpenDocument(),
         onResult = { uri ->
             uri?.let {
-                context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 onEvent(AddBookEvent.OnEpubFilePicked(it))
             }
         }
@@ -158,7 +155,6 @@ fun AddBookContent(
         contract = ActivityResultContracts.OpenDocument(),
         onResult = { uri ->
             uri?.let {
-                context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 onEvent(AddBookEvent.OnImportEpub(it))
             }
         }
