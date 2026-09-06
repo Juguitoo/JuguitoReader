@@ -218,33 +218,7 @@ class BookDetailViewModel @Inject constructor(
                 saveChanges()
             }
             is BookDetailEvent.OnDeleteClick -> {
-                val current = _uiState.value as? BookDetailUiState.Success ?: return
-                viewModelScope.launch {
-                    updateSuccessState { it.copy(isActionLoading = true) }
-
-                    val result = deleteBookUseCase(current.book.id)
-                    result.fold(
-                        onSuccess = {
-                            updateSuccessState { it.copy(isActionLoading = false) }
-                            withContext(Dispatchers.IO) {
-                                if (current.book.localFilePath != null) deleteFileFromInternalStorage(
-                                    application,
-                                    current.book.localFilePath
-                                )
-                                if (current.book.coverUrl != null) deleteFileFromInternalStorage(
-                                    application,
-                                    current.book.coverUrl
-                                )
-                                FileUtils.deleteReaderCache(application, current.book.id)
-                            }
-                            _effect.send(UiEffect.NavigateBack)
-                        },
-                        onFailure = {
-                            updateSuccessState { it.copy(isActionLoading = false) }
-                            _effect.send(ShowSnackbar(StringResource(R.string.error_delete_book)))
-                        }
-                    )
-                }
+                deleteBook()
             }
 
             is BookDetailEvent.OnDiscard -> {
@@ -259,22 +233,55 @@ class BookDetailViewModel @Inject constructor(
         }
     }
 
-    private fun saveChanges() {
+    private fun deleteBook() {
+        val current = _uiState.value as? BookDetailUiState.Success ?: return
+        if (current.isActionLoading) return
+
+        updateSuccessState { it.copy(isActionLoading = true) }
+
         viewModelScope.launch {
-            val current = _uiState.value as? BookDetailUiState.Success ?: return@launch
-            val draft = current.bookDraft
+            val result = deleteBookUseCase(current.book.id)
+            result.fold(
+                onSuccess = {
+                    updateSuccessState { it.copy(isActionLoading = false) }
+                    withContext(Dispatchers.IO) {
+                        if (current.book.localFilePath != null) deleteFileFromInternalStorage(
+                            application,
+                            current.book.localFilePath
+                        )
+                        if (current.book.coverUrl != null) deleteFileFromInternalStorage(
+                            application,
+                            current.book.coverUrl
+                        )
+                        FileUtils.deleteReaderCache(application, current.book.id)
+                    }
+                    _effect.send(UiEffect.NavigateBack)
+                },
+                onFailure = {
+                    updateSuccessState { it.copy(isActionLoading = false) }
+                    _effect.send(ShowSnackbar(StringResource(R.string.error_delete_book)))
+                }
+            )
+        }
+    }
 
-            if (draft.title.isBlank()) {
-                viewModelScope.launch { _effect.send(ShowSnackbar(StringResource(R.string.error_title_empty))) }
-                return@launch
-            }
-            if (draft.author.isBlank()) {
-                viewModelScope.launch { _effect.send(ShowSnackbar(StringResource(R.string.error_author_empty))) }
-                return@launch
-            }
+    private fun saveChanges() {
+        val current = _uiState.value as? BookDetailUiState.Success ?: return
+        if (current.isActionLoading) return
 
-            updateSuccessState { it.copy(isActionLoading = true) }
+        val draft = current.bookDraft
+        if (draft.title.isBlank()) {
+            viewModelScope.launch { _effect.send(ShowSnackbar(StringResource(R.string.error_title_empty))) }
+            return
+        }
+        if (draft.author.isBlank()) {
+            viewModelScope.launch { _effect.send(ShowSnackbar(StringResource(R.string.error_author_empty))) }
+            return
+        }
 
+        updateSuccessState { it.copy(isActionLoading = true) }
+
+        viewModelScope.launch {
             try {
                 val dropEpub = draft.isPhysical || draft.localFilePath == null
                 val filesResult = withContext(Dispatchers.IO) {
@@ -313,8 +320,6 @@ class BookDetailViewModel @Inject constructor(
                 )
 
                 val result = updateBookUseCase(updatedBook)
-
-
 
                 result.fold(
                     onSuccess = {

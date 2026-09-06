@@ -152,21 +152,27 @@ class AddBookViewModel @Inject constructor(
     }
 
     private fun saveBook() {
-        viewModelScope.launch {
-            val currentState = _uiState.value
-            val draft = currentState.bookDraft
+        val currentState = _uiState.value
+        if (currentState.isLoading) return
 
-            if (draft.title.isBlank()) {
+        val draft = currentState.bookDraft
+        if (draft.title.isBlank()) {
+            viewModelScope.launch {
                 _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.error_title_empty)))
-                return@launch
             }
-            if (draft.author.isBlank()) {
+            return
+        }
+        if (draft.author.isBlank()) {
+            viewModelScope.launch {
                 _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.error_author_empty)))
-                return@launch
             }
+            return
+        }
 
-            _uiState.value = _uiState.value.copy(isLoading = true)
+        _uiState.value = currentState.copy(isLoading = true)
 
+        viewModelScope.launch {
+            var succeeded = false
             try {
                 val filesResult = withContext(Dispatchers.IO) {
                     FileUtils.promotePendingFiles(
@@ -193,6 +199,7 @@ class AddBookViewModel @Inject constructor(
 
                 result.fold(
                     onSuccess = {
+                        succeeded = true
                         withContext(Dispatchers.IO) {
                             FileUtils.deleteStagingAsset(application, draft.coverUrl)
                         }
@@ -215,16 +222,20 @@ class AddBookViewModel @Inject constructor(
             } catch (e: JuguitoException) {
                 _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(e.resId)))
             } finally {
-                _uiState.value = _uiState.value.copy(isLoading = false)
+                if (!succeeded) {
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                }
             }
         }
     }
 
     private fun importEpubData(uri: Uri) {
+        if (_uiState.value.isLoading) return
+        _uiState.value = _uiState.value.copy(isLoading = true)
+
         viewModelScope.launch {
             runCatching {
                 val previousCover = _uiState.value.bookDraft.coverUrl
-                _uiState.value = _uiState.value.copy(isLoading = true)
                 val book = getBookFromEpubUseCase(application, uri, false)
                 withContext(Dispatchers.IO) {
                     FileUtils.deleteStagingAsset(application, previousCover)

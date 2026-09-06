@@ -31,6 +31,7 @@ import io.mockk.runs
 import io.mockk.unmockkAll
 import io.mockk.verify
 import junit.framework.TestCase.assertEquals
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -312,5 +313,44 @@ class AddBookViewModelTest {
 
         viewModel.onEvent(AddBookEvent.OnSeriesOrderChanged("100"))
         assertThat(viewModel.uiState.value.bookDraft.seriesOrder).isEqualTo("1.")
+    }
+
+    @Test
+    fun `FILE-015 OnSaveClick twice calls addBook once`() = runTest {
+        viewModel.onEvent(AddBookEvent.OnTitleChanged("T"))
+        viewModel.onEvent(AddBookEvent.OnAuthorChanged("A"))
+        every {
+            FileUtils.promotePendingFiles(any(), any(), any())
+        } returns PromotedBookFiles(epubPath = null, coverPath = null)
+        val latch = CompletableDeferred<Result<Unit>>()
+        coEvery { addBookUseCase(any()) } coAnswers { latch.await() }
+
+        try {
+            viewModel.onEvent(AddBookEvent.OnSaveClick)
+            viewModel.onEvent(AddBookEvent.OnSaveClick)
+
+            coVerify(timeout = IO_DISPATCHER_TIMEOUT_MS, exactly = 1) { addBookUseCase(any()) }
+        } finally {
+            latch.complete(Result.success(Unit))
+        }
+    }
+
+    @Test
+    fun `FILE-015 OnImportEpub twice calls getBookFromEpub once`() = runTest {
+        val uri = mockk<Uri>(relaxed = true)
+        val book = Book(title = "Epub Title", author = "Epub Author", isPhysical = false)
+        val latch = CompletableDeferred<Book>()
+        coEvery { getBookFromEpubUseCase(application, uri, false) } coAnswers { latch.await() }
+
+        try {
+            viewModel.onEvent(AddBookEvent.OnImportEpub(uri))
+            viewModel.onEvent(AddBookEvent.OnImportEpub(uri))
+
+            coVerify(timeout = IO_DISPATCHER_TIMEOUT_MS, exactly = 1) {
+                getBookFromEpubUseCase(application, uri, persistFiles = false)
+            }
+        } finally {
+            latch.complete(book)
+        }
     }
 }

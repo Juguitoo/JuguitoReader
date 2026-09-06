@@ -26,6 +26,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -333,5 +334,21 @@ class HomeViewModelTest {
         viewModel.onEvent(HomeEvent.OnImportBook(uri))
 
         coVerify { importBookFromUriUseCase(any(), any()) }
+    }
+
+    @Test
+    fun `FILE-015 OnImportBook twice calls use case once`() = runTest {
+        val uri = mockk<Uri>()
+        val latch = CompletableDeferred<Result<Unit>>()
+        coEvery { importBookFromUriUseCase(any(), any()) } coAnswers { latch.await() }
+
+        try {
+            viewModel.onEvent(HomeEvent.OnImportBook(uri))
+            viewModel.onEvent(HomeEvent.OnImportBook(uri))
+
+            coVerify(exactly = 1) { importBookFromUriUseCase(any(), any()) }
+        } finally {
+            latch.complete(Result.success(Unit))
+        }
     }
 }

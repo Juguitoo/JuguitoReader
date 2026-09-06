@@ -16,6 +16,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -124,6 +125,22 @@ class LibraryViewModelTest {
         viewModel.effect.test {
             val effect = awaitItem()
             assertThat(effect).isInstanceOf(UiEffect.ShowSnackbar::class.java)
+        }
+    }
+
+    @Test
+    fun `FILE-015 importBook twice calls use case once`() = runTest {
+        val uri = mockk<Uri>()
+        val latch = CompletableDeferred<Result<Unit>>()
+        coEvery { importBookFromUriUseCase(any(), any()) } coAnswers { latch.await() }
+
+        try {
+            viewModel.importBook(uri)
+            viewModel.importBook(uri)
+
+            coVerify(exactly = 1) { importBookFromUriUseCase(any(), any()) }
+        } finally {
+            latch.complete(Result.success(Unit))
         }
     }
 

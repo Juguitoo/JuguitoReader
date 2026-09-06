@@ -136,8 +136,9 @@ class HomeViewModel @Inject constructor(
     }
 
     fun importBook(uri: Uri) {
+        if (_isImporting.value) return
+        _isImporting.value = true
         viewModelScope.launch {
-            _isImporting.value = true
             try {
                 importBookFromUriUseCase(context, uri)
                     .onFailure { exception ->

@@ -34,6 +34,7 @@ import io.mockk.runs
 import io.mockk.unmockkAll
 import io.mockk.verify
 import junit.framework.TestCase.assertEquals
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -545,6 +546,21 @@ class BookDetailViewModelTest {
         }
         verify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
             FileUtils.deleteReaderCache(any(), 1)
+        }
+    }
+
+    @Test
+    fun `FILE-015 OnSaveClick twice calls updateBook once`() = runTest {
+        val latch = CompletableDeferred<Result<Unit>>()
+        coEvery { updateBookUseCase(any()) } coAnswers { latch.await() }
+
+        try {
+            viewModel.onEvent(BookDetailEvent.OnSaveClick)
+            viewModel.onEvent(BookDetailEvent.OnSaveClick)
+
+            coVerify(timeout = IO_DISPATCHER_TIMEOUT_MS, exactly = 1) { updateBookUseCase(any()) }
+        } finally {
+            latch.complete(Result.success(Unit))
         }
     }
 }

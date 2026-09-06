@@ -269,7 +269,10 @@ fun BookDetailContent(
                             IconButton(onClick = { onEvent(BookDetailEvent.OnEditModeChanged(false)) }) {
                                 Icon(imageVector = Icons.Default.Close, contentDescription = stringResource(R.string.cancel), tint = Color.White)
                             }
-                            IconButton(onClick = { onEvent(BookDetailEvent.OnSaveClick) }) {
+                            IconButton(
+                                onClick = { onEvent(BookDetailEvent.OnSaveClick) },
+                                enabled = !state.isActionLoading
+                            ) {
                                 Icon(imageVector = Icons.Default.Check, contentDescription = stringResource(R.string.save), tint = Color.White)
                             }
                         } else {
