@@ -8,7 +8,7 @@ data class BookCriteria(
     val searchText: String = "",
     val statuses: Set<BookStatus> = emptySet(),
     val series: String? = null,
-    val sortBy: SortOption = SortOption.CREATED_AT_DESC
+    val sortBy: SortOption = SortOption.STARTED_AT_DESC
 )
 
 enum class SortOption(@StringRes val displayName: Int) {
@@ -16,8 +16,8 @@ enum class SortOption(@StringRes val displayName: Int) {
     TITLE_DESC(R.string.sort_title_desc),
     RATING_DESC(R.string.sort_rating_desc),
     RATING_ASC(R.string.sort_rating_asc),
-    CREATED_AT_DESC(R.string.sort_created_at_desc),
-    CREATED_AT_ASC(R.string.sort_created_at_asc),
+    STARTED_AT_DESC(R.string.sort_created_at_desc),
+    STARTED_AT_ASC(R.string.sort_created_at_asc),
     SERIES_ORDER_ASC(R.string.series_order)
 }
 
@@ -39,8 +39,8 @@ fun List<Book>.applyCriteria(criteria: BookCriteria): List<Book> {
             SortOption.TITLE_DESC -> compareByDescending { it.title.lowercase() }
             SortOption.RATING_DESC -> compareByDescending { it.rating }
             SortOption.RATING_ASC -> compareBy { it.rating }
-            SortOption.CREATED_AT_DESC -> compareByDescending { it.createdAt }
-            SortOption.CREATED_AT_ASC -> compareBy { it.createdAt }
+            SortOption.STARTED_AT_DESC -> compareByDescending { it.startDate }
+            SortOption.STARTED_AT_ASC -> compareBy { it.startDate }
             SortOption.SERIES_ORDER_ASC -> compareBy<Book> { it.series?.lowercase() }.thenBy { it.seriesOrder }
         }
     )

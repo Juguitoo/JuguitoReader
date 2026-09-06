@@ -200,7 +200,7 @@ fun RegistryContent(
                             TableHeaderItem(
                                 text = stringResource(R.string.start_col),
                                 width = ColFechaWidth,
-                                sortOption = SortOption.CREATED_AT_DESC,
+                                sortOption = SortOption.STARTED_AT_DESC,
                                 currentSort = state.criteria.sortBy,
                                 onSortClick = { onEvent(RegistryEvent.OnCriteriaChanged(state.criteria.copy(sortBy = it))) }
                             )
@@ -271,7 +271,7 @@ fun TableHeaderItem(
     val isSorting = when (sortOption) {
         SortOption.TITLE_ASC -> currentSort == SortOption.TITLE_ASC || currentSort == SortOption.TITLE_DESC
         SortOption.RATING_DESC -> currentSort == SortOption.RATING_DESC || currentSort == SortOption.RATING_ASC
-        SortOption.CREATED_AT_DESC -> currentSort == SortOption.CREATED_AT_DESC || currentSort == SortOption.CREATED_AT_ASC
+        SortOption.STARTED_AT_DESC -> currentSort == SortOption.STARTED_AT_DESC || currentSort == SortOption.STARTED_AT_ASC
         else -> false
     }
 
@@ -283,17 +283,17 @@ fun TableHeaderItem(
                 val nextSort = when (sortOption) {
                     SortOption.TITLE_ASC -> when (currentSort) {
                         SortOption.TITLE_ASC -> SortOption.TITLE_DESC
-                        SortOption.TITLE_DESC -> SortOption.CREATED_AT_DESC
+                        SortOption.TITLE_DESC -> SortOption.STARTED_AT_DESC
                         else -> SortOption.TITLE_ASC
                     }
                     SortOption.RATING_DESC -> when (currentSort) {
                         SortOption.RATING_DESC -> SortOption.RATING_ASC
-                        SortOption.RATING_ASC -> SortOption.CREATED_AT_DESC
+                        SortOption.RATING_ASC -> SortOption.STARTED_AT_DESC
                         else -> SortOption.RATING_DESC
                     }
-                    SortOption.CREATED_AT_DESC -> when (currentSort) {
-                        SortOption.CREATED_AT_DESC -> SortOption.CREATED_AT_ASC
-                        else -> SortOption.CREATED_AT_DESC
+                    SortOption.STARTED_AT_DESC -> when (currentSort) {
+                        SortOption.STARTED_AT_DESC -> SortOption.STARTED_AT_ASC
+                        else -> SortOption.STARTED_AT_DESC
                     }
                     else -> sortOption
                 }
@@ -317,8 +317,8 @@ fun TableHeaderItem(
                     currentSort == SortOption.TITLE_DESC && sortOption == SortOption.TITLE_ASC -> Icons.Default.ArrowDownward
                     currentSort == SortOption.RATING_DESC && sortOption == SortOption.RATING_DESC -> Icons.Default.ArrowDownward
                     currentSort == SortOption.RATING_ASC && sortOption == SortOption.RATING_DESC -> Icons.Default.ArrowUpward
-                    currentSort == SortOption.CREATED_AT_DESC && sortOption == SortOption.CREATED_AT_DESC -> Icons.Default.ArrowDownward
-                    currentSort == SortOption.CREATED_AT_ASC && sortOption == SortOption.CREATED_AT_DESC -> Icons.Default.ArrowUpward
+                    currentSort == SortOption.STARTED_AT_DESC && sortOption == SortOption.STARTED_AT_DESC -> Icons.Default.ArrowDownward
+                    currentSort == SortOption.STARTED_AT_ASC && sortOption == SortOption.STARTED_AT_DESC -> Icons.Default.ArrowUpward
                     else -> null
                 }
                 if (icon != null) {
