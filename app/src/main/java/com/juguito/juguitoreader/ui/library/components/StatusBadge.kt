@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.juguito.juguitoreader.domain.enums.BookStatus
+import com.juguito.juguitoreader.ui.common.toUiText
 
 @Composable
 fun StatusBadge(status: BookStatus, percentage: Int?, modifier: Modifier = Modifier) {
@@ -36,7 +37,7 @@ fun StatusBadge(status: BookStatus, percentage: Int?, modifier: Modifier = Modif
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = status.displayName.uppercase(),
+                text = status.toUiText().asString().uppercase(),
                 color = Color.White,
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,
