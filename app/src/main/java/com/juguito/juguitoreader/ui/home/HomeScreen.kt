@@ -111,7 +111,7 @@ fun HomeContent(
     val bookDeletedMessage = stringResource(R.string.book_deleted)
     val undoLabel = stringResource(R.string.undo)
 
-    if (bookToDelete != null) {
+    LaunchedEffect(bookToDelete) {
         bookToDelete?.let {
             onEvent(HomeEvent.OnDeleteBookClick(it))
         }

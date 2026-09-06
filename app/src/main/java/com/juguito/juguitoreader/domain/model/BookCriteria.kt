@@ -16,8 +16,8 @@ enum class SortOption(@StringRes val displayName: Int) {
     TITLE_DESC(R.string.sort_title_desc),
     RATING_DESC(R.string.sort_rating_desc),
     RATING_ASC(R.string.sort_rating_asc),
-    STARTED_AT_DESC(R.string.sort_created_at_desc),
-    STARTED_AT_ASC(R.string.sort_created_at_asc),
+    STARTED_AT_DESC(R.string.sort_started_at_desc),
+    STARTED_AT_ASC(R.string.sort_started_at_asc),
     SERIES_ORDER_ASC(R.string.series_order)
 }
 

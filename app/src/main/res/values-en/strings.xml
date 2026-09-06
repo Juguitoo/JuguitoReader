@@ -216,8 +216,8 @@
     <string name="sort_title_desc">Title (Z-A)</string>
     <string name="sort_rating_desc">Best rating</string>
     <string name="sort_rating_asc">Worst rating</string>
-    <string name="sort_created_at_desc">Most recent</string>
-    <string name="sort_created_at_asc">Oldest</string>
+    <string name="sort_started_at_desc">Most recent</string>
+    <string name="sort_started_at_asc">Oldest</string>
 
     <string name="reading_progress">Reading progress</string>
     <string name="start_date_label">Start Date</string>
