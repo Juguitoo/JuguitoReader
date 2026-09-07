@@ -13,12 +13,14 @@ Línea **v1.2.x** hasta producción en Play Store. Nube de pago (TAR-29 / v2) de
 ### Estrategia de publicación
 
 1. **v1.2.0** — Audit + fixes del pase **cerrados** en [archive/v1.2.0.md](archive/v1.2.0.md) → **pruebas cerradas**.
-2. **v1.2.1 / v1.2.2** — Pulido store (TAR-57/58) + backup manual (TAR-59). Bugs sin versión cuando toque.
+2. **v1.2.1 / v1.2.2** — Pulido store (TAR-57 hecho; TAR-58) + backup manual (TAR-59). Bugs sin versión cuando toque.
 3. **Producción** — Solo cuando esté TAR-59 y el cierre 1.2.x.
 
 ### v1.2.1 — Store polish
 
-About + changelog in-app (TAR-57, TAR-58). Ver [BACKLOG.md](BACKLOG.md).
+About in-app **hecho** (TAR-57). Changelog / novedades (TAR-58) pendiente. Ver [BACKLOG.md](BACKLOG.md) y [archive/v1.2.1.md](archive/v1.2.1.md).
+
+Licencia de producto: privativa / source-available (portfolio); ya no GPLv3.
 
 ### v1.2.2 — Backup manual *(gate producción)*
 
