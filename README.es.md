@@ -7,12 +7,12 @@
 Importa EPUBs, léelos en la app y registra también lo que lees en papel — fechas, nota, comentario, estado y estadísticas de sesión — sin backend.<br>
 Hecho con <b>Kotlin, Jetpack Compose, Hilt y Room</b>.
 <br><br>
-<a href="https://github.com/Juguitoo/juguitoreader-android/actions/workflows/test.yml"><img src="https://github.com/Juguitoo/juguitoreader-android/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
-<img src="https://img.shields.io/badge/Android-API%2026%2B-3DDC84?style=flat-square&logo=android&logoColor=white" alt="Android API 26+">
-<img src="https://img.shields.io/badge/Kotlin-2.4-7F52FF?style=flat-square&logo=kotlin&logoColor=white" alt="Kotlin">
-<img src="https://img.shields.io/badge/Jetpack%20Compose-4285F4?style=flat-square&logo=jetpackcompose&logoColor=white" alt="Jetpack Compose">
-<img src="https://img.shields.io/badge/Room-2.8-FF6F00?style=flat-square&logo=android&logoColor=white" alt="Room">
-<img src="https://img.shields.io/badge/License-Proprietary-red?style=flat-square" alt="Licencia privativa">
+<a href="https://github.com/Juguitoo/juguitoreader-android/actions/workflows/test.yml"><img src="https://github.com/Juguitoo/juguitoreader-android/actions/workflows/test.yml/badge.svg" alt="Tests" hspace="4"></a>
+<img src="https://img.shields.io/badge/Android-API%2026%2B-3DDC84?style=flat-square&logo=android&logoColor=white" alt="Android API 26+" hspace="4">
+<img src="https://img.shields.io/badge/Kotlin-2.4-7F52FF?style=flat-square&logo=kotlin&logoColor=white" alt="Kotlin" hspace="4">
+<img src="https://img.shields.io/badge/Jetpack%20Compose-4285F4?style=flat-square&logo=jetpackcompose&logoColor=white" alt="Jetpack Compose" hspace="4">
+<img src="https://img.shields.io/badge/Room-2.8-FF6F00?style=flat-square&logo=android&logoColor=white" alt="Room" hspace="4">
+<img src="https://img.shields.io/badge/License-Proprietary-red?style=flat-square" alt="Licencia privativa" hspace="4">
 <br><br>
 <em>Banner e icono: Daniela.</em>
 </div>
@@ -43,67 +43,24 @@ En vez de adaptarme a un lector en la nube, monté el gestor que uso de verdad.
 
 # Capturas
 
-PNG en vertical en [`docs/screenshots/`](docs/screenshots/). Descomenta cada `<img>` cuando esté el fichero.
+<div align="center">
 
-## Inicio
+<img src="docs/screenshots/home.png" alt="Inicio" width="180" hspace="10">&nbsp;&nbsp;
+<img src="docs/screenshots/library.png" alt="Biblioteca" width="180" hspace="10">&nbsp;&nbsp;
+<img src="docs/screenshots/reader.png" alt="Lector" width="180" hspace="10">&nbsp;&nbsp;
+<img src="docs/screenshots/registry.png" alt="Registro" width="180" hspace="10">
 
-Libros recientes de un vistazo.
+Inicio · Biblioteca · Lector · Registro
 
-<!--
-<p align="center">
-  <img src="./docs/screenshots/home.png" alt="Inicio" width="280">
-</p>
--->
+</div>
 
-Añade `docs/screenshots/home.png`
+## Demo
 
-## Biblioteca
+<div align="center">
 
-Explorar y abrir libros digitales o físicos.
+<img src="docs/screenshots/demo.gif" alt="Demo de JuguitoReader" width="320">
 
-<!--
-<p align="center">
-  <img src="./docs/screenshots/library.png" alt="Biblioteca" width="280">
-</p>
--->
-
-Añade `docs/screenshots/library.png`
-
-## Lector
-
-Lectura EPUB con tema y zoom.
-
-<!--
-<p align="center">
-  <img src="./docs/screenshots/reader.png" alt="Lector" width="280">
-</p>
--->
-
-Añade `docs/screenshots/reader.png`
-
-## Registro
-
-Editar metadatos en una vista tipo hoja.
-
-<!--
-<p align="center">
-  <img src="./docs/screenshots/registry.png" alt="Registro" width="280">
-</p>
--->
-
-Añade `docs/screenshots/registry.png`
-
-## Libro físico
-
-Un libro que existe en el registro aunque no haya EPUB.
-
-<!--
-<p align="center">
-  <img src="./docs/screenshots/physical.png" alt="Libro físico" width="280">
-</p>
--->
-
-Añade `docs/screenshots/physical.png` *(opcional)*
+</div>
 
 ---
 

@@ -8,7 +8,12 @@
 Import EPUBs, read them in the app, and log books you read on paper — dates, rating, notes, status, and session stats — without a backend.  
 Built with **Kotlin, Jetpack Compose, Hilt and Room**.   
 
-![Tests](https://github.com/Juguitoo/juguitoreader-android/actions/workflows/test.yml/badge.svg)![Android API 26+](https://img.shields.io/badge/Android-API%2026%2B-3DDC84?style=flat-square&logo=android&logoColor=white)![Kotlin](https://img.shields.io/badge/Kotlin-2.4-7F52FF?style=flat-square&logo=kotlin&logoColor=white)![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-4285F4?style=flat-square&logo=jetpackcompose&logoColor=white)![Room](https://img.shields.io/badge/Room-2.8-FF6F00?style=flat-square&logo=android&logoColor=white)![Proprietary license](https://img.shields.io/badge/License-Proprietary-red?style=flat-square)  
+![Tests](https://github.com/Juguitoo/juguitoreader-android/actions/workflows/test.yml/badge.svg)&nbsp;
+![Android API 26+](https://img.shields.io/badge/Android-API%2026%2B-3DDC84?style=flat-square&logo=android&logoColor=white)&nbsp;
+![Kotlin](https://img.shields.io/badge/Kotlin-2.4-7F52FF?style=flat-square&logo=kotlin&logoColor=white)&nbsp;
+![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-4285F4?style=flat-square&logo=jetpackcompose&logoColor=white)&nbsp;
+![Room](https://img.shields.io/badge/Room-2.8-FF6F00?style=flat-square&logo=android&logoColor=white)&nbsp;
+![Proprietary license](https://img.shields.io/badge/License-Proprietary-red?style=flat-square)  
 
 *Banner and app icon by Daniela.*
 
@@ -46,37 +51,24 @@ Instead of adapting to a cloud reader, I built the manager I actually use.
 
 # Screenshots
 
-Portrait PNGs in `[docs/screenshots/](docs/screenshots/)`. Uncomment each `<img>` when the file is there.
+<div align="center">
 
-## Home
+<img src="docs/screenshots/home.png" alt="Home" width="180" hspace="10">&nbsp;&nbsp;
+<img src="docs/screenshots/library.png" alt="Library" width="180" hspace="10">&nbsp;&nbsp;
+<img src="docs/screenshots/reader.png" alt="Reader" width="180" hspace="10">&nbsp;&nbsp;
+<img src="docs/screenshots/registry.png" alt="Registry" width="180" hspace="10">
 
-Recent books at a glance.
+Home · Library · Reader · Registry
 
-Add `docs/screenshots/home.png`
+</div>
 
-## Library
+## Demo
 
-Browse and open digital or physical books.
+<div align="center">
 
-Add `docs/screenshots/library.png`
+<img src="docs/screenshots/demo.gif" alt="JuguitoReader demo" width="320">
 
-## Reader
-
-EPUB reading with theme and zoom.
-
-Add `docs/screenshots/reader.png`
-
-## Registry
-
-Edit metadata in a spreadsheet-style view.
-
-Add `docs/screenshots/registry.png`
-
-## Physical book
-
-A book that exists in the log even when there is no EPUB.
-
-Add `docs/screenshots/physical.png` *(optional)*
+</div>
 
 ---
 
