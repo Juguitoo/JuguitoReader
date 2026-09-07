@@ -11,6 +11,7 @@ interface SettingsRepository {
     val autoStartReadingFlow: Flow<Boolean>
     val autoFinishReadingFlow: Flow<Boolean>
     val promptStatusChangeFlow: Flow<Boolean>
+    val lastSeenChangelogVersion: Flow<String?>
 
     suspend fun saveTextZoom(textZoom: Int)
     suspend fun saveReaderTheme(readerTheme: String)
@@ -20,4 +21,5 @@ interface SettingsRepository {
     suspend fun saveAutoStartReading(enable: Boolean)
     suspend fun saveAutoFinishReading(enable: Boolean)
     suspend fun savePromptStatusChange(enable: Boolean)
+    suspend fun saveLastSeenChangelogVersion(version: String)
 }
