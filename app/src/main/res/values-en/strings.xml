@@ -17,6 +17,7 @@
     <string name="no_title">No title</string>
     <string name="menu">Menu</string>
     <string name="settings">Settings</string>
+    <string name="about">About</string>
     <string name="return_text">Back</string>
     <string name="one_book">1 book</string>
     <string name="multiple_books">%d books</string>
@@ -275,4 +276,12 @@
     <string name="reader_sepia">Sepia</string>
     <string name="error_loading_data">Error loading data</string>
     <string name="error_book_not_found">Book not found</string>
+
+    <!-- About -->
+    <string name="about_version">Version %1$s</string>
+    <string name="about_creator_label">Creator</string>
+    <string name="about_creator_name">Juguitoo</string>
+    <string name="about_credits_label">Credits</string>
+    <string name="about_icon_credits">Icon by Daniela.</string>
+    <string name="about_copyright">© 2026 Hugo. All rights reserved.</string>
 </resources>

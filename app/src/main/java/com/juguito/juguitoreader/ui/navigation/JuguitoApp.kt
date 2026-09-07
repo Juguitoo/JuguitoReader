@@ -4,14 +4,17 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -19,6 +22,7 @@ import androidx.compose.material.icons.filled.AppRegistration
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material.icons.filled.NewLabel
 import androidx.compose.material.icons.filled.Settings
@@ -27,6 +31,8 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -45,6 +51,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -56,6 +63,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.ui.about.AboutScreen
 import com.juguito.juguitoreader.ui.book.add.AddBookScreen
 import com.juguito.juguitoreader.ui.book.detail.BookDetailScreen
 import com.juguito.juguitoreader.ui.folder.FolderScreen
@@ -189,19 +197,37 @@ fun JuguitoApp() {
                     }
                 )
 
-                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
-
                 Spacer(modifier = Modifier.weight(1f))
 
-                DrawerItem(
-                    label = stringResource(R.string.settings),
-                    icon = Icons.Default.Settings,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                        navController.navigate("settings")
-                    }
-                )
-                
+                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    DrawerFooterIcon(
+                        icon = Icons.Default.Settings,
+                        contentDescription = stringResource(R.string.settings),
+                        selected = currentRoute == "settings",
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            navController.navigate("settings")
+                        }
+                    )
+                    DrawerFooterIcon(
+                        icon = Icons.Default.Info,
+                        contentDescription = stringResource(R.string.about),
+                        selected = currentRoute == "about",
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            navController.navigate("about")
+                        }
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(12.dp))
             }
         }
@@ -349,6 +375,12 @@ fun JuguitoApp() {
                         onNavigateBack = { navController.popBackStack() },
                     )
                 }
+
+                composable(route = "about") {
+                    AboutScreen(
+                        onNavigateBack = { navController.popBackStack() },
+                    )
+                }
             }
         }
     }
@@ -431,4 +463,30 @@ fun DrawerItem(
         ),
         shape = RoundedCornerShape(12.dp)
     )
+}
+
+@Composable
+private fun DrawerFooterIcon(
+    icon: ImageVector,
+    contentDescription: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    IconButton(
+        onClick = onClick,
+        modifier = Modifier.background(
+            color = if (selected) colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent,
+            shape = CircleShape
+        ),
+        colors = IconButtonDefaults.iconButtonColors(
+            contentColor = if (selected) colorScheme.primary else colorScheme.onSurfaceVariant
+        )
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            modifier = Modifier.size(24.dp)
+        )
+    }
 }

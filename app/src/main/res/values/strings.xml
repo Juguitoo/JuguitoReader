@@ -17,6 +17,7 @@
     <string name="no_title">Sin título</string>
     <string name="menu">Menú</string>
     <string name="settings">Ajustes</string>
+    <string name="about">Acerca de</string>
     <string name="return_text">Volver</string>
     <string name="one_book">1 libro</string>
     <string name="multiple_books">%d libros</string>
@@ -276,4 +277,12 @@
     <string name="selected_check">Seleccionado</string>
     <string name="error_loading_data">Error al cargar los datos.</string>
     <string name="error_book_not_found">Libro no encontrado</string>
+
+    <!-- About -->
+    <string name="about_version">Versión %1$s</string>
+    <string name="about_creator_label">Creador</string>
+    <string name="about_creator_name">Juguitoo</string>
+    <string name="about_credits_label">Créditos</string>
+    <string name="about_icon_credits">Icono de Daniela.</string>
+    <string name="about_copyright">© 2026 Hugo. Todos los derechos reservados.</string>
 </resources>

@@ -40,6 +40,7 @@ Organizada por feature:
 | `ui/genre` | Diálogo de géneros |
 | `ui/management` | Gestión de carpetas y géneros |
 | `ui/settings` | Ajustes de app y lector |
+| `ui/about` | Acerca de (estática; sin ViewModel) |
 | `ui/navigation` | NavHost, drawer, rutas |
 | `ui/common` | Componentes, `UiText`, interfaces compartidas |
 
@@ -155,6 +156,7 @@ Centralizada en `ui/navigation/JuguitoApp.kt`:
 | `reader/{bookId}` | ReaderScreen |
 | `add_folder` / `edit_folder/{folderId}` | FolderScreen |
 | `settings` | SettingsScreen |
+| `about` | AboutScreen |
 
 ## Decisiones de diseño
 
