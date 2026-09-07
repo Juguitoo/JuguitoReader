@@ -90,4 +90,6 @@ Módulo único: `:app`.
 
 ## Licencia
 
-GNU General Public License v3.0 — ver [LICENSE](LICENSE).
+Copyright © 2026 Hugo. Todos los derechos reservados.
+
+El código se publica para consulta (portfolio). No está permitido copiarlo, modificarlo, distribuirlo ni usarlo en otro producto sin permiso escrito. Ver [LICENSE](LICENSE).
