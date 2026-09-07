@@ -8,7 +8,7 @@
 Import EPUBs, read them in the app, and log books you read on paper — dates, rating, notes, status, and session stats — without a backend.  
 Built with **Kotlin, Jetpack Compose, Hilt and Room**.   
 
-![Tests](https://github.com/Juguitoo/juguitoreader-android/actions/workflows/test.yml/badge.svg)&nbsp;
+![Tests](https://github.com/Juguitoo/JuguitoReader/actions/workflows/test.yml/badge.svg)&nbsp;
 ![Android API 26+](https://img.shields.io/badge/Android-API%2026%2B-3DDC84?style=flat-square&logo=android&logoColor=white)&nbsp;
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.4-7F52FF?style=flat-square&logo=kotlin&logoColor=white)&nbsp;
 ![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-4285F4?style=flat-square&logo=jetpackcompose&logoColor=white)&nbsp;
@@ -122,8 +122,8 @@ Single Gradle module `:app`. minSdk 26 · targetSdk 37.
 # Running locally
 
 ```bash
-git clone https://github.com/Juguitoo/juguitoreader-android.git
-cd juguitoreader-android
+git clone https://github.com/Juguitoo/JuguitoReader.git
+cd JuguitoReader
 ```
 
 Open in Android Studio (AGP 9.3+, JDK 17+) and sync Gradle.

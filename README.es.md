@@ -7,7 +7,7 @@
 Importa EPUBs, léelos en la app y registra también lo que lees en papel — fechas, nota, comentario, estado y estadísticas de sesión — sin backend.<br>
 Hecho con <b>Kotlin, Jetpack Compose, Hilt y Room</b>.
 <br><br>
-<a href="https://github.com/Juguitoo/juguitoreader-android/actions/workflows/test.yml"><img src="https://github.com/Juguitoo/juguitoreader-android/actions/workflows/test.yml/badge.svg" alt="Tests" hspace="4"></a>
+<a href="https://github.com/Juguitoo/JuguitoReader/actions/workflows/test.yml"><img src="https://github.com/Juguitoo/JuguitoReader/actions/workflows/test.yml/badge.svg" alt="Tests" hspace="4"></a>
 <img src="https://img.shields.io/badge/Android-API%2026%2B-3DDC84?style=flat-square&logo=android&logoColor=white" alt="Android API 26+" hspace="4">
 <img src="https://img.shields.io/badge/Kotlin-2.4-7F52FF?style=flat-square&logo=kotlin&logoColor=white" alt="Kotlin" hspace="4">
 <img src="https://img.shields.io/badge/Jetpack%20Compose-4285F4?style=flat-square&logo=jetpackcompose&logoColor=white" alt="Jetpack Compose" hspace="4">
@@ -104,8 +104,8 @@ Módulo Gradle único `:app`. minSdk 26 · targetSdk 37.
 # Cómo ejecutarlo
 
 ```bash
-git clone https://github.com/Juguitoo/juguitoreader-android.git
-cd juguitoreader-android
+git clone https://github.com/Juguitoo/JuguitoReader.git
+cd JuguitoReader
 ```
 
 Abre en Android Studio (AGP 9.3+, JDK 17+) y sincroniza Gradle.
