@@ -58,6 +58,8 @@ En `app/build.gradle.kts`:
 - `versionName` — semver (`1.2.0`)
 - `versionCode` — entero incremental para Play Console
 
+Al publicar una versión con notas in-app: añadir una entrada en `ChangelogUiCatalog` y el `string-array` `changelog_X_Y_Z` en `values/strings.xml` y `values-en/strings.xml`.
+
 ### Release
 
 1. `release/vX.Y` desde `dev`

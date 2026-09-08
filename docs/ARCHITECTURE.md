@@ -158,6 +158,7 @@ Centralizada en `ui/navigation/JuguitoApp.kt`:
 | `add_folder` / `edit_folder/{folderId}` | FolderScreen |
 | `settings` | SettingsScreen |
 | `about` | AboutScreen |
+| `changelog` | ChangelogScreen (desde About; diálogo Novedades overlay en `JuguitoApp`) |
 
 ## Decisiones de diseño
 

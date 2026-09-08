@@ -18,7 +18,6 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 | — | UX-024 | Barra de controles con scroll intra-capítulo | Fix | `[ ]` | KNOWN_ISSUES |
 | — | SEC-004 | Acotar `AndroidBridge` (no fiar WPM a JS del EPUB) | Fix | `[ ]` | KNOWN_ISSUES |
 | — | READER-017 | Ignorar eventos JS del capítulo anterior | Fix | `[ ]` | KNOWN_ISSUES |
-| v1.2.1 | TAR-58 | Changelog / novedades in-app por versión | Feat | `[ ]` | ROADMAP |
 | v1.2.2 | TAR-59 | Export / import manual de datos (backup local; gate producción Play) | Feat | `[ ]` | ROADMAP |
 | Pre-release | DATA-006 | Migraciones DB 1→5 o política destructive en dev | Chore | `[ ]` | DATABASE |
 | v1.3.0 | TAR-19 | Recopilación de estadísticas | Feat | `[ ]` | ROADMAP |
