@@ -13,6 +13,7 @@ class DrawerGesturesTest {
         assertThat(areDrawerGesturesEnabled("management")).isTrue()
         assertThat(areDrawerGesturesEnabled("settings")).isTrue()
         assertThat(areDrawerGesturesEnabled("about")).isTrue()
+        assertThat(areDrawerGesturesEnabled("changelog")).isTrue()
         assertThat(areDrawerGesturesEnabled(null)).isTrue()
     }
 

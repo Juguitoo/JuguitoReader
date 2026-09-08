@@ -1,7 +1,7 @@
 package com.juguito.juguitoreader.domain.usecase.changelog
 
-import com.juguito.juguitoreader.utils.unseenChangelogVersions
 import com.juguito.juguitoreader.domain.repository.SettingsRepository
+import com.juguito.juguitoreader.utils.unseenChangelogVersions
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 

@@ -56,6 +56,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -67,6 +68,10 @@ import com.juguito.juguitoreader.ui.about.AboutScreen
 import com.juguito.juguitoreader.ui.book.add.AddBookScreen
 import com.juguito.juguitoreader.ui.book.detail.BookDetailScreen
 import com.juguito.juguitoreader.ui.changelog.ChangelogScreen
+import com.juguito.juguitoreader.ui.changelog.WhatsNewDialog
+import com.juguito.juguitoreader.ui.changelog.WhatsNewEvent
+import com.juguito.juguitoreader.ui.changelog.WhatsNewUiState
+import com.juguito.juguitoreader.ui.changelog.WhatsNewViewModel
 import com.juguito.juguitoreader.ui.folder.FolderScreen
 import com.juguito.juguitoreader.ui.genre.AddGenreDialog
 import com.juguito.juguitoreader.ui.home.HomeScreen
@@ -79,13 +84,17 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JuguitoApp() {
+fun JuguitoApp(
+    whatsNewViewModel: WhatsNewViewModel = hiltViewModel()
+) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
+    val whatsNewState by whatsNewViewModel.uiState.collectAsState()
+    val isWhatsNewVisible = whatsNewState is WhatsNewUiState.Visible
 
     var showAddGenreDialog by remember { mutableStateOf(false) }
 
@@ -95,9 +104,16 @@ fun JuguitoApp() {
         )
     }
 
+    if (isWhatsNewVisible) {
+        WhatsNewDialog(
+            state = whatsNewState,
+            onDismissRequest = { whatsNewViewModel.onEvent(WhatsNewEvent.OnDismiss) }
+        )
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
-        gesturesEnabled = areDrawerGesturesEnabled(currentRoute) && !showAddGenreDialog,
+        gesturesEnabled = areDrawerGesturesEnabled(currentRoute) && !showAddGenreDialog && !isWhatsNewVisible,
         drawerContent = {
             ModalDrawerSheet(
                 modifier = Modifier.fillMaxWidth(0.75f),

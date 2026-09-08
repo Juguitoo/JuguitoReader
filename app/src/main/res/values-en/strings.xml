@@ -285,6 +285,9 @@
     <string name="about_icon_credits">Icon by Daniela.</string>
     <string name="about_copyright">© 2026 Hugo. All rights reserved.</string>
     <string name="changelog">Changelog</string>
+    <string name="whats_new_title">What\'s new in %1$s</string>
+    <string name="whats_new_message">Here\'s what changed.</string>
+    <string name="whats_new_got_it">Got it</string>
 
     <!-- Changelog -->
     <string-array name="changelog_1_2_1">

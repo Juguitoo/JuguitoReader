@@ -286,6 +286,9 @@
     <string name="about_icon_credits">Icono de Daniela.</string>
     <string name="about_copyright">© 2026 Hugo. Todos los derechos reservados.</string>
     <string name="changelog">Novedades</string>
+    <string name="whats_new_title">Novedades de %1$s</string>
+    <string name="whats_new_message">Esto es lo que ha cambiado.</string>
+    <string name="whats_new_got_it">Entendido</string>
 
     <!-- Changelog -->
     <string-array name="changelog_1_2_1">
