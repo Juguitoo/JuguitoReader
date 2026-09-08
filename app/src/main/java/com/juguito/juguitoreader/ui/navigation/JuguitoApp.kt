@@ -66,6 +66,7 @@ import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.ui.about.AboutScreen
 import com.juguito.juguitoreader.ui.book.add.AddBookScreen
 import com.juguito.juguitoreader.ui.book.detail.BookDetailScreen
+import com.juguito.juguitoreader.ui.changelog.ChangelogScreen
 import com.juguito.juguitoreader.ui.folder.FolderScreen
 import com.juguito.juguitoreader.ui.genre.AddGenreDialog
 import com.juguito.juguitoreader.ui.home.HomeScreen
@@ -378,6 +379,13 @@ fun JuguitoApp() {
 
                 composable(route = "about") {
                     AboutScreen(
+                        onNavigateBack = { navController.popBackStack() },
+                        onOpenChangelog = { navController.navigate("changelog") }
+                    )
+                }
+
+                composable(route = "changelog") {
+                    ChangelogScreen(
                         onNavigateBack = { navController.popBackStack() },
                     )
                 }

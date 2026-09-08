@@ -1,4 +1,4 @@
-package com.juguito.juguitoreader.domain.changelog
+package com.juguito.juguitoreader.utils
 
 fun compareVersionNames(a: String, b: String): Int {
     val splitA = a.split(".").map { it.toIntOrNull() ?: 0 }

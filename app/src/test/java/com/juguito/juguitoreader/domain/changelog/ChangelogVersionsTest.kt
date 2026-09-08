@@ -1,6 +1,8 @@
 package com.juguito.juguitoreader.domain.changelog
 
 import com.google.common.truth.Truth.assertThat
+import com.juguito.juguitoreader.utils.compareVersionNames
+import com.juguito.juguitoreader.utils.unseenChangelogVersions
 import org.junit.Test
 
 class ChangelogVersionsTest {

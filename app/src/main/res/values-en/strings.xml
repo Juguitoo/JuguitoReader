@@ -284,4 +284,33 @@
     <string name="about_credits_label">Credits</string>
     <string name="about_icon_credits">Icon by Daniela.</string>
     <string name="about_copyright">© 2026 Hugo. All rights reserved.</string>
+    <string name="changelog">Changelog</string>
+
+    <!-- Changelog -->
+    <string-array name="changelog_1_2_1">
+        <item>About screen with version, credits, and copyright.</item>
+        <item>In-app changelog and what\'s new after an update.</item>
+    </string-array>
+    <string-array name="changelog_1_2_0">
+        <item>Use the app in Spanish or English.</item>
+        <item>Reading sessions and reading speed (WPM).</item>
+        <item>Automatic status change when you start or finish a book.</item>
+        <item>Reading progress on book covers.</item>
+        <item>More stable reader and library.</item>
+    </string-array>
+    <string-array name="changelog_1_1_0">
+        <item>Settings screen.</item>
+        <item>Undo after deleting a book.</item>
+        <item>Import EPUBs from the library.</item>
+        <item>Improved folder and genre manager.</item>
+    </string-array>
+    <string-array name="changelog_1_0_1">
+        <item>Safer EPUB opening.</item>
+        <item>Delete a book from its details screen.</item>
+    </string-array>
+    <string-array name="changelog_1_0_0">
+        <item>EPUB reader.</item>
+        <item>Reading log.</item>
+        <item>Library with folders and genres.</item>
+    </string-array>
 </resources>

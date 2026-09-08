@@ -41,6 +41,7 @@ Organizada por feature:
 | `ui/management` | Gestión de carpetas y géneros |
 | `ui/settings` | Ajustes de app y lector |
 | `ui/about` | Acerca de (estática; sin ViewModel) |
+| `ui/changelog` | Novedades de versiones |
 | `ui/navigation` | NavHost, drawer, rutas |
 | `ui/common` | Componentes, `UiText`, interfaces compartidas |
 

@@ -285,4 +285,33 @@
     <string name="about_credits_label">Créditos</string>
     <string name="about_icon_credits">Icono de Daniela.</string>
     <string name="about_copyright">© 2026 Hugo. Todos los derechos reservados.</string>
+    <string name="changelog">Novedades</string>
+
+    <!-- Changelog -->
+    <string-array name="changelog_1_2_1">
+        <item>Pantalla Acerca de con versión, créditos y copyright.</item>
+        <item>Historial de cambios en la app y novedades al actualizar.</item>
+    </string-array>
+    <string-array name="changelog_1_2_0">
+        <item>La app se puede usar en español o en inglés.</item>
+        <item>Sesiones de lectura y velocidad de lectura (WPM).</item>
+        <item>Cambio automático de estado al empezar o terminar un libro.</item>
+        <item>Porcentaje de lectura en las portadas.</item>
+        <item>Lector y biblioteca más estables.</item>
+    </string-array>
+    <string-array name="changelog_1_1_0">
+        <item>Pantalla de ajustes.</item>
+        <item>Deshacer al borrar un libro.</item>
+        <item>Importar EPUB desde la biblioteca.</item>
+        <item>Gestor de carpetas y géneros mejorado.</item>
+    </string-array>
+    <string-array name="changelog_1_0_1">
+        <item>Más seguridad al abrir archivos EPUB.</item>
+        <item>Eliminar un libro desde su ficha.</item>
+    </string-array>
+    <string-array name="changelog_1_0_0">
+        <item>Lector EPUB.</item>
+        <item>Registro de lecturas.</item>
+        <item>Biblioteca con carpetas y géneros.</item>
+    </string-array>
 </resources>
