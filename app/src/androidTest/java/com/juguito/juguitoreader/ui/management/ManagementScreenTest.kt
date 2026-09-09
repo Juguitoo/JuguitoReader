@@ -26,7 +26,7 @@ class ManagementScreenTest {
                     onEvent = {},
                     managementMessage = null,
                     onClearManagementMessage = {},
-                    onNavigateBack = {},
+                    onOpenDrawer = {},
                     onNavigateToEditFolder = {},
                     onNavigateToAddFolder = {},
                     effect = emptyFlow()

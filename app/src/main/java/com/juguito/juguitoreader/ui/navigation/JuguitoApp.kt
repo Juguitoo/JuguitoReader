@@ -57,6 +57,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -131,10 +132,7 @@ fun JuguitoApp(
                     onClick = { 
                         scope.launch { 
                             drawerState.close()
-                            navController.navigate("home") {
-                                popUpTo("home") { inclusive = true }
-                                launchSingleTop = true
-                            }
+                            navController.navigateToTopLevel("home")
                         } 
                     }
                 )
@@ -146,10 +144,7 @@ fun JuguitoApp(
                     onClick = { 
                         scope.launch { 
                             drawerState.close()
-                            navController.navigate("registry") {
-                                popUpTo("registry") { inclusive = true }
-                                launchSingleTop = true
-                            }
+                            navController.navigateToTopLevel("registry")
                         } 
                     }
                 )
@@ -161,10 +156,7 @@ fun JuguitoApp(
                     onClick = {
                         scope.launch {
                             drawerState.close()
-                            navController.navigate("library") {
-                                popUpTo("library") { inclusive = true }
-                                launchSingleTop = true
-                            }
+                            navController.navigateToTopLevel("library")
                         }
                     }
                 )
@@ -185,10 +177,7 @@ fun JuguitoApp(
                     onClick = {
                         scope.launch {
                             drawerState.close()
-                            navController.navigate("management") {
-                                popUpTo("management") { inclusive = true }
-                                launchSingleTop = true
-                            }
+                            navController.navigateToTopLevel("management")
                         }
                     }
                 )
@@ -241,10 +230,7 @@ fun JuguitoApp(
                         selected = currentRoute == "settings",
                         onClick = {
                             scope.launch { drawerState.close() }
-                            navController.navigate("settings") {
-                                popUpTo("settings") { inclusive = true }
-                                launchSingleTop = true
-                            }
+                            navController.navigate("settings")
                         }
                     )
                     DrawerFooterIcon(
@@ -253,10 +239,7 @@ fun JuguitoApp(
                         selected = currentRoute == "about",
                         onClick = {
                             scope.launch { drawerState.close() }
-                            navController.navigate("about") {
-                                popUpTo("about") { inclusive = true }
-                                launchSingleTop = true
-                            }
+                            navController.navigate("about")
                         }
                     )
                 }
@@ -347,7 +330,7 @@ fun JuguitoApp(
                         onClearManagementMessage = {
                             savedStateHandle.remove<Int>("snackbar_result")
                         },
-                        onNavigateBack = { navController.popBackStack() },
+                        onOpenDrawer = { scope.launch { drawerState.open() } },
                         onNavigateToEditFolder = { folderId ->
                             navController.navigate("edit_folder/$folderId")
                         },
@@ -437,6 +420,15 @@ internal fun areDrawerGesturesEnabled(route: String?): Boolean {
         "about",
         "settings" -> false
         else -> true
+    }
+}
+
+private fun NavHostController.navigateToTopLevel(route: String) {
+    navigate(route) {
+        popUpTo(graph.id) {
+            inclusive = false
+        }
+        launchSingleTop = true
     }
 }
 
