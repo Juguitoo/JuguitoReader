@@ -11,9 +11,6 @@ class DrawerGesturesTest {
         assertThat(areDrawerGesturesEnabled("library")).isTrue()
         assertThat(areDrawerGesturesEnabled("registry")).isTrue()
         assertThat(areDrawerGesturesEnabled("management")).isTrue()
-        assertThat(areDrawerGesturesEnabled("settings")).isTrue()
-        assertThat(areDrawerGesturesEnabled("about")).isTrue()
-        assertThat(areDrawerGesturesEnabled("changelog")).isTrue()
         assertThat(areDrawerGesturesEnabled(null)).isTrue()
     }
 
@@ -24,5 +21,8 @@ class DrawerGesturesTest {
         assertThat(areDrawerGesturesEnabled("edit_folder/{folderId}")).isFalse()
         assertThat(areDrawerGesturesEnabled("book_detail/{bookId}")).isFalse()
         assertThat(areDrawerGesturesEnabled("reader/{bookId}")).isFalse()
+        assertThat(areDrawerGesturesEnabled("about")).isFalse()
+        assertThat(areDrawerGesturesEnabled("changelog")).isFalse()
+        assertThat(areDrawerGesturesEnabled("settings")).isFalse()
     }
 }

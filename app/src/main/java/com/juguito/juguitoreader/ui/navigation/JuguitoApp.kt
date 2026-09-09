@@ -416,7 +416,10 @@ internal fun areDrawerGesturesEnabled(route: String?): Boolean {
         "add_folder",
         "edit_folder/{folderId}",
         "book_detail/{bookId}",
-        "reader/{bookId}" -> false
+        "reader/{bookId}",
+        "changelog",
+        "about",
+        "settings" -> false
         else -> true
     }
 }
