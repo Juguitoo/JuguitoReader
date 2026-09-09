@@ -269,6 +269,7 @@ private fun restoreScrollScript(scrollPosition: Float): String = """
         } else if (scrollableHeight > 0) {
             window.scrollTo(0, scrollableHeight * targetPos);
         }
+        AndroidBridge.reportScrollPosition(currentScrollPercent());
         if (typeof updateReadingTime === 'function') updateReadingTime();
     }, 100);
 """.trimIndent()
@@ -305,17 +306,24 @@ private fun behaviorScript(scrollPosition: Float, wpm: Int): String = """
         } else if (scrollableHeight > 0) {
             window.scrollTo(0, scrollableHeight * targetPos);
         }
+        AndroidBridge.reportScrollPosition(currentScrollPercent());
         AndroidBridge.reportInitialWordsRead(currentWordsRead());
         updateReadingTime();
     }, 100);
 
     var scrollTimeout;
-    window.onscroll = function() {
+    function scheduleProgressReport() {
         clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(function() {
+        scrollTimeout = setTimeout(function () {
             AndroidBridge.reportScrollPosition(currentScrollPercent());
             updateReadingTime();
         }, 500);
+    }
+    
+    window.onscroll = scheduleProgressReport;
+    window.addEventListener('resize', scheduleProgressReport);
+    if (typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(scheduleProgressReport).observe(document.documentElement);
     }
 
     var startY = 0;
