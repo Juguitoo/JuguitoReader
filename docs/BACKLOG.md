@@ -8,7 +8,6 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 
 | Versión | ID | Tarea | Tipo | Estado | Ref |
 |---------|-----|-------|------|--------|-----|
-| — | READER-016 | No descartar sesión/WPM en pausas ≤60s | Fix | `[ ]` | KNOWN_ISSUES |
 | — | UX-011 | Drawer: `launchSingleTop` / `popUpTo` | Fix | `[ ]` | KNOWN_ISSUES |
 | — | UX-012 | Poder limpiar fechas inicio/fin | Fix | `[ ]` | KNOWN_ISSUES |
 | — | UX-013 | DatePicker: medianoche UTC del día local | Fix | `[ ]` | KNOWN_ISSUES |

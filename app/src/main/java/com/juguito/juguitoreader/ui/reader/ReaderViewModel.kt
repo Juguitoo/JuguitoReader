@@ -82,9 +82,8 @@ class ReaderViewModel @Inject constructor(
 
     private val bookId: Int = checkNotNull(savedStateHandle["bookId"])
     private var initialPercentage: Int = -1
-    private var sessionStartTimeMillis: Long = 0L
-    private var isReaderResumed: Boolean = false
     internal var currentTimeProvider: () -> Long = { System.currentTimeMillis() }
+    private val sessionClock = ReadingSessionClock(now = { currentTimeProvider() })
     private var persistProgressJob: Job? = null
     private var lastPersistedProgress: ReadingProgress? = null
     internal var progressPersistDebounceMs: Long = PROGRESS_PERSIST_DEBOUNCE_MS
@@ -213,9 +212,10 @@ class ReaderViewModel @Inject constructor(
             is ReaderEvent.OnToggleSessionsDialog -> {
                 if (currentState.showSessionsDialog) {
                     updateSuccessState { it.copy(showSessionsDialog = false) }
+                    startSessionTimerIfPossible()
                 } else {
+                    sessionClock.freeze()
                     saveCurrentReadingSession(currentState)
-                    sessionStartTimeMillis = currentTimeProvider()
                     updateSuccessState { it.copy(showSessionsDialog = true) }
                 }
             }
@@ -251,21 +251,20 @@ class ReaderViewModel @Inject constructor(
     }
 
     private fun onReaderResumed() {
-        isReaderResumed = true
+        sessionClock.onResumed()
         startSessionTimerIfPossible()
     }
 
     private fun onReaderPaused() {
-        isReaderResumed = false
         flushProgressPersist()
+        sessionClock.onPaused()
         val currentState = _internalState.value as? ReaderUiState.Success ?: return
         saveCurrentReadingSession(currentState)
     }
 
     private fun startSessionTimerIfPossible() {
-        if (!isReaderResumed || sessionStartTimeMillis > 0L) return
         if (_internalState.value !is ReaderUiState.Success) return
-        sessionStartTimeMillis = currentTimeProvider()
+        sessionClock.tryStart()
     }
 
     private fun updateChapter(currentState: ReaderUiState.Success, newIndex: Int) {
@@ -295,7 +294,8 @@ class ReaderViewModel @Inject constructor(
 
     private fun handleBackRequest(currentState: ReaderUiState.Success) {
         flushProgressPersist()
-        if (sessionStartTimeMillis > 0L) saveCurrentReadingSession(currentState)
+        saveCurrentReadingSession(currentState)
+        resetSession()
         val currentPercentage = currentState.readingProgress.percentage
         val sessionDelta = currentPercentage - initialPercentage
 
@@ -323,31 +323,30 @@ class ReaderViewModel @Inject constructor(
     }
 
     private fun saveCurrentReadingSession(currentState: ReaderUiState.Success) {
-        if (sessionStartTimeMillis <= 0L) return
+        val sessionDuration = sessionClock.durationMillis()
+        if (sessionDuration <= 0L || !sessionClock.shouldPersist()) return
 
-        val sessionEndTimeMillis = currentTimeProvider()
-        val deltaTimeMillis = sessionEndTimeMillis - sessionStartTimeMillis
-        if (deltaTimeMillis > 60_000) {
-            val todayDateString = LocalDate.now().toString()
-            val sessionMinutes = deltaTimeMillis / 60000.0
-            val speedWpm = (currentState.accumulatedReadWords / sessionMinutes).toInt()
-            val dailyReading = DailyReading(
-                bookId = currentState.book.id,
-                date = todayDateString,
-                timeSpentMillis = deltaTimeMillis.toInt(),
-                reachedPercentage = currentState.readingProgress.percentage.toFloat(),
-                readingSpeed = speedWpm
-            )
-            viewModelScope.launch {
-                addDailyReadingUseCase.invoke(dailyReading)
-            }
+        val sessionMinutes = sessionDuration / 60000.0
+        val dailyReading = DailyReading(
+            bookId = currentState.book.id,
+            date = LocalDate.now().toString(),
+            timeSpentMillis = sessionDuration.toInt(),
+            reachedPercentage = currentState.readingProgress.percentage.toFloat(),
+            readingSpeed = (currentState.accumulatedReadWords / sessionMinutes).toInt()
+        )
+        resetSession()
+        viewModelScope.launch {
+            addDailyReadingUseCase.invoke(dailyReading)
         }
-        updateSuccessState { it.copy(accumulatedReadWords = 0) }
-        sessionStartTimeMillis = 0L
     }
 
     private fun updateSuccessState(transform: (ReaderUiState.Success) -> ReaderUiState.Success) {
         _internalState.update { state -> if (state is ReaderUiState.Success) transform(state) else state }
+    }
+
+    private fun resetSession() {
+        updateSuccessState { it.copy(accumulatedReadWords = 0) }
+        sessionClock.reset()
     }
 
     private fun scheduleProgressPersist(progress: ReadingProgress) {

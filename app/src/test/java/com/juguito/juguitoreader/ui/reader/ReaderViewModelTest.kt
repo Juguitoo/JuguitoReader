@@ -167,6 +167,15 @@ class ReaderViewModelTest {
         )
     }
 
+    /** Reloj fake inyectado antes de que el load arranque el timer (Main no es Unconfined). */
+    private fun TestScope.sessionReadyViewModel(now: () -> Long): ReaderViewModel {
+        val vm = createLoadingViewModel()
+        vm.currentTimeProvider = now
+        backgroundScope.launch { vm.uiState.collect { } }
+        advanceUntilIdle()
+        return vm
+    }
+
     @Test
     fun `initial state is Loading then Error if parse fails`() = runTest {
         coEvery { parseEpubUseCase(any(), any()) } returns Result.failure(Exception("Parse error"))
@@ -596,44 +605,30 @@ class ReaderViewModelTest {
 
     @Test
     fun `READER-011 saving a session resets accumulated words`() = runTest {
-        val epubContent = EpubContent(baseDir = "", spine = listOf("ch1"), chaptersTree = emptyList())
-        coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
+        var now = 1_000L
+        viewModel = sessionReadyViewModel { now }
 
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
-
-        val job = backgroundScope.launch { viewModel.uiState.collect { } }
-        advanceUntilIdle()
-
-        viewModel.currentTimeProvider = { 1_000L }
         viewModel.onEvent(ReaderEvent.OnStartReading)
         viewModel.onEvent(ReaderEvent.OnReportWordsRead(400))
 
-        viewModel.currentTimeProvider = { 121_000L }
+        now = 121_000L
         viewModel.onEvent(ReaderEvent.OnToggleSessionsDialog)
         advanceUntilIdle()
 
         val state = viewModel.uiState.value as ReaderUiState.Success
         assertThat(state.showSessionsDialog).isTrue()
         assertThat(state.accumulatedReadWords).isEqualTo(0)
-
-        job.cancel()
     }
 
     @Test
     fun `saveCurrentReadingSession calculates reading speed correctly`() = runTest {
-        val epubContent = EpubContent(baseDir = "", spine = listOf("ch1"), chaptersTree = emptyList())
-        coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
+        var now = 1_000L
+        viewModel = sessionReadyViewModel { now }
 
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
-
-        val job = backgroundScope.launch { viewModel.uiState.collect { } }
-        advanceUntilIdle()
-
-        viewModel.currentTimeProvider = { 1000L }
         viewModel.onEvent(ReaderEvent.OnStartReading)
         viewModel.onEvent(ReaderEvent.OnReportWordsRead(400))
 
-        viewModel.currentTimeProvider = { 121_000L }
+        now = 121_000L
 
         val slot = slot<DailyReading>()
         coEvery { addDailyReadingUseCase.invoke(capture(slot)) } returns Result.success(Unit)
@@ -643,8 +638,72 @@ class ReaderViewModelTest {
 
         assertThat(slot.captured.timeSpentMillis).isEqualTo(120_000)
         assertThat(slot.captured.readingSpeed).isEqualTo(200)
+    }
 
-        job.cancel()
+    @Test
+    fun `READER-016 short pause is excluded from session duration`() = runTest {
+        var now = 1_000L
+        viewModel = sessionReadyViewModel { now }
+
+        val slot = slot<DailyReading>()
+        coEvery { addDailyReadingUseCase.invoke(capture(slot)) } returns Result.success(Unit)
+
+        viewModel.onEvent(ReaderEvent.OnStartReading)
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(400))
+
+        now = 11_000L
+        viewModel.onEvent(ReaderEvent.OnFinishReading)
+        advanceUntilIdle()
+        coVerify(exactly = 0) { addDailyReadingUseCase(any()) }
+        assertThat((viewModel.uiState.value as ReaderUiState.Success).accumulatedReadWords).isEqualTo(400)
+
+        now = 121_000L
+        viewModel.onEvent(ReaderEvent.OnStartReading)
+        now = 141_000L
+        viewModel.onEvent(ReaderEvent.OnFinishReading)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { addDailyReadingUseCase(any()) }
+        assertThat(slot.captured.timeSpentMillis).isEqualTo(30_000)
+        assertThat(slot.captured.readingSpeed).isEqualTo(800)
+        assertThat((viewModel.uiState.value as ReaderUiState.Success).accumulatedReadWords).isEqualTo(0)
+    }
+
+    @Test
+    fun `READER-016 pause over threshold persists without resume`() = runTest {
+        var now = 1_000L
+        viewModel = sessionReadyViewModel { now }
+
+        val slot = slot<DailyReading>()
+        coEvery { addDailyReadingUseCase.invoke(capture(slot)) } returns Result.success(Unit)
+
+        viewModel.onEvent(ReaderEvent.OnStartReading)
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(400))
+
+        now = 21_000L
+        viewModel.onEvent(ReaderEvent.OnFinishReading)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { addDailyReadingUseCase(any()) }
+        assertThat(slot.captured.timeSpentMillis).isEqualTo(20_000)
+        assertThat(slot.captured.readingSpeed).isEqualTo(1_200)
+    }
+
+    @Test
+    fun `READER-016 back then pause does not persist the session twice`() = runTest {
+        var now = 1_000L
+        viewModel = sessionReadyViewModel { now }
+
+        viewModel.onEvent(ReaderEvent.OnStartReading)
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(400))
+
+        now = 121_000L
+        viewModel.onEvent(ReaderEvent.OnBackRequested)
+        advanceUntilIdle()
+        viewModel.onEvent(ReaderEvent.OnFinishReading)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { addDailyReadingUseCase(any()) }
     }
 
     @Test
