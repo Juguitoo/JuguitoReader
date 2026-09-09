@@ -18,6 +18,7 @@ import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgre
 import com.juguito.juguitoreader.domain.usecase.readingProgress.UpdateReadingProgressUseCase
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.exception.JuguitoException
+import com.juguito.juguitoreader.domain.model.hasSamePersistedValues
 import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.asUiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
@@ -231,25 +232,6 @@ class ReaderViewModel @Inject constructor(
         }
     }
 
-    private fun creditWordsRead(currentState: ReaderUiState.Success, words: Int) {
-        val delta = words - currentState.lastReportedChapterWords
-
-        _internalState.value = currentState.copy(
-            lastReportedChapterWords = words,
-            accumulatedReadWords = currentState.accumulatedReadWords + delta.coerceAtLeast(0)
-        )
-    }
-
-    private fun handleRenderProcessGone(currentState: ReaderUiState.Success) {
-        flushProgressPersist()
-
-        if (currentState.webViewInstanceKey >= MAX_RENDERER_RECOVERIES) {
-            _internalState.value = ReaderUiState.Error(UiText.StringResource(R.string.error_reader_render_process_gone))
-            return
-        }
-        updateSuccessState { it.copy(webViewInstanceKey = it.webViewInstanceKey + 1) }
-    }
-
     private fun onReaderResumed() {
         sessionClock.onResumed()
         startSessionTimerIfPossible()
@@ -267,29 +249,19 @@ class ReaderViewModel @Inject constructor(
         sessionClock.tryStart()
     }
 
-    private fun updateChapter(currentState: ReaderUiState.Success, newIndex: Int) {
-        persistProgressJob?.cancel()
-        persistProgressJob = null
-        val spineSize = currentState.epubContent.spine.size
+    private fun resetSession() {
+        updateSuccessState { it.copy(accumulatedReadWords = 0) }
+        sessionClock.reset()
+    }
 
-        if (newIndex !in 0..<spineSize) return
+    private fun handleRenderProcessGone(currentState: ReaderUiState.Success) {
+        flushProgressPersist()
 
-        val updatedProgress = currentState.readingProgress.copy(
-            lastChapterIndex = newIndex,
-            scrollPosition = 0f,
-            lastReadAt = currentTimeProvider()
-        )
-
-        _internalState.value = currentState.copy(
-            currentChapterIndex = newIndex,
-            readingProgress = updatedProgress,
-            lastReportedChapterWords = 0,
-            timeRemaining = null
-        )
-
-        viewModelScope.launch {
-            persistProgress(updatedProgress)
+        if (currentState.webViewInstanceKey >= MAX_RENDERER_RECOVERIES) {
+            _internalState.value = ReaderUiState.Error(UiText.StringResource(R.string.error_reader_render_process_gone))
+            return
         }
+        updateSuccessState { it.copy(webViewInstanceKey = it.webViewInstanceKey + 1) }
     }
 
     private fun handleBackRequest(currentState: ReaderUiState.Success) {
@@ -322,33 +294,6 @@ class ReaderViewModel @Inject constructor(
         }
     }
 
-    private fun saveCurrentReadingSession(currentState: ReaderUiState.Success) {
-        val sessionDuration = sessionClock.durationMillis()
-        if (sessionDuration <= 0L || !sessionClock.shouldPersist()) return
-
-        val sessionMinutes = sessionDuration / 60000.0
-        val dailyReading = DailyReading(
-            bookId = currentState.book.id,
-            date = LocalDate.now().toString(),
-            timeSpentMillis = sessionDuration.toInt(),
-            reachedPercentage = currentState.readingProgress.percentage.toFloat(),
-            readingSpeed = (currentState.accumulatedReadWords / sessionMinutes).toInt()
-        )
-        resetSession()
-        viewModelScope.launch {
-            addDailyReadingUseCase.invoke(dailyReading)
-        }
-    }
-
-    private fun updateSuccessState(transform: (ReaderUiState.Success) -> ReaderUiState.Success) {
-        _internalState.update { state -> if (state is ReaderUiState.Success) transform(state) else state }
-    }
-
-    private fun resetSession() {
-        updateSuccessState { it.copy(accumulatedReadWords = 0) }
-        sessionClock.reset()
-    }
-
     private fun scheduleProgressPersist(progress: ReadingProgress) {
         persistProgressJob?.cancel()
         persistProgressJob = viewModelScope.launch {
@@ -372,9 +317,58 @@ class ReaderViewModel @Inject constructor(
         lastPersistedProgress = progress
     }
 
-    private fun ReadingProgress.hasSamePersistedValues(other: ReadingProgress): Boolean =
-        bookId == other.bookId &&
-            totalChapters == other.totalChapters &&
-            lastChapterIndex == other.lastChapterIndex &&
-            scrollPosition == other.scrollPosition
+    private fun saveCurrentReadingSession(currentState: ReaderUiState.Success) {
+        val sessionDuration = sessionClock.durationMillis()
+        if (sessionDuration <= 0L || !sessionClock.shouldPersist()) return
+
+        val sessionMinutes = sessionDuration / 60000.0
+        val dailyReading = DailyReading(
+            bookId = currentState.book.id,
+            date = LocalDate.now().toString(),
+            timeSpentMillis = sessionDuration.toInt(),
+            reachedPercentage = currentState.readingProgress.percentage.toFloat(),
+            readingSpeed = (currentState.accumulatedReadWords / sessionMinutes).toInt()
+        )
+        resetSession()
+        viewModelScope.launch {
+            addDailyReadingUseCase.invoke(dailyReading)
+        }
+    }
+
+    private fun updateSuccessState(transform: (ReaderUiState.Success) -> ReaderUiState.Success) {
+        _internalState.update { state -> if (state is ReaderUiState.Success) transform(state) else state }
+    }
+    private fun updateChapter(currentState: ReaderUiState.Success, newIndex: Int) {
+        persistProgressJob?.cancel()
+        persistProgressJob = null
+        val spineSize = currentState.epubContent.spine.size
+
+        if (newIndex !in 0..<spineSize) return
+
+        val updatedProgress = currentState.readingProgress.copy(
+            lastChapterIndex = newIndex,
+            scrollPosition = 0f,
+            lastReadAt = currentTimeProvider()
+        )
+
+        _internalState.value = currentState.copy(
+            currentChapterIndex = newIndex,
+            readingProgress = updatedProgress,
+            lastReportedChapterWords = 0,
+            timeRemaining = null
+        )
+
+        viewModelScope.launch {
+            persistProgress(updatedProgress)
+        }
+    }
+
+    private fun creditWordsRead(currentState: ReaderUiState.Success, words: Int) {
+        val delta = words - currentState.lastReportedChapterWords
+
+        _internalState.value = currentState.copy(
+            lastReportedChapterWords = words,
+            accumulatedReadWords = currentState.accumulatedReadWords + delta.coerceAtLeast(0)
+        )
+    }
 }
