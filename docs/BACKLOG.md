@@ -8,8 +8,6 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 
 | Versión | ID | Tarea | Tipo | Estado | Ref |
 |---------|-----|-------|------|--------|-----|
-| — | UX-012 | Poder limpiar fechas inicio/fin | Fix | `[ ]` | KNOWN_ISSUES |
-| — | UX-013 | DatePicker: medianoche UTC del día local | Fix | `[ ]` | KNOWN_ISSUES |
 | — | UX-020 | Cancel edit Detail no debe tirar drafts del tab Registry | Fix | `[ ]` | KNOWN_ISSUES |
 | — | READER-019 | Capítulos no scrolleables: reportar 100 % | Fix | `[ ]` | KNOWN_ISSUES |
 | — | UX-023 | Ocultar overscroll en primer/último capítulo | Fix | `[ ]` | KNOWN_ISSUES |

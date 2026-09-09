@@ -40,6 +40,7 @@ import com.juguito.juguitoreader.ui.common.toUiText
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.SortOption
+import com.juguito.juguitoreader.ui.common.components.JuguitoDatePickerDialog
 import com.juguito.juguitoreader.ui.components.ErrorView
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import java.text.SimpleDateFormat
@@ -160,7 +161,9 @@ fun RegistryContent(
             )
         }
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+        Box(modifier = Modifier
+            .padding(paddingValues)
+            .fillMaxSize()) {
             if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else if (state.errorMessage != null) {
@@ -244,7 +247,9 @@ fun RegistryContent(
 @Composable
 fun EmptyRegistryState(width: Dp) {
     Column(
-        modifier = Modifier.width(width).padding(vertical = 60.dp),
+        modifier = Modifier
+            .width(width)
+            .padding(vertical = 60.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -289,15 +294,18 @@ fun TableHeaderItem(
                         SortOption.TITLE_DESC -> SortOption.STARTED_AT_DESC
                         else -> SortOption.TITLE_ASC
                     }
+
                     SortOption.RATING_DESC -> when (currentSort) {
                         SortOption.RATING_DESC -> SortOption.RATING_ASC
                         SortOption.RATING_ASC -> SortOption.STARTED_AT_DESC
                         else -> SortOption.RATING_DESC
                     }
+
                     SortOption.STARTED_AT_DESC -> when (currentSort) {
                         SortOption.STARTED_AT_DESC -> SortOption.STARTED_AT_ASC
                         else -> SortOption.STARTED_AT_DESC
                     }
+
                     else -> sortOption
                 }
                 onSortClick(nextSort)
@@ -328,7 +336,9 @@ fun TableHeaderItem(
                     Icon(
                         imageVector = icon,
                         contentDescription = null,
-                        modifier = Modifier.size(14.dp).padding(start = 4.dp),
+                        modifier = Modifier
+                            .size(14.dp)
+                            .padding(start = 4.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -357,18 +367,20 @@ fun RegistryRow(
     }
 
     if (showStartDatePicker) {
-        RegistryDatePickerDialog(
+        JuguitoDatePickerDialog(
             initialDate = book.startDate,
             onDateSelected = { onEvent(RegistryEvent.OnStartDateChanged(book.id, it)) },
-            onDismiss = { showStartDatePicker = false }
+            onDismiss = { showStartDatePicker = false },
+            onClear = { onEvent(RegistryEvent.OnStartDateChanged(book.id, null)) }
         )
     }
 
     if (showEndDatePicker) {
-        RegistryDatePickerDialog(
+        JuguitoDatePickerDialog(
             initialDate = book.endDate,
             onDateSelected = { onEvent(RegistryEvent.OnEndDateChanged(book.id, it)) },
-            onDismiss = { showEndDatePicker = false }
+            onDismiss = { showEndDatePicker = false },
+            onClear = { onEvent(RegistryEvent.OnEndDateChanged(book.id, null)) }
         )
     }
 
@@ -379,7 +391,10 @@ fun RegistryRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
-            modifier = Modifier.width(ColLibroWidth).fillMaxHeight().padding(8.dp),
+            modifier = Modifier
+                .width(ColLibroWidth)
+                .fillMaxHeight()
+                .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(modifier = Modifier.size(45.dp, 65.dp)) {
@@ -387,7 +402,9 @@ fun RegistryRow(
                     AsyncImage(
                         model = book.coverUrl,
                         contentDescription = null,
-                        modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(4.dp)),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(4.dp)),
                         contentScale = ContentScale.Crop
                     )
                 } else {
@@ -435,18 +452,26 @@ fun RegistryRow(
         }
         VerticalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
 
-        Box(modifier = Modifier.width(ColEstadoWidth).fillMaxHeight(), contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier
+            .width(ColEstadoWidth)
+            .fillMaxHeight(), contentAlignment = Alignment.Center) {
             RegistryStatusPicker(book.status) { onEvent(RegistryEvent.OnStatusChanged(book.id, it)) }
         }
         VerticalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
 
-        Box(modifier = Modifier.width(ColNotaWidth).fillMaxHeight(), contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier
+            .width(ColNotaWidth)
+            .fillMaxHeight(), contentAlignment = Alignment.Center) {
             RegistryRatingInput(book.rating) { onEvent(RegistryEvent.OnRatingChanged(book.id, it)) }
         }
         VerticalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
 
         Box(
-            modifier = Modifier.width(ColFechaWidth).fillMaxHeight().clickable { showStartDatePicker = true }.padding(horizontal = 12.dp),
+            modifier = Modifier
+                .width(ColFechaWidth)
+                .fillMaxHeight()
+                .clickable { showStartDatePicker = true }
+                .padding(horizontal = 12.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(formatDate(book.startDate), style = MaterialTheme.typography.bodyMedium)
@@ -454,7 +479,11 @@ fun RegistryRow(
         VerticalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
 
         Box(
-            modifier = Modifier.width(ColFechaWidth).fillMaxHeight().clickable { showEndDatePicker = true }.padding(horizontal = 12.dp),
+            modifier = Modifier
+                .width(ColFechaWidth)
+                .fillMaxHeight()
+                .clickable { showEndDatePicker = true }
+                .padding(horizontal = 12.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -596,67 +625,6 @@ fun RegistryRatingInput(rating: Float, onRatingChanged: (Float) -> Unit) {
             }
         }
     )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun RegistryDatePickerDialog(
-    initialDate: Long?,
-    onDateSelected: (Long) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = initialDate ?: System.currentTimeMillis()
-    )
-
-    DatePickerDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            Button(
-                onClick = {
-                    datePickerState.selectedDateMillis?.let { onDateSelected(it) }
-                    onDismiss()
-                },
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.padding(end = 12.dp, bottom = 8.dp)
-            ) {
-                Text(stringResource(R.string.accept))
-            }
-        },
-        dismissButton = {
-            OutlinedButton(
-                onClick = onDismiss,
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.padding(bottom = 8.dp)
-            ) {
-                Text(stringResource(R.string.cancel))
-            }
-        },
-        shape = RoundedCornerShape(24.dp),
-        colors = DatePickerDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
-    ) {
-        DatePicker(
-            state = datePickerState,
-            colors = DatePickerDefaults.colors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                titleContentColor = MaterialTheme.colorScheme.primary,
-                headlineContentColor = MaterialTheme.colorScheme.onSurface,
-                weekdayContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                subheadContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                yearContentColor = MaterialTheme.colorScheme.onSurface,
-                currentYearContentColor = MaterialTheme.colorScheme.primary,
-                selectedYearContainerColor = MaterialTheme.colorScheme.primary,
-                selectedYearContentColor = Color.White,
-                dayContentColor = MaterialTheme.colorScheme.onSurface,
-                selectedDayContainerColor = MaterialTheme.colorScheme.primary,
-                selectedDayContentColor = Color.White,
-                todayDateBorderColor = MaterialTheme.colorScheme.primary,
-                todayContentColor = MaterialTheme.colorScheme.primary
-            )
-        )
-    }
 }
 
 private fun formatDate(millis: Long?): String {

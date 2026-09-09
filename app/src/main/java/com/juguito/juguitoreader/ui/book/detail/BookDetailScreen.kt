@@ -58,7 +58,7 @@ import com.juguito.juguitoreader.ui.common.components.DialogOptionCard
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.ErrorView
 import com.juguito.juguitoreader.ui.components.JuguitoDialog
-import com.juguito.juguitoreader.ui.registry.RegistryDatePickerDialog
+import com.juguito.juguitoreader.ui.common.components.JuguitoDatePickerDialog
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import com.juguito.juguitoreader.utils.FileUtils
 import java.io.File
@@ -149,24 +149,20 @@ fun BookDetailContent(
     BackHandler { onEvent(BookDetailEvent.OnDiscard) }
 
     if (showStartDatePicker && state is BookDetailUiState.Success) {
-        RegistryDatePickerDialog(
+        JuguitoDatePickerDialog(
             initialDate = state.startDate,
-            onDateSelected = {
-                onEvent(BookDetailEvent.OnStartDateChanged(it))
-                showStartDatePicker = false
-            },
-            onDismiss = { showStartDatePicker = false }
+            onDateSelected = { onEvent(BookDetailEvent.OnStartDateChanged(it)) },
+            onDismiss = { showStartDatePicker = false },
+            onClear = { onEvent(BookDetailEvent.OnStartDateChanged( null)) }
         )
     }
 
     if (showEndDatePicker && state is BookDetailUiState.Success) {
-        RegistryDatePickerDialog(
+        JuguitoDatePickerDialog(
             initialDate = state.endDate,
-            onDateSelected = {
-                onEvent(BookDetailEvent.OnEndDateChanged(it))
-                showEndDatePicker = false
-            },
-            onDismiss = { showEndDatePicker = false }
+            onDateSelected = { onEvent(BookDetailEvent.OnEndDateChanged(it)) },
+            onDismiss = { showEndDatePicker = false },
+            onClear = { onEvent(BookDetailEvent.OnEndDateChanged( null)) }
         )
     }
 

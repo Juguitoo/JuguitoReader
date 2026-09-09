@@ -188,6 +188,29 @@ class BookDetailViewModelTest {
     }
 
     @Test
+    fun `onEvent OnStartDateChanged null clears start date`() = runTest {
+        viewModel.onEvent(BookDetailEvent.OnStartDateChanged(1000L))
+        viewModel.onEvent(BookDetailEvent.OnStartDateChanged(null))
+
+        viewModel.uiState.test {
+            val success = awaitItem() as BookDetailUiState.Success
+            assertThat(success.startDate).isNull()
+        }
+    }
+
+    @Test
+    fun `onEvent OnEndDateChanged null clears end date without changing status`() = runTest {
+        viewModel.onEvent(BookDetailEvent.OnEndDateChanged(2000L))
+        viewModel.onEvent(BookDetailEvent.OnEndDateChanged(null))
+
+        viewModel.uiState.test {
+            val success = awaitItem() as BookDetailUiState.Success
+            assertThat(success.endDate).isNull()
+            assertThat(success.status).isEqualTo(BookStatus.FINISHED)
+        }
+    }
+
+    @Test
     fun `onEvent OnEditModeChanged toggles edit mode and resets draft if false`() = runTest {
         viewModel.onEvent(BookDetailEvent.OnTitleChanged("Modified"))
         viewModel.onEvent(BookDetailEvent.OnEditModeChanged(false))
