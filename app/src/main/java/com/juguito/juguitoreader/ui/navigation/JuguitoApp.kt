@@ -133,6 +133,7 @@ fun JuguitoApp(
                             drawerState.close()
                             navController.navigate("home") {
                                 popUpTo("home") { inclusive = true }
+                                launchSingleTop = true
                             }
                         } 
                     }
@@ -145,7 +146,10 @@ fun JuguitoApp(
                     onClick = { 
                         scope.launch { 
                             drawerState.close()
-                            navController.navigate("registry")
+                            navController.navigate("registry") {
+                                popUpTo("registry") { inclusive = true }
+                                launchSingleTop = true
+                            }
                         } 
                     }
                 )
@@ -157,7 +161,10 @@ fun JuguitoApp(
                     onClick = {
                         scope.launch {
                             drawerState.close()
-                            navController.navigate("library")
+                            navController.navigate("library") {
+                                popUpTo("library") { inclusive = true }
+                                launchSingleTop = true
+                            }
                         }
                     }
                 )
@@ -178,7 +185,10 @@ fun JuguitoApp(
                     onClick = {
                         scope.launch {
                             drawerState.close()
-                            navController.navigate("management")
+                            navController.navigate("management") {
+                                popUpTo("management") { inclusive = true }
+                                launchSingleTop = true
+                            }
                         }
                     }
                 )
@@ -231,7 +241,10 @@ fun JuguitoApp(
                         selected = currentRoute == "settings",
                         onClick = {
                             scope.launch { drawerState.close() }
-                            navController.navigate("settings")
+                            navController.navigate("settings") {
+                                popUpTo("settings") { inclusive = true }
+                                launchSingleTop = true
+                            }
                         }
                     )
                     DrawerFooterIcon(
@@ -240,7 +253,10 @@ fun JuguitoApp(
                         selected = currentRoute == "about",
                         onClick = {
                             scope.launch { drawerState.close() }
-                            navController.navigate("about")
+                            navController.navigate("about") {
+                                popUpTo("about") { inclusive = true }
+                                launchSingleTop = true
+                            }
                         }
                     )
                 }
