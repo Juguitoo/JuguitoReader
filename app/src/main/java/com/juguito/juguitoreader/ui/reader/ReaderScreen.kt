@@ -253,7 +253,9 @@ fun ReaderContent(
             }
 
             OverscrollIndicators(
-                overscrollDelta = overscrollDelta
+                overscrollDelta = overscrollDelta,
+                canGoPrevious = currentState.value.currentChapterIndex > 0,
+                canGoNext = currentState.value.currentChapterIndex < currentState.value.epubContent.spine.size - 1
             )
 
             ReaderControls(
