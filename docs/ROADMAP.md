@@ -18,7 +18,7 @@ Línea **v1.2.x** hasta producción en Play Store. Nube de pago (TAR-29 / v2) de
 
 ### v1.2.1 — Store polish
 
-About in-app **hecho** (TAR-57). Changelog / novedades **hecho** (TAR-58). Ver [archive/v1.2.1.md](archive/v1.2.1.md).
+About in-app **hecho** (TAR-57). Changelog / novedades **hecho** (TAR-58). Detail como página de lectura **hecho** (UX-020). Ver [archive/v1.2.1.md](archive/v1.2.1.md).
 
 Licencia de producto: privativa / source-available (portfolio); ya no GPLv3.
 

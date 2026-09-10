@@ -35,7 +35,7 @@ Organizada por feature:
 | `ui/library` | Biblioteca con filtros y carpetas |
 | `ui/registry` | Edición masiva de metadatos |
 | `ui/reader` | Lector EPUB (WebView) |
-| `ui/book` | Detalle y alta de libros |
+| `ui/book` | Detalle (página de lectura + ficha) y alta de libros |
 | `ui/folder` | Crear/editar carpetas |
 | `ui/genre` | Diálogo de géneros |
 | `ui/management` | Gestión de carpetas y géneros |
