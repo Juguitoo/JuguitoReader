@@ -17,7 +17,6 @@ sealed interface BookDetailUiState {
         val comment: String? = null,
         val startDate: Long? = null,
         val endDate: Long? = null,
-        val selectedTab: Int = 0,
         val isEditMode: Boolean = false,
         val isActionLoading: Boolean = false,
         val availableFolders: List<Folder> = emptyList(),

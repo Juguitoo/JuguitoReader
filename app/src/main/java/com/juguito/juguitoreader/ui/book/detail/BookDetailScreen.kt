@@ -12,31 +12,35 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,8 +55,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.ui.book.components.BookHero
 import com.juguito.juguitoreader.ui.book.components.BookInfoTab
-import com.juguito.juguitoreader.ui.book.components.RegistryTab
+import com.juguito.juguitoreader.ui.book.components.CatalogSummary
+import com.juguito.juguitoreader.ui.book.components.ReadingJournal
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
 import com.juguito.juguitoreader.ui.common.components.DialogOptionCard
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
@@ -68,6 +74,7 @@ import java.io.File
 fun BookDetailScreen(
     onNavigateBack: () -> Unit,
     onNavigateToAddFolder: () -> Unit,
+    onNavigateToReadBook: (Int) -> Unit,
     viewModel: BookDetailViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -77,6 +84,7 @@ fun BookDetailScreen(
         onEvent = viewModel::onEvent,
         onNavigateBack = onNavigateBack,
         onNavigateToAddFolder = onNavigateToAddFolder,
+        onNavigateToReadBook = onNavigateToReadBook,
         onLoadBook = viewModel::loadBook,
         effect = viewModel.effect
     )
@@ -89,6 +97,7 @@ fun BookDetailContent(
     onEvent: (BookDetailEvent) -> Unit,
     onNavigateBack: () -> Unit,
     onNavigateToAddFolder: () -> Unit,
+    onNavigateToReadBook: (Int) -> Unit,
     onLoadBook: () -> Unit,
     effect: kotlinx.coroutines.flow.Flow<UiEffect>
 ) {
@@ -97,7 +106,12 @@ fun BookDetailContent(
     var showEndDatePicker by remember { mutableStateOf(false) }
     var showImageSourceDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showOverflowMenu by remember { mutableStateOf(false) }
     var tempCameraFile by remember { mutableStateOf<File?>(null) }
+
+    DisposableEffect(Unit) {
+        onDispose { onEvent(BookDetailEvent.OnFlushJournal) }
+    }
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -153,7 +167,7 @@ fun BookDetailContent(
             initialDate = state.startDate,
             onDateSelected = { onEvent(BookDetailEvent.OnStartDateChanged(it)) },
             onDismiss = { showStartDatePicker = false },
-            onClear = { onEvent(BookDetailEvent.OnStartDateChanged( null)) }
+            onClear = { onEvent(BookDetailEvent.OnStartDateChanged(null)) }
         )
     }
 
@@ -162,7 +176,7 @@ fun BookDetailContent(
             initialDate = state.endDate,
             onDateSelected = { onEvent(BookDetailEvent.OnEndDateChanged(it)) },
             onDismiss = { showEndDatePicker = false },
-            onClear = { onEvent(BookDetailEvent.OnEndDateChanged( null)) }
+            onClear = { onEvent(BookDetailEvent.OnEndDateChanged(null)) }
         )
     }
 
@@ -234,7 +248,11 @@ fun BookDetailContent(
         modifier = Modifier.imePadding(),
         topBar = {
             val titleText = when (state) {
-                is BookDetailUiState.Success -> if (state.isEditMode) stringResource(R.string.edit_book) else state.bookDraft.title
+                is BookDetailUiState.Success -> if (state.isEditMode) {
+                    stringResource(R.string.edit_book)
+                } else {
+                    state.bookDraft.title
+                }
                 else -> stringResource(R.string.book_detail)
             }
             TopAppBar(
@@ -263,17 +281,57 @@ fun BookDetailContent(
                     if (state is BookDetailUiState.Success) {
                         if (state.isEditMode) {
                             IconButton(onClick = { onEvent(BookDetailEvent.OnEditModeChanged(false)) }) {
-                                Icon(imageVector = Icons.Default.Close, contentDescription = stringResource(R.string.cancel), tint = Color.White)
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = stringResource(R.string.cancel),
+                                    tint = Color.White
+                                )
                             }
                             IconButton(
                                 onClick = { onEvent(BookDetailEvent.OnSaveClick) },
                                 enabled = !state.isActionLoading
                             ) {
-                                Icon(imageVector = Icons.Default.Check, contentDescription = stringResource(R.string.save), tint = Color.White)
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = stringResource(R.string.save),
+                                    tint = Color.White
+                                )
                             }
                         } else {
-                            IconButton(onClick = { onEvent(BookDetailEvent.OnEditModeChanged(true)) }) {
-                                Icon(imageVector = Icons.Default.Edit, contentDescription = stringResource(R.string.edit), tint = Color.White)
+                            Box {
+                                IconButton(onClick = { showOverflowMenu = true }) {
+                                    Icon(
+                                        imageVector = Icons.Default.MoreVert,
+                                        contentDescription = stringResource(R.string.options),
+                                        tint = Color.White
+                                    )
+                                }
+                                DropdownMenu(
+                                    expanded = showOverflowMenu,
+                                    onDismissRequest = { showOverflowMenu = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.edit_book)) },
+                                        onClick = {
+                                            showOverflowMenu = false
+                                            onEvent(BookDetailEvent.OnEditModeChanged(true))
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.delete)) },
+                                        onClick = {
+                                            showOverflowMenu = false
+                                            showDeleteDialog = true
+                                        },
+                                        leadingIcon = {
+                                            Icon(
+                                                Icons.Default.Delete,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.error
+                                            )
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
@@ -307,44 +365,43 @@ fun BookDetailContent(
                 }
 
                 is BookDetailUiState.Success -> {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        PrimaryTabRow(selectedTabIndex = state.selectedTab) {
-                            Tab(
-                                selected = state.selectedTab == 0,
-                                onClick = { onEvent(BookDetailEvent.OnTabChanged(0)) },
-                                text = { Text(stringResource(R.string.information)) }
-                            )
-                            Tab(
-                                selected = state.selectedTab == 1,
-                                onClick = { onEvent(BookDetailEvent.OnTabChanged(1)) },
-                                text = { Text(stringResource(R.string.registry)) }
-                            )
-                        }
-
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            if (state.selectedTab == 0) {
-                                BookInfoTab(
-                                    state = state,
-                                    onEvent = onEvent,
-                                    onPickCover = { showImageSourceDialog = true },
-                                    onPickFile = {
-                                        documentPickerLauncher.launch(
-                                            arrayOf(
-                                                "application/epub+zip"
-                                            )
-                                        )
-                                    },
-                                    onDeleteRequest = { showDeleteDialog = true },
-                                    onAddFolderClick = { onNavigateToAddFolder() }
+                    if (state.isEditMode) {
+                        BookInfoTab(
+                            state = state,
+                            onEvent = onEvent,
+                            onPickCover = { showImageSourceDialog = true },
+                            onPickFile = {
+                                documentPickerLauncher.launch(
+                                    arrayOf("application/epub+zip")
                                 )
-                            } else {
-                                RegistryTab(
-                                    state = state,
-                                    onEvent = onEvent,
-                                    onShowStartDatePicker = { showStartDatePicker = true },
-                                    onShowEndDatePicker = { showEndDatePicker = true }
-                                )
-                            }
+                            },
+                            onAddFolderClick = { onNavigateToAddFolder() }
+                        )
+                    } else {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(24.dp)
+                                .verticalScroll(rememberScrollState())
+                                .imePadding(),
+                            verticalArrangement = Arrangement.spacedBy(24.dp)
+                        ) {
+                            BookHero(
+                                state = state,
+                                onReadClick = { onNavigateToReadBook(state.book.id) }
+                            )
+                            HorizontalDivider()
+                            ReadingJournal(
+                                state = state,
+                                onEvent = onEvent,
+                                onShowStartDatePicker = { showStartDatePicker = true },
+                                onShowEndDatePicker = { showEndDatePicker = true }
+                            )
+                            HorizontalDivider()
+                            CatalogSummary(
+                                state = state,
+                                onEditClick = { onEvent(BookDetailEvent.OnEditModeChanged(true)) }
+                            )
                         }
                     }
                 }
@@ -352,4 +409,3 @@ fun BookDetailContent(
         }
     }
 }
-

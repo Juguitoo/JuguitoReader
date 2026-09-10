@@ -58,6 +58,10 @@
     <string name="book_detail">Book Detail</string>
     <string name="information">Information</string>
     <string name="registry">Reading Log</string>
+    <string name="read_book">Read</string>
+    <string name="book_cover">Book cover</string>
+    <string name="progress_percent">%d%%</string>
+    <string name="notes_autosave">Saved automatically</string>
     <string name="delete_book_title">Delete Book</string>
     <string name="delete_book_confirmation">Are you sure you want to delete \'%s\'? This action cannot be undone.</string>
 
@@ -241,7 +245,15 @@
     <string name="new_genre_hint">Write a new genre…</string>
     <string name="suggestions">Suggestions</string>
     <string name="existing_genres">Existing genres</string>
-    <string name="rating_label">Rating (1 – 10)</string>
+    <string name="rating_label">Rating (0 – 10)</string>
+    <string name="rating_short">Rating</string>
+    <string name="rating_out_of">%s / 10</string>
+    <string name="add_rating">Add rating</string>
+    <string name="rating_picker_hint">Enter a number from 0 to 10.</string>
+    <string name="add_start_date">Start</string>
+    <string name="add_end_date">End</string>
+    <string name="date_range_separator">–</string>
+    <string name="em_dash">—</string>
     <string name="options">Options</string>
 
     <string name="edit_folder">Edit Folder</string>

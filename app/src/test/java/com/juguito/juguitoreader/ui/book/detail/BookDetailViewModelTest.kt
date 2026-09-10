@@ -78,6 +78,7 @@ class BookDetailViewModelTest {
 
         every { getFoldersUseCase() } returns flowOf(emptyList())
         every { getGenresUseCase() } returns flowOf(emptyList())
+        coEvery { updateBookUseCase(any()) } returns Result.success(Unit)
         coEvery { getBookByIdUseCase(1) } returns Book(
             id = 1,
             title = "Title",
@@ -142,7 +143,7 @@ class BookDetailViewModelTest {
         viewModel.onEvent(BookDetailEvent.OnRatingChanged(4.5f))
         viewModel.onEvent(BookDetailEvent.OnCommentChanged("Nice book"))
         viewModel.onEvent(BookDetailEvent.OnStatusChanged(BookStatus.READING))
-        viewModel.onEvent(BookDetailEvent.OnTabChanged(1))
+        viewModel.onEvent(BookDetailEvent.OnEditModeChanged(true))
 
         viewModel.uiState.test {
             val success = awaitItem() as BookDetailUiState.Success
@@ -155,7 +156,7 @@ class BookDetailViewModelTest {
             assertThat(success.rating).isEqualTo(4.5f)
             assertThat(success.comment).isEqualTo("Nice book")
             assertThat(success.status).isEqualTo(BookStatus.READING)
-            assertThat(success.selectedTab).isEqualTo(1)
+            assertThat(success.isEditMode).isTrue()
         }
     }
 
@@ -569,6 +570,75 @@ class BookDetailViewModelTest {
         }
         verify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
             FileUtils.deleteReaderCache(any(), 1)
+        }
+    }
+
+    @Test
+    fun `UX-020 OnEditModeChanged false restores catalog draft but keeps journal`() = runTest {
+        viewModel.onEvent(BookDetailEvent.OnTitleChanged("Modified"))
+        viewModel.onEvent(BookDetailEvent.OnCommentChanged("Keep this note"))
+        viewModel.onEvent(BookDetailEvent.OnRatingChanged(8f))
+        viewModel.onEvent(BookDetailEvent.OnStatusChanged(BookStatus.READING))
+        viewModel.onEvent(BookDetailEvent.OnEditModeChanged(false))
+
+        val success = viewModel.uiState.value as BookDetailUiState.Success
+        assertThat(success.isEditMode).isFalse()
+        assertThat(success.bookDraft.title).isEqualTo("Title")
+        assertThat(success.comment).isEqualTo("Keep this note")
+        assertThat(success.rating).isEqualTo(8f)
+        assertThat(success.status).isEqualTo(BookStatus.READING)
+    }
+
+    @Test
+    fun `journal persist writes persisted catalog not dirty title draft`() = runTest {
+        viewModel.onEvent(BookDetailEvent.OnEditModeChanged(true))
+        viewModel.onEvent(BookDetailEvent.OnTitleChanged("Draft title"))
+        viewModel.onEvent(BookDetailEvent.OnStatusChanged(BookStatus.READING))
+
+        coVerify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
+            updateBookUseCase(match {
+                it.title == "Title" && it.status == BookStatus.READING
+            })
+        }
+    }
+
+    @Test
+    fun `journal persist reverts fields when update fails`() = runTest {
+        coEvery { updateBookUseCase(any()) } returns Result.failure(
+            JuguitoException(R.string.error_save_book)
+        )
+
+        viewModel.onEvent(BookDetailEvent.OnStatusChanged(BookStatus.READING))
+
+        val success = viewModel.uiState.value as BookDetailUiState.Success
+        assertThat(success.status).isEqualTo(BookStatus.PENDING)
+        viewModel.effect.test {
+            val effect = awaitItem() as UiEffect.ShowSnackbar
+            assertEquals(R.string.error_save_book, (effect.message as UiText.StringResource).resId)
+        }
+    }
+
+    @Test
+    fun `OnCommentChanged debounces journal persist`() = runTest {
+        viewModel.onEvent(BookDetailEvent.OnCommentChanged("partial"))
+
+        coVerify(exactly = 0) { updateBookUseCase(match { it.comment == "partial" }) }
+
+        testDispatcher.scheduler.advanceTimeBy(BookDetailViewModel.COMMENT_DEBOUNCE_MS)
+        testDispatcher.scheduler.runCurrent()
+
+        coVerify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
+            updateBookUseCase(match { it.comment == "partial" && it.title == "Title" })
+        }
+    }
+
+    @Test
+    fun `OnFlushJournal persists pending comment immediately`() = runTest {
+        viewModel.onEvent(BookDetailEvent.OnCommentChanged("flushed"))
+        viewModel.onEvent(BookDetailEvent.OnFlushJournal)
+
+        coVerify(timeout = IO_DISPATCHER_TIMEOUT_MS) {
+            updateBookUseCase(match { it.comment == "flushed" })
         }
     }
 

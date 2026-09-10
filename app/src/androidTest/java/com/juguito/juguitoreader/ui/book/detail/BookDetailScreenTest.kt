@@ -32,6 +32,7 @@ class BookDetailScreenTest {
                     onEvent = {},
                     onNavigateBack = {},
                     onNavigateToAddFolder = {},
+                    onNavigateToReadBook = {},
                     onLoadBook = {},
                     effect = emptyFlow()
                 )
@@ -39,6 +40,8 @@ class BookDetailScreenTest {
         }
 
         composeTestRule.onNodeWithText("Cervantes", useUnmergedTree = true, substring = true).assertExists()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        composeTestRule.onNodeWithText(context.getString(R.string.notes_autosave)).assertExists()
     }
 
     @Test
@@ -57,6 +60,7 @@ class BookDetailScreenTest {
                     onEvent = {},
                     onNavigateBack = {},
                     onNavigateToAddFolder = {},
+                    onNavigateToReadBook = {},
                     onLoadBook = {},
                     effect = emptyFlow()
                 )

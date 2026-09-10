@@ -344,7 +344,10 @@ fun JuguitoApp(
                 ) {
                     BookDetailScreen(
                         onNavigateBack = { navController.popBackStack() },
-                        onNavigateToAddFolder = { navController.navigate("add_folder")}
+                        onNavigateToAddFolder = { navController.navigate("add_folder") },
+                        onNavigateToReadBook = { bookId ->
+                            navController.navigate("reader/$bookId")
+                        }
                     )
                 }
 

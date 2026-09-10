@@ -58,6 +58,10 @@
     <string name="book_detail">Detalle del libro</string>
     <string name="information">Información</string>
     <string name="registry">Registro</string>
+    <string name="read_book">Leer</string>
+    <string name="book_cover">Portada del libro</string>
+    <string name="progress_percent">%d%%</string>
+    <string name="notes_autosave">Se guarda automáticamente</string>
     <string name="delete_book_title">Eliminar libro</string>
     <string name="delete_book_confirmation">¿Estás seguro de que deseas eliminar \'%s\'? Esta acción no se puede deshacer.</string>
 
@@ -244,7 +248,15 @@
     <string name="new_genre_hint">Escribe un género nuevo…</string>
     <string name="suggestions">Sugerencias</string>
     <string name="existing_genres">Géneros existentes</string>
-    <string name="rating_label">Nota (1 – 10)</string>
+    <string name="rating_label">Nota (0 – 10)</string>
+    <string name="rating_short">Nota</string>
+    <string name="rating_out_of">%s / 10</string>
+    <string name="add_rating">Añadir nota</string>
+    <string name="rating_picker_hint">Escribe un número del 0 al 10.</string>
+    <string name="add_start_date">Inicio</string>
+    <string name="add_end_date">Fin</string>
+    <string name="date_range_separator">–</string>
+    <string name="em_dash">—</string>
     <string name="options">Opciones</string>
 
     <string name="edit_folder">Editar Carpeta</string>
