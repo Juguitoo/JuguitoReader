@@ -9,7 +9,6 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 | Versión | ID | Tarea | Tipo | Estado | Ref |
 |---------|-----|-------|------|--------|-----|
 | — | UX-020 | Cancel edit Detail no debe tirar drafts del tab Registry | Fix | `[ ]` | KNOWN_ISSUES |
-| — | UX-024 | Barra de controles con scroll intra-capítulo | Fix | `[ ]` | KNOWN_ISSUES |
 | — | SEC-004 | Acotar `AndroidBridge` (no fiar WPM a JS del EPUB) | Fix | `[ ]` | KNOWN_ISSUES |
 | — | READER-017 | Ignorar eventos JS del capítulo anterior | Fix | `[ ]` | KNOWN_ISSUES |
 | v1.2.2 | TAR-59 | Export / import manual de datos (backup local; gate producción Play) | Feat | `[ ]` | ROADMAP |

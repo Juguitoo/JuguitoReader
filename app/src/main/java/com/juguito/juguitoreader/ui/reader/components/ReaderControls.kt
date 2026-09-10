@@ -5,7 +5,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,7 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -235,14 +234,45 @@ fun ReaderControls(
                             }
                         }
                         else -> {
-                            Row(
+                            Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(48.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                                    .height(48.dp)
                             ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                val totalChapters = state.readingProgress.totalChapters
+                                val bookProgress = if (totalChapters > 0) {
+                                    ((state.readingProgress.lastChapterIndex +
+                                        state.readingProgress.scrollPosition) / totalChapters)
+                                        .coerceIn(0f, 1f)
+                                } else 0f
+                                Column(
+                                    modifier = Modifier
+                                        .align(Alignment.Center)
+                                        .fillMaxWidth()
+                                        .padding(start = 48.dp * 3, end = 48.dp * 2),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = "${state.currentChapterIndex + 1} / ${state.epubContent.spine.size}",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    LinearProgressIndicator(
+                                        progress = { bookProgress },
+                                        modifier = Modifier
+                                            .widthIn(max = 180.dp)
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                                            .clip(CircleShape)
+                                            .height(4.dp),
+                                        color = Color.White,
+                                        trackColor = Color.White.copy(alpha = 0.3f)
+                                    )
+                                }
+                                Row(
+                                    modifier = Modifier.align(Alignment.CenterStart),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
                                     IconButton(
                                         onClick = { onEvent(ReaderEvent.OnPreviousChapter) },
                                         enabled = state.currentChapterIndex > 0,
@@ -267,29 +297,10 @@ fun ReaderControls(
                                     }
                                 }
 
-                                // Bloque Central: Progreso
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    modifier = Modifier.weight(1f)
+                                Row(
+                                    modifier = Modifier.align(Alignment.CenterEnd),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(
-                                        text = "${state.currentChapterIndex + 1} / ${state.epubContent.spine.size}",
-                                        style = MaterialTheme.typography.labelLarge,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    LinearProgressIndicator(
-                                        progress = { (state.currentChapterIndex + 1).toFloat() / state.epubContent.spine.size },
-                                        modifier = Modifier
-                                            .width(120.dp)
-                                            .padding(top = 4.dp)
-                                            .clip(CircleShape)
-                                            .height(4.dp),
-                                        color = Color.White,
-                                        trackColor = Color.White.copy(alpha = 0.3f)
-                                    )
-                                }
-
-                                Row(verticalAlignment = Alignment.CenterVertically) {
                                     IconButton(onClick = {
                                         val nextThemeIndex = (state.theme.ordinal + 1) % ReaderTheme.entries.size
                                         onEvent(ReaderEvent.OnThemeChanged(ReaderTheme.entries[nextThemeIndex]))
