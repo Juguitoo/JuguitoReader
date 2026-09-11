@@ -34,7 +34,8 @@ private class WebViewHolder(
     var baseDir: String,
     var theme: ReaderTheme,
     var scrollPosition: Float,
-    var wpm: Int
+    var wpm: Int,
+    var chapterIndex: Int
 ) {
     var isDestroyed: Boolean = false
     var pendingReveal: Runnable? = null
@@ -57,7 +58,8 @@ fun EpubWebView(
                 baseDir = state.epubContent.baseDir,
                 theme = state.theme,
                 scrollPosition = state.readingProgress.scrollPosition,
-                wpm = resolveWpm(state.bookSessions)
+                wpm = resolveWpm(state.bookSessions),
+                chapterIndex = state.currentChapterIndex
             )
 
             WebView(context).apply {
@@ -89,7 +91,7 @@ fun EpubWebView(
                         val script = listOf(
                             viewportScript(),
                             styleScript(holder.theme),
-                            behaviorScript(holder.scrollPosition, holder.wpm)
+                            behaviorScript(holder.scrollPosition, holder.wpm, holder.chapterIndex)
                         ).joinToString(separator = "\n")
                         loadedView.evaluateJavascript(script) { revealStyledContent(loadedView, holder) }
                     }
@@ -144,6 +146,8 @@ fun EpubWebView(
                 val newWpm = resolveWpm(state.bookSessions)
                 val wpmChanged = holder.wpm != newWpm
                 holder.wpm = newWpm
+
+                holder.chapterIndex = state.currentChapterIndex
 
                 if (webView.url != state.currentChapterUrl) {
                     webView.loadUrl(state.currentChapterUrl)
@@ -269,13 +273,14 @@ private fun restoreScrollScript(scrollPosition: Float): String = """
         } else if (scrollableHeight > 0) {
             window.scrollTo(0, scrollableHeight * targetPos);
         }
-        AndroidBridge.reportScrollPosition(currentScrollPercent());
+        AndroidBridge.reportScrollPosition(currentScrollPercent(), chapterIndex);
         if (typeof updateReadingTime === 'function') updateReadingTime();
     }, 100);
 """.trimIndent()
 
-private fun behaviorScript(scrollPosition: Float, wpm: Int): String = """
+private fun behaviorScript(scrollPosition: Float, wpm: Int, currentChapterIndex: Int): String = """
     var wpm = $wpm;
+    var chapterIndex = $currentChapterIndex;
 
     function currentScrollPercent() {
         var scrollableHeight = document.body.scrollHeight - window.innerHeight;
@@ -294,8 +299,8 @@ private fun behaviorScript(scrollPosition: Float, wpm: Int): String = """
         var scrollPercent = currentScrollPercent();
         var minutesLeft = Math.ceil(totalWords * (1 - scrollPercent) / wpm);
 
-        AndroidBridge.reportTimeRemaining(minutesLeft);
-        AndroidBridge.reportWordsRead(Math.round(totalWords * scrollPercent));
+        AndroidBridge.reportTimeRemaining(minutesLeft, chapterIndex);
+        AndroidBridge.reportWordsRead(Math.round(totalWords * scrollPercent), chapterIndex);
     }
 
     var targetPos = $scrollPosition;
@@ -306,8 +311,8 @@ private fun behaviorScript(scrollPosition: Float, wpm: Int): String = """
         } else if (scrollableHeight > 0) {
             window.scrollTo(0, scrollableHeight * targetPos);
         }
-        AndroidBridge.reportScrollPosition(currentScrollPercent());
-        AndroidBridge.reportInitialWordsRead(currentWordsRead());
+        AndroidBridge.reportScrollPosition(currentScrollPercent(), chapterIndex);
+        AndroidBridge.reportInitialWordsRead(currentWordsRead(), chapterIndex);
         updateReadingTime();
     }, 100);
 
@@ -315,7 +320,7 @@ private fun behaviorScript(scrollPosition: Float, wpm: Int): String = """
     function scheduleProgressReport() {
         clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(function () {
-            AndroidBridge.reportScrollPosition(currentScrollPercent());
+            AndroidBridge.reportScrollPosition(currentScrollPercent(), chapterIndex);
             updateReadingTime();
         }, 500);
     }

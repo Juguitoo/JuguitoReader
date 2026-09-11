@@ -311,10 +311,34 @@ class ReaderViewModelTest {
     }
 
     @Test
+    fun `READER-017 stale JS scroll from previous chapter is ignored`() = runTest {
+        val viewModel = loadReaderViewModel(
+            epubContent = EpubContent(baseDir = "", spine = listOf("ch1", "ch2"), chaptersTree = emptyList())
+        )
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.onEvent(ReaderEvent.OnNextChapter)
+        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(1f, chapterIndex = 0))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(9_000, chapterIndex = 0))
+        viewModel.onEvent(ReaderEvent.OnChapterWordsBaseline(9_000, chapterIndex = 0))
+        viewModel.onEvent(ReaderEvent.OnTimeRemainingChanged(3, chapterIndex = 0))
+
+        val state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.currentChapterIndex).isEqualTo(1)
+        assertThat(state.readingProgress.scrollPosition).isEqualTo(0f)
+        assertThat(state.accumulatedReadWords).isEqualTo(0)
+        assertThat(state.lastReportedChapterWords).isEqualTo(0)
+        assertThat(state.timeRemaining).isNull()
+
+        job.cancel()
+    }
+
+    @Test
     fun `onEvent OnScrollPositionChanged updates progress after debounce`() = runTest {
         val viewModel = loadReaderViewModel(useStandardDispatcher = true)
 
-        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.7f))
+        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.7f, -1))
         runCurrent()
         coVerify(exactly = 0) { updateReadingProgressUseCase(any()) }
 
@@ -328,9 +352,9 @@ class ReaderViewModelTest {
     fun `multiple scroll events debounce to single persist with latest position`() = runTest {
         val viewModel = loadReaderViewModel(useStandardDispatcher = true)
 
-        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.3f))
-        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.5f))
-        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.7f))
+        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.3f, -1))
+        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.5f, -1))
+        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.7f, -1))
         runCurrent()
 
         coVerify(exactly = 0) { updateReadingProgressUseCase(any()) }
@@ -345,7 +369,7 @@ class ReaderViewModelTest {
     fun `onEvent OnScrollPositionChanged updates ui state before persist`() = runTest {
         val viewModel = loadReaderViewModel(useStandardDispatcher = true)
 
-        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.7f))
+        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.7f, -1))
         runCurrent()
 
         val state = viewModel.uiState.value as ReaderUiState.Success
@@ -357,7 +381,7 @@ class ReaderViewModelTest {
     fun `onEvent OnFinishReading flushes pending scroll progress`() = runTest {
         val viewModel = loadReaderViewModel(useStandardDispatcher = true)
 
-        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.7f))
+        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.7f, -1))
         runCurrent()
         coVerify(exactly = 0) { updateReadingProgressUseCase(any()) }
 
@@ -374,7 +398,7 @@ class ReaderViewModelTest {
             useStandardDispatcher = true
         )
 
-        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.7f))
+        viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(0.7f, -1))
         runCurrent()
         coVerify(exactly = 0) { updateReadingProgressUseCase(any()) }
 
@@ -496,12 +520,12 @@ class ReaderViewModelTest {
         val job = backgroundScope.launch { viewModel.uiState.collect { } }
         advanceUntilIdle()
 
-        viewModel.onEvent(ReaderEvent.OnReportWordsRead(100))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(100, -1))
         var state = viewModel.uiState.value as ReaderUiState.Success
         assertThat(state.lastReportedChapterWords).isEqualTo(100)
         assertThat(state.accumulatedReadWords).isEqualTo(100)
 
-        viewModel.onEvent(ReaderEvent.OnReportWordsRead(150))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(150, -1))
         state = viewModel.uiState.value as ReaderUiState.Success
         assertThat(state.lastReportedChapterWords).isEqualTo(150)
         assertThat(state.accumulatedReadWords).isEqualTo(150)
@@ -519,16 +543,16 @@ class ReaderViewModelTest {
         val job = backgroundScope.launch { viewModel.uiState.collect { } }
         advanceUntilIdle()
 
-        viewModel.onEvent(ReaderEvent.OnReportWordsRead(500))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(500, -1))
         var state = viewModel.uiState.value as ReaderUiState.Success
         assertThat(state.accumulatedReadWords).isEqualTo(500)
 
-        viewModel.onEvent(ReaderEvent.OnReportWordsRead(200))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(200, -1))
         state = viewModel.uiState.value as ReaderUiState.Success
         assertThat(state.accumulatedReadWords).isEqualTo(500)
         assertThat(state.lastReportedChapterWords).isEqualTo(200)
 
-        viewModel.onEvent(ReaderEvent.OnReportWordsRead(500))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(500, -1))
         state = viewModel.uiState.value as ReaderUiState.Success
         assertThat(state.accumulatedReadWords).isEqualTo(800)
 
@@ -546,13 +570,13 @@ class ReaderViewModelTest {
         advanceUntilIdle()
 
         viewModel.onEvent(ReaderEvent.OnChapterWordsBaseline(600))
-        viewModel.onEvent(ReaderEvent.OnReportWordsRead(600))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(600, -1))
 
         var state = viewModel.uiState.value as ReaderUiState.Success
         assertThat(state.lastReportedChapterWords).isEqualTo(600)
         assertThat(state.accumulatedReadWords).isEqualTo(0)
 
-        viewModel.onEvent(ReaderEvent.OnReportWordsRead(750))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(750, -1))
 
         state = viewModel.uiState.value as ReaderUiState.Success
         assertThat(state.accumulatedReadWords).isEqualTo(150)
@@ -570,11 +594,11 @@ class ReaderViewModelTest {
         val job = backgroundScope.launch { viewModel.uiState.collect { } }
         advanceUntilIdle()
 
-        viewModel.onEvent(ReaderEvent.OnReportWordsRead(300))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(300, -1))
         viewModel.onEvent(ReaderEvent.OnNextChapter)
-        viewModel.onEvent(ReaderEvent.OnReportWordsRead(400))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(400, -1))
         viewModel.onEvent(ReaderEvent.OnPreviousChapter)
-        viewModel.onEvent(ReaderEvent.OnReportWordsRead(300))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(300, -1))
 
         val state = viewModel.uiState.value as ReaderUiState.Success
         assertThat(state.accumulatedReadWords).isEqualTo(1_000)
@@ -593,7 +617,7 @@ class ReaderViewModelTest {
         val job = backgroundScope.launch { viewModel.uiState.collect { } }
         advanceUntilIdle()
 
-        viewModel.onEvent(ReaderEvent.OnReportWordsRead(200))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(200, -1))
         viewModel.onEvent(ReaderEvent.OnNextChapter)
 
         val state = viewModel.uiState.value as ReaderUiState.Success
@@ -609,7 +633,7 @@ class ReaderViewModelTest {
         viewModel = sessionReadyViewModel { now }
 
         viewModel.onEvent(ReaderEvent.OnStartReading)
-        viewModel.onEvent(ReaderEvent.OnReportWordsRead(400))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(400, -1))
 
         now = 121_000L
         viewModel.onEvent(ReaderEvent.OnToggleSessionsDialog)
@@ -626,7 +650,7 @@ class ReaderViewModelTest {
         viewModel = sessionReadyViewModel { now }
 
         viewModel.onEvent(ReaderEvent.OnStartReading)
-        viewModel.onEvent(ReaderEvent.OnReportWordsRead(400))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(400, -1))
 
         now = 121_000L
 
@@ -649,7 +673,7 @@ class ReaderViewModelTest {
         coEvery { addDailyReadingUseCase.invoke(capture(slot)) } returns Result.success(Unit)
 
         viewModel.onEvent(ReaderEvent.OnStartReading)
-        viewModel.onEvent(ReaderEvent.OnReportWordsRead(400))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(400, -1))
 
         now = 11_000L
         viewModel.onEvent(ReaderEvent.OnFinishReading)
@@ -678,7 +702,7 @@ class ReaderViewModelTest {
         coEvery { addDailyReadingUseCase.invoke(capture(slot)) } returns Result.success(Unit)
 
         viewModel.onEvent(ReaderEvent.OnStartReading)
-        viewModel.onEvent(ReaderEvent.OnReportWordsRead(400))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(400, -1))
 
         now = 21_000L
         viewModel.onEvent(ReaderEvent.OnFinishReading)
@@ -695,7 +719,7 @@ class ReaderViewModelTest {
         viewModel = sessionReadyViewModel { now }
 
         viewModel.onEvent(ReaderEvent.OnStartReading)
-        viewModel.onEvent(ReaderEvent.OnReportWordsRead(400))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(400, -1))
 
         now = 121_000L
         viewModel.onEvent(ReaderEvent.OnBackRequested)

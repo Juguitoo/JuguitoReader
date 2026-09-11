@@ -13,15 +13,8 @@ Una sola tabla. Orden: sin versión (`—`) → diferidos. Si el comentario se q
 
 | ID         | Título                                                                  | Severidad | Estado   | Target | Comentario                                                                                                                                     | Relacionado        |
 | ---------- | ----------------------------------------------------------------------- | --------- | -------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| SEC-004    | EPUB malicioso puede abusar de `AndroidBridge`                          | Medio     | Abierto  | —      | Residual SEC-001: JS del libro puede inflar WPM/progreso y cambiar de capítulo.                                                                | SEC-001            |
-| READER-017 | JS stale tras cambio de capítulo                                        | Alto      | Abierto  | —      | El debounce 500 ms del capítulo anterior puede llegar con el estado ya a scroll 0 / palabras 0. (2)                                            |                    |
 | READER-008 | TOC con `#fragment`                                                     | Medio     | Diferido | v1.4.0 | `chapter.xhtml#section2` no matchea bien con spine por nombre final → TOC ambigua.                                                             | TAR-31, READER-009 |
 | READER-009 | EPUB3 nav incompleto                                                    | Medio     | Diferido | v1.4.0 | NCX parseado; falta soporte completo del HTML Navigation Document (`properties="nav"`).                                                        | TAR-31, TAR-32     |
-
-
-### Detalle
-
-**(2) READER-017.** Ejemplo: scroll cerca del final → overscroll al siguiente capítulo en menos de 500 ms → el timeout del HTML viejo manda `reportScrollPosition(1.0)` al capítulo nuevo (ya reseteado).
 
 ---
 

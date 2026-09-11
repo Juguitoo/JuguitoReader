@@ -40,6 +40,7 @@ import javax.inject.Inject
 
 private const val PROGRESS_PERSIST_DEBOUNCE_MS = 2_000L
 private const val MAX_RENDERER_RECOVERIES = 2
+private const val MAX_CHAPTER_WORDS = 200_000
 
 @HiltViewModel
 class ReaderViewModel @Inject constructor(
@@ -197,11 +198,13 @@ class ReaderViewModel @Inject constructor(
                 viewModelScope.launch { settingsRepository.saveReaderBrightness(event.brightness) }
             }
             is ReaderEvent.OnScrollPositionChanged -> {
+                if (isStaleJsChapter(event.chapterIndex, currentState.currentChapterIndex)) return
                 val updatedProgress = currentState.readingProgress.copy(scrollPosition = event.scrollPosition, lastReadAt = currentTimeProvider())
                 _internalState.value = currentState.copy(readingProgress = updatedProgress)
                 scheduleProgressPersist(updatedProgress)
             }
             is ReaderEvent.OnTimeRemainingChanged -> {
+                if (isStaleJsChapter(event.chapterIndex, currentState.currentChapterIndex)) return
                 _internalState.value = currentState.copy(timeRemaining = event.minutes)
             }
             is ReaderEvent.OnBackRequested -> {
@@ -221,9 +224,11 @@ class ReaderViewModel @Inject constructor(
                 }
             }
             is ReaderEvent.OnReportWordsRead -> {
+                if (isStaleJsChapter(event.chapterIndex, currentState.currentChapterIndex)) return
                 creditWordsRead(currentState, event.words)
             }
             is ReaderEvent.OnChapterWordsBaseline -> {
+                if (isStaleJsChapter(event.chapterIndex, currentState.currentChapterIndex)) return
                 _internalState.value = currentState.copy(lastReportedChapterWords = event.words)
             }
             is ReaderEvent.OnRenderProcessGone -> {
@@ -335,6 +340,9 @@ class ReaderViewModel @Inject constructor(
         }
     }
 
+    private fun isStaleJsChapter(chapterIndex: Int, currentChapterIndex: Int): Boolean =
+        chapterIndex >= 0 && chapterIndex != currentChapterIndex
+
     private fun updateSuccessState(transform: (ReaderUiState.Success) -> ReaderUiState.Success) {
         _internalState.update { state -> if (state is ReaderUiState.Success) transform(state) else state }
     }
@@ -364,11 +372,11 @@ class ReaderViewModel @Inject constructor(
     }
 
     private fun creditWordsRead(currentState: ReaderUiState.Success, words: Int) {
-        val delta = words - currentState.lastReportedChapterWords
+        val delta = (words.coerceIn(0, MAX_CHAPTER_WORDS) - currentState.lastReportedChapterWords).coerceAtLeast(0)
 
         _internalState.value = currentState.copy(
             lastReportedChapterWords = words,
-            accumulatedReadWords = currentState.accumulatedReadWords + delta.coerceAtLeast(0)
+            accumulatedReadWords = currentState.accumulatedReadWords + delta
         )
     }
 }

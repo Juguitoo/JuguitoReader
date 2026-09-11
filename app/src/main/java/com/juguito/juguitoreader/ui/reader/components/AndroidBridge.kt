@@ -8,13 +8,13 @@ internal class AndroidBridge(
     private val onOverscroll: (Float) -> Unit
 ) {
     @JavascriptInterface
-    fun reportScrollPosition(y: Float) {
-        onEvent(ReaderEvent.OnScrollPositionChanged(y))
+    fun reportScrollPosition(y: Float, chapterIndex: Int) {
+        onEvent(ReaderEvent.OnScrollPositionChanged(y, chapterIndex))
     }
 
     @JavascriptInterface
-    fun reportTimeRemaining(minutes: Int) {
-        onEvent(ReaderEvent.OnTimeRemainingChanged(minutes))
+    fun reportTimeRemaining(minutes: Int, chapterIndex: Int) {
+        onEvent(ReaderEvent.OnTimeRemainingChanged(minutes, chapterIndex))
     }
 
     @JavascriptInterface
@@ -33,12 +33,12 @@ internal class AndroidBridge(
     }
 
     @JavascriptInterface
-    fun reportWordsRead(words: Int) {
-        onEvent(ReaderEvent.OnReportWordsRead(words))
+    fun reportWordsRead(words: Int, chapterIndex: Int) {
+        onEvent(ReaderEvent.OnReportWordsRead(words, chapterIndex))
     }
 
     @JavascriptInterface
-    fun reportInitialWordsRead(words: Int) {
-        onEvent(ReaderEvent.OnChapterWordsBaseline(words))
+    fun reportInitialWordsRead(words: Int, chapterIndex: Int) {
+        onEvent(ReaderEvent.OnChapterWordsBaseline(words, chapterIndex))
     }
 }
