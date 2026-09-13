@@ -301,6 +301,8 @@
     <string name="whats_new_title">Novedades de %1$s</string>
     <string name="whats_new_message">Esto es lo que ha cambiado.</string>
     <string name="whats_new_got_it">Entendido</string>
+    <string name="error_backup_export">Error al exportar los datos.</string>
+    <string name="error_backup_destination">La dirección de la copia de seguridad no puede estar vacía.</string>
 
     <!-- Changelog -->
     <string-array name="changelog_1_2_1">

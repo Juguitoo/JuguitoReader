@@ -300,6 +300,8 @@
     <string name="whats_new_title">What\'s new in %1$s</string>
     <string name="whats_new_message">Here\'s what changed.</string>
     <string name="whats_new_got_it">Got it</string>
+    <string name="error_backup_export">Error exporting app data</string>
+    <string name="error_backup_destination">The backup destination cannot be empty</string>
 
     <!-- Changelog -->
     <string-array name="changelog_1_2_1">

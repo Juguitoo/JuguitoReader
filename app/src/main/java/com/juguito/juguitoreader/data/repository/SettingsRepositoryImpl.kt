@@ -42,7 +42,7 @@ class SettingsRepositoryImpl @Inject constructor(
     override val autoStartReadingFlow: Flow<Boolean> = context.dataStore.data.map { it[AUTO_START_READING] ?: false }
     override val autoFinishReadingFlow: Flow<Boolean> = context.dataStore.data.map { it[AUTO_FINISH_READING] ?: false }
     override val promptStatusChangeFlow: Flow<Boolean> = context.dataStore.data.map { it[PROMPT_STATUS_CHANGE] ?: true }
-    override val lastSeenChangelogVersion: Flow<String?> = context.dataStore.data.map { it[LAST_SEEN_CHANGELOG_VERSION] }
+    override val lastSeenChangelogVersionFlow: Flow<String?> = context.dataStore.data.map { it[LAST_SEEN_CHANGELOG_VERSION] }
 
     override suspend fun saveTextZoom(textZoom: Int) {
         context.dataStore.edit { it[TEXT_ZOOM] = textZoom }

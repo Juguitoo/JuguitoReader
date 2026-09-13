@@ -9,7 +9,7 @@ class GetUnseenChangelogUseCase @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) {
     suspend operator fun invoke(currentVersion: String, catalogNewestFirst: List<String>): List<String> {
-        val lastSeen = settingsRepository.lastSeenChangelogVersion.first()
+        val lastSeen = settingsRepository.lastSeenChangelogVersionFlow.first()
         return unseenChangelogVersions(currentVersion, lastSeen, catalogNewestFirst)
     }
 }

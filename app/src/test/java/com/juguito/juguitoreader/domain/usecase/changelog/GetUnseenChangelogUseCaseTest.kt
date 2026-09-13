@@ -22,7 +22,7 @@ class GetUnseenChangelogUseCaseTest {
 
     @Test
     fun `invoke with no last seen returns current when it is in catalog`() = runTest {
-        every { settingsRepository.lastSeenChangelogVersion } returns flowOf(null)
+        every { settingsRepository.lastSeenChangelogVersionFlow } returns flowOf(null)
 
         val result = useCase("1.2.1", catalog)
 
@@ -31,7 +31,7 @@ class GetUnseenChangelogUseCaseTest {
 
     @Test
     fun `invoke with last seen equal to current returns empty`() = runTest {
-        every { settingsRepository.lastSeenChangelogVersion } returns flowOf("1.2.1")
+        every { settingsRepository.lastSeenChangelogVersionFlow } returns flowOf("1.2.1")
 
         val result = useCase("1.2.1", catalog)
 
@@ -40,7 +40,7 @@ class GetUnseenChangelogUseCaseTest {
 
     @Test
     fun `invoke with older last seen returns unseen versions`() = runTest {
-        every { settingsRepository.lastSeenChangelogVersion } returns flowOf("1.2.0")
+        every { settingsRepository.lastSeenChangelogVersionFlow } returns flowOf("1.2.0")
 
         val result = useCase("1.2.1", catalog)
 
