@@ -55,8 +55,8 @@ fix: DATA-001 use Update instead of Replace in FolderDAO
 
 En `app/build.gradle.kts`:
 
-- `versionName` — semver (`1.2.0`)
-- `versionCode` — entero incremental para Play Console
+- `versionName` — semver (`1.2.1`)
+- `versionCode` — entero incremental para Play Console (6 en 1.2.1)
 
 Al publicar una versión con notas in-app: añadir una entrada en `ChangelogUiCatalog` y el `string-array` `changelog_X_Y_Z` en `values/strings.xml` y `values-en/strings.xml`.
 
@@ -70,7 +70,7 @@ Al publicar una versión con notas in-app: añadir una entrada en `ChangelogUiCa
 
 ## Tags
 
-Formato: `v{versionName}` — p. ej. `v1.2.0`
+Formato: `v{versionName}` — p. ej. `v1.2.1`
 
 ## Qué no hacer
 
@@ -115,6 +115,7 @@ Los hooks **no se versionan** en `.git/hooks/`; hay que reinstalar tras un clone
 |------|-----|
 | `main` | Estable |
 | `dev` | Integración |
-| `release/v1.2.0` | QA / pruebas cerradas Play |
+| `feature/TAR-59-manual-backup` | 1.2.1 listo; merge a `dev` pendiente |
+| `release/v1.2.1` | A crear para QA / AAB Play |
 
 Ver [ROADMAP.md](ROADMAP.md) · Mantener esta tabla al día: [MAINTENANCE.md](MAINTENANCE.md)

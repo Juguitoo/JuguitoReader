@@ -80,8 +80,8 @@ Activar al inicio del mensaje: `[MODO: PAIR - N3]` o abreviado `PAIR - N2`.
 UI (Compose + ViewModel) → UseCase → Repository (interface) → RepositoryImpl → DAO / DataStore
 ```
 
-- **27 use cases** en `domain/usecase/`
-- **11 ViewModels** con patrón `UiState` / `Event` / `UiEffect`
+- **~29 use cases** en `domain/usecase/`
+- **13 ViewModels** con patrón `UiState` / `Event` / `UiEffect`
 - **Room v12** — ver [docs/DATABASE.md](docs/DATABASE.md)
 - **Sin backend** — sync cloud eliminado del roadmap cercano; app 100 % local
 

@@ -323,8 +323,10 @@
 
     <!-- Changelog -->
     <string-array name="changelog_1_2_1">
+        <item>Copia de seguridad: exportar e importar biblioteca, progreso y ajustes.</item>
         <item>Pantalla Acerca de con versión, créditos y copyright.</item>
         <item>Historial de cambios en la app y novedades al actualizar.</item>
+        <item>La ficha del libro es ahora una página de lectura con diario.</item>
     </string-array>
     <string-array name="changelog_1_2_0">
         <item>La app se puede usar en español o en inglés.</item>

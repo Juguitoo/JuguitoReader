@@ -9,7 +9,6 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 
 | Versión     | ID         | Tarea                                                                | Tipo  | Estado | Ref          |
 | ----------- | ---------- | -------------------------------------------------------------------- | ----- | ------ | ------------ |
-| v1.2.1      | TAR-59     | Export / import manual de datos (backup local; gate producción Play) | Feat  | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-19     | Recopilación de estadísticas                                         | Feat  | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-20     | Sección estadísticas                                                 | Feat  | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-47     | Reestructuración carpetas (archivadores)                             | Feat  | `[ ]`  | ROADMAP      |
@@ -49,6 +48,6 @@ docs: move closed v1.2.0 work to archive
 | v1.0.0 / v1.0.2 | [archive/v1.0.0.md](archive/v1.0.0.md)              |
 | v1.1.0          | [archive/v1.1.0.md](archive/v1.1.0.md)              |
 | v1.2.0          | [archive/v1.2.0.md](archive/v1.2.0.md)              |
-| v1.2.1          | [archive/v1.2.1.md](archive/v1.2.1.md) *(en curso)* |
+| v1.2.1          | [archive/v1.2.1.md](archive/v1.2.1.md) |
 
 

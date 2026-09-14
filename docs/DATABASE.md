@@ -7,14 +7,14 @@
 - Config KSP: `room.schemaLocation = $projectDir/schemas`.
 - Política actual: `fallbackToDestructiveMigration(false)`.
 
-### Política en desarrollo
+### Política de migraciones (DATA-006)
 
-La app está en **pruebas cerradas**. No hay usuarios de producción en versiones antiguas que requieran migraciones 1→5. Opciones válidas durante dev:
+Producción y pruebas cerradas usan la misma regla: **nunca** `fallbackToDestructiveMigration(true)`. Un mismatch de schema no puede borrar la biblioteca.
 
-- Activar `fallbackToDestructiveMigration(true)` para iterar rápido.
-- O mantener export de schemas y añadir migraciones cuando se acerque open testing.
-
-Antes de Play Store pública: definir estrategia de migración explícita.
+- Toda subida de `version` en `@Database` exige `MIGRATION_N_N+1` registrada, schema exportado en `app/schemas/`, y test de migración si el cambio toca datos.
+- No hay puente 1→6. Instalaciones o backups con schema < 6 no son soportados.
+- **Backup manual (TAR-59):** el ZIP lleva `dbVersion` en `manifest.json`. Restore con `dbVersion` menor que la app: Room aplica las migraciones al cold start. Restore con `dbVersion` mayor: rechazo. Restore igual: abre tal cual.
+- Al bump de schema, el export sigue escribiendo el `dbVersion` actual (versión Room). Sin `MIGRATION` nueva, los backups de la versión anterior dejarán de abrir.
 
 ## Diagrama de tablas
 

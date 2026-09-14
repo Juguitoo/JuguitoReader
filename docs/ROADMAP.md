@@ -6,23 +6,23 @@ Visión por versión. Estado operativo de tareas: [BACKLOG.md](BACKLOG.md). Bugs
 
 ---
 
-## v1.2.x — Pulido pre-producción *(en curso)*
+## v1.2.x — Pulido pre-producción *(código 1.2.1 listo)*
 
-Línea **v1.2.x** hasta producción en Play Store. Nube de pago (TAR-29 / v2) después; backup **manual** local como puente.
+Línea **v1.2.x** hasta producción en Play Store. Nube de pago (TAR-29 / v2) después; backup **manual** local como puente (TAR-59 hecho).
 
 ### Estrategia de publicación
 
 1. **v1.2.0** — Audit + fixes del pase **cerrados** en [archive/v1.2.0.md](archive/v1.2.0.md) → **pruebas cerradas**.
-2. **v1.2.1** — Pulido store (TAR-57 y TAR-58 hechos) + backup manual (TAR-59). Bugs sin versión completados.
-3. **Producción** — Solo cuando esté TAR-59 y el cierre 1.2.x.
+2. **v1.2.1** — Pulido store + backup manual. Código listo (`versionName` 1.2.1 / `versionCode` 6). Ver [archive/v1.2.1.md](archive/v1.2.1.md).
+3. **Producción** — Checklist hecho (TAR-59, privacy en Console, keystore/R8/CI). Publicar 1.2.1; tag `v1.2.1` al subir.
 
-### v1.2.1 — Store polish + Backup manual *(gate producción)*
+### v1.2.1 — Store polish + Backup manual *(hecho)*
 
-About in-app **hecho** (TAR-57). Changelog / novedades **hecho** (TAR-58). Detail como página de lectura **hecho** (UX-020). Ver [archive/v1.2.1.md](archive/v1.2.1.md).
+About in-app **hecho** (TAR-57). Changelog / novedades **hecho** (TAR-58). Detail como página de lectura **hecho** (UX-020). Backup manual **hecho** (TAR-59). Ver [archive/v1.2.1.md](archive/v1.2.1.md).
 
 Licencia de producto: privativa / source-available (portfolio); ya no GPLv3.
 
-Export/import local (TAR-59). Sin Auto Backup de Google (ARCH-002 hecho en v1.2.0); sync de pago sigue en TAR-29.
+Sin Auto Backup de Google (ARCH-002 hecho en v1.2.0); sync de pago sigue en TAR-29.
 
 ## v1.3.0 — Biblioteca y estadísticas
 
@@ -52,9 +52,9 @@ TAR-30 — Visor EPUB propio (EPUB → Compose).
 
 ## Pre-publicación Play Store
 
-- **Closed testing:** tras v1.2.0; seguir con 1.2.1 / 1.2.2.
-- **Producción:** tras TAR-59 + checklist release.
-- Keystore (REL-001 hecho); R8 (REL-002 hecho); CI (REL-003 hecho); política migraciones (DATA-006); privacy policy.
+- **Closed testing:** hecha (v1.2.0).
+- **Producción:** lista. Privacy policy ya en Console; TAR-59 hecho. Queda publicar el AAB 1.2.1 y el tag.
+- Keystore (REL-001 hecho); R8 (REL-002 hecho); CI (REL-003 hecho); política migraciones (DATA-006, [DATABASE.md](DATABASE.md)).
 
 Detalle en [BACKLOG.md](BACKLOG.md).
 
@@ -67,6 +67,7 @@ Detalle en [BACKLOG.md](BACKLOG.md).
 | v1.0.0 / v1.0.2 | Base app + hotfix scroll | [archive/v1.0.0.md](archive/v1.0.0.md) |
 | v1.1.0 | UX, undo, gestor | [archive/v1.1.0.md](archive/v1.1.0.md) |
 | v1.2.0 | Features 1.2 + estabilización audit | [archive/v1.2.0.md](archive/v1.2.0.md) |
+| v1.2.1 | Store polish + backup manual | [archive/v1.2.1.md](archive/v1.2.1.md) |
 
 ---
 

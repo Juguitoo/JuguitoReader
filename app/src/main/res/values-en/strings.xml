@@ -322,8 +322,10 @@
 
     <!-- Changelog -->
     <string-array name="changelog_1_2_1">
+        <item>Backup: export and restore your library, progress, and settings.</item>
         <item>About screen with version, credits, and copyright.</item>
         <item>In-app changelog and what\'s new after an update.</item>
+        <item>The book screen is now a reading page with a journal.</item>
     </string-array>
     <string-array name="changelog_1_2_0">
         <item>Use the app in Spanish or English.</item>
