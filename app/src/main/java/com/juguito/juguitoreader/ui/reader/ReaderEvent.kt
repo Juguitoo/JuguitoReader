@@ -8,14 +8,14 @@ sealed interface ReaderEvent {
     data class OnChapterSelected(val index: Int): ReaderEvent
     data class OnTextZoomChanged(val zoom: Int): ReaderEvent
     data class OnThemeChanged(val theme: ReaderTheme): ReaderEvent
-    data class OnScrollPositionChanged(val scrollPosition: Float): ReaderEvent
-    data class OnTimeRemainingChanged(val minutes: Int): ReaderEvent
+    data class OnScrollPositionChanged(val scrollPosition: Float, val chapterIndex: Int = -1): ReaderEvent
+    data class OnTimeRemainingChanged(val minutes: Int, val chapterIndex: Int = -1): ReaderEvent
     data class OnBrightnessChanged(val brightness: Float): ReaderEvent
     data class OnStatusPromptResult(val changeToReading: Boolean): ReaderEvent
     data object OnStartReading: ReaderEvent
     data object OnFinishReading: ReaderEvent
     data object OnToggleSessionsDialog: ReaderEvent
     data object OnRenderProcessGone: ReaderEvent
-    data class OnReportWordsRead(val words: Int): ReaderEvent
-    data class OnChapterWordsBaseline(val words: Int): ReaderEvent
+    data class OnReportWordsRead(val words: Int, val chapterIndex: Int = -1): ReaderEvent
+    data class OnChapterWordsBaseline(val words: Int, val chapterIndex: Int = -1): ReaderEvent
 }

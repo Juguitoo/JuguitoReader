@@ -49,6 +49,7 @@ FK CASCADE a `books` (schema v12). Delete de libro elimina progreso automáticam
 - Añadir MIGRATION_X_Y en JuguitoReaderDatabase
 - Registrar en DatabaseModule
 - Commit schema JSON exportado
+- Sin destructive fallback. Los backups manuales llevan `dbVersion`; un restore más viejo dispara esas migraciones al reabrir Room.
 
 ## Referencia
 

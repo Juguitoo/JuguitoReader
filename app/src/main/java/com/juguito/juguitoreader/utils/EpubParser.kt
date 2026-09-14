@@ -6,6 +6,8 @@ import android.util.Xml
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.EpubContent
 import com.juguito.juguitoreader.domain.model.EpubNavElement
+import com.juguito.juguitoreader.utils.FileUtils.resolveCanonicalFile
+import com.juguito.juguitoreader.utils.FileUtils.writeBounded
 import org.xmlpull.v1.XmlPullParser
 import java.io.File
 import java.io.IOException
@@ -232,7 +234,7 @@ object EpubParser {
      */
     internal fun parseContainerOpfPath(directory: File): String {
         var opfPath = ""
-        val containerFile = resolveEpubFile(directory, "META-INF/container.xml")
+        val containerFile = resolveCanonicalFile(directory, "META-INF/container.xml")
         if (!containerFile.exists()) return ""
 
         containerFile.inputStream().use { inputStream ->
@@ -254,13 +256,13 @@ object EpubParser {
     /**
      * Parses the OPF at [opfPath] and builds the reading spine plus optional NCX path.
      *
-     * Every manifest href is validated against [directory] via [resolveEpubFile].
+     * Every manifest href is validated against [directory] via [resolveCanonicalFile].
      *
      * @return Empty spine and toc when the OPF file does not exist.
      * @throws SecurityException if a manifest reference escapes [directory].
      */
     internal fun parseOpf(directory: File, opfPath: String): OpfParseResult {
-        val opfFile = resolveEpubFile(directory, opfPath)
+        val opfFile = resolveCanonicalFile(directory, opfPath)
         if (!opfFile.exists()) return OpfParseResult(emptyList(), "")
 
         val manifestMap = mutableMapOf<String, String>()
@@ -283,7 +285,7 @@ object EpubParser {
                                 parser.getAttributeValue(null, "media-type") ?: ""
                             val resourcePath = opfDir + href
                             val filePath = filePathFromReference(resourcePath)
-                            resolveEpubFile(directory, filePath)
+                            resolveCanonicalFile(directory, filePath)
                             if (mediaType.contains("ncx")) tocPath = resourcePath
                             manifestMap[id] = resourcePath
                         }
@@ -312,7 +314,7 @@ object EpubParser {
         if (tocPath.isEmpty()) return emptyList()
         return try {
             val chaptersTree = mutableListOf<EpubNavElement>()
-            val ncxFile = resolveEpubFile(directory, filePathFromReference(tocPath))
+            val ncxFile = resolveCanonicalFile(directory, filePathFromReference(tocPath))
             if (!ncxFile.exists()) throw IOException("Fichero EPUB corrupto.")
             val tocDir = if (tocPath.contains("/")) tocPath.substringBeforeLast("/") + "/" else ""
 
@@ -379,20 +381,6 @@ object EpubParser {
     }
 
     /**
-     * Copies [input] into [outputFile] with a byte ceiling.
-     * Caller owns cleanup of [outputFile] on failure.
-     */
-    internal fun writeBounded(
-        input: InputStream,
-        outputFile: File,
-        maxBytes: Long = MAX_COVER_BYTES,
-    ) {
-        outputFile.outputStream().use { output ->
-            copyBounded(input, output, maxBytes)
-        }
-    }
-
-    /**
      * Extracts [inputStream] into [outputPath] while enforcing [limits].
      *
      * Rejects Zip Slip paths and removes the complete output directory after any failure.
@@ -419,14 +407,7 @@ object EpubParser {
                         throw SecurityException("Posible archivo malicioso, excesivamente grande.")
                     }
 
-                    val newFile = File(outputDir, entry.name)
-
-                    val canonicalDirPath = outputDir.canonicalPath
-                    val canonicalFilePath = newFile.canonicalPath
-
-                    if (!canonicalFilePath.startsWith(canonicalDirPath + File.separator)) {
-                        throw SecurityException("Archivo malicioso detectado. Intenta escapar del directorio: ${entry.name}")
-                    }
+                    val newFile = resolveCanonicalFile(outputDir, entry.name)
 
                     if (entry.isDirectory) {
                         newFile.mkdirs()
@@ -469,7 +450,7 @@ object EpubParser {
                         val src = parser.getAttributeValue(null, "src") ?: ""
                         val resourcePath = tocDir + src
                         val filePath = filePathFromReference(resourcePath)
-                        resolveEpubFile(directory, filePath)
+                        resolveCanonicalFile(directory, filePath)
                         href = resourcePath
                     }
 
@@ -486,24 +467,4 @@ object EpubParser {
     /** Returns the filesystem part of an EPUB resource reference. */
     internal fun filePathFromReference(reference: String): String =
         reference.substringBefore('#').substringBefore('?')
-
-    /**
-     * Resolves [relativePath] and ensures its canonical location remains below [root].
-     *
-     * @throws SecurityException if the resolved path points outside [root].
-     */
-    internal fun resolveEpubFile(root: File, relativePath: String): File {
-        if (File(relativePath).isAbsolute) {
-            throw SecurityException("Archivo malicioso detectado. Ruta absoluta no permitida.")
-        }
-
-        val newFile = File(root, relativePath)
-        val canonicalDirPath = root.canonicalPath
-        val canonicalFilePath = newFile.canonicalPath
-
-        if (!canonicalFilePath.startsWith(canonicalDirPath + File.separator)) {
-            throw SecurityException("Archivo malicioso detectado. Intentando escapar de los ficheros del EPUB.")
-        }
-        return newFile.canonicalFile
-    }
 }

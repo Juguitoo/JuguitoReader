@@ -72,6 +72,41 @@ class RegistryViewModelTest {
     }
 
     @Test
+    fun `onEvent OnStartDateChanged null clears start date`() = runTest {
+        val book = Book(id = 1, title = "T", author = "A", isPhysical = false, startDate = 100L)
+        every { getBooksUseCase() } returns flowOf(listOf(book))
+        viewModel = RegistryViewModel(application, getBooksUseCase, updateBookUseCase)
+        coEvery { updateBookUseCase(any()) } returns Result.success(Unit)
+
+        viewModel.onEvent(RegistryEvent.OnStartDateChanged(1, null))
+
+        coVerify { updateBookUseCase(match { it.id == 1 && it.startDate == null }) }
+    }
+
+    @Test
+    fun `onEvent OnEndDateChanged null clears end date without changing status`() = runTest {
+        val book = Book(
+            id = 1,
+            title = "T",
+            author = "A",
+            isPhysical = false,
+            status = BookStatus.FINISHED,
+            endDate = 200L,
+        )
+        every { getBooksUseCase() } returns flowOf(listOf(book))
+        viewModel = RegistryViewModel(application, getBooksUseCase, updateBookUseCase)
+        coEvery { updateBookUseCase(any()) } returns Result.success(Unit)
+
+        viewModel.onEvent(RegistryEvent.OnEndDateChanged(1, null))
+
+        coVerify {
+            updateBookUseCase(match {
+                it.id == 1 && it.endDate == null && it.status == BookStatus.FINISHED
+            })
+        }
+    }
+
+    @Test
     fun `onEvent filtering events update criteria and state`() = runTest {
         viewModel.onEvent(RegistryEvent.OnSearchTextChanged("Search"))
         assertThat(viewModel.uiState.value.criteria.searchText).isEqualTo("Search")

@@ -4,14 +4,17 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -19,6 +22,7 @@ import androidx.compose.material.icons.filled.AppRegistration
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material.icons.filled.NewLabel
 import androidx.compose.material.icons.filled.Settings
@@ -27,6 +31,8 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -45,10 +51,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -56,8 +65,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.ui.about.AboutScreen
 import com.juguito.juguitoreader.ui.book.add.AddBookScreen
 import com.juguito.juguitoreader.ui.book.detail.BookDetailScreen
+import com.juguito.juguitoreader.ui.changelog.ChangelogScreen
+import com.juguito.juguitoreader.ui.changelog.WhatsNewDialog
+import com.juguito.juguitoreader.ui.changelog.WhatsNewEvent
+import com.juguito.juguitoreader.ui.changelog.WhatsNewUiState
+import com.juguito.juguitoreader.ui.changelog.WhatsNewViewModel
 import com.juguito.juguitoreader.ui.folder.FolderScreen
 import com.juguito.juguitoreader.ui.genre.AddGenreDialog
 import com.juguito.juguitoreader.ui.home.HomeScreen
@@ -70,13 +85,17 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JuguitoApp() {
+fun JuguitoApp(
+    whatsNewViewModel: WhatsNewViewModel = hiltViewModel()
+) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
+    val whatsNewState by whatsNewViewModel.uiState.collectAsState()
+    val isWhatsNewVisible = whatsNewState is WhatsNewUiState.Visible
 
     var showAddGenreDialog by remember { mutableStateOf(false) }
 
@@ -86,9 +105,16 @@ fun JuguitoApp() {
         )
     }
 
+    if (isWhatsNewVisible) {
+        WhatsNewDialog(
+            state = whatsNewState,
+            onDismissRequest = { whatsNewViewModel.onEvent(WhatsNewEvent.OnDismiss) }
+        )
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
-        gesturesEnabled = areDrawerGesturesEnabled(currentRoute) && !showAddGenreDialog,
+        gesturesEnabled = areDrawerGesturesEnabled(currentRoute) && !showAddGenreDialog && !isWhatsNewVisible,
         drawerContent = {
             ModalDrawerSheet(
                 modifier = Modifier.fillMaxWidth(0.75f),
@@ -106,9 +132,7 @@ fun JuguitoApp() {
                     onClick = { 
                         scope.launch { 
                             drawerState.close()
-                            navController.navigate("home") {
-                                popUpTo("home") { inclusive = true }
-                            }
+                            navController.navigateToTopLevel("home")
                         } 
                     }
                 )
@@ -120,7 +144,7 @@ fun JuguitoApp() {
                     onClick = { 
                         scope.launch { 
                             drawerState.close()
-                            navController.navigate("registry")
+                            navController.navigateToTopLevel("registry")
                         } 
                     }
                 )
@@ -132,7 +156,7 @@ fun JuguitoApp() {
                     onClick = {
                         scope.launch {
                             drawerState.close()
-                            navController.navigate("library")
+                            navController.navigateToTopLevel("library")
                         }
                     }
                 )
@@ -153,7 +177,7 @@ fun JuguitoApp() {
                     onClick = {
                         scope.launch {
                             drawerState.close()
-                            navController.navigate("management")
+                            navController.navigateToTopLevel("management")
                         }
                     }
                 )
@@ -189,19 +213,37 @@ fun JuguitoApp() {
                     }
                 )
 
-                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
-
                 Spacer(modifier = Modifier.weight(1f))
 
-                DrawerItem(
-                    label = stringResource(R.string.settings),
-                    icon = Icons.Default.Settings,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                        navController.navigate("settings")
-                    }
-                )
-                
+                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    DrawerFooterIcon(
+                        icon = Icons.Default.Settings,
+                        contentDescription = stringResource(R.string.settings),
+                        selected = currentRoute == "settings",
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            navController.navigate("settings")
+                        }
+                    )
+                    DrawerFooterIcon(
+                        icon = Icons.Default.Info,
+                        contentDescription = stringResource(R.string.about),
+                        selected = currentRoute == "about",
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            navController.navigate("about")
+                        }
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(12.dp))
             }
         }
@@ -288,7 +330,7 @@ fun JuguitoApp() {
                         onClearManagementMessage = {
                             savedStateHandle.remove<Int>("snackbar_result")
                         },
-                        onNavigateBack = { navController.popBackStack() },
+                        onOpenDrawer = { scope.launch { drawerState.open() } },
                         onNavigateToEditFolder = { folderId ->
                             navController.navigate("edit_folder/$folderId")
                         },
@@ -302,7 +344,10 @@ fun JuguitoApp() {
                 ) {
                     BookDetailScreen(
                         onNavigateBack = { navController.popBackStack() },
-                        onNavigateToAddFolder = { navController.navigate("add_folder")}
+                        onNavigateToAddFolder = { navController.navigate("add_folder") },
+                        onNavigateToReadBook = { bookId ->
+                            navController.navigate("reader/$bookId")
+                        }
                     )
                 }
 
@@ -349,6 +394,19 @@ fun JuguitoApp() {
                         onNavigateBack = { navController.popBackStack() },
                     )
                 }
+
+                composable(route = "about") {
+                    AboutScreen(
+                        onNavigateBack = { navController.popBackStack() },
+                        onOpenChangelog = { navController.navigate("changelog") }
+                    )
+                }
+
+                composable(route = "changelog") {
+                    ChangelogScreen(
+                        onNavigateBack = { navController.popBackStack() },
+                    )
+                }
             }
         }
     }
@@ -360,8 +418,20 @@ internal fun areDrawerGesturesEnabled(route: String?): Boolean {
         "add_folder",
         "edit_folder/{folderId}",
         "book_detail/{bookId}",
-        "reader/{bookId}" -> false
+        "reader/{bookId}",
+        "changelog",
+        "about",
+        "settings" -> false
         else -> true
+    }
+}
+
+private fun NavHostController.navigateToTopLevel(route: String) {
+    navigate(route) {
+        popUpTo(graph.id) {
+            inclusive = false
+        }
+        launchSingleTop = true
     }
 }
 
@@ -431,4 +501,30 @@ fun DrawerItem(
         ),
         shape = RoundedCornerShape(12.dp)
     )
+}
+
+@Composable
+private fun DrawerFooterIcon(
+    icon: ImageVector,
+    contentDescription: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    IconButton(
+        onClick = onClick,
+        modifier = Modifier.background(
+            color = if (selected) colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent,
+            shape = CircleShape
+        ),
+        colors = IconButtonDefaults.iconButtonColors(
+            contentColor = if (selected) colorScheme.primary else colorScheme.onSurfaceVariant
+        )
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            modifier = Modifier.size(24.dp)
+        )
+    }
 }

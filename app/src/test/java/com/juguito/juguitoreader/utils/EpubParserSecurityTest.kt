@@ -101,7 +101,7 @@ class EpubParserSecurityTest {
 
         assertThrows(SecurityException::class.java) {
             payload.inputStream().use { input ->
-                EpubParser.writeBounded(input, coverFile, maxBytes = 100L)
+                FileUtils.writeBounded(input, coverFile, maxBytes = 100L)
             }
         }
 
@@ -115,7 +115,7 @@ class EpubParserSecurityTest {
         val payload = ByteArray(50) { 0xAB.toByte() }
 
         payload.inputStream().use { input ->
-            EpubParser.writeBounded(input, coverFile, maxBytes = 100L)
+            FileUtils.writeBounded(input, coverFile, maxBytes = 100L)
         }
 
         assertThat(coverFile.exists()).isTrue()
@@ -127,7 +127,7 @@ class EpubParserSecurityTest {
     fun `resolveEpubFile accepts direct path inside root`() {
         val root = tempFolder.newFolder("resolve_direct")
 
-        val resolved = EpubParser.resolveEpubFile(root, "chapter.xhtml")
+        val resolved = FileUtils.resolveCanonicalFile(root, "chapter.xhtml")
 
         assertThat(resolved).isEqualTo(File(root, "chapter.xhtml").canonicalFile)
     }
@@ -136,7 +136,7 @@ class EpubParserSecurityTest {
     fun `resolveEpubFile accepts nested path inside root`() {
         val root = tempFolder.newFolder("resolve_nested")
 
-        val resolved = EpubParser.resolveEpubFile(root, "OPS/Text/chapter.xhtml")
+        val resolved = FileUtils.resolveCanonicalFile(root, "OPS/Text/chapter.xhtml")
 
         assertThat(resolved).isEqualTo(File(root, "OPS/Text/chapter.xhtml").canonicalFile)
     }
@@ -145,7 +145,7 @@ class EpubParserSecurityTest {
     fun `resolveEpubFile normalizes path that remains inside root`() {
         val root = tempFolder.newFolder("resolve_normalized")
 
-        val resolved = EpubParser.resolveEpubFile(root, "OPS/Text/../chapter.xhtml")
+        val resolved = FileUtils.resolveCanonicalFile(root, "OPS/Text/../chapter.xhtml")
 
         assertThat(resolved).isEqualTo(File(root, "OPS/chapter.xhtml").canonicalFile)
     }
@@ -155,7 +155,7 @@ class EpubParserSecurityTest {
         val root = tempFolder.newFolder("resolve_traversal")
 
         assertThrows(SecurityException::class.java) {
-            EpubParser.resolveEpubFile(root, "../outside.xhtml")
+            FileUtils.resolveCanonicalFile(root, "../outside.xhtml")
         }
     }
 
@@ -164,7 +164,7 @@ class EpubParserSecurityTest {
         val root = tempFolder.newFolder("resolve_nested_traversal")
 
         assertThrows(SecurityException::class.java) {
-            EpubParser.resolveEpubFile(root, "OPS/Text/../../../outside.xhtml")
+            FileUtils.resolveCanonicalFile(root, "OPS/Text/../../../outside.xhtml")
         }
     }
 
@@ -174,7 +174,7 @@ class EpubParserSecurityTest {
         val outsideFile = tempFolder.newFile("absolute_outside.xhtml")
 
         assertThrows(SecurityException::class.java) {
-            EpubParser.resolveEpubFile(root, outsideFile.absolutePath)
+            FileUtils.resolveCanonicalFile(root, outsideFile.absolutePath)
         }
     }
 
@@ -184,7 +184,7 @@ class EpubParserSecurityTest {
         tempFolder.newFolder("epub-evil")
 
         assertThrows(SecurityException::class.java) {
-            EpubParser.resolveEpubFile(root, "../epub-evil/chapter.xhtml")
+            FileUtils.resolveCanonicalFile(root, "../epub-evil/chapter.xhtml")
         }
     }
 

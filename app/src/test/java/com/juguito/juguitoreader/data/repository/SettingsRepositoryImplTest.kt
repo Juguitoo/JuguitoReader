@@ -99,4 +99,15 @@ class SettingsRepositoryImplTest {
         repository.saveLanguage("ENGLISH")
         assertThat(repository.languageFlow.first()).isEqualTo("ENGLISH")
     }
+
+    @Test
+    fun `lastSeenChangelogVersion returns null when empty`() = runTest {
+        assertThat(repository.lastSeenChangelogVersionFlow.first()).isNull()
+    }
+
+    @Test
+    fun `saveLastSeenChangelogVersion updates the flow`() = runTest {
+        repository.saveLastSeenChangelogVersion("1.2.1")
+        assertThat(repository.lastSeenChangelogVersionFlow.first()).isEqualTo("1.2.1")
+    }
 }

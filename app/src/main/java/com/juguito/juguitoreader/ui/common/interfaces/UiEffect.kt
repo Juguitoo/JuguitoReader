@@ -11,4 +11,5 @@ sealed interface UiEffect {
 
     data object NavigateBack : UiEffect
     data class Navigate(val route: String) : UiEffect
+    data object RestartApp : UiEffect
 }

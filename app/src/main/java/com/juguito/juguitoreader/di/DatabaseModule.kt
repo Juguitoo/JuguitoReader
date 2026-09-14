@@ -64,7 +64,7 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDailyReading(database: JuguitoReaderDatabase): DailyReadingDAO {
+    fun provideDailyReadingDao(database: JuguitoReaderDatabase): DailyReadingDAO {
         return database.dailyReadingDAO
     }
 }

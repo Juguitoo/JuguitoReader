@@ -83,6 +83,7 @@ Esta documentación es **parte del proyecto**, no un snapshot. Debe actualizarse
 - [ ] `archive/README.md` lista la versión
 - [ ] GIT_WORKFLOW: ramas actualizadas
 - [ ] Tag git (`vX.Y.Z`)
+- [ ] Changelog in-app: `ChangelogUiCatalog` + `string-array` es/en de esa versión
 
 ---
 

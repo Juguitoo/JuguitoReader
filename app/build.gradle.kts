@@ -21,8 +21,8 @@ android {
         applicationId = "com.juguito.juguitoreader"
         minSdk = 26
         targetSdk = 37
-        versionCode = 5
-        versionName = "1.2.0"
+        versionCode = 6
+        versionName = "1.2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -106,6 +106,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     testImplementation(libs.turbine)
     testImplementation(libs.truth)
+    testImplementation(libs.json)
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.truth)

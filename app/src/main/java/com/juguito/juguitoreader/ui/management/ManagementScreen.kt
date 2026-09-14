@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -64,6 +65,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -72,7 +74,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.compose.ui.res.stringResource
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.model.Genre
@@ -89,7 +90,7 @@ import kotlinx.coroutines.flow.Flow
 fun ManagementScreen(
     managementMessage: Int? = null,
     onClearManagementMessage: () -> Unit,
-    onNavigateBack: () -> Unit,
+    onOpenDrawer: () -> Unit,
     onNavigateToEditFolder: (Int) -> Unit,
     onNavigateToAddFolder: () -> Unit,
     viewModel: ManagementViewModel = hiltViewModel()
@@ -101,7 +102,7 @@ fun ManagementScreen(
         onEvent = viewModel::onEvent,
         managementMessage = managementMessage,
         onClearManagementMessage = onClearManagementMessage,
-        onNavigateBack = onNavigateBack,
+        onOpenDrawer = onOpenDrawer,
         onNavigateToEditFolder = onNavigateToEditFolder,
         onNavigateToAddFolder = onNavigateToAddFolder,
         effect = viewModel.effect
@@ -115,7 +116,7 @@ fun ManagementContent(
     onEvent: (ManagementEvent) -> Unit,
     managementMessage: Int?,
     onClearManagementMessage: () -> Unit,
-    onNavigateBack: () -> Unit,
+    onOpenDrawer: () -> Unit,
     onNavigateToEditFolder: (Int) -> Unit,
     onNavigateToAddFolder: () -> Unit,
     effect: Flow<UiEffect>
@@ -242,12 +243,24 @@ fun ManagementContent(
                         }
                     },
                     navigationIcon = {
-                        IconButton(onClick = if (state.isSearchActive) {
-                            { onEvent(ManagementEvent.OnToggleSearch) }
-                        } else onNavigateBack) {
+                        IconButton(
+                            onClick = if (state.isSearchActive) {
+                                { onEvent(ManagementEvent.OnToggleSearch) }
+                            } else {
+                                onOpenDrawer
+                            }
+                        ) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.return_text),
+                                imageVector = if (state.isSearchActive) {
+                                    Icons.AutoMirrored.Filled.ArrowBack
+                                } else {
+                                    Icons.Default.Menu
+                                },
+                                contentDescription = if (state.isSearchActive) {
+                                    stringResource(R.string.return_text)
+                                } else {
+                                    stringResource(R.string.menu)
+                                },
                                 tint = Color.White
                             )
                         }

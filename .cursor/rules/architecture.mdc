@@ -27,6 +27,8 @@ fun onEvent(event: XEvent) { when (event) { ... } }
 - Estados sellados: Loading, Success, Error, Empty.
 - Errores al usuario vía `UiText` / `JuguitoException.asUiText()`.
 - Navegación y snackbars: `UiEffect` en Channel, no en UiState.
+- Settings puede hospedar un segundo ViewModel (`ui/settings/backup`) para export/import; no mezclarlo en `SettingsViewModel`.
+- `UiEffect.RestartApp` lo consume la Screen (`ProcessAppRestarter`); el ViewModel no mata el proceso.
 
 ## Use cases
 

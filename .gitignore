@@ -7,6 +7,9 @@
 /.idea/assetWizardSettings.xml
 /.artifacts
 
+# Cursor skills	
+.cursor/skills/
+
 # Graphify knowledge graph (generated; large local artifacts)
 graphify-out/
 

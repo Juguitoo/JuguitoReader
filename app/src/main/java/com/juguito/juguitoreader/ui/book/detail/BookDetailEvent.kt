@@ -23,8 +23,8 @@ sealed interface BookDetailEvent {
     data class OnCommentChanged(val comment: String): BookDetailEvent
     data class OnStatusChanged(val status: BookStatus): BookDetailEvent
     data class OnEditModeChanged(val mode: Boolean): BookDetailEvent
-    data class OnTabChanged(val tab: Int): BookDetailEvent
     data object OnSaveClick: BookDetailEvent
     data object OnDeleteClick: BookDetailEvent
     data object OnDiscard: BookDetailEvent
+    data object OnFlushJournal: BookDetailEvent
 }

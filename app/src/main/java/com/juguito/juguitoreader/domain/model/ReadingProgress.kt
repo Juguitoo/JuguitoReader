@@ -32,3 +32,9 @@ fun ReadingProgress.copy(
         lastReadAt = lastReadAt
     )
 }
+
+fun ReadingProgress.hasSamePersistedValues(other: ReadingProgress): Boolean =
+    bookId == other.bookId &&
+            totalChapters == other.totalChapters &&
+            lastChapterIndex == other.lastChapterIndex &&
+            scrollPosition == other.scrollPosition

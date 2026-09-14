@@ -8,9 +8,11 @@ import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.exception.JuguitoException
+import com.juguito.juguitoreader.utils.EpubParser.copyBounded
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
 
 data class PromotedBookFiles(val epubPath: String?, val coverPath: String?)
 
@@ -173,6 +175,40 @@ object FileUtils {
         } catch (e: Exception) {
             e.printStackTrace()
             throw JuguitoException(errorRes)
+        }
+    }
+
+    /**
+     * Resolves [relativePath] and ensures its canonical location remains below [root].
+     *
+     * @throws SecurityException if the resolved path points outside [root].
+     */
+    fun resolveCanonicalFile(root: File, relativePath: String): File {
+        if (File(relativePath).isAbsolute) {
+            throw SecurityException("Absolute path is not allowed: $relativePath")
+        }
+
+        val newFile = File(root, relativePath)
+        val canonicalDirPath = root.canonicalPath
+        val canonicalFilePath = newFile.canonicalPath
+
+        if (!canonicalFilePath.startsWith(canonicalDirPath + File.separator)) {
+            throw SecurityException("Path escapes destination directory: $relativePath")
+        }
+        return newFile.canonicalFile
+    }
+
+    /**
+     * Copies [input] into [outputFile] with a byte ceiling.
+     * Caller owns cleanup of [outputFile] on failure.
+     */
+    fun writeBounded(
+        input: InputStream,
+        outputFile: File,
+        maxBytes: Long = MAX_COVER_BYTES,
+    ) {
+        outputFile.outputStream().use { output ->
+            copyBounded(input, output, maxBytes)
         }
     }
 }
