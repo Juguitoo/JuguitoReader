@@ -12,12 +12,16 @@ hotfix/*             → correcciones urgentes desde main
 
 ### Convención de nombres
 
-| Prefijo | Uso | Ejemplo |
-|---------|-----|---------|
-| `feature/` | Funcionalidad o bloque de versión en desarrollo | `feature/v1.2-sessions` |
-| `fix/` | Corrección aislada | `fix/data-replace-fk-relations` |
-| `release/` | Estabilización pre-release (QA) | `release/v1.2.0` |
-| `hotfix/` | Fix urgente en producción | `hotfix/crash-on-import` |
+
+| Prefijo    | Uso                                             | Ejemplo                         |
+| ---------- | ----------------------------------------------- | ------------------------------- |
+| `feature/` | Funcionalidad o bloque de versión en desarrollo | `feature/v1.2-sessions`         |
+| `fix/`     | Corrección aislada                              | `fix/data-replace-fk-relations` |
+| `release/` | Estabilización pre-release (QA)                 | `release/v1.2.0`                |
+| `hotfix/`  | Fix urgente en producción                       | `hotfix/crash-on-import`        |
+
+
+
 
 ## Flujo día a día
 
@@ -35,21 +39,25 @@ Como desarrollador solo, el PR es opcional pero recomendable como checkpoint.
 
 [Conventional Commits](https://www.conventionalcommits.org/):
 
-| Prefijo | Cuándo |
-|---------|--------|
-| `feat:` | Nueva funcionalidad |
-| `fix:` | Corrección de bug |
+
+| Prefijo     | Cuándo                                    |
+| ----------- | ----------------------------------------- |
+| `feat:`     | Nueva funcionalidad                       |
+| `fix:`      | Corrección de bug                         |
 | `refactor:` | Cambio interno sin alterar comportamiento |
-| `enhance:` | Mejora UX/UI menor |
-| `test:` | Solo tests |
-| `docs:` | Documentación |
-| `chore:` | Deps, config |
+| `enhance:`  | Mejora UX/UI menor                        |
+| `test:`     | Solo tests                                |
+| `docs:`     | Documentación                             |
+| `chore:`    | Deps, config                              |
+
 
 Incluir ID de backlog cuando aplique:
 
 ```
 fix: DATA-001 use Update instead of Replace in FolderDAO
 ```
+
+
 
 ## Versiones
 
@@ -68,6 +76,8 @@ Al publicar una versión con notas in-app: añadir una entrada en `ChangelogUiCa
 4. Merge a `main` + tag `vX.Y.Z`
 5. Merge `main` → `dev` si hubo hotfixes
 
+
+
 ## Tags
 
 Formato: `v{versionName}` — p. ej. `v1.2.1`
@@ -78,14 +88,18 @@ Formato: `v{versionName}` — p. ej. `v1.2.1`
 - Commits directos a `main` (salvo hotfix documentado)
 - `--no-verify` en push salvo emergencia (salta tests locales del hook)
 
+
+
 ## CI (GitHub Actions)
 
 Workflow: [.github/workflows/test.yml](../.github/workflows/test.yml)
 
-| Trigger | Qué ejecuta |
-|---------|-------------|
-| Cada `push` | `./gradlew test` |
+
+| Trigger             | Qué ejecuta      |
+| ------------------- | ---------------- |
+| Cada `push`         | `./gradlew test` |
 | Cada `pull_request` | `./gradlew test` |
+
 
 Ver resultados en GitHub → **Actions** → *Test*. Badge en [README.md](../README.md).
 
@@ -102,20 +116,24 @@ Complemento al CI: feedback antes de subir al remoto.
 
 Copia `scripts/hooks/pre-push` → `.git/hooks/pre-push`. Antes de cada `git push` ejecuta `./gradlew test`.
 
-| Comando | Efecto |
-|---------|--------|
-| Push normal | Corre tests; aborta si fallan |
+
+| Comando                | Efecto                                  |
+| ---------------------- | --------------------------------------- |
+| Push normal            | Corre tests; aborta si fallan           |
 | `git push --no-verify` | Salta el hook (usar solo en emergencia) |
+
 
 Los hooks **no se versionan** en `.git/hooks/`; hay que reinstalar tras un clone nuevo.
 
 ---
 
-| Rama | Rol |
-|------|-----|
-| `main` | Estable |
-| `dev` | Integración |
-| `feature/TAR-59-manual-backup` | 1.2.1 listo; merge a `dev` pendiente |
-| `release/v1.2.1` | A crear para QA / AAB Play |
+
+| Rama                           | Rol                          |
+| ------------------------------ | ---------------------------- |
+| `main`                         | Estable                      |
+| `dev`                          | Integración                  |
+| `feature/TAR-59-manual-backup` | 1.2.1 listo y mergeado a `dev` |
+| `release/v1.2.1`               | Creada                       |
+
 
 Ver [ROADMAP.md](ROADMAP.md) · Mantener esta tabla al día: [MAINTENANCE.md](MAINTENANCE.md)
