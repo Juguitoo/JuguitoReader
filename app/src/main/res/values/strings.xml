@@ -303,6 +303,12 @@
     <string name="whats_new_got_it">Entendido</string>
     <string name="error_backup_export">Error al exportar los datos.</string>
     <string name="error_backup_destination">La dirección de la copia de seguridad no puede estar vacía.</string>
+    <string name="error_backup_source">La ruta origen de la copia de seguridad no puede estar vacía</string>
+    <string name="error_backup_file_not_exists">El fichero de la copia de seguridad no existe</string>
+    <string name="error_backup_import_unsupported_format">El formato de la copia de seguridad no es compatible</string>
+    <string name="error_import_backup_too_big">El tamaño de la copia de seguridad es demasiado grande</string>
+    <string name="error_backup_import_db_too_new">La base de datos de la copia de seguridad es más nueva que la de la app</string>
+    <string name="error_backup_import_db_too_old">La base de datos de la copia de seguridad es demasiado vieja</string>
 
     <!-- Changelog -->
     <string-array name="changelog_1_2_1">

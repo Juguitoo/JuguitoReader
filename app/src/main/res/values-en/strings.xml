@@ -302,6 +302,12 @@
     <string name="whats_new_got_it">Got it</string>
     <string name="error_backup_export">Error exporting app data</string>
     <string name="error_backup_destination">The backup destination cannot be empty</string>
+    <string name="error_backup_source">The backup source path cannot be empty</string>
+    <string name="error_backup_file_not_exists">The backup file does not exist</string>
+    <string name="error_backup_import_unsupported_format">The backup file format is not compatible</string>
+    <string name="error_import_backup_too_big">The backup size is too big</string>
+    <string name="error_backup_import_db_too_new">The database of the backup is newer than the app database</string>
+    <string name="error_backup_import_db_too_old">The database of the backup is too old</string>
 
     <!-- Changelog -->
     <string-array name="changelog_1_2_1">
