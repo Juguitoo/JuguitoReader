@@ -40,6 +40,7 @@ Organizada por feature:
 | `ui/genre` | Diálogo de géneros |
 | `ui/management` | Gestión de carpetas y géneros |
 | `ui/settings` | Ajustes de app y lector |
+| `ui/settings/backup` | Export/import local (ZIP); segundo ViewModel en Settings |
 | `ui/about` | Acerca de (estática; sin ViewModel) |
 | `ui/changelog` | Novedades de versiones |
 | `ui/navigation` | NavHost, drawer, rutas |
@@ -71,7 +72,7 @@ El composable recibe `uiState` y `onEvent`; observa `effect` con `ObserveAsEvent
 
 - **`model/`** — Entidades de negocio: `Book`, `Folder`, `Genre`, `ReadingProgress`, `DailyReading`, `EpubContent`.
 - **`repository/`** — Interfaces que define el dominio; sin dependencias Android.
-- **`usecase/`** — Un caso de uso por operación de negocio (~27). Validan y orquestan repositorios.
+- **`usecase/`** — Un caso de uso por operación de negocio (~29). Validan y orquestan repositorios.
 - **`enums/`** — `BookStatus`, `Language`, etc.
 - **`exception/`** — `JuguitoException` con `@StringRes`.
 
@@ -126,6 +127,27 @@ AddBookScreen → AddBookUseCase(isPhysical = true, localFilePath = null)
 ```
 
 Aparece en Registry y Library pero no en listas de lectura de Home (filtra `!isPhysical && localFilePath != null`). Si hay libros pero ninguno es digital con EPUB, Home sigue en `Success` (no `Empty`) y la UI explica que Inicio no los muestra (UX-018). La UI de Add/Detail oculta el picker de EPUB si `isPhysical`. Al guardar un físico se fuerza `localFilePath = null` y se borra el fichero previo (si lo había). Un digital **puede** no tener EPUB todavía; Library abre detalle en vez del lector (UX-003).
+
+### Backup local (TAR-59)
+
+```
+Export
+  SettingsScreen → CreateDocument (application/zip)
+  → BackupViewModel → ExportBackupUseCase
+  → snapshot Room + EPUB/covers + settings.json → ZIP SAF
+  → snackbar OK
+
+Import (sustituye; no merge)
+  SettingsScreen → JuguitoDialog destructivo → OpenDocument
+  → BackupViewModel → ImportBackupUseCase
+  → validar manifest/dbVersion, relocate paths, swap DB/files
+  → UiEffect.RestartApp → ProcessAppRestarter (kill proceso)
+  → cold start (Hilt/Room/migraciones)
+```
+
+El archivo es un ZIP (`JuguitoReader-backup-YYYYMMDD.zip`) con `manifest.json`, `settings.json`, `database/juguito_db` y `files/{basename}`. Auto Backup de Google sigue apagado (`allowBackup=false`). El import **reinicia el proceso**; no se reabre Room en la misma sesión.
+
+`SettingsViewModel` no orquesta backup: `BackupViewModel` convive en la misma pantalla.
 
 ### Borrado con undo
 
@@ -186,9 +208,9 @@ Centralizada en `ui/navigation/JuguitoApp.kt`:
 
 | Capa | Cobertura |
 |------|-----------|
-| Use cases | Alta (~27 tests) |
-| Repositories | 6/6 impls |
-| ViewModels | 10/11 |
+| Use cases | Alta (~29 tests) |
+| Repositories | 7/7 impls |
+| ViewModels | 12/13 |
 | DAOs | Instrumentados |
 | Compose screens | Tests con estado fake (sin Hilt E2E) |
 

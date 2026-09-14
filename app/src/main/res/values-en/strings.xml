@@ -148,6 +148,17 @@
     <string name="prompt_status_change_subtitle">Ask if you want to change the status when advancing 15% in one sitting.</string>
     <string name="general">General</string>
     <string name="language">Language</string>
+    <string name="backup_section_title">Data</string>
+    <string name="backup_export_title">Export backup</string>
+    <string name="backup_export_subtitle">Save your library, progress, and settings to a ZIP file.</string>
+    <string name="backup_restore_title">Restore backup</string>
+    <string name="backup_restore_subtitle">Replace this installation\'s data with the backup file.</string>
+    <string name="backup_restore_confirm_title">Restore backup?</string>
+    <string name="backup_restore_confirm_message">This will replace your library, reading progress, and settings. This cannot be undone.</string>
+    <string name="backup_restore_confirm_action">Restore</string>
+    <string name="backup_exporting">Exporting backup…</string>
+    <string name="backup_importing">Restoring backup…</string>
+    <string name="backup_export_success">Backup exported.</string>
     <string name="book_deleted">Book deleted.</string>
 
     <!-- Use Cases -->

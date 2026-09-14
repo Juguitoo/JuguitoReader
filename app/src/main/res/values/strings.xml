@@ -148,6 +148,17 @@
     <string name="prompt_status_change_subtitle">Pregunta si deseas cambiar el estado al avanzar un 15% de una sentada.</string>
     <string name="general">General</string>
     <string name="language">Idioma</string>
+    <string name="backup_section_title">Datos</string>
+    <string name="backup_export_title">Exportar copia de seguridad</string>
+    <string name="backup_export_subtitle">Guarda la biblioteca, el progreso y los ajustes en un archivo ZIP.</string>
+    <string name="backup_restore_title">Restaurar copia de seguridad</string>
+    <string name="backup_restore_subtitle">Sustituye los datos de esta instalación por los del archivo.</string>
+    <string name="backup_restore_confirm_title">¿Restaurar copia de seguridad?</string>
+    <string name="backup_restore_confirm_message">Se sustituirán la biblioteca, el progreso de lectura y los ajustes. Esta acción no se puede deshacer.</string>
+    <string name="backup_restore_confirm_action">Restaurar</string>
+    <string name="backup_exporting">Exportando copia de seguridad…</string>
+    <string name="backup_importing">Restaurando copia de seguridad…</string>
+    <string name="backup_export_success">Copia de seguridad exportada.</string>
     <string name="book_deleted">Libro eliminado.</string>
 
     <!-- Use Cases -->
