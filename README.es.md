@@ -97,7 +97,7 @@ Capas y restricciones: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 | Async | Coroutines · Flow |
 | Tests | JUnit 4 · MockK · Turbine · Truth |
 
-Módulo Gradle único `:app`. minSdk 26 · targetSdk 37.
+Módulos Gradle: `:app` y librería `:epub-engine` (visor nativo TAR-30; **no** es dependencia de `:app` todavía). minSdk 26 · targetSdk 37.
 
 ---
 

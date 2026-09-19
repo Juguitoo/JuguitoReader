@@ -4,6 +4,8 @@
 
 JuguitoReader sigue **Clean Architecture pragmática** con **MVVM** en la capa de presentación. Es una app **local-first**: todos los datos viven en Room y DataStore; no hay backend en el roadmap cercano.
 
+Gradle: `:app` es el producto. `:epub-engine` es librería Android del visor nativo (TAR-30 / v3.0); **no** está en las `dependencies` de `:app`. El lector publicado sigue siendo WebView.
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  UI Layer                                               │
@@ -192,6 +194,18 @@ Centralizada en `ui/navigation/JuguitoApp.kt`:
 
 **Alternativas descartadas por ahora:** Readium, FolioReader.
 
+### Módulo `:epub-engine` (TAR-30)
+
+Librería (`com.android.library`, namespace `com.juguito.epubengine`). Scaffold vacío a propósito: se puede desarrollar el renderer sin tocar el APK.
+
+- `:app` no depende de este módulo hasta que el motor sustituya `EpubWebView` con paridad de lo ya publicado (posición, tema, stats, etc.).
+- El módulo no importa `com.juguito.juguitoreader.*`.
+- `EpubParser` / `ParseEpubUseCase` siguen en `:app` (v1.4 EPUB3 los va a cambiar). El motor consumirá ese contrato más adelante; no se duplica el parser aquí.
+- Compose se añade al módulo cuando haya UI que pintar, no en el scaffold.
+- CI: `./gradlew test` ya incluye `:epub-engine:test`.
+
+No es el inicio de una modularización `:core` / `:feature-*`.
+
 ### Filtros en cliente (`BookCriteria`)
 
 `List<Book>.applyCriteria()` filtra y ordena en memoria. Aceptable para biblioteca personal (< miles de libros). Si crece, mover filtros a queries SQL.
@@ -219,6 +233,5 @@ Stack: MockK, Turbine, Truth, Coroutines Test.
 ## Extensiones futuras (sin implementar)
 
 - Backend / sync cloud — pospuesto hasta app sólida en local.
-- CI en GitHub Actions.
 - Type-safe navigation.
-- Modularización Gradle (`:core`, `:feature-*`).
+- Modularización Gradle (`:core`, `:feature-*`). `:epub-engine` es solo el visor nativo, no ese split.

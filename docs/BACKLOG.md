@@ -7,24 +7,30 @@ Fuente única de **trabajo activo**. Histórico cerrado en [archive/](archive/).
 Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no asignada.
 
 
-| Versión     | ID         | Tarea                                                                | Tipo  | Estado | Ref          |
-| ----------- | ---------- | -------------------------------------------------------------------- | ----- | ------ | ------------ |
-| v1.3.0      | TAR-19     | Recopilación de estadísticas                                         | Feat  | `[ ]`  | ROADMAP      |
-| v1.3.0      | TAR-20     | Sección estadísticas                                                 | Feat  | `[ ]`  | ROADMAP      |
-| v1.3.0      | TAR-47     | Reestructuración carpetas (archivadores)                             | Feat  | `[ ]`  | ROADMAP      |
-| v1.3.0      | TAR-49     | Controles biblioteca (filtros + ordenación)                          | Feat  | `[ ]`  | ROADMAP      |
-| v1.3.0      | TAR-50     | Filtro por autor                                                     | Feat  | `[ ]`  | ROADMAP      |
-| v1.3.0      | TAR-51     | Marcadores en libros                                                 | Feat  | `[ ]`  | ROADMAP      |
-| v1.3.0      | TAR-52     | Tipografías en lector                                                | Feat  | `[ ]`  | ROADMAP      |
-| v1.3.0      | TAR-53     | Modo horizontal                                                      | Feat  | `[ ]`  | ROADMAP      |
-| v1.3.0      | TAR-54     | Sistema favoritos + estantería Home                                  | Feat  | `[ ]`  | ROADMAP      |
-| v1.3.0      | TAR-56     | Colapsar sección gestión en drawer                                   | Feat  | `[ ]`  | ROADMAP      |
-| v1.4.0      | TAR-31     | Compatibilidad básica EPUB3                                          | Feat  | `[ ]`  | ROADMAP      |
-| v1.4.0      | TAR-32     | Compatibilidad avanzada EPUB3                                        | Feat  | `[ ]`  | ROADMAP      |
-| v1.4.0      | READER-008 | TOC con `#fragment` falla                                            | Fix   | `[ ]`  | KNOWN_ISSUES |
-| v1.4.0      | READER-009 | EPUB3 nav document incompleto                                        | Fix   | `[ ]`  | KNOWN_ISSUES |
-| v2.0.0      | TAR-29     | Conexión Supabase/Dropbox (local-first)                              | Feat  | `[ ]`  | ROADMAP      |
-| v3.0.0      | TAR-30     | Motor visor EPUB propio                                              | Feat  | `[ ]`  | ROADMAP      |
+| Versión     | ID         | Tarea                                                                | Tipo     | Estado | Ref          |
+| ----------- | ---------- | -------------------------------------------------------------------- | -------- | ------ | ------------ |
+| v1.3.0      | TAR-19     | Recopilación de estadísticas                                         | Feat     | `[ ]`  | ROADMAP      |
+| v1.3.0      | TAR-20     | Sección estadísticas                                                 | Feat     | `[ ]`  | ROADMAP      |
+| v1.3.0      | TAR-60     | Tope WPM (~3000); no acreditar sesión si se supera                   | Feat     | `[ ]`  | ROADMAP      |
+| v1.3.0      | TAR-61     | Borrar sesión diaria de lectura                                      | Feat     | `[ ]`  | ROADMAP      |
+| v1.3.0      | TAR-47     | Reestructuración carpetas (archivadores)                             | Feat     | `[ ]`  | ROADMAP      |
+| v1.3.0      | TAR-49     | Controles biblioteca (filtros + ordenación)                          | Feat     | `[ ]`  | ROADMAP      |
+| v1.3.0      | TAR-50     | Filtro por autor                                                     | Feat     | `[ ]`  | ROADMAP      |
+| v1.3.0      | TAR-62     | Biblioteca: portadas rectangulares / look más libro                  | Enhance  | `[ ]`  | ROADMAP      |
+| v1.3.0      | TAR-51     | Marcadores en libros                                                 | Feat     | `[ ]`  | ROADMAP      |
+| v1.3.0      | TAR-52     | Tipografías en lector                                                | Feat     | `[ ]`  | ROADMAP      |
+| v1.3.0      | TAR-53     | Modo horizontal                                                      | Feat     | `[ ]`  | ROADMAP      |
+| v1.3.0      | UX-027     | Índice del reader en la barra inferior                               | Enhance  | `[ ]`  | ROADMAP      |
+| v1.3.0      | TAR-54     | Sistema favoritos + estantería Home                                  | Feat     | `[ ]`  | ROADMAP      |
+| v1.3.0      | TAR-56     | Colapsar sección gestión en drawer                                   | Feat     | `[ ]`  | ROADMAP      |
+| v1.3.0      | UX-026     | Registry: perder comentario al salir + deseleccionar campos          | Fix      | `[ ]`  | KNOWN_ISSUES |
+| v1.3.1      | TAR-63     | Pase de modo oscuro (Classic + Neon)                                 | Enhance  | `[ ]`  | ROADMAP      |
+| v1.4.0      | TAR-31     | Compatibilidad básica EPUB3                                          | Feat     | `[ ]`  | ROADMAP      |
+| v1.4.0      | TAR-32     | Compatibilidad avanzada EPUB3                                        | Feat     | `[ ]`  | ROADMAP      |
+| v1.4.0      | READER-008 | TOC con `#fragment` falla                                            | Fix      | `[ ]`  | KNOWN_ISSUES |
+| v1.4.0      | READER-009 | EPUB3 nav document incompleto                                        | Fix      | `[ ]`  | KNOWN_ISSUES |
+| v2.0.0      | TAR-29     | Conexión Supabase/Dropbox (local-first)                              | Feat     | `[ ]`  | ROADMAP      |
+| v3.0.0      | TAR-30     | Motor visor EPUB propio (`:epub-engine`; no enlazado a `:app`)       | Feat     | `[ ]`  | ROADMAP      |
 
 
 

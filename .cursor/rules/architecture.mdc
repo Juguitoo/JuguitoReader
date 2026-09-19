@@ -40,6 +40,13 @@ fun onEvent(event: XEvent) { when (event) { ... } }
 
 Seguir estructura existente: `Screen.kt`, `ViewModel.kt`, `UiState.kt`, `Event.kt`. Registrar ruta en `ui/navigation/JuguitoApp.kt`.
 
+## Módulo `:epub-engine` (TAR-30)
+
+- Librería Android; no es una feature de `:app`.
+- No importar `com.juguito.juguitoreader.*` desde este módulo.
+- No añadir `implementation(project(":epub-engine"))` en `:app` hasta sustituir `EpubWebView`.
+- El parser EPUB (`EpubParser`) sigue en `:app` hasta v1.4.
+
 ## No hacer
 
 - Saltarse use cases llamando repositories desde ViewModels.

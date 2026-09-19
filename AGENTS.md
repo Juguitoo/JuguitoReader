@@ -84,6 +84,7 @@ UI (Compose + ViewModel) → UseCase → Repository (interface) → RepositoryIm
 - **13 ViewModels** con patrón `UiState` / `Event` / `UiEffect`
 - **Room v12** — ver [docs/DATABASE.md](docs/DATABASE.md)
 - **Sin backend** — sync cloud eliminado del roadmap cercano; app 100 % local
+- **Módulos** — `:app` (producto) y `:epub-engine` (TAR-30; no enlazado a `:app`)
 
 
 

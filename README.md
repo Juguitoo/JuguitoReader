@@ -113,7 +113,7 @@ Layers and constraints: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (Spanish).
 | Tests        | JUnit 4 · MockK · Turbine · Truth |
 
 
-Single Gradle module `:app`. minSdk 26 · targetSdk 37.
+Single Gradle module `:app` plus library `:epub-engine` (TAR-30 native viewer; not a dependency of `:app` yet). minSdk 26 · targetSdk 37.
 
 ---
 

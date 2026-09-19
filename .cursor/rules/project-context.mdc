@@ -15,6 +15,8 @@ Kotlin 2.4 · Compose · Material 3 · Hilt · Room v12 · DataStore · Coroutin
 
 Clean Architecture + MVVM. Flujo: ViewModel → UseCase → Repository → DAO.
 
+Módulos Gradle: `:app` (producto) y `:epub-engine` (TAR-30; librería **no** enlazada a `:app`).
+
 ## Colaboración con Hugo
 
 - Español en comunicación; código en inglés.

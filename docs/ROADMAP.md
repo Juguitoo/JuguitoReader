@@ -26,9 +26,15 @@ Sin Auto Backup de Google (ARCH-002 hecho en v1.2.0); sync de pago sigue en TAR-
 
 ## v1.3.0 — Biblioteca y estadísticas
 
-Estadísticas (TAR-19/20), carpetas como archivadores (TAR-47), filtros/ordenación (TAR-49/50), marcadores, tipografías, modo horizontal, favoritos, drawer (TAR-51–56).
+Estadísticas (TAR-19/20), higiene de sesiones (TAR-60 tope WPM; TAR-61 borrar día), carpetas como archivadores (TAR-47), filtros/ordenación (TAR-49/50), look de portadas (TAR-62), marcadores, tipografías, modo horizontal, índice en barra inferior, favoritos, drawer (TAR-51–56, UX-027). Registry: no perder comentario y poder deseleccionar campos (UX-026).
 
-**Diseño:** desacoplar stats del WebView (TAR-19/TAR-25) de cara a motor nativo.
+**Diseño:** desacoplar stats del WebView (TAR-19/TAR-25) de cara a motor nativo. TAR-60 no revierte la posición del capítulo: solo descarta crédito de palabras / sesión basura. TAR-61 borra la fila diaria (`book_id` + `date`), no una sentada. Modo estantería visual queda bajo TAR-54 (Home), no como epic aparte.
+
+---
+
+## v1.3.1 — Tema oscuro
+
+Pase de Classic Dark + Neon (TAR-63) **después** del visual de biblioteca (TAR-62), para no retocar contraste dos veces.
 
 ---
 
@@ -46,7 +52,7 @@ TAR-29 — Supabase/Dropbox, local-first. Scaffold sync de v1.x eliminado (ARCH-
 
 ## v3.0.0 — Motor nativo
 
-TAR-30 — Visor EPUB propio (EPUB → Compose).
+TAR-30 — Visor EPUB propio (EPUB → Compose). Scaffold Gradle `:epub-engine` (librería; **no** enlazada a `:app`). El trabajo del motor va ahí; el merge al lector de producción es cuando haya paridad con WebView.
 
 ---
 

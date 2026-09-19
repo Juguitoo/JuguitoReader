@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "JuguitoReader"
 include(":app")
+include(":epub-engine")
