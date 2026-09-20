@@ -628,6 +628,79 @@ class ReaderViewModelTest {
     }
 
     @Test
+    fun `TAR-60 page-sized word delta is credited`() = runTest {
+        viewModel = loadReaderViewModel()
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(400, -1))
+        var state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.accumulatedReadWords).isEqualTo(400)
+        assertThat(state.lastReportedChapterWords).isEqualTo(400)
+
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(1_400, -1))
+        state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.accumulatedReadWords).isEqualTo(1_400)
+        assertThat(state.lastReportedChapterWords).isEqualTo(1_400)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `TAR-60 oversized scroll delta is discarded but watermark advances`() = runTest {
+        viewModel = loadReaderViewModel()
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(4_000, -1))
+        var state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.accumulatedReadWords).isEqualTo(0)
+        assertThat(state.lastReportedChapterWords).isEqualTo(4_000)
+
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(4_300, -1))
+        state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.accumulatedReadWords).isEqualTo(300)
+        assertThat(state.lastReportedChapterWords).isEqualTo(4_300)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `TAR-60 page-by-page reading past the base cap still accumulates`() = runTest {
+        viewModel = loadReaderViewModel()
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(400, -1))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(800, -1))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(1_200, -1))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(1_600, -1))
+
+        val state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.accumulatedReadWords).isEqualTo(1_600)
+        assertThat(state.lastReportedChapterWords).isEqualTo(1_600)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `TAR-60 max credited delta scales with text zoom`() = runTest {
+        coEvery { settingsRepository.saveTextZoom(any()) } returns Unit
+        viewModel = loadReaderViewModel()
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.onEvent(ReaderEvent.OnTextZoomChanged(50))
+        viewModel.onEvent(ReaderEvent.OnReportWordsRead(1_500, -1))
+
+        val state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.accumulatedReadWords).isEqualTo(1_500)
+        assertThat(state.lastReportedChapterWords).isEqualTo(1_500)
+
+        job.cancel()
+    }
+
+    @Test
     fun `READER-011 saving a session resets accumulated words`() = runTest {
         var now = 1_000L
         viewModel = sessionReadyViewModel { now }

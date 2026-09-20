@@ -11,7 +11,6 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 | ----------- | ---------- | -------------------------------------------------------------------- | -------- | ------ | ------------ |
 | v1.3.0      | TAR-19     | Recopilación de estadísticas                                         | Feat     | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-20     | Sección estadísticas                                                 | Feat     | `[ ]`  | ROADMAP      |
-| v1.3.0      | TAR-60     | Tope WPM (~3000); no acreditar sesión si se supera                   | Feat     | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-61     | Borrar sesión diaria de lectura                                      | Feat     | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-47     | Reestructuración carpetas (archivadores)                             | Feat     | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-49     | Controles biblioteca (filtros + ordenación)                          | Feat     | `[ ]`  | ROADMAP      |
@@ -55,5 +54,6 @@ docs: move closed v1.2.0 work to archive
 | v1.1.0          | [archive/v1.1.0.md](archive/v1.1.0.md)              |
 | v1.2.0          | [archive/v1.2.0.md](archive/v1.2.0.md)              |
 | v1.2.1          | [archive/v1.2.1.md](archive/v1.2.1.md) |
+| v1.3.0          | [archive/v1.3.0.md](archive/v1.3.0.md) |
 
 

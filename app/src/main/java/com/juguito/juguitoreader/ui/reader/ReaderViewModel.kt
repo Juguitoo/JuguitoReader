@@ -42,6 +42,8 @@ private const val PROGRESS_PERSIST_DEBOUNCE_MS = 2_000L
 private const val MAX_RENDERER_RECOVERIES = 2
 private const val MAX_CHAPTER_WORDS = 200_000
 
+private const val MAX_BASE_CREDIT_WORDS = 1_000L
+
 @HiltViewModel
 class ReaderViewModel @Inject constructor(
     private val getBookByIdUseCase: GetBookByIdUseCase,
@@ -372,11 +374,13 @@ class ReaderViewModel @Inject constructor(
     }
 
     private fun creditWordsRead(currentState: ReaderUiState.Success, words: Int) {
-        val delta = (words.coerceIn(0, MAX_CHAPTER_WORDS) - currentState.lastReportedChapterWords).coerceAtLeast(0)
-
+        val clamped = words.coerceIn(0, MAX_CHAPTER_WORDS)
+        val delta = (clamped - currentState.lastReportedChapterWords).coerceAtLeast(0)
+        val maxDelta = MAX_BASE_CREDIT_WORDS * 100 / currentState.textZoom.coerceAtLeast(1)
+        val credited = if (delta <= maxDelta) delta else 0
         _internalState.value = currentState.copy(
-            lastReportedChapterWords = words,
-            accumulatedReadWords = currentState.accumulatedReadWords + delta
+            lastReportedChapterWords = clamped,
+            accumulatedReadWords = currentState.accumulatedReadWords + credited
         )
     }
 }

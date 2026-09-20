@@ -26,9 +26,9 @@ Sin Auto Backup de Google (ARCH-002 hecho en v1.2.0); sync de pago sigue en TAR-
 
 ## v1.3.0 — Biblioteca y estadísticas
 
-Estadísticas (TAR-19/20), higiene de sesiones (TAR-60 tope WPM; TAR-61 borrar día), carpetas como archivadores (TAR-47), filtros/ordenación (TAR-49/50), look de portadas (TAR-62), marcadores, tipografías, modo horizontal, índice en barra inferior, favoritos, drawer (TAR-51–56, UX-027). Registry: no perder comentario y poder deseleccionar campos (UX-026).
+Estadísticas (TAR-19/20), higiene de sesiones (TAR-60 **hecho** — tope de delta de palabras; TAR-61 borrar día), carpetas como archivadores (TAR-47), filtros/ordenación (TAR-49/50), look de portadas (TAR-62), marcadores, tipografías, modo horizontal, índice en barra inferior, favoritos, drawer (TAR-51–56, UX-027). Registry: no perder comentario y poder deseleccionar campos (UX-026).
 
-**Diseño:** desacoplar stats del WebView (TAR-19/TAR-25) de cara a motor nativo. TAR-60 no revierte la posición del capítulo: solo descarta crédito de palabras / sesión basura. TAR-61 borra la fila diaria (`book_id` + `date`), no una sentada. Modo estantería visual queda bajo TAR-54 (Home), no como epic aparte.
+**Diseño:** desacoplar stats del WebView (TAR-19/TAR-25) de cara a motor nativo. TAR-60 no revierte la posición ni tira la sentada: en `creditWordsRead` descarta deltas de scroll > ~1000 palabras a zoom 100% (escala con `textZoom`); el tiempo cuenta. TAR-61 borra la fila diaria (`book_id` + `date`), no una sentada. Modo estantería visual queda bajo TAR-54 (Home), no como epic aparte.
 
 ---
 
