@@ -64,7 +64,7 @@ fix: DATA-001 use Update instead of Replace in FolderDAO
 En `app/build.gradle.kts`:
 
 - `versionName` — semver (`1.2.1`)
-- `versionCode` — entero incremental para Play Console (6 en 1.2.1)
+- `versionCode` — entero incremental para Play Console (7 en 1.2.2)
 
 Al publicar una versión con notas in-app: añadir una entrada en `ChangelogUiCatalog` y el `string-array` `changelog_X_Y_Z` en `values/strings.xml` y `values-en/strings.xml`.
 

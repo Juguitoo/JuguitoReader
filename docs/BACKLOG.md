@@ -11,7 +11,6 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 | ----------- | ---------- | -------------------------------------------------------------------- | -------- | ------ | ------------ |
 | v1.3.0      | TAR-19     | Recopilación de estadísticas                                         | Feat     | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-20     | Sección estadísticas                                                 | Feat     | `[ ]`  | ROADMAP      |
-| v1.3.0      | TAR-61     | Borrar sesión diaria de lectura                                      | Feat     | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-47     | Reestructuración carpetas (archivadores)                             | Feat     | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-49     | Controles biblioteca (filtros + ordenación)                          | Feat     | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-50     | Filtro por autor                                                     | Feat     | `[ ]`  | ROADMAP      |
@@ -19,7 +18,6 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 | v1.3.0      | TAR-51     | Marcadores en libros                                                 | Feat     | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-52     | Tipografías en lector                                                | Feat     | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-53     | Modo horizontal                                                      | Feat     | `[ ]`  | ROADMAP      |
-| v1.3.0      | UX-027     | Índice del reader en la barra inferior                               | Enhance  | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-54     | Sistema favoritos + estantería Home                                  | Feat     | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-56     | Colapsar sección gestión en drawer                                   | Feat     | `[ ]`  | ROADMAP      |
 | v1.3.0      | UX-026     | Registry: perder comentario al salir + deseleccionar campos          | Fix      | `[ ]`  | KNOWN_ISSUES |
@@ -53,7 +51,8 @@ docs: move closed v1.2.0 work to archive
 | v1.0.0 / v1.0.2 | [archive/v1.0.0.md](archive/v1.0.0.md)              |
 | v1.1.0          | [archive/v1.1.0.md](archive/v1.1.0.md)              |
 | v1.2.0          | [archive/v1.2.0.md](archive/v1.2.0.md)              |
-| v1.2.1          | [archive/v1.2.1.md](archive/v1.2.1.md) |
-| v1.3.0          | [archive/v1.3.0.md](archive/v1.3.0.md) |
+| v1.2.1          | [archive/v1.2.1.md](archive/v1.2.1.md)              |
+| v1.2.2          | [archive/v1.2.2.md](archive/v1.2.2.md)              |
+| v1.3.0          | [archive/v1.3.0.md](archive/v1.3.0.md)              |
 
 

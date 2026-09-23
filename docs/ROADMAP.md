@@ -6,15 +6,20 @@ Visión por versión. Estado operativo de tareas: [BACKLOG.md](BACKLOG.md). Bugs
 
 ---
 
-## v1.2.x — Pulido pre-producción *(código 1.2.1 listo)*
+## v1.2.x — Pulido pre-producción *(código 1.2.2 listo)*
 
 Línea **v1.2.x** hasta producción en Play Store. Nube de pago (TAR-29 / v2) después; backup **manual** local como puente (TAR-59 hecho).
 
 ### Estrategia de publicación
 
 1. **v1.2.0** — Audit + fixes del pase **cerrados** en [archive/v1.2.0.md](archive/v1.2.0.md) → **pruebas cerradas**.
-2. **v1.2.1** — Pulido store + backup manual. Código listo (`versionName` 1.2.1 / `versionCode` 6). Ver [archive/v1.2.1.md](archive/v1.2.1.md).
-3. **Producción** — Checklist hecho (TAR-59, privacy en Console, keystore/R8/CI). Publicar 1.2.1; tag `v1.2.1` al subir.
+2. **v1.2.1** — Pulido store + backup manual. Ver [archive/v1.2.1.md](archive/v1.2.1.md).
+3. **v1.2.2** — Higiene de sesiones y barra del lector. Código listo (`versionName` 1.2.2 / `versionCode` 7). Ver [archive/v1.2.2.md](archive/v1.2.2.md). Subir el AAB a pruebas cerradas; tag `v1.2.2` al publicar.
+4. **Producción** — Después de la ventana de testers. Checklist de store hecho (TAR-59, privacy en Console, keystore/R8/CI).
+
+### v1.2.2 — Sesiones y barra del lector *(hecho)*
+
+Tope de palabras por gesto (TAR-60). Borrar un día de lectura desde el lector (TAR-61). Índice en la barra inferior y progreso del libro a todo el ancho (UX-027). Ver [archive/v1.2.2.md](archive/v1.2.2.md).
 
 ### v1.2.1 — Store polish + Backup manual *(hecho)*
 
@@ -26,9 +31,9 @@ Sin Auto Backup de Google (ARCH-002 hecho en v1.2.0); sync de pago sigue en TAR-
 
 ## v1.3.0 — Biblioteca y estadísticas
 
-Estadísticas (TAR-19/20), higiene de sesiones (TAR-60 **hecho** — tope de delta de palabras; TAR-61 borrar día), carpetas como archivadores (TAR-47), filtros/ordenación (TAR-49/50), look de portadas (TAR-62), marcadores, tipografías, modo horizontal, índice en barra inferior, favoritos, drawer (TAR-51–56, UX-027). Registry: no perder comentario y poder deseleccionar campos (UX-026).
+Estadísticas (TAR-19/20), carpetas como archivadores (TAR-47), filtros/ordenación (TAR-49/50), look de portadas (TAR-62), marcadores, tipografías, modo horizontal, favoritos, drawer (TAR-51–56). Registry: no perder comentario y poder deseleccionar campos (UX-026).
 
-**Diseño:** desacoplar stats del WebView (TAR-19/TAR-25) de cara a motor nativo. TAR-60 no revierte la posición ni tira la sentada: en `creditWordsRead` descarta deltas de scroll > ~1000 palabras a zoom 100% (escala con `textZoom`); el tiempo cuenta. TAR-61 borra la fila diaria (`book_id` + `date`), no una sentada. Modo estantería visual queda bajo TAR-54 (Home), no como epic aparte.
+**Diseño:** desacoplar stats del WebView (TAR-19/TAR-25) de cara a motor nativo. La higiene de sesiones ya está en v1.2.2: TAR-60 descarta deltas de scroll desproporcionados y TAR-61 borra la fila diaria (`book_id` + `date`) sin revertir el capítulo. Modo estantería visual queda bajo TAR-54 (Home), no como epic aparte.
 
 ---
 
@@ -58,8 +63,8 @@ TAR-30 — Visor EPUB propio (EPUB → Compose). Scaffold Gradle `:epub-engine` 
 
 ## Pre-publicación Play Store
 
-- **Closed testing:** hecha (v1.2.0).
-- **Producción:** lista. Privacy policy ya en Console; TAR-59 hecho. Queda publicar el AAB 1.2.1 y el tag.
+- **Closed testing:** v1.2.2 lista para subir (`versionCode` 7).
+- **Producción:** después de la ventana de testers. Privacy policy ya en Console; TAR-59 hecho.
 - Keystore (REL-001 hecho); R8 (REL-002 hecho); CI (REL-003 hecho); política migraciones (DATA-006, [DATABASE.md](DATABASE.md)).
 
 Detalle en [BACKLOG.md](BACKLOG.md).
@@ -74,6 +79,7 @@ Detalle en [BACKLOG.md](BACKLOG.md).
 | v1.1.0 | UX, undo, gestor | [archive/v1.1.0.md](archive/v1.1.0.md) |
 | v1.2.0 | Features 1.2 + estabilización audit | [archive/v1.2.0.md](archive/v1.2.0.md) |
 | v1.2.1 | Store polish + backup manual | [archive/v1.2.1.md](archive/v1.2.1.md) |
+| v1.2.2 | Sesiones y barra del lector | [archive/v1.2.2.md](archive/v1.2.2.md) |
 
 ---
 
