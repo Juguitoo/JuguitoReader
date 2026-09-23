@@ -7,6 +7,7 @@
     <string name="accept">OK</string>
     <string name="save">Save</string>
     <string name="edit">Edit</string>
+    <string name="done">Done</string>
     <string name="delete">Delete</string>
     <string name="erase">Delete</string>
     <string name="close">Close</string>
@@ -115,6 +116,12 @@
     <string name="your_reading_sessions">Your reading sessions</string>
     <string name="daily_progress_message">Daily progress recorded in this book.</string>
     <string name="no_sessions_saved">No sessions saved yet. Check back when you finish reading today.</string>
+    <string name="delete_daily_reading_title">Delete day</string>
+    <string name="delete_daily_reading_confirmation">Day %1$s will be removed from this book. Your reading position stays, and this cannot be undone.</string>
+    <string name="delete_daily_reading_cd">Delete day %1$s</string>
+    <string name="session_duration_minutes">%d min</string>
+    <string name="session_duration_hours">%d h</string>
+    <string name="session_duration_hours_minutes">%d h %d min</string>
 
     <!-- Registry -->
     <string name="registry_title">Reading Log</string>
@@ -322,6 +329,12 @@
     <string name="error_delete_reading_session" >Error deleting book reading session.</string>
 
     <!-- Changelog -->
+    <string-array name="changelog_1_2_2">
+        <item>Very large scroll jumps no longer inflate words read.</item>
+        <item>You can delete a reading day from the reader.</item>
+        <item>Sessions longer than an hour show hours and minutes.</item>
+        <item>The table of contents moves to the bottom bar, with a full-width book progress bar.</item>
+    </string-array>
     <string-array name="changelog_1_2_1">
         <item>Backup: export and restore your library, progress, and settings.</item>
         <item>About screen with version, credits, and copyright.</item>

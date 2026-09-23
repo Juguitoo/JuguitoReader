@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -95,7 +95,7 @@ fun ReaderControls(
                 title = {
                     Text(
                         text = state.book.title,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleLarge,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         fontWeight = FontWeight.Bold,
@@ -107,7 +107,6 @@ fun ReaderControls(
                 },
                 actions = {
                     IconButton(onClick = { onEvent(ReaderEvent.OnToggleSessionsDialog) }) { Icon(Icons.Default.BarChart, contentDescription = stringResource(R.string.stats), tint = Color.White) }
-                    IconButton(onClick = onOpenDrawer) { Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.index)) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
@@ -132,9 +131,15 @@ fun ReaderControls(
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .padding(horizontal = 8.dp, vertical = 8.dp)
                         .navigationBarsPadding()
                 ) {
+                    val totalChapters = state.readingProgress.totalChapters
+                    val bookProgress = if (totalChapters > 0) {
+                        ((state.readingProgress.lastChapterIndex +
+                            state.readingProgress.scrollPosition) / totalChapters)
+                            .coerceIn(0f, 1f)
+                    } else 0f
                     when (bottomBarMode) {
                         BottomBarMode.FONT_SIZE -> {
                             Row(
@@ -234,45 +239,37 @@ fun ReaderControls(
                             }
                         }
                         else -> {
-                            Box(
+                            LinearProgressIndicator(
+                                progress = { bookProgress },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(48.dp)
+                                    .padding(horizontal = 8.dp)
+                                    .padding(top = 6.dp, bottom = 2.dp)
+                                    .height(4.dp)
+                                    .clip(CircleShape),
+                                color = Color.White,
+                                trackColor = Color.White.copy(alpha = 0.3f)
+                            )
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(48.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                val totalChapters = state.readingProgress.totalChapters
-                                val bookProgress = if (totalChapters > 0) {
-                                    ((state.readingProgress.lastChapterIndex +
-                                        state.readingProgress.scrollPosition) / totalChapters)
-                                        .coerceIn(0f, 1f)
-                                } else 0f
-                                Column(
-                                    modifier = Modifier
-                                        .align(Alignment.Center)
-                                        .fillMaxWidth()
-                                        .padding(start = 48.dp * 3, end = 48.dp * 2),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Text(
-                                        text = "${state.currentChapterIndex + 1} / ${state.epubContent.spine.size}",
-                                        style = MaterialTheme.typography.labelLarge,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    LinearProgressIndicator(
-                                        progress = { bookProgress },
-                                        modifier = Modifier
-                                            .widthIn(max = 180.dp)
-                                            .fillMaxWidth()
-                                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                                            .clip(CircleShape)
-                                            .height(4.dp),
-                                        color = Color.White,
-                                        trackColor = Color.White.copy(alpha = 0.3f)
-                                    )
-                                }
                                 Row(
-                                    modifier = Modifier.align(Alignment.CenterStart),
-                                    verticalAlignment = Alignment.CenterVertically
+                                    modifier = Modifier.weight(1f),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.End
                                 ) {
+                                    IconButton(onClick = { bottomBarMode = BottomBarMode.FONT_SIZE }) {
+                                        Icon(Icons.Default.FormatSize, contentDescription = stringResource(R.string.font_size))
+                                    }
+                                    IconButton(onClick = { bottomBarMode = BottomBarMode.BRIGHTNESS }) {
+                                        Icon(Icons.Default.LightMode, contentDescription = stringResource(R.string.brightness))
+                                    }
+                                }
+
+                                Row(verticalAlignment = Alignment.CenterVertically) {
                                     IconButton(
                                         onClick = { onEvent(ReaderEvent.OnPreviousChapter) },
                                         enabled = state.currentChapterIndex > 0,
@@ -287,27 +284,11 @@ fun ReaderControls(
                                             modifier = Modifier.size(32.dp)
                                         )
                                     }
-
-                                    IconButton(onClick = { bottomBarMode = BottomBarMode.FONT_SIZE }) {
-                                        Icon(Icons.Default.FormatSize, contentDescription = stringResource(R.string.font_size))
-                                    }
-
-                                    IconButton(onClick = { bottomBarMode = BottomBarMode.BRIGHTNESS }) {
-                                        Icon(Icons.Default.LightMode, contentDescription = stringResource(R.string.brightness))
-                                    }
-                                }
-
-                                Row(
-                                    modifier = Modifier.align(Alignment.CenterEnd),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    IconButton(onClick = {
-                                        val nextThemeIndex = (state.theme.ordinal + 1) % ReaderTheme.entries.size
-                                        onEvent(ReaderEvent.OnThemeChanged(ReaderTheme.entries[nextThemeIndex]))
-                                    }) {
-                                        Icon(Icons.Default.Palette, contentDescription = stringResource(R.string.change_theme))
-                                    }
-
+                                    Text(
+                                        text = "${state.currentChapterIndex + 1} / ${state.epubContent.spine.size}",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Medium
+                                    )
                                     IconButton(
                                         onClick = { onEvent(ReaderEvent.OnNextChapter) },
                                         enabled = state.currentChapterIndex < state.epubContent.spine.size - 1,
@@ -321,6 +302,23 @@ fun ReaderControls(
                                             contentDescription = stringResource(R.string.next),
                                             modifier = Modifier.size(32.dp)
                                         )
+                                    }
+                                }
+
+                                Row(
+                                    modifier = Modifier.weight(1f),
+                                    horizontalArrangement = Arrangement.Start,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+
+                                    IconButton(onClick = {
+                                        val nextThemeIndex = (state.theme.ordinal + 1) % ReaderTheme.entries.size
+                                        onEvent(ReaderEvent.OnThemeChanged(ReaderTheme.entries[nextThemeIndex]))
+                                    }) {
+                                        Icon(Icons.Default.Palette, contentDescription = stringResource(R.string.change_theme))
+                                    }
+                                    IconButton(onClick = onOpenDrawer) {
+                                        Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.index))
                                     }
                                 }
                             }

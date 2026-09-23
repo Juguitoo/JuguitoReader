@@ -65,7 +65,7 @@ import com.juguito.juguitoreader.ui.reader.components.EpubWebView
 import com.juguito.juguitoreader.ui.reader.components.OverscrollIndicators
 import com.juguito.juguitoreader.ui.reader.components.ReaderControls
 import com.juguito.juguitoreader.ui.reader.components.ReaderFooter
-import com.juguito.juguitoreader.ui.reader.components.ReadingSessionsDialog
+import com.juguito.juguitoreader.ui.reader.components.ReadingSessionsSheet
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import kotlinx.coroutines.launch
 
@@ -270,7 +270,7 @@ fun ReaderContent(
             )
 
             if (state.showStatusPrompt) ChangeStatusPromptDialog(onEvent)
-            if (state.showSessionsDialog) ReadingSessionsDialog(state = currentState.value, onEvent = onEvent)
+            if (state.showSessionsDialog) ReadingSessionsSheet(state = currentState.value, onEvent = onEvent)
         }
     }
 }

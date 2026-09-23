@@ -7,6 +7,7 @@
     <string name="accept">Aceptar</string>
     <string name="save">Guardar</string>
     <string name="edit">Editar</string>
+    <string name="done">Listo</string>
     <string name="delete">Eliminar</string>
     <string name="erase">Borrar</string>
     <string name="close">Cerrar</string>
@@ -115,6 +116,12 @@
     <string name="your_reading_sessions">Tus sesiones de lectura</string>
     <string name="daily_progress_message">Progreso diario registrado en este libro.</string>
     <string name="no_sessions_saved">Aún no hay sesiones guardadas. Vuelve a visitarlo cuando termines de leer hoy.</string>
+    <string name="delete_daily_reading_title">Eliminar día</string>
+    <string name="delete_daily_reading_confirmation">Se eliminará el día %1$s de este libro. El punto de lectura no cambia y no se puede deshacer.</string>
+    <string name="delete_daily_reading_cd">Eliminar el día %1$s</string>
+    <string name="session_duration_minutes">%d min</string>
+    <string name="session_duration_hours">%d h</string>
+    <string name="session_duration_hours_minutes">%d h %d min</string>
 
     <!-- Registry -->
     <string name="registry_title">Registro</string>
@@ -323,6 +330,12 @@
     <string name="error_delete_reading_session" >Error al eliminar la sesión del libro.</string>
 
     <!-- Changelog -->
+    <string-array name="changelog_1_2_2">
+        <item>Los saltos de scroll muy grandes ya no inflan las palabras leídas.</item>
+        <item>Puedes borrar un día de lectura desde el lector.</item>
+        <item>Las sesiones de más de una hora se muestran en horas y minutos.</item>
+        <item>El índice pasa a la barra inferior, con el progreso del libro a todo el ancho.</item>
+    </string-array>
     <string-array name="changelog_1_2_1">
         <item>Copia de seguridad: exportar e importar biblioteca, progreso y ajustes.</item>
         <item>Pantalla Acerca de con versión, créditos y copyright.</item>
