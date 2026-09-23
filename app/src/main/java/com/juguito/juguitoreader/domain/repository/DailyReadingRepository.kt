@@ -10,4 +10,5 @@ interface DailyReadingRepository {
     suspend fun getDailyReadingByIdAndDate(bookId: Int, date: String): DailyReading?
     suspend fun saveDailyReading(dailyReading: DailyReading): Long
     suspend fun deleteBookDailyReadings(bookId: Int)
+    suspend fun deleteBookDailyReading(bookId: Int, date: String)
 }

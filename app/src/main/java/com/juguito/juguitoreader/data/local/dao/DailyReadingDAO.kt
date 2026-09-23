@@ -24,4 +24,7 @@ interface DailyReadingDAO {
 
     @Query("DELETE FROM daily_reading WHERE book_id = :bookId")
     suspend fun deleteBookDailyReadings(bookId: Int)
+
+    @Query("DELETE FROM daily_reading WHERE book_id = :bookId AND date = :date")
+    suspend fun deleteBookDailyReading(bookId: Int, date: String)
 }

@@ -34,4 +34,8 @@ class DailyReadingRepositoryImpl @Inject constructor(
     override suspend fun deleteBookDailyReadings(bookId: Int) {
         dailyReadingDAO.deleteBookDailyReadings(bookId)
     }
+
+    override suspend fun deleteBookDailyReading(bookId: Int, date: String) {
+        dailyReadingDAO.deleteBookDailyReading(bookId, date)
+    }
 }

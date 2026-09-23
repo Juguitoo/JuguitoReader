@@ -320,6 +320,7 @@
     <string name="error_import_backup_too_big">El tamaño de la copia de seguridad es demasiado grande</string>
     <string name="error_backup_import_db_too_new">La base de datos de la copia de seguridad es más nueva que la de la app</string>
     <string name="error_backup_import_db_too_old">La base de datos de la copia de seguridad es demasiado vieja</string>
+    <string name="error_delete_reading_session" >Error al eliminar la sesión del libro.</string>
 
     <!-- Changelog -->
     <string-array name="changelog_1_2_1">

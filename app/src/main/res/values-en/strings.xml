@@ -177,7 +177,7 @@
     <string name="error_delete_book_not_found">The book to delete does not exist.</string>
     <string name="error_import_book">Error importing book automatically from file</string>
     <string name="error_save_reading_session">Error saving reading session.</string>
-    <string name="error_delete_reading_sessions">Error deleting reading sessions.</string>
+    <string name="error_delete_reading_sessions">Error deleting book reading sessions.</string>
     <string name="error_delete_folder_error">Error deleting folder</string>
     <string name="error_delete_genre_error">Error deleting genre</string>
     <string name="error_save_progress">Error saving progress</string>
@@ -319,6 +319,7 @@
     <string name="error_import_backup_too_big">The backup size is too big</string>
     <string name="error_backup_import_db_too_new">The database of the backup is newer than the app database</string>
     <string name="error_backup_import_db_too_old">The database of the backup is too old</string>
+    <string name="error_delete_reading_session" >Error deleting book reading session.</string>
 
     <!-- Changelog -->
     <string-array name="changelog_1_2_1">
