@@ -19,6 +19,7 @@ import com.juguito.juguitoreader.domain.usecase.readingProgress.UpdateReadingPro
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.exception.JuguitoException
 import com.juguito.juguitoreader.domain.model.hasSamePersistedValues
+import com.juguito.juguitoreader.domain.usecase.dailyReading.DeleteBookDailyReadingUseCase
 import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.asUiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
@@ -52,6 +53,7 @@ class ReaderViewModel @Inject constructor(
     private val updateReadingProgressUseCase: UpdateReadingProgressUseCase,
     private val addReadingProgressUseCase: AddReadingProgressUseCase,
     private val addDailyReadingUseCase: AddDailyReadingUseCase,
+    private val deleteBookDailyReadingUseCase: DeleteBookDailyReadingUseCase,
     private val updateBookUseCase: UpdateBookUseCase,
     private val parseEpubUseCase: ParseEpubUseCase,
     private val settingsRepository: SettingsRepository,
@@ -235,6 +237,12 @@ class ReaderViewModel @Inject constructor(
             }
             is ReaderEvent.OnRenderProcessGone -> {
                 handleRenderProcessGone(currentState)
+            }
+            is ReaderEvent.OnDeleteDailyReading -> {
+                viewModelScope.launch {
+                    deleteBookDailyReadingUseCase(currentState.book.id, event.date)
+                        .onFailure { _effect.send(UiEffect.ShowSnackbar(it.asUiText())) }
+                }
             }
         }
     }

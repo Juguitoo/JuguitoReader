@@ -18,4 +18,5 @@ sealed interface ReaderEvent {
     data object OnRenderProcessGone: ReaderEvent
     data class OnReportWordsRead(val words: Int, val chapterIndex: Int = -1): ReaderEvent
     data class OnChapterWordsBaseline(val words: Int, val chapterIndex: Int = -1): ReaderEvent
+    data class OnDeleteDailyReading(val bookId: Int, val date: String): ReaderEvent
 }
