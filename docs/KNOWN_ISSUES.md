@@ -1,33 +1,10 @@
-# Errores y riesgos conocidos — JuguitoReader
+# Anti-patrones — JuguitoReader
 
-Registro **vivo** de bugs, riesgos y anti-patrones abiertos. Solo bugs/errores/riesgos (no chores de release ni features). Histórico resuelto: [archive/](archive/).
+Reglas que no hay que reintroducir. Los bugs abiertos no se listan aquí: la línea está en [BACKLOG.md](BACKLOG.md) y el detalle en [tasks/](tasks/).
 
-Consultar antes de tocar Room, reader, importación o relaciones M:N.
+Consultar antes de tocar Room, el reader, la importación o las relaciones M:N. Histórico de cuando se corrigieron: [archive/v1.2.0.md](archive/v1.2.0.md). Reglas de datos también en [DATABASE.md](DATABASE.md).
 
----
-
-## Issues abiertos
-
-Una sola tabla. Orden: sin versión (`—`) → diferidos. Si el comentario se queda corto, detalle bajo la tabla e indicarlo con un (1) o el número que le siga al último detalle.
-
-
-| ID         | Título                                                       | Severidad | Estado   | Target | Comentario                                                                                    | Relacionado        |
-| ---------- | ------------------------------------------------------------ | --------- | -------- | ------ | --------------------------------------------------------------------------------------------- | ------------------ |
-| UX-026     | Registry pierde comentario al salir con el campo focused (1) | Medio     | Abierto  | v1.2.3 | Draft local; solo persiste al perder foco. Incluye deseleccionar nota/comentario (tap fuera). | TAR-17             |
-| READER-008 | TOC con `#fragment`                                          | Medio     | Diferido | v1.4.0 | `chapter.xhtml#section2` no matchea bien con spine por nombre final → TOC ambigua.            | TAR-31, READER-009 |
-| READER-009 | EPUB3 nav incompleto                                         | Medio     | Diferido | v1.4.0 | NCX parseado; falta soporte completo del HTML Navigation Document (`properties="nav"`).       | TAR-31, TAR-32     |
-
-
-**(1) UX-026:** el `BasicTextField` del comentario guarda en estado local y solo hace flush en `onFocusChanged`. Salir de la pantalla con el campo focused no persiste. El arreglo cubre blur al tap fuera / Back y flush en `ON_PAUSE` / dispose, no solo al perder foco.
-
----
-
-
-
-## Anti-patrones (no reintroducir)
-
-Instancias corregidas en v1.2.0 — detalle en [archive/v1.2.0.md](archive/v1.2.0.md). Reglas vivas también en [DATABASE.md](DATABASE.md).
-
+## Anti-patrones
 
 | ID       | Anti-patrón                               | Por qué importa                                        |
 | -------- | ----------------------------------------- | ------------------------------------------------------ |
@@ -37,16 +14,10 @@ Instancias corregidas en v1.2.0 — detalle en [archive/v1.2.0.md](archive/v1.2.
 | DATA-011 | Insertar por nombre si el id ya no existe | Resucita carpetas/géneros borrados; omitir la relación |
 | DATA-004 | `reading_progress` sin FK a books         | Huérfanos al borrar libro (CASCADE desde migración 11) |
 
-
----
-
-
-
 ## Cómo mantener
 
 Ver [MAINTENANCE.md](MAINTENANCE.md).
 
-1. Bug nuevo → fila aquí + fila en [BACKLOG.md](BACKLOG.md) (misma ID).
-2. Bug resuelto → quitar fila; añadir a `archive/vX.Y.Z.md`; commit con ID.
-3. Chores/features (REL-*, TAR-*) → solo BACKLOG / ROADMAP, no aquí.
-
+1. Bug nuevo → línea en [BACKLOG.md](BACKLOG.md) y ficha `tasks/{ID}.md` con el problema. No se añade una fila aquí.
+2. Bug resuelto → quitar la línea del backlog, escribir la resolución en la ficha (`estado: hecho`) y una fila en `archive/vX.Y.Z.md`.
+3. Estas reglas se quedan aunque el caso original esté cerrado. Features y chores no entran en este archivo.

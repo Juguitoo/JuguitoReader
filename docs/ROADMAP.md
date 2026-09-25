@@ -1,6 +1,6 @@
 # Roadmap — JuguitoReader
 
-Visión por versión. Estado operativo de tareas: [BACKLOG.md](BACKLOG.md). Bugs abiertos: [KNOWN_ISSUES.md](KNOWN_ISSUES.md). Histórico cerrado: [archive/](archive/).
+Visión por versión. Estado operativo de tareas: [BACKLOG.md](BACKLOG.md). Detalle de un bug: [tasks/](tasks/). Anti-patrones: [KNOWN_ISSUES.md](KNOWN_ISSUES.md). Histórico cerrado: [archive/](archive/).
 
 **Visión:** lector EPUB + gestor de lecturas (digitales y físicos). Backend/suscripción pospuesto hasta app local sólida.
 
@@ -50,7 +50,7 @@ Pase de Classic Dark + Neon (TAR-63) **después** del visual de biblioteca (TAR-
 
 ## v1.4.0 — EPUB3
 
-Compatibilidad básica/avanzada (TAR-31/32). Incluye fixes diferidos READER-008 / READER-009 (ver KNOWN_ISSUES).
+Compatibilidad básica/avanzada (TAR-31/32). Incluye los fixes diferidos [READER-008](tasks/READER-008.md) y [READER-009](tasks/READER-009.md).
 
 ---
 

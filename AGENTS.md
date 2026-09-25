@@ -96,7 +96,7 @@ UI (Compose + ViewModel) → UseCase → Repository (interface) → RepositoryIm
 | Room / DAOs / relaciones   | [docs/DATABASE.md](docs/DATABASE.md), [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md); histórico DATA en [docs/archive/v1.2.0.md](docs/archive/v1.2.0.md) |
 | Nueva pantalla / ViewModel | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)                                                  |
 | Git / releases             | [docs/GIT_WORKFLOW.md](docs/GIT_WORKFLOW.md)                                                  |
-| Prioridades y tareas       | [docs/ROADMAP.md](docs/ROADMAP.md), [docs/BACKLOG.md](docs/BACKLOG.md); cerrado en [docs/archive/](docs/archive/) |
+| Prioridades y tareas       | [docs/ROADMAP.md](docs/ROADMAP.md), [docs/BACKLOG.md](docs/BACKLOG.md), ficha en [docs/tasks/](docs/tasks/); cerrado en [docs/archive/](docs/archive/) |
 | Mantener docs al día       | [docs/MAINTENANCE.md](docs/MAINTENANCE.md)                                                    |
 
 

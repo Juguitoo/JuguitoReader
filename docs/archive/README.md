@@ -3,7 +3,7 @@
 Histórico de trabajo **cerrado**. Un archivo por versión (`vX.Y.Z.md`) con features/tareas e issues resueltos en tablas.
 
 - **No editar** salvo corrección factual (commit mal citado, typo).
-- Trabajo activo: [BACKLOG.md](../BACKLOG.md), [KNOWN_ISSUES.md](../KNOWN_ISSUES.md), [ROADMAP.md](../ROADMAP.md).
+- Trabajo abierto: [BACKLOG.md](../BACKLOG.md). Ficha de una tarea: [tasks/](../tasks/). Visión: [ROADMAP.md](../ROADMAP.md). Anti-patrones: [KNOWN_ISSUES.md](../KNOWN_ISSUES.md).
 - Al cerrar una versión: crear/completar `vX.Y.Z.md` y limpiar los docs vivos. Ver [MAINTENANCE.md](../MAINTENANCE.md).
 
 | Versión | Archivo |
