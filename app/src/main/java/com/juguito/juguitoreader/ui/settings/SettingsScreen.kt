@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.BookmarkAdded
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.CheckCircleOutline
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.FormatSize
@@ -50,6 +51,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -75,8 +77,10 @@ import com.juguito.juguitoreader.ui.settings.components.SettingsSection
 import com.juguito.juguitoreader.ui.settings.components.SettingsSelectorRow
 import com.juguito.juguitoreader.ui.settings.components.SettingsSwitchRow
 import com.juguito.juguitoreader.ui.theme.AppTheme
+import com.juguito.juguitoreader.utils.openBugReport
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,6 +94,7 @@ fun SettingsScreen(
     val isWorking = backupState is BackupUiState.Exporting ||
         backupState is BackupUiState.Importing
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val overlayScrimInteraction = remember { MutableInteractionSource() }
 
@@ -351,6 +356,24 @@ fun SettingsScreen(
                         subtitle = stringResource(R.string.backup_restore_subtitle),
                         enabled = !isWorking,
                         onClick = { backupViewModel.onEvent(BackupEvent.OnRestoreClick) }
+                    )
+                }
+
+                SettingsSection(title = stringResource(R.string.support_section_title)) {
+                    SettingsActionRow(
+                        icon = Icons.Default.BugReport,
+                        title = stringResource(R.string.bug_report_title),
+                        subtitle = stringResource(R.string.bug_report_subtitle),
+                        enabled = !isWorking,
+                        onClick = {
+                            if (!context.openBugReport()) {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        context.getString(R.string.bug_report_no_email_app)
+                                    )
+                                }
+                            }
+                        }
                     )
                 }
             }

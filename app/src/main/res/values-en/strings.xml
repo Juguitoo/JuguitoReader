@@ -156,6 +156,12 @@
     <string name="general">General</string>
     <string name="language">Language</string>
     <string name="backup_section_title">Data</string>
+    <string name="support_section_title">Support</string>
+    <string name="bug_report_title">Report a problem</string>
+    <string name="bug_report_subtitle">Opens email with the version and device</string>
+    <string name="bug_report_email_subject">JuguitoReader — report</string>
+    <string name="bug_report_email_body">Version: %1$s\nDevice: %2$s\nAndroid: %3$s\n\nWhat happened:\n</string>
+    <string name="bug_report_no_email_app">There is no email app to send the report</string>
     <string name="backup_export_title">Export backup</string>
     <string name="backup_export_subtitle">Save your library, progress, and settings to a ZIP file.</string>
     <string name="backup_restore_title">Restore backup</string>
