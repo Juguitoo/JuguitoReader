@@ -15,12 +15,12 @@ Línea **v1.2.x** hasta producción en Play Store. Nube de pago (TAR-29 / v2) de
 1. **v1.2.0** — Audit + fixes del pase **cerrados** en [archive/v1.2.0.md](archive/v1.2.0.md) → **pruebas cerradas**.
 2. **v1.2.1** — Pulido store + backup manual. Ver [archive/v1.2.1.md](archive/v1.2.1.md).
 3. **v1.2.2** — Higiene de sesiones y barra del lector. Código listo (`versionName` 1.2.2 / `versionCode` 7). Ver [archive/v1.2.2.md](archive/v1.2.2.md). Subir el AAB a pruebas cerradas; tag `v1.2.2` al publicar.
-4. **v1.2.3** — Guías de primer uso (TAR-64) e informe de problemas por correo (TAR-65), a partir del feedback de testers. Código en `dev`; `versionName` aún 1.2.2. Ver [archive/v1.2.3.md](archive/v1.2.3.md).
+4. **v1.2.3** — Feedback de testers ya en código (TAR-64, TAR-65). Pendiente, sin schema: UX-026, TAR-56 y TAR-50. `versionName` aún 1.2.2. Ver [archive/v1.2.3.md](archive/v1.2.3.md).
 5. **Producción** — Después de la ventana de testers. Checklist de store hecho (TAR-59, privacy en Console, keystore/R8/CI).
 
-### v1.2.3 — Feedback de testers *(hecho en código)*
+### v1.2.3 — Pulido de uso *(en curso)*
 
-Carrusel al primer arranque y modal la primera vez que se abre un EPUB (TAR-64). Informe de un problema desde Ajustes, por correo (TAR-65). Ver [archive/v1.2.3.md](archive/v1.2.3.md).
+Hecho en código: carrusel y modal del lector (TAR-64), informe por correo (TAR-65). Pendiente: no perder el comentario del registro (UX-026), colapsar Gestión en el menú (TAR-56) y filtro por autor en el registro (TAR-50). TAR-49 sigue en la 1.3.0. Ver [archive/v1.2.3.md](archive/v1.2.3.md).
 
 ### v1.2.2 — Sesiones y barra del lector *(hecho)*
 
@@ -36,7 +36,7 @@ Sin Auto Backup de Google (ARCH-002 hecho en v1.2.0); sync de pago sigue en TAR-
 
 ## v1.3.0 — Biblioteca y estadísticas
 
-Estadísticas (TAR-19/20), carpetas como archivadores (TAR-47), filtros/ordenación (TAR-49/50), look de portadas (TAR-62), marcadores, tipografías, modo horizontal, favoritos, drawer (TAR-51–56). Registry: no perder comentario y poder deseleccionar campos (UX-026).
+Estadísticas (TAR-19/20), carpetas como archivadores (TAR-47), filtros y ordenación de la biblioteca (TAR-49), look de portadas (TAR-62), marcadores, tipografías, modo horizontal, favoritos (TAR-51–55).
 
 **Diseño:** desacoplar stats del WebView (TAR-19/TAR-25) de cara a motor nativo. La higiene de sesiones ya está en v1.2.2: TAR-60 descarta deltas de scroll desproporcionados y TAR-61 borra la fila diaria (`book_id` + `date`) sin revertir el capítulo. Modo estantería visual queda bajo TAR-54 (Home), no como epic aparte.
 

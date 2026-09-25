@@ -13,7 +13,7 @@ Una sola tabla. Orden: sin versión (`—`) → diferidos. Si el comentario se q
 
 | ID         | Título                                                       | Severidad | Estado   | Target | Comentario                                                                                    | Relacionado        |
 | ---------- | ------------------------------------------------------------ | --------- | -------- | ------ | --------------------------------------------------------------------------------------------- | ------------------ |
-| UX-026     | Registry pierde comentario al salir con el campo focused (1) | Medio     | Abierto  | v1.3.0 | Draft local; solo persiste al perder foco. Incluye deseleccionar nota/comentario (tap fuera). | TAR-17             |
+| UX-026     | Registry pierde comentario al salir con el campo focused (1) | Medio     | Abierto  | v1.2.3 | Draft local; solo persiste al perder foco. Incluye deseleccionar nota/comentario (tap fuera). | TAR-17             |
 | READER-008 | TOC con `#fragment`                                          | Medio     | Diferido | v1.4.0 | `chapter.xhtml#section2` no matchea bien con spine por nombre final → TOC ambigua.            | TAR-31, READER-009 |
 | READER-009 | EPUB3 nav incompleto                                         | Medio     | Diferido | v1.4.0 | NCX parseado; falta soporte completo del HTML Navigation Document (`properties="nav"`).       | TAR-31, TAR-32     |
 

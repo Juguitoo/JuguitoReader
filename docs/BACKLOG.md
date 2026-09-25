@@ -9,18 +9,18 @@ Orden: versión más próxima → más lejana. Sin versión (`—`) = aún no as
 
 | Versión     | ID         | Tarea                                                                | Tipo     | Estado | Ref          |
 | ----------- | ---------- | -------------------------------------------------------------------- | -------- | ------ | ------------ |
+| v1.2.3      | UX-026     | Registry: perder comentario al salir + deseleccionar campos          | Fix      | `[ ]`  | KNOWN_ISSUES |
+| v1.2.3      | TAR-56     | Colapsar sección gestión en drawer                                   | Feat     | `[ ]`  | ROADMAP      |
+| v1.2.3      | TAR-50     | Filtro por autor en el registro                                      | Feat     | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-19     | Recopilación de estadísticas                                         | Feat     | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-20     | Sección estadísticas                                                 | Feat     | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-47     | Reestructuración carpetas (archivadores)                             | Feat     | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-49     | Controles biblioteca (filtros + ordenación)                          | Feat     | `[ ]`  | ROADMAP      |
-| v1.3.0      | TAR-50     | Filtro por autor                                                     | Feat     | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-62     | Biblioteca: portadas rectangulares / look más libro                  | Enhance  | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-51     | Marcadores en libros                                                 | Feat     | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-52     | Tipografías en lector                                                | Feat     | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-53     | Modo horizontal                                                      | Feat     | `[ ]`  | ROADMAP      |
 | v1.3.0      | TAR-54     | Sistema favoritos + estantería Home                                  | Feat     | `[ ]`  | ROADMAP      |
-| v1.3.0      | TAR-56     | Colapsar sección gestión en drawer                                   | Feat     | `[ ]`  | ROADMAP      |
-| v1.3.0      | UX-026     | Registry: perder comentario al salir + deseleccionar campos          | Fix      | `[ ]`  | KNOWN_ISSUES |
 | v1.3.1      | TAR-63     | Pase de modo oscuro (Classic + Neon)                                 | Enhance  | `[ ]`  | ROADMAP      |
 | v1.4.0      | TAR-31     | Compatibilidad básica EPUB3                                          | Feat     | `[ ]`  | ROADMAP      |
 | v1.4.0      | TAR-32     | Compatibilidad avanzada EPUB3                                        | Feat     | `[ ]`  | ROADMAP      |
