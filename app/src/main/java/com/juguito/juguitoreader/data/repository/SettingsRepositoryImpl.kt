@@ -32,6 +32,8 @@ class SettingsRepositoryImpl @Inject constructor(
         val AUTO_FINISH_READING = booleanPreferencesKey("auto_finish_reading")
         val PROMPT_STATUS_CHANGE = booleanPreferencesKey("prompt_status_change")
         val LAST_SEEN_CHANGELOG_VERSION = stringPreferencesKey("last_seen_changelog_version")
+        val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
+        val READER_GUIDE_COMPLETED = booleanPreferencesKey("reader_guide_completed")
     }
 
     override val textZoomFlow: Flow<Int> = context.dataStore.data.map { it[TEXT_ZOOM] ?: 100 }
@@ -43,6 +45,8 @@ class SettingsRepositoryImpl @Inject constructor(
     override val autoFinishReadingFlow: Flow<Boolean> = context.dataStore.data.map { it[AUTO_FINISH_READING] ?: false }
     override val promptStatusChangeFlow: Flow<Boolean> = context.dataStore.data.map { it[PROMPT_STATUS_CHANGE] ?: true }
     override val lastSeenChangelogVersionFlow: Flow<String?> = context.dataStore.data.map { it[LAST_SEEN_CHANGELOG_VERSION] }
+    override val onboardingCompletedFlow: Flow<Boolean> = context.dataStore.data.map { it[ONBOARDING_COMPLETED] ?: false }
+    override val readerGuideCompletedFlow: Flow<Boolean> = context.dataStore.data.map { it[READER_GUIDE_COMPLETED] ?: false }
 
     override suspend fun saveTextZoom(textZoom: Int) {
         context.dataStore.edit { it[TEXT_ZOOM] = textZoom }
@@ -78,5 +82,13 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override suspend fun saveLastSeenChangelogVersion(version: String) {
         context.dataStore.edit { it[LAST_SEEN_CHANGELOG_VERSION] = version }
+    }
+
+    override suspend fun saveOnboardingCompleted(completed: Boolean) {
+        context.dataStore.edit { it[ONBOARDING_COMPLETED] = completed }
+    }
+
+    override suspend fun saveReaderGuideCompleted(completed: Boolean) {
+        context.dataStore.edit { it[READER_GUIDE_COMPLETED] = completed }
     }
 }

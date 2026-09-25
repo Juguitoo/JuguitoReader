@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.juguito.juguitoreader.domain.usecase.changelog.GetUnseenChangelogUseCase
 import com.juguito.juguitoreader.domain.usecase.changelog.MarkChangelogSeenUseCase
+import com.juguito.juguitoreader.domain.usecase.onboarding.GetOnboardingCompletedUseCase
 import com.juguito.juguitoreader.utils.appVersionName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -18,7 +19,8 @@ import javax.inject.Inject
 class WhatsNewViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val getUnseenChangelogUseCase: GetUnseenChangelogUseCase,
-    private val markChangelogSeenUseCase: MarkChangelogSeenUseCase
+    private val markChangelogSeenUseCase: MarkChangelogSeenUseCase,
+    private val getOnboardingCompletedUseCase: GetOnboardingCompletedUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<WhatsNewUiState>(WhatsNewUiState.Idle)
     val uiState: StateFlow<WhatsNewUiState> = _uiState.asStateFlow()
@@ -27,6 +29,9 @@ class WhatsNewViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            val onboardingCompleted = runCatching { getOnboardingCompletedUseCase() }.getOrDefault(false)
+            if (!onboardingCompleted) return@launch
+
             val versionNames = runCatching {
                 getUnseenChangelogUseCase(
                     currentVersion,

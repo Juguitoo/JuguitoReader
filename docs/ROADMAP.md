@@ -15,7 +15,12 @@ Línea **v1.2.x** hasta producción en Play Store. Nube de pago (TAR-29 / v2) de
 1. **v1.2.0** — Audit + fixes del pase **cerrados** en [archive/v1.2.0.md](archive/v1.2.0.md) → **pruebas cerradas**.
 2. **v1.2.1** — Pulido store + backup manual. Ver [archive/v1.2.1.md](archive/v1.2.1.md).
 3. **v1.2.2** — Higiene de sesiones y barra del lector. Código listo (`versionName` 1.2.2 / `versionCode` 7). Ver [archive/v1.2.2.md](archive/v1.2.2.md). Subir el AAB a pruebas cerradas; tag `v1.2.2` al publicar.
-4. **Producción** — Después de la ventana de testers. Checklist de store hecho (TAR-59, privacy en Console, keystore/R8/CI).
+4. **v1.2.3** — Guías de primer uso (TAR-64), a partir del feedback de testers. Código en `dev`; `versionName` aún 1.2.2. Ver [archive/v1.2.3.md](archive/v1.2.3.md).
+5. **Producción** — Después de la ventana de testers. Checklist de store hecho (TAR-59, privacy en Console, keystore/R8/CI).
+
+### v1.2.3 — Guías de primer uso *(hecho en código)*
+
+Carrusel al primer arranque y modal la primera vez que se abre un EPUB (TAR-64). Ver [archive/v1.2.3.md](archive/v1.2.3.md).
 
 ### v1.2.2 — Sesiones y barra del lector *(hecho)*
 

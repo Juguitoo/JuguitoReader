@@ -77,6 +77,10 @@ import com.juguito.juguitoreader.ui.folder.FolderScreen
 import com.juguito.juguitoreader.ui.genre.AddGenreDialog
 import com.juguito.juguitoreader.ui.home.HomeScreen
 import com.juguito.juguitoreader.ui.library.LibraryScreen
+import com.juguito.juguitoreader.ui.onboarding.OnboardingEvent
+import com.juguito.juguitoreader.ui.onboarding.OnboardingScreen
+import com.juguito.juguitoreader.ui.onboarding.OnboardingUiState
+import com.juguito.juguitoreader.ui.onboarding.OnboardingViewModel
 import com.juguito.juguitoreader.ui.management.ManagementScreen
 import com.juguito.juguitoreader.ui.reader.ReaderScreen
 import com.juguito.juguitoreader.ui.registry.RegistryScreen
@@ -86,7 +90,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JuguitoApp(
-    whatsNewViewModel: WhatsNewViewModel = hiltViewModel()
+    whatsNewViewModel: WhatsNewViewModel = hiltViewModel(),
+    onboardingViewModel: OnboardingViewModel = hiltViewModel()
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -95,7 +100,9 @@ fun JuguitoApp(
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
     val whatsNewState by whatsNewViewModel.uiState.collectAsState()
-    val isWhatsNewVisible = whatsNewState is WhatsNewUiState.Visible
+    val onboardingState by onboardingViewModel.uiState.collectAsState()
+    val isOnboardingVisible = onboardingState is OnboardingUiState.Visible
+    val isWhatsNewVisible = whatsNewState is WhatsNewUiState.Visible && !isOnboardingVisible
 
     var showAddGenreDialog by remember { mutableStateOf(false) }
 
@@ -114,7 +121,7 @@ fun JuguitoApp(
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        gesturesEnabled = areDrawerGesturesEnabled(currentRoute) && !showAddGenreDialog && !isWhatsNewVisible,
+        gesturesEnabled = areDrawerGesturesEnabled(currentRoute) && !showAddGenreDialog && !isWhatsNewVisible && !isOnboardingVisible,
         drawerContent = {
             ModalDrawerSheet(
                 modifier = Modifier.fillMaxWidth(0.75f),
@@ -409,6 +416,12 @@ fun JuguitoApp(
                 }
             }
         }
+    }
+
+    if (isOnboardingVisible) {
+        OnboardingScreen(
+            onFinished = { onboardingViewModel.onEvent(OnboardingEvent.OnFinished) }
+        )
     }
 }
 

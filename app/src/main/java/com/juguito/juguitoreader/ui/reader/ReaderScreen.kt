@@ -72,9 +72,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun ReaderScreen(
     onNavigateBack: () -> Unit,
-    viewModel: ReaderViewModel = hiltViewModel()
+    viewModel: ReaderViewModel = hiltViewModel(),
+    readerGuideViewModel: ReaderGuideViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val guideState by readerGuideViewModel.uiState.collectAsState()
     val context = LocalContext.current
     val activity = context as? Activity
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -129,10 +131,17 @@ fun ReaderScreen(
     when (val currentState = state) {
         is ReaderUiState.Loading -> ReaderLoading()
         is ReaderUiState.Error -> ReaderError(currentState.message, onNavigateBack)
-        is ReaderUiState.Success -> ReaderContent(
-            state = currentState,
-            onEvent = viewModel::onEvent
-        )
+        is ReaderUiState.Success -> {
+            ReaderContent(
+                state = currentState,
+                onEvent = viewModel::onEvent
+            )
+            if (guideState is ReaderGuideUiState.Visible) {
+                ReaderGuideDialog(
+                    onDismiss = { readerGuideViewModel.onEvent(ReaderGuideEvent.OnDismiss) }
+                )
+            }
+        }
     }
 }
 

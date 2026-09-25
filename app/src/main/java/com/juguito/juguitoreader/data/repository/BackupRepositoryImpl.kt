@@ -78,6 +78,8 @@ class BackupRepositoryImpl @Inject constructor(
                     .put("autoFinishReading", settingsRepository.autoFinishReadingFlow.first())
                     .put("promptStatusChange", settingsRepository.promptStatusChangeFlow.first())
                     .put("lastSeenChangelogVersion", settingsRepository.lastSeenChangelogVersionFlow.first() ?: JSONObject.NULL)
+                    .put("onboardingCompleted", settingsRepository.onboardingCompletedFlow.first())
+                    .put("readerGuideCompleted", settingsRepository.readerGuideCompletedFlow.first())
                     .toString()
 
                 val backupManifest = BackupManifest(
@@ -221,6 +223,12 @@ class BackupRepositoryImpl @Inject constructor(
                         settingsRepository.savePromptStatusChange(json.getBoolean("promptStatusChange"))
                         if (json.has("lastSeenChangelogVersion") && !json.getString("lastSeenChangelogVersion").isNullOrBlank()) {
                             settingsRepository.saveLastSeenChangelogVersion(json.getString("lastSeenChangelogVersion"))
+                        }
+                        if (json.has("onboardingCompleted")) {
+                            settingsRepository.saveOnboardingCompleted(json.getBoolean("onboardingCompleted"))
+                        }
+                        if (json.has("readerGuideCompleted")) {
+                            settingsRepository.saveReaderGuideCompleted(json.getBoolean("readerGuideCompleted"))
                         }
                     }
 

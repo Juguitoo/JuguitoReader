@@ -5,6 +5,7 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.juguito.juguitoreader.domain.usecase.changelog.GetUnseenChangelogUseCase
 import com.juguito.juguitoreader.domain.usecase.changelog.MarkChangelogSeenUseCase
+import com.juguito.juguitoreader.domain.usecase.onboarding.GetOnboardingCompletedUseCase
 import com.juguito.juguitoreader.utils.appVersionName
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -29,6 +30,7 @@ class WhatsNewViewModelTest {
     private val context = mockk<Context>(relaxed = true)
     private val getUnseenChangelogUseCase = mockk<GetUnseenChangelogUseCase>()
     private val markChangelogSeenUseCase = mockk<MarkChangelogSeenUseCase>()
+    private val getOnboardingCompletedUseCase = mockk<GetOnboardingCompletedUseCase>()
 
     @Before
     fun setup() {
@@ -36,6 +38,7 @@ class WhatsNewViewModelTest {
         mockkStatic("com.juguito.juguitoreader.utils.AppVersionNameKt")
         every { context.appVersionName() } returns "1.2.1"
         coEvery { markChangelogSeenUseCase(any()) } returns Unit
+        coEvery { getOnboardingCompletedUseCase() } returns true
     }
 
     @After
@@ -47,7 +50,8 @@ class WhatsNewViewModelTest {
     private fun createViewModel() = WhatsNewViewModel(
         context,
         getUnseenChangelogUseCase,
-        markChangelogSeenUseCase
+        markChangelogSeenUseCase,
+        getOnboardingCompletedUseCase
     )
 
     @Test
@@ -102,6 +106,20 @@ class WhatsNewViewModelTest {
         viewModel.onEvent(WhatsNewEvent.OnDismiss)
 
         coVerify(exactly = 0) { markChangelogSeenUseCase(any()) }
+    }
+
+    @Test
+    fun `stays idle when onboarding is not completed`() = runTest {
+        coEvery { getOnboardingCompletedUseCase() } returns false
+        coEvery { getUnseenChangelogUseCase(any(), any()) } returns listOf("1.2.1")
+
+        val viewModel = createViewModel()
+
+        viewModel.uiState.test {
+            assertThat(awaitItem()).isEqualTo(WhatsNewUiState.Idle)
+            expectNoEvents()
+        }
+        coVerify(exactly = 0) { getUnseenChangelogUseCase(any(), any()) }
     }
 
     @Test

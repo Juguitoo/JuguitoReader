@@ -53,6 +53,7 @@ docs: move closed v1.2.0 work to archive
 | v1.2.0          | [archive/v1.2.0.md](archive/v1.2.0.md)              |
 | v1.2.1          | [archive/v1.2.1.md](archive/v1.2.1.md)              |
 | v1.2.2          | [archive/v1.2.2.md](archive/v1.2.2.md)              |
+| v1.2.3          | [archive/v1.2.3.md](archive/v1.2.3.md)              |
 | v1.3.0          | [archive/v1.3.0.md](archive/v1.3.0.md)              |
 
 

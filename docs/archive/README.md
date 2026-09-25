@@ -14,4 +14,5 @@ Histórico de trabajo **cerrado**. Un archivo por versión (`vX.Y.Z.md`) con fea
 | v1.2.0 | [v1.2.0.md](v1.2.0.md) |
 | v1.2.1 | [v1.2.1.md](v1.2.1.md) |
 | v1.2.2 | [v1.2.2.md](v1.2.2.md) |
+| v1.2.3 | [v1.2.3.md](v1.2.3.md) — en curso |
 | v1.3.0 | [v1.3.0.md](v1.3.0.md) — en curso |

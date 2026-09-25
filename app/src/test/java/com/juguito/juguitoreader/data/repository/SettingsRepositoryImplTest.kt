@@ -110,4 +110,26 @@ class SettingsRepositoryImplTest {
         repository.saveLastSeenChangelogVersion("1.2.1")
         assertThat(repository.lastSeenChangelogVersionFlow.first()).isEqualTo("1.2.1")
     }
+
+    @Test
+    fun `onboardingCompletedFlow returns false when empty`() = runTest {
+        assertThat(repository.onboardingCompletedFlow.first()).isFalse()
+    }
+
+    @Test
+    fun `saveOnboardingCompleted updates the flow`() = runTest {
+        repository.saveOnboardingCompleted(true)
+        assertThat(repository.onboardingCompletedFlow.first()).isTrue()
+    }
+
+    @Test
+    fun `readerGuideCompletedFlow returns false when empty`() = runTest {
+        assertThat(repository.readerGuideCompletedFlow.first()).isFalse()
+    }
+
+    @Test
+    fun `saveReaderGuideCompleted updates the flow`() = runTest {
+        repository.saveReaderGuideCompleted(true)
+        assertThat(repository.readerGuideCompletedFlow.first()).isTrue()
+    }
 }
