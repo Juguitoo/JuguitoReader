@@ -1,9 +1,9 @@
 # Archive — histórico por versión
 
-Histórico de trabajo **cerrado**. Un archivo por versión (`vX.Y.Z.md`) con features/tareas e issues resueltos en tablas.
+Histórico de trabajo **cerrado**. Un archivo por versión (`vX.Y.Z.md`). Cada tabla de tareas usa las mismas columnas: `ID`, `Tarea`, `Tipo`, `Commits`, `Comentario / resolución`. Los hashes viven solo en Commits.
 
 - **No editar** salvo corrección factual (commit mal citado, typo).
-- Trabajo abierto: [BACKLOG.md](../BACKLOG.md). Ficha de una tarea: [tasks/](../tasks/). Visión: [ROADMAP.md](../ROADMAP.md). Anti-patrones: [KNOWN_ISSUES.md](../KNOWN_ISSUES.md).
+- Trabajo abierto: [BACKLOG.md](../BACKLOG.md). Ficha de una tarea: [tasks/](../tasks/). Visión: [ROADMAP.md](../ROADMAP.md). Línea de tiempo: [VERSIONS.md](../VERSIONS.md). Anti-patrones: [KNOWN_ISSUES.md](../KNOWN_ISSUES.md).
 - Al cerrar una versión: crear/completar `vX.Y.Z.md` y limpiar los docs vivos. Ver [MAINTENANCE.md](../MAINTENANCE.md).
 
 | Versión | Archivo |

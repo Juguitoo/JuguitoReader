@@ -18,6 +18,7 @@ Esta documentación es **parte del proyecto**, no un snapshot. Debe actualizarse
 | Detalle de una tarea (problema, notas, resolución) | [tasks/](tasks/) (`{ID}.md`) |
 | Anti-patrones que no hay que reintroducir | [KNOWN_ISSUES.md](KNOWN_ISSUES.md) |
 | Visión por versión | [ROADMAP.md](ROADMAP.md) |
+| Línea de tiempo (lo que lee Bitácora) | [VERSIONS.md](VERSIONS.md) |
 | Resumen de lo cerrado por versión | [archive/](archive/) (`vX.Y.Z.md`) |
 | Plan de implementación mientras se trabaja | `.artifacts/plans/` (no se sube a git) |
 
@@ -33,7 +34,7 @@ Esta documentación es **parte del proyecto**, no un snapshot. Debe actualizarse
 | Bug resuelto | Quitar la línea del backlog; en la ficha, `estado: hecho` y Resolución; fila en `archive/vX.Y.Z.md`; commit con ID |
 | Nueva feature / tarea | Línea en `BACKLOG.md`. Ficha solo si hay algo que contar. `ROADMAP.md` si cambia el milestone |
 | Tarea completada | Quitar la línea del backlog; ficha a `estado: hecho` si existe; fila en `archive/vX.Y.Z.md`; `ROADMAP.md` si cierra fase |
-| Cierre de versión | Completar `archive/vX.Y.Z.md`; limpiar el backlog de esa versión; marcar fase en ROADMAP |
+| Cierre de versión | Completar `archive/vX.Y.Z.md`; pasar la línea en `VERSIONS.md` a Publicadas; limpiar el backlog de esa versión; marcar fase en ROADMAP |
 | Cambio arquitectura | `ARCHITECTURE.md` + rule `.cursor/rules/architecture.mdc` si aplica |
 | Cambio Room / schema | `DATABASE.md` + `room-data.mdc` |
 | Cambio ramas git | `GIT_WORKFLOW.md` — solo estado actual |
@@ -75,7 +76,7 @@ Esta documentación es **parte del proyecto**, no un snapshot. Debe actualizarse
 
 1. Quitar la línea del backlog.
 2. Si hay ficha, `estado: hecho` y sección Resolución.
-3. Añadir fila al `archive/vX.Y.Z.md` de la versión donde se cerró.
+3. Añadir una fila a `archive/vX.Y.Z.md`, en la tabla con estas columnas y ninguna otra: `ID`, `Tarea`, `Tipo`, `Commits`, `Comentario / resolución`. Los hashes van solo en Commits, separados por espacio. El comentario es el texto, sin hashes mezclados. Si la tarea venía de una tabla de issues, la severidad se escribe al principio del comentario.
 4. Si era la última de una fase, actualizar `ROADMAP.md`.
 
 ---
