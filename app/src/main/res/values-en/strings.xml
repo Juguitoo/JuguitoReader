@@ -350,6 +350,8 @@
     <string name="error_delete_reading_session" >Error deleting book reading session.</string>
     <string name="collapse_management">Collapse</string>
     <string name="expand_management">Expand</string>
+    <string name="authors">Autores</string>
+    <string name="all_authors">Todos los autores</string>
 
     <!-- Changelog -->
     <string-array name="changelog_1_2_2">

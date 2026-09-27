@@ -6,6 +6,10 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 ## En curso
 
+- [ ] TAR-50 Filtro por autor en el registro
+  - version: v1.2.3
+  - tipo: feat
+  - ref: tasks/TAR-50.md
 
 ## Pendiente
 
@@ -14,9 +18,6 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 
 
-- [ ] TAR-50 Filtro por autor en el registro
-  - version: v1.2.3
-  - tipo: feat
 
 ### v1.3.0
 

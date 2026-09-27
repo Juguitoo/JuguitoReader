@@ -13,4 +13,5 @@ data class RegistryUiState(
     val showFilterSheet: Boolean = false
 ) {
     val availableSeries: List<String> = books.mapNotNull { it.series }.filter { it.isNotBlank() }.distinct().sorted()
+    val availableAuthors: List<String> = books.map { it.author }.filter { it.isNotBlank() }.distinct().sorted()
 }

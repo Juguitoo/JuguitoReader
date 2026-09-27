@@ -8,6 +8,7 @@ data class BookCriteria(
     val searchText: String = "",
     val statuses: Set<BookStatus> = emptySet(),
     val series: String? = null,
+    val author: String? = null,
     val sortBy: SortOption = SortOption.STARTED_AT_DESC
 )
 
@@ -31,8 +32,10 @@ fun List<Book>.applyCriteria(criteria: BookCriteria): List<Book> {
         val matchesStatus = criteria.statuses.isEmpty() || criteria.statuses.contains(book.status)
         
         val matchesSeries = criteria.series == null || book.series == criteria.series
+
+        val matchesAuthor = criteria.author == null || book.author == criteria.author
         
-        matchesText && matchesStatus && matchesSeries
+        matchesText && matchesStatus && matchesSeries && matchesAuthor
     }.sortedWith(
         when (criteria.sortBy) {
             SortOption.TITLE_ASC -> compareBy { it.title.lowercase() }

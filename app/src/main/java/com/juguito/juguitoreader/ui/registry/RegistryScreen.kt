@@ -103,6 +103,7 @@ fun RegistryContent(
         RegistryFilterSheet(
             currentCriteria = state.criteria,
             availableSeries = state.availableSeries,
+            availableAuthors = state.availableAuthors,
             onCriteriaChanged = { onEvent(RegistryEvent.OnCriteriaChanged(it)) },
             onDismiss = { onEvent(RegistryEvent.OnShowFilterSheet(false)) },
             onClearFilters = { onEvent(RegistryEvent.OnClearFilters) }

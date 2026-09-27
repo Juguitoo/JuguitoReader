@@ -352,6 +352,8 @@
     <string name="error_delete_reading_session" >Error al eliminar la sesión del libro.</string>
     <string name="collapse_management">Colapsar</string>
     <string name="expand_management">Expandir</string>
+    <string name="authors">Autores</string>
+    <string name="all_authors">Todos los autores</string>
 
     <!-- Changelog -->
     <string-array name="changelog_1_2_2">

@@ -21,6 +21,7 @@ import com.juguito.juguitoreader.ui.common.toUiText
 fun RegistryFilterSheet(
     currentCriteria: BookCriteria,
     availableSeries: List<String>,
+    availableAuthors: List<String>,
     onCriteriaChanged: (BookCriteria) -> Unit,
     onDismiss: () -> Unit,
     onClearFilters: () -> Unit
@@ -115,6 +116,47 @@ fun RegistryFilterSheet(
                                 text = { Text(series) },
                                 onClick = {
                                     onCriteriaChanged(currentCriteria.copy(series = series))
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (availableAuthors.isNotEmpty()) {
+                Text(stringResource(R.string.authors), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                var expanded by remember { mutableStateOf(false) }
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded }
+                ) {
+                    OutlinedTextField(
+                        value = currentCriteria.author ?: stringResource(R.string.all_authors),
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        modifier = Modifier
+                            .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
+                            .fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.all_authors)) },
+                            onClick = {
+                                onCriteriaChanged(currentCriteria.copy(author = null))
+                                expanded = false
+                            }
+                        )
+                        availableAuthors.forEach { authors ->
+                            DropdownMenuItem(
+                                text = { Text(authors) },
+                                onClick = {
+                                    onCriteriaChanged(currentCriteria.copy(author = authors))
                                     expanded = false
                                 }
                             )
