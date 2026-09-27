@@ -2,7 +2,7 @@
 
 **Visión:** Libros digitales y físicos. Una app local. Importa EPUBs, léelos en la app y registra también lo que lees en papel — fechas, nota, comentario, estado y estadísticas de sesión — sin backend.
 
-Bitácora lee cada `## vX.Y.Z`. `estado` coloca el punto. El párrafo es el resumen al pulsar.
+md-flow lee cada `## vX.Y.Z — Título`, con raya `—`. No vale `## vX.Y.x` ni `###`. `estado` es `prevista`, `en curso` o `publicada`, y coloca el punto. El párrafo de debajo es el resumen al pulsar. La visión es solo la línea `**Visión:**`.
 
 ## v1.0.0 — Base de la app
 

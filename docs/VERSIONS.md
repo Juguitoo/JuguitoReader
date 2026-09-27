@@ -1,12 +1,12 @@
 # Versiones
 
-Índice que lee Bitácora para la línea de tiempo. El relato de cada versión sigue en [ROADMAP.md](ROADMAP.md), y Bitácora lo enseña en la vista Roadmap. El cierre de cada versión es una tabla en [archive/](archive/) con columnas **ID** y **Tarea** (o **Título**). Esas filas son las tareas cerradas de la vista Versiones. Tipo, commit y comentario salen al abrir la fila.
+Índice que lee md-flow para la línea de tiempo. El relato de cada versión sigue en [ROADMAP.md](ROADMAP.md). Las tareas cerradas están en [archive/](archive/), en una tabla con columnas **ID**, **Tarea**, **Tipo**, **Commits** y **Comentario / resolución**. Los hashes van solo en Commits.
 
 Una sección (`En curso`, `Previstas`, `Publicadas`) y una línea:
 
-`- versión | título | archive/vX.Y.Z.md`
+`- vX.Y.Z | Título | archive/vX.Y.Z.md`
 
-El archive es opcional. La ruta es relativa a esta carpeta.
+El archive es opcional. La ruta es relativa a esta carpeta. Conviene una sola versión en curso. Publicar mueve la línea a Publicadas y pone el roadmap en `estado: publicada`. No borra las tareas abiertas que todavía lleven esa versión.
 
 ## En curso
 
