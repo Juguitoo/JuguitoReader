@@ -1,6 +1,6 @@
 # TAR-50 — Filtro por autor en el registro
 
-- estado: en curso
+- estado: hecho
 - version: v1.2.3
 - tipo: feat
 
