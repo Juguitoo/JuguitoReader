@@ -1,6 +1,6 @@
 # TAR-56 — Colapsar sección gestión en drawer
 
-- estado: en curso
+- estado: hecho
 - version: v1.2.3
 - tipo: feat
 
