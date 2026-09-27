@@ -6,14 +6,16 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 ## En curso
 
+- [ ] TAR-56 Colapsar sección gestión en drawer
+  - version: v1.2.3
+  - tipo: feat
+  - ref: tasks/TAR-56.md
+
 ## Pendiente
 
 ### v1.2.3
 
 
-- [ ] TAR-56 Colapsar sección gestión en drawer
-  - version: v1.2.3
-  - tipo: feat
 
 
 - [ ] TAR-50 Filtro por autor en el registro

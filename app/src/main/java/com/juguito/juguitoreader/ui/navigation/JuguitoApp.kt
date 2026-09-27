@@ -1,5 +1,6 @@
 package com.juguito.juguitoreader.ui.navigation
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -19,6 +20,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.AppRegistration
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.Home
@@ -42,11 +46,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -110,6 +116,14 @@ fun JuguitoApp(
         AddGenreDialog(
             onDismissRequest = {showAddGenreDialog = false},
         )
+    }
+
+    var managementExpanded by rememberSaveable { mutableStateOf(true) }
+
+    LaunchedEffect(currentRoute) {
+        if (currentRoute == "add_book" || currentRoute == "add_folder") {
+            managementExpanded = true
+        }
     }
 
     if (isWhatsNewVisible) {
@@ -177,48 +191,69 @@ fun JuguitoApp(
                     modifier = Modifier.padding(start = 28.dp, bottom = 8.dp)
                 )
 
-                DrawerItem(
-                    label = stringResource(R.string.content_manager),
-                    icon = Icons.Default.Widgets,
-                    selected = currentRoute == "management",
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                            navController.navigateToTopLevel("management")
-                        }
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(end = 20.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(Modifier.weight(1f)) {
+                        DrawerItem(
+                            label = stringResource(R.string.content_manager),
+                            icon = Icons.Default.Widgets,
+                            selected = currentRoute == "management",
+                            onClick = {
+                                scope.launch {
+                                    drawerState.close()
+                                    navController.navigateToTopLevel("management")
+                                }
+                            }
+                        )
                     }
-                )
 
-                DrawerItem(
-                    label = stringResource(R.string.create_book),
-                    icon = Icons.Default.LibraryAdd,
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                            navController.navigate("add_book")
-                        }
+                    IconButton(onClick = { managementExpanded = !managementExpanded }) {
+                        Icon(
+                            imageVector = if (managementExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                            contentDescription = stringResource(
+                                if (managementExpanded) R.string.collapse_management else R.string.expand_management
+                            )
+                        )
                     }
-                )
+                }
 
-                DrawerItem(
-                    label = stringResource(R.string.new_folder),
-                    icon = Icons.Default.CreateNewFolder,
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                            navController.navigate("add_folder")
-                        }
-                    }
-                )
+                AnimatedVisibility(visible = managementExpanded) {
+                    Column(Modifier.padding(start = 16.dp)) {
+                        DrawerItem(
+                            label = stringResource(R.string.create_book),
+                            icon = Icons.Default.LibraryAdd,
+                            onClick = {
+                                scope.launch {
+                                    drawerState.close()
+                                    navController.navigate("add_book")
+                                }
+                            }
+                        )
 
-                DrawerItem(
-                    label = stringResource(R.string.create_genre),
-                    icon = Icons.Default.NewLabel,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                        showAddGenreDialog = true
+                        DrawerItem(
+                            label = stringResource(R.string.create_folder),
+                            icon = Icons.Default.CreateNewFolder,
+                            onClick = {
+                                scope.launch {
+                                    drawerState.close()
+                                    navController.navigate("add_folder")
+                                }
+                            }
+                        )
+
+                        DrawerItem(
+                            label = stringResource(R.string.create_genre),
+                            icon = Icons.Default.NewLabel,
+                            onClick = {
+                                scope.launch { drawerState.close() }
+                                showAddGenreDialog = true
+                            }
+                        )
                     }
-                )
+                }
 
                 Spacer(modifier = Modifier.weight(1f))
 

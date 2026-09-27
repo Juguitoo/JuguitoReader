@@ -348,6 +348,8 @@
     <string name="error_backup_import_db_too_new">The database of the backup is newer than the app database</string>
     <string name="error_backup_import_db_too_old">The database of the backup is too old</string>
     <string name="error_delete_reading_session" >Error deleting book reading session.</string>
+    <string name="collapse_management">Collapse</string>
+    <string name="expand_management">Expand</string>
 
     <!-- Changelog -->
     <string-array name="changelog_1_2_2">
