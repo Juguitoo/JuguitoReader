@@ -361,6 +361,7 @@ fun JuguitoApp(
                 composable (route = "registry") {
                     RegistryScreen(
                         onOpenDrawer = { scope.launch { drawerState.open() } },
+                        onNavigateBack = { navController.popBackStack() },
                         onNavigateToAddBook = {
                             navController.navigate("add_book")
                         },

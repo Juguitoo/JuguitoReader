@@ -13,6 +13,9 @@ import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
 import com.juguito.juguitoreader.ui.common.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,6 +32,7 @@ class RegistryViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(RegistryUiState())
     val uiState: StateFlow<RegistryUiState> = _uiState.asStateFlow()
+    private val persistScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     init {
         loadData()
@@ -123,7 +127,7 @@ class RegistryViewModel @Inject constructor(
         val book = _uiState.value.books.find { it.id == bookId } ?: return
         val updatedBook = updateLogic(book)
 
-        viewModelScope.launch {
+        persistScope.launch {
             updateBookUseCase(updatedBook)
         }
     }

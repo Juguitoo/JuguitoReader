@@ -1,7 +1,11 @@
 package com.juguito.juguitoreader.ui.registry
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,6 +27,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
@@ -34,6 +41,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.juguito.juguitoreader.R
 import coil.compose.AsyncImage
 import com.juguito.juguitoreader.ui.common.toUiText
@@ -57,6 +67,7 @@ private val TotalTableWidth = ColLibroWidth + ColEstadoWidth + ColNotaWidth + (C
 @Composable
 fun RegistryScreen(
     onOpenDrawer: () -> Unit,
+    onNavigateBack: () -> Unit,
     onNavigateToAddBook: () -> Unit,
     onNavigateToBookDetail: (Int) -> Unit,
     viewModel: RegistryViewModel = hiltViewModel()
@@ -67,6 +78,7 @@ fun RegistryScreen(
         state = state,
         onEvent = viewModel::onEvent,
         onOpenDrawer = onOpenDrawer,
+        onNavigateBack = onNavigateBack,
         onNavigateToAddBook = onNavigateToAddBook,
         onNavigateToBookDetail = onNavigateToBookDetail
     )
@@ -78,9 +90,15 @@ fun RegistryContent(
     state: RegistryUiState,
     onEvent: (RegistryEvent) -> Unit,
     onOpenDrawer: () -> Unit,
+    onNavigateBack: () -> Unit,
     onNavigateToAddBook: () -> Unit,
     onNavigateToBookDetail: (Int) -> Unit
 ) {
+    var flushFocusedComment by remember { mutableStateOf<(() -> Unit)?>(null) }
+    val flushFocusedCommentState = rememberUpdatedState(flushFocusedComment)
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val focusManager = LocalFocusManager.current
+
     if (state.showFilterSheet) {
         RegistryFilterSheet(
             currentCriteria = state.criteria,
@@ -89,6 +107,21 @@ fun RegistryContent(
             onDismiss = { onEvent(RegistryEvent.OnShowFilterSheet(false)) },
             onClearFilters = { onEvent(RegistryEvent.OnClearFilters) }
         )
+    }
+
+    BackHandler {
+        flushFocusedCommentState.value?.invoke()
+        onNavigateBack()
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE) {
+                flushFocusedCommentState.value?.invoke()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     Scaffold(
@@ -163,7 +196,19 @@ fun RegistryContent(
     ) { paddingValues ->
         Box(modifier = Modifier
             .padding(paddingValues)
-            .fillMaxSize()) {
+            .fillMaxSize()
+            .pointerInput(focusManager) {
+                awaitEachGesture {
+                    val down = awaitFirstDown(
+                        requireUnconsumed = false,
+                        pass = PointerEventPass.Final
+                    )
+                    val up = waitForUpOrCancellation(pass = PointerEventPass.Final)
+                    if (up != null && !down.isConsumed && !up.isConsumed) {
+                        focusManager.clearFocus()
+                    }
+                }
+            }) {
             if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else if (state.errorMessage != null) {
@@ -225,7 +270,8 @@ fun RegistryContent(
                                     RegistryRow(
                                         book = book,
                                         onEvent = onEvent,
-                                        onEditClick = { onNavigateToBookDetail(book.id) }
+                                        onEditClick = { onNavigateToBookDetail(book.id) },
+                                        onFlushFocusedCommentChange = { flushFocusedComment = it }
                                     )
                                     HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                                 }
@@ -351,7 +397,8 @@ fun TableHeaderItem(
 fun RegistryRow(
     book: Book,
     onEvent: (RegistryEvent) -> Unit,
-    onEditClick: () -> Unit
+    onEditClick: () -> Unit,
+    onFlushFocusedCommentChange: ((() -> Unit)?) -> Unit
 ) {
     var showStartDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
@@ -360,9 +407,23 @@ fun RegistryRow(
     val focusRequester = remember { FocusRequester() }
     var isFocused by remember { mutableStateOf(false) }
 
+    fun flushComment() {
+        if (localComment != (book.comment ?: "")) {
+            onEvent(RegistryEvent.OnCommentChanged(book.id, localComment))
+        }
+    }
+
+    val flushCommentState = rememberUpdatedState { flushComment() }
+
     LaunchedEffect(book.comment) {
         if (!isFocused) {
             localComment = book.comment ?: ""
+        }
+    }
+
+    DisposableEffect(book.id) {
+        onDispose {
+            flushCommentState.value()
         }
     }
 
@@ -383,6 +444,8 @@ fun RegistryRow(
             onClear = { onEvent(RegistryEvent.OnEndDateChanged(book.id, null)) }
         )
     }
+
+
 
     Row(
         modifier = Modifier
@@ -507,9 +570,13 @@ fun RegistryRow(
                     .fillMaxWidth()
                     .focusRequester(focusRequester)
                     .onFocusChanged { focusState ->
+                        val wasFocused = isFocused
                         isFocused = focusState.isFocused
-                        if (!focusState.isFocused && localComment != (book.comment ?: "")) {
-                            onEvent(RegistryEvent.OnCommentChanged(book.id, localComment))
+                        if (focusState.isFocused) {
+                            onFlushFocusedCommentChange { flushCommentState.value() }
+                        } else if (wasFocused) {
+                            flushCommentState.value()
+                            onFlushFocusedCommentChange(null)
                         }
                     }
                     .verticalScroll(rememberScrollState()),

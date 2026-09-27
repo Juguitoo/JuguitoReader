@@ -10,10 +10,6 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 ### v1.2.3
 
-- [ ] UX-026 Registry: perder comentario al salir + deseleccionar campos
-  - version: v1.2.3
-  - tipo: fix
-  - ref: tasks/UX-026.md
 
 - [ ] TAR-56 Colapsar sección gestión en drawer
   - version: v1.2.3
