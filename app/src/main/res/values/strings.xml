@@ -356,6 +356,13 @@
     <string name="all_authors">Todos los autores</string>
 
     <!-- Changelog -->
+    <string-array name="changelog_1_2_3">
+        <item>Añadida guía de uso de la app y explicación del lector.</item>
+        <item>Desde Ajustes puedes informar de un problema por correo.</item>
+        <item>En el menú, crear libro, carpeta y género se pliegan bajo el gestor de contenido.</item>
+        <item>El registro se puede filtrar por autor.</item>
+        <item>Solucionado bug con los comentarios en registro.</item>
+    </string-array>
     <string-array name="changelog_1_2_2">
         <item>Los saltos de scroll muy grandes ya no inflan las palabras leídas.</item>
         <item>Puedes borrar un día de lectura desde el lector.</item>

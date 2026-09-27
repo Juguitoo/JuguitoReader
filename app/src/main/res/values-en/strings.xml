@@ -354,6 +354,13 @@
     <string name="all_authors">Todos los autores</string>
 
     <!-- Changelog -->
+    <string-array name="changelog_1_2_3">
+        <item>Added a use guide of the app and explanation to the reader.</item>
+        <item>You can report a problem by email from Settings.</item>
+        <item>In the menu, create book, folder, and genre fold under Content Manager.</item>
+        <item>The registry can be filtered by author.</item>
+        <item>Solved a bug with the comments in registry.</item>
+    </string-array>
     <string-array name="changelog_1_2_2">
         <item>Very large scroll jumps no longer inflate words read.</item>
         <item>You can delete a reading day from the reader.</item>
