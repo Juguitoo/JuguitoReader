@@ -36,13 +36,13 @@ Tope de palabras por gesto (TAR-60), borrar un día de lectura (TAR-61) e índic
 
 ## v1.2.3 — Pulido de uso
 
-- estado: en curso
+- estado: publicada
 
-Guías de primer uso (TAR-64) e informe de problemas por correo (TAR-65). Pendiente, sin cambio de schema: no perder el comentario del registro (UX-026), colapsar Gestión en el menú (TAR-56) y filtro por autor (TAR-50). `versionName` sigue en 1.2.2. Producción, después de la ventana de testers.
+Guías de primer uso (TAR-64) e informe de problemas por correo (TAR-65). Pendiente, sin cambio de schema: no perder el comentario del registro (UX-026), colapsar Gestión en el menú (TAR-56) y filtro por autor (TAR-50). `versionName` sigue en 1.2.2. Lanzamiento a Producción.
 
 ## v1.3.0 — Biblioteca y estadísticas
 
-- estado: prevista
+- estado: en curso
 
 Estadísticas (TAR-19/20), carpetas como archivadores (TAR-47), filtros y ordenación (TAR-49), portadas (TAR-62), marcadores, tipografías, modo horizontal y favoritos (TAR-51–55). Las stats se desacoplan del WebView de cara al motor nativo.
 

@@ -17,6 +17,10 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 ### v1.3.0
 
+- [ ] TAR-54 Sistema favoritos + estantería Home
+  - version: v1.3.0
+  - tipo: feat
+
 - [ ] TAR-19 Recopilación de estadísticas
   - version: v1.3.0
   - tipo: feat
@@ -32,10 +36,10 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 - [ ] TAR-62 Biblioteca: portadas rectangulares / look más libro
   - version: v1.3.0
   - tipo: enhance
-
 - [ ] TAR-49 Controles biblioteca (filtros + ordenación)
   - version: v1.3.0
   - tipo: feat
+
 - [ ] TAR-51 Marcadores en libros
   - version: v1.3.0
   - tipo: feat
@@ -45,10 +49,6 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
   - tipo: feat
 
 - [ ] TAR-53 Modo horizontal
-  - version: v1.3.0
-  - tipo: feat
-
-- [ ] TAR-54 Sistema favoritos + estantería Home
   - version: v1.3.0
   - tipo: feat
 
