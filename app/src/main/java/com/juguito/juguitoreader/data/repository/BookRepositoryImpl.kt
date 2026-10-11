@@ -48,6 +48,10 @@ class BookRepositoryImpl @Inject constructor(
         bookDAO.updateBooks(books.map { it.toEntity() })
     }
 
+    override suspend fun updateFavourite(bookId: Int, newValue: Boolean) {
+        bookDAO.updateFavourite(bookId, newValue)
+    }
+
     override suspend fun syncCrossReferences(bookId: Int, folderIds: List<Int>, genreIds: List<Int>) {
         bookDAO.syncBookCrossRefs(bookId, folderIds, genreIds)
     }

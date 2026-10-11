@@ -27,6 +27,9 @@ interface BookDAO {
     @Update
     suspend fun updateBooks(books: List<BookEntity>)
 
+    @Query("UPDATE books SET is_favourite = :newValue WHERE id = :bookId")
+    suspend fun updateFavourite(bookId: Int, newValue: Boolean)
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertBookFolderCrossRefs(crossRefs: List<BookFolderCrossRef>)
 
