@@ -32,7 +32,8 @@ object DatabaseModule {
                 JuguitoReaderDatabase.MIGRATION_8_9,
                 JuguitoReaderDatabase.MIGRATION_9_10,
                 JuguitoReaderDatabase.MIGRATION_10_11,
-                JuguitoReaderDatabase.MIGRATION_11_12
+                JuguitoReaderDatabase.MIGRATION_11_12,
+                JuguitoReaderDatabase.MIGRATION_12_13
             )
             .fallbackToDestructiveMigration(false)
             .build()

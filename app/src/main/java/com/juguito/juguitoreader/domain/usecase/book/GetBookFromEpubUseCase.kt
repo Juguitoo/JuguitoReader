@@ -28,6 +28,7 @@ class GetBookFromEpubUseCase @Inject constructor() {
                 series = metadata.series,
                 seriesOrder = metadata.seriesOrder,
                 isPhysical = false,
+                isFavourite = false,
                 coverUrl = metadata.coverUrl,
                 localFilePath = internalPath,
                 genres = metadata.genres.map { Genre(name = it) }

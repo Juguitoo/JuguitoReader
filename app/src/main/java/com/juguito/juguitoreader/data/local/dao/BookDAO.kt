@@ -56,6 +56,10 @@ interface BookDAO {
     @Query("SELECT * FROM books")
     fun getAllBooks(): Flow<List<BookWithDetails>>
 
+    @Transaction
+    @Query("SELECT * FROM books WHERE is_favourite = 1")
+    fun getFavourites(): Flow<List<BookWithDetails>>
+
     @Query("DELETE FROM books WHERE id = :bookId")
     suspend fun deleteBookById(bookId: Int)
 }

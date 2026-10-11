@@ -348,6 +348,7 @@ class BookDetailViewModel @Inject constructor(
                         series = draft.series,
                         seriesOrder = draft.seriesOrder.toDoubleOrNull(),
                         isPhysical = draft.isPhysical,
+                        isFavourite = latest.book.isFavourite,
                         status = latest.status,
                         rating = latest.rating ?: 0f,
                         comment = latest.comment,

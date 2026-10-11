@@ -28,6 +28,10 @@ class BookRepositoryImpl @Inject constructor(
         return bookDAO.getBookById(id)?.toDomain()
     }
 
+    override fun getFavourites(): Flow<List<Book>> {
+        return bookDAO.getFavourites().map { entities -> entities.map { it.toDomain() } }
+    }
+
     override suspend fun insertBook(book: Book): Long {
         return bookDAO.insertBook(book.toEntity())
     }

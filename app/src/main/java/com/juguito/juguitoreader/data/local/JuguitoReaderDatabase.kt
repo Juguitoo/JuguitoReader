@@ -28,7 +28,7 @@ import com.juguito.juguitoreader.data.local.entity.ReadingProgressEntity
         BookFolderCrossRef::class,
         BookGenreCrossRef::class
     ],
-    version = 12,
+    version = 13,
     exportSchema = true
 )
 
@@ -215,6 +215,12 @@ abstract class JuguitoReaderDatabase : RoomDatabase() {
                 db.execSQL("DROP TABLE `reading_progress`")
                 db.execSQL("ALTER TABLE `reading_progress_new` RENAME TO `reading_progress`")
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_reading_progress_book_id` ON `reading_progress` (`book_id`)")
+            }
+        }
+
+        val MIGRATION_12_13 = object : Migration(12, 13) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE books ADD COLUMN is_favourite INTEGER NOT NULL DEFAULT 0")
             }
         }
     }

@@ -9,6 +9,8 @@ interface BookRepository {
 
     suspend fun getBookById(id: Int): Book?
 
+    fun getFavourites(): Flow<List<Book>>
+
     suspend fun insertBook(book: Book): Long
 
     suspend fun insertBooks(books: List<Book>)

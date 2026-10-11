@@ -189,6 +189,7 @@ class AddBookViewModel @Inject constructor(
                     series = draft.series,
                     seriesOrder = draft.seriesOrder.toDoubleOrNull(),
                     isPhysical = draft.isPhysical,
+                    isFavourite = false,
                     coverUrl = filesResult.coverPath,
                     localFilePath = if (draft.isPhysical) null else filesResult.epubPath,
                     folders = draft.folders,

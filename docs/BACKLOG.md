@@ -6,6 +6,10 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 ## En curso
 
+- [ ] TAR-54 Sistema favoritos + estantería Home
+  - version: v1.3.0
+  - tipo: feat
+  - ref: tasks/TAR-54.md
 
 ## Pendiente
 
@@ -17,9 +21,6 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 ### v1.3.0
 
-- [ ] TAR-54 Sistema favoritos + estantería Home
-  - version: v1.3.0
-  - tipo: feat
 
 - [ ] TAR-19 Recopilación de estadísticas
   - version: v1.3.0
