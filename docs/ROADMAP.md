@@ -44,7 +44,7 @@ Guías de primer uso (TAR-64) e informe de problemas por correo (TAR-65). Pendie
 
 - estado: en curso
 
-Estadísticas (TAR-19/20), carpetas como archivadores (TAR-47), filtros y ordenación (TAR-49), portadas (TAR-62), marcadores, tipografías, modo horizontal y favoritos (TAR-51–55). Las stats se desacoplan del WebView de cara al motor nativo.
+Estadísticas (TAR-19/20), carpetas como archivadores (TAR-47), filtros y ordenación (TAR-49), portadas (TAR-62), marcadores, tipografías, modo horizontal y favoritos (TAR-51–55). El Home pasa a libro en curso arriba y favoritos como vitrina (TAR-66). Entran también una lista TBR, distinta de pendientes (TAR-67), y un enlace de donación (TAR-68). Las stats se desacoplan del WebView de cara al motor nativo.
 
 ## v1.3.1 — Tema oscuro
 

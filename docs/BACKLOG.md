@@ -18,13 +18,15 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 ### v1.3.0
 
 
-- [ ] TAR-19 Recopilación de estadísticas
+- [ ] TAR-66 Rediseño del Home
   - version: v1.3.0
-  - tipo: feat
+  - tipo: enhance
+  - ref: tasks/TAR-66.md
 
-- [ ] TAR-20 Sección estadísticas
+- [ ] TAR-68 Donación Buy Me a Coffee
   - version: v1.3.0
-  - tipo: feat
+  - tipo: enhance
+  - ref: tasks/TAR-68.md
 
 - [ ] TAR-47 Reestructuración carpetas (archivadores)
   - version: v1.3.0
@@ -33,6 +35,14 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 - [ ] TAR-62 Biblioteca: portadas rectangulares / look más libro
   - version: v1.3.0
   - tipo: enhance
+- [ ] TAR-19 Recopilación de estadísticas
+  - version: v1.3.0
+  - tipo: feat
+
+- [ ] TAR-20 Sección estadísticas
+  - version: v1.3.0
+  - tipo: feat
+
 - [ ] TAR-49 Controles biblioteca (filtros + ordenación)
   - version: v1.3.0
   - tipo: feat
@@ -48,6 +58,11 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 - [ ] TAR-53 Modo horizontal
   - version: v1.3.0
   - tipo: feat
+
+- [ ] TAR-67 Lista TBR
+  - version: v1.3.0
+  - tipo: feat
+  - ref: tasks/TAR-67.md
 
 ### v1.3.1
 
