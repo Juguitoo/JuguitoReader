@@ -14,6 +14,7 @@ import com.juguito.juguitoreader.domain.model.copy
 import com.juguito.juguitoreader.domain.usecase.book.DeleteBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBookByIdUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
+import com.juguito.juguitoreader.domain.usecase.book.UpdateFavouriteUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
 import com.juguito.juguitoreader.domain.usecase.genre.GetGenresUseCase
 import com.juguito.juguitoreader.ui.book.state.BookDraftState
@@ -44,6 +45,7 @@ class BookDetailViewModel @Inject constructor(
     private val application: Application,
     private val getBookByIdUseCase: GetBookByIdUseCase,
     private val updateBookUseCase: UpdateBookUseCase,
+    private val updateFavouriteUseCase: UpdateFavouriteUseCase,
     private val getFoldersUseCase: GetFoldersUseCase,
     private val getGenresUseCase: GetGenresUseCase,
     private val deleteBookUseCase: DeleteBookUseCase,
@@ -139,6 +141,15 @@ class BookDetailViewModel @Inject constructor(
             }
             is BookDetailEvent.OnIsPhysicalChanged -> {
                 updateSuccessState { it.copy(bookDraft = it.bookDraft.copy(isPhysical = event.isPhysical)) }
+            }
+            is BookDetailEvent.OnIsFavouriteChanged -> {
+                updateSuccessState { it.copy(
+                    book = it.book.copy(isFavourite = event.isFavourite),
+                    bookDraft = it.bookDraft.copy(isFavourite = event.isFavourite)
+                ) }
+                viewModelScope.launch {
+                    updateFavouriteUseCase.invoke(bookId, event.isFavourite)
+                }
             }
             is BookDetailEvent.OnCoverChanged -> {
                 val previousCover = (_uiState.value as? BookDetailUiState.Success)?.bookDraft?.coverUrl
@@ -425,6 +436,7 @@ private fun Book.toDraft(): BookDraftState = BookDraftState(
     series = series ?: "",
     seriesOrder = seriesOrder?.let { if (it % 1.0 == 0.0) it.toInt().toString() else it.toString() } ?: "",
     isPhysical = isPhysical,
+    isFavourite = isFavourite,
     coverUrl = coverUrl,
     localFilePath = localFilePath,
     folders = folders,

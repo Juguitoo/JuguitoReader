@@ -7,11 +7,16 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -24,6 +29,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarOutline
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -52,6 +59,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.juguito.juguitoreader.R
@@ -65,11 +73,11 @@ import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.ErrorView
 import com.juguito.juguitoreader.ui.components.JuguitoDialog
 import com.juguito.juguitoreader.ui.common.components.JuguitoDatePickerDialog
+import com.juguito.juguitoreader.ui.theme.InterFontFamily
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import com.juguito.juguitoreader.utils.FileUtils
 import java.io.File
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookDetailScreen(
     onNavigateBack: () -> Unit,
@@ -251,18 +259,19 @@ fun BookDetailContent(
                 is BookDetailUiState.Success -> if (state.isEditMode) {
                     stringResource(R.string.edit_book)
                 } else {
-                    state.bookDraft.title
+                    stringResource(R.string.book_details)
                 }
-                else -> stringResource(R.string.book_detail)
+                else -> stringResource(R.string.book_details)
             }
             TopAppBar(
                 modifier = Modifier.statusBarsPadding(),
                 title = {
                     Text(
                         text = titleText,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontFamily = LoraFontFamily,
-                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Medium
+                        ),
                         maxLines = 1
                     )
                 },
@@ -299,38 +308,47 @@ fun BookDetailContent(
                             }
                         } else {
                             Box {
-                                IconButton(onClick = { showOverflowMenu = true }) {
-                                    Icon(
-                                        imageVector = Icons.Default.MoreVert,
-                                        contentDescription = stringResource(R.string.options),
-                                        tint = Color.White
-                                    )
-                                }
-                                DropdownMenu(
-                                    expanded = showOverflowMenu,
-                                    onDismissRequest = { showOverflowMenu = false }
-                                ) {
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.edit_book)) },
-                                        onClick = {
-                                            showOverflowMenu = false
-                                            onEvent(BookDetailEvent.OnEditModeChanged(true))
-                                        }
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.delete)) },
-                                        onClick = {
-                                            showOverflowMenu = false
-                                            showDeleteDialog = true
-                                        },
-                                        leadingIcon = {
-                                            Icon(
-                                                Icons.Default.Delete,
-                                                contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.error
-                                            )
-                                        }
-                                    )
+                                Row {
+                                    IconButton(onClick = { onEvent(BookDetailEvent.OnIsFavouriteChanged(!state.bookDraft.isFavourite)) }) {
+                                        Icon(
+                                            imageVector = if (state.bookDraft.isFavourite) Icons.Default.Star else Icons.Default.StarOutline,
+                                            contentDescription = stringResource(R.string.favourites),
+                                            tint = Color.White
+                                        )
+                                    }
+                                    IconButton(onClick = { showOverflowMenu = true }) {
+                                        Icon(
+                                            imageVector = Icons.Default.MoreVert,
+                                            contentDescription = stringResource(R.string.options),
+                                            tint = Color.White
+                                        )
+                                    }
+                                    DropdownMenu(
+                                        expanded = showOverflowMenu,
+                                        onDismissRequest = { showOverflowMenu = false }
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(R.string.edit_book)) },
+                                            onClick = {
+                                                showOverflowMenu = false
+                                                onEvent(BookDetailEvent.OnEditModeChanged(true))
+                                            }
+                                        )
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(R.string.delete)) },
+                                            onClick = {
+                                                showOverflowMenu = false
+                                                showDeleteDialog = true
+                                            },
+                                            leadingIcon = {
+                                                Icon(
+                                                    Icons.Default.Delete,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.error
+                                                )
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -378,30 +396,45 @@ fun BookDetailContent(
                             onAddFolderClick = { onNavigateToAddFolder() }
                         )
                     } else {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(24.dp)
-                                .verticalScroll(rememberScrollState())
-                                .imePadding(),
-                            verticalArrangement = Arrangement.spacedBy(24.dp)
-                        ) {
-                            BookHero(
-                                state = state,
-                                onReadClick = { onNavigateToReadBook(state.book.id) }
+                        Column(Modifier.fillMaxSize()) {
+                            Text(
+                                text = state.bookDraft.title,
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontFamily = LoraFontFamily,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
                             )
                             HorizontalDivider()
-                            ReadingJournal(
-                                state = state,
-                                onEvent = onEvent,
-                                onShowStartDatePicker = { showStartDatePicker = true },
-                                onShowEndDatePicker = { showEndDatePicker = true }
-                            )
-                            HorizontalDivider()
-                            CatalogSummary(
-                                state = state,
-                                onEditClick = { onEvent(BookDetailEvent.OnEditModeChanged(true)) }
-                            )
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(start = 16.dp, end = 16.dp, bottom = 24.dp)
+                                    .verticalScroll(rememberScrollState())
+                                    .imePadding(),
+                                verticalArrangement = Arrangement.spacedBy(24.dp)
+                            ) {
+                                Spacer(Modifier.height(2.dp))
+                                BookHero(
+                                    state = state,
+                                    onReadClick = { onNavigateToReadBook(state.book.id) }
+                                )
+                                HorizontalDivider()
+                                ReadingJournal(
+                                    state = state,
+                                    onEvent = onEvent,
+                                    onShowStartDatePicker = { showStartDatePicker = true },
+                                    onShowEndDatePicker = { showEndDatePicker = true }
+                                )
+                                HorizontalDivider()
+                                CatalogSummary(
+                                    state = state,
+                                    onEditClick = { onEvent(BookDetailEvent.OnEditModeChanged(true)) }
+                                )
+                            }
                         }
                     }
                 }

@@ -14,6 +14,7 @@ import com.juguito.juguitoreader.domain.model.Genre
 import com.juguito.juguitoreader.domain.usecase.book.DeleteBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBookByIdUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
+import com.juguito.juguitoreader.domain.usecase.book.UpdateFavouriteUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
 import com.juguito.juguitoreader.domain.usecase.genre.GetGenresUseCase
 import com.juguito.juguitoreader.testutil.IO_DISPATCHER_TIMEOUT_MS
@@ -56,6 +57,7 @@ class BookDetailViewModelTest {
     private val application = mockk<Application>(relaxed = true)
     private val getBookByIdUseCase = mockk<GetBookByIdUseCase>()
     private val updateBookUseCase = mockk<UpdateBookUseCase>()
+    private val updateFavouriteUseCase = mockk<UpdateFavouriteUseCase>()
     private val getFoldersUseCase = mockk<GetFoldersUseCase>()
     private val getGenresUseCase = mockk<GetGenresUseCase>()
     private val deleteBookUseCase = mockk<DeleteBookUseCase>()
@@ -79,6 +81,7 @@ class BookDetailViewModelTest {
         every { getFoldersUseCase() } returns flowOf(emptyList())
         every { getGenresUseCase() } returns flowOf(emptyList())
         coEvery { updateBookUseCase(any()) } returns Result.success(Unit)
+        coEvery { updateFavouriteUseCase(any(), any()) } returns Unit
         coEvery { getBookByIdUseCase(1) } returns Book(
             id = 1,
             title = "Title",
@@ -90,6 +93,7 @@ class BookDetailViewModelTest {
             application,
             getBookByIdUseCase,
             updateBookUseCase,
+            updateFavouriteUseCase,
             getFoldersUseCase,
             getGenresUseCase,
             deleteBookUseCase,
@@ -158,6 +162,35 @@ class BookDetailViewModelTest {
             assertThat(success.status).isEqualTo(BookStatus.READING)
             assertThat(success.isEditMode).isTrue()
         }
+    }
+
+    @Test
+    fun `loadBook copies isFavourite into the draft`() = runTest {
+        coEvery { getBookByIdUseCase(1) } returns Book(
+            id = 1,
+            title = "Title",
+            author = "Author",
+            isPhysical = true,
+            isFavourite = true,
+        )
+
+        viewModel.loadBook()
+
+        viewModel.uiState.awaitValue {
+            it is BookDetailUiState.Success && it.book.isFavourite && it.bookDraft.isFavourite
+        }
+    }
+
+    @Test
+    fun `onEvent OnIsFavouriteChanged updates book and draft and persists`() = runTest {
+        viewModel.onEvent(BookDetailEvent.OnIsFavouriteChanged(true))
+
+        viewModel.uiState.test {
+            val success = awaitItem() as BookDetailUiState.Success
+            assertThat(success.book.isFavourite).isTrue()
+            assertThat(success.bookDraft.isFavourite).isTrue()
+        }
+        coVerify { updateFavouriteUseCase(1, true) }
     }
 
     @Test

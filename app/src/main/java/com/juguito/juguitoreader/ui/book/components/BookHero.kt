@@ -87,12 +87,6 @@ fun BookHero(
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    text = draft.title,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontFamily = LoraFontFamily,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
                     text = stringResource(R.string.by_author, draft.author),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.secondary

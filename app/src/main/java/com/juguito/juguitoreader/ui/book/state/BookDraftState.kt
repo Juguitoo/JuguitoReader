@@ -10,6 +10,7 @@ data class BookDraftState(
     val series: String = "",
     val seriesOrder: String = "",
     val isPhysical: Boolean = false,
+    val isFavourite: Boolean = false,
     val coverUrl: String? = null,
     val localFilePath: String? = null,
     val folders: List<Folder> = emptyList(),

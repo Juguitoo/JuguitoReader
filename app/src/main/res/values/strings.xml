@@ -354,6 +354,8 @@
     <string name="expand_management">Expandir</string>
     <string name="authors">Autores</string>
     <string name="all_authors">Todos los autores</string>
+    <string name="favourites">Favoritos</string>
+    <string name="favourite">Favorito</string>
 
     <!-- Changelog -->
     <string-array name="changelog_1_2_3">
