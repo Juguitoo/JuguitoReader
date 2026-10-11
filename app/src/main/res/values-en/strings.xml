@@ -234,6 +234,7 @@
     <string name="delete_permanently">Delete this book permanently</string>
     <string name="no_search_results">No matching books found</string>
     <string name="no_books_in_folder">No books in this folder</string>
+    <string name="no_favourite_books">No favourite books</string>
     <string name="filter_books">Filter books</string>
     <string name="clear_filters">Clear filters</string>
     <string name="reading_status">Reading status</string>
@@ -353,6 +354,8 @@
     <string name="authors">Authors</string>
     <string name="all_authors">All authors</string>
     <string name="favourites">Favourites</string>
+    <string name="show_favourites_only">Show favourites only</string>
+    <string name="clear_favourites_filter">Clear favourites filter</string>
     <string name="favourite">Favourite</string>
 
     <!-- Changelog -->

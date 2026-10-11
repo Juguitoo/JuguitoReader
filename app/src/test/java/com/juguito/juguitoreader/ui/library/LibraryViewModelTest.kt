@@ -88,6 +88,24 @@ class LibraryViewModelTest {
     }
 
     @Test
+    fun `onEvent OnFavouritesFilterChanged keeps only favourite books`() = runTest {
+        val books = listOf(
+            Book(id = 1, title = "Fav", author = "A", isPhysical = false, isFavourite = true),
+            Book(id = 2, title = "Other", author = "B", isPhysical = false)
+        )
+        every { getBooksUseCase() } returns flowOf(books)
+        viewModel = LibraryViewModel(context, getBooksUseCase, getFoldersUseCase, updateBookUseCase, importBookFromUriUseCase)
+
+        viewModel.onEvent(LibraryEvent.OnFavouritesFilterChanged(true))
+
+        viewModel.uiState.test {
+            val successState = awaitItem() as LibraryUiState.Success
+            assertThat(successState.favouritesOnly).isTrue()
+            assertThat(successState.filteredBooks.map { it.id }).containsExactly(1)
+        }
+    }
+
+    @Test
     fun `onEvent OnSelectedFolderChanged updates state`() = runTest {
         val folder = Folder(id = 1, name = "My Folder", colorHex = "#000")
         every { getFoldersUseCase() } returns flowOf(listOf(folder))

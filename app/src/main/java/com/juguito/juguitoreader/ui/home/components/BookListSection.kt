@@ -19,9 +19,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.paint
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -45,6 +49,7 @@ fun BookListSection(
     onNavigateToAddBook: (() -> Unit)? = null,
     onImportClick: (() -> Unit)? = null
 ) {
+    val wood = painterResource(id = R.drawable.madera_estante)
     val containerSize = LocalWindowInfo.current.containerSize
     val density = LocalDensity.current
     val screenWidth = with(density) { containerSize.width.toDp() }
@@ -52,7 +57,7 @@ fun BookListSection(
     val itemWidth = calculatedWidth.coerceAtMost(120.dp)
 
     Column(
-        modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 4.dp)
     ) {
 
         Surface(
@@ -76,10 +81,33 @@ fun BookListSection(
                 .fillMaxWidth()
                 .height(190.dp)
                 .paint(
-                    painter = painterResource(id = R.drawable.madera_estante),
+                    painter = wood,
                     contentScale = ContentScale.FillBounds,
                     sizeToIntrinsics = false
-                ),
+                )
+                .drawWithContent {
+                    drawContent()
+                    val lip = 14.dp.toPx()
+                    val top = size.height - lip
+                    clipRect(top = top) {
+                        with(wood) { draw(size = this@drawWithContent.size) }
+                        drawRect(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Black.copy(alpha = 0.12f),
+                                    Color.Black.copy(alpha = 0.42f)
+                                ),
+                                startY = top,
+                                endY = size.height
+                            )
+                        )
+                    }
+                    drawRect(
+                        color = Color.White.copy(alpha = 0.45f),
+                        topLeft = Offset(0f, top),
+                        size = Size(size.width, 1.dp.toPx())
+                    )
+                },
             contentAlignment = Alignment.BottomCenter
         ) {
             Box(
@@ -98,8 +126,9 @@ fun BookListSection(
             )
 
             LazyRow(
-                contentPadding = PaddingValues(start = 20.dp, end = 20.dp),
+                contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.Bottom,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 items(books, key = { it.id }) { book ->
@@ -131,23 +160,6 @@ fun BookListSection(
                     }
                 }
             }
-/*
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(16.dp)
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Black.copy(alpha = 0.1f),
-                                Color.Black.copy(alpha = 0.5f),
-                                Color.Black.copy(alpha = 0.7f)
-                            )
-                        )
-                    )
-            )
-
- */
         }
     }
 }

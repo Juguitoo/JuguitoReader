@@ -135,6 +135,47 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun `favourite books include physical copies and stay ordered by title`() = runTest {
+        val books = listOf(
+            Book(
+                id = 1,
+                title = "Paper",
+                author = "A",
+                isPhysical = true,
+                status = BookStatus.READING,
+                isFavourite = true
+            ),
+            Book(
+                id = 2,
+                title = "Epub",
+                author = "B",
+                isPhysical = false,
+                localFilePath = "path",
+                status = BookStatus.PENDING,
+                isFavourite = true
+            ),
+            Book(
+                id = 3,
+                title = "Other",
+                author = "C",
+                isPhysical = false,
+                localFilePath = "path",
+                status = BookStatus.PENDING
+            )
+        )
+        every { getBooksUseCase() } returns flowOf(books)
+
+        viewModel = createViewModel()
+
+        viewModel.uiState.test {
+            val success = awaitItem() as HomeUiState.Success
+            assertThat(success.favouriteBooks.map { it.id }).containsExactly(2, 1).inOrder()
+            assertThat(success.readingBooks).isEmpty()
+            assertThat(success.pendingBooks.map { it.id }).containsExactly(2, 3)
+        }
+    }
+
+    @Test
     fun `physical books only emit Success with empty shelves not Empty`() = runTest {
         val books = listOf(
             Book(id = 1, title = "Paper", author = "A", isPhysical = true, status = BookStatus.READING)

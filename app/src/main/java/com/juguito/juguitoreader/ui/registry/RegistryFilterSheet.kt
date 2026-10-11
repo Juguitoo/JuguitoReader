@@ -167,11 +167,20 @@ fun RegistryFilterSheet(
             
             // Ordenación específica
             Text(stringResource(R.string.other_filters), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-            FilterChip(
-                selected = currentCriteria.sortBy == SortOption.SERIES_ORDER_ASC,
-                onClick = { onCriteriaChanged(currentCriteria.copy(sortBy = SortOption.SERIES_ORDER_ASC)) },
-                label = { Text(stringResource(R.string.series_order)) }
-            )
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(
+                    selected = currentCriteria.favouritesOnly,
+                    onClick = {
+                        onCriteriaChanged(currentCriteria.copy(favouritesOnly = !currentCriteria.favouritesOnly))
+                    },
+                    label = { Text(stringResource(R.string.favourites)) }
+                )
+                FilterChip(
+                    selected = currentCriteria.sortBy == SortOption.SERIES_ORDER_ASC,
+                    onClick = { onCriteriaChanged(currentCriteria.copy(sortBy = SortOption.SERIES_ORDER_ASC)) },
+                    label = { Text(stringResource(R.string.series_order)) }
+                )
+            }
         }
     }
 }

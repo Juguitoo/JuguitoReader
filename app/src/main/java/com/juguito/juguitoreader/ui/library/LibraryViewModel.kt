@@ -37,6 +37,7 @@ class LibraryViewModel @Inject constructor(
 
     private val _searchText = MutableStateFlow("")
     private val _selectedFolder = MutableStateFlow<Folder?>(null)
+    private val _favouritesOnly = MutableStateFlow(false)
     private val _internalState = MutableStateFlow<LibraryUiState>(LibraryUiState.Loading)
     val uiState: StateFlow<LibraryUiState> = _internalState.asStateFlow()
 
@@ -58,8 +59,9 @@ class LibraryViewModel @Inject constructor(
                 getFoldersUseCase(),
                 getBooksUseCase(),
                 _searchText,
-                _selectedFolder
-            ) { folders, books, query, currentFolder ->
+                _selectedFolder,
+                _favouritesOnly
+            ) { folders, books, query, currentFolder, favouritesOnly ->
 
                 if (books.isEmpty()) {
                     return@combine LibraryUiState.Empty(
@@ -77,7 +79,9 @@ class LibraryViewModel @Inject constructor(
 
                     val matchesFolder = currentFolder == null || book.folders.any {it.id == currentFolder.id}
 
-                    matchesText && matchesFolder
+                    val matchesFavourite = !favouritesOnly || book.isFavourite
+
+                    matchesText && matchesFolder && matchesFavourite
                 }
 
                 LibraryUiState.Success(
@@ -85,7 +89,8 @@ class LibraryViewModel @Inject constructor(
                     filteredBooks = filteredBooks,
                     allBooks = books,
                     selectedFolder = currentFolder,
-                    searchText = query
+                    searchText = query,
+                    favouritesOnly = favouritesOnly
                 ) as LibraryUiState
             }.catch { error ->
                 error.printStackTrace()
@@ -107,6 +112,9 @@ class LibraryViewModel @Inject constructor(
             }
             is LibraryEvent.OnSearchTextChanged -> {
                 _searchText.value = event.searchText?.trim() ?: ""
+            }
+            is LibraryEvent.OnFavouritesFilterChanged -> {
+                _favouritesOnly.value = event.enabled
             }
             is LibraryEvent.OnStatusChanged -> {
                 updateBookStatus(event.bookId, event.newStatus)

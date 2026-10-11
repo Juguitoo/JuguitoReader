@@ -2,7 +2,7 @@
 
 ## Motor y configuración
 
-- **Room** 2.8.4, base de datos `juguito_db`, **versión 12**.
+- **Room** 2.8.4, base de datos `juguito_db`, **versión 13**.
 - Schemas exportados en `app/schemas/com.juguito.juguitoreader.data.local.JuguitoReaderDatabase/`.
 - Config KSP: `room.schemaLocation = $projectDir/schemas`.
 - Política actual: `fallbackToDestructiveMigration(false)`.
@@ -56,7 +56,7 @@ books (1) ──────< book_folders >────── (N) folders
 
 ## Migraciones definidas
 
-Solo existen migraciones **6 → 12**:
+Solo existen migraciones **6 → 13**:
 
 
 | Migración | Cambio                                                 |
@@ -67,6 +67,8 @@ Solo existen migraciones **6 → 12**:
 | 9→10      | Columna `reading_speed` en `daily_reading`             |
 | 10→11     | FK CASCADE en `reading_progress`; limpia huérfanos     |
 | 11→12     | Elimina columna `sync_status` (scaffold cloud)         |
+| 12→13     | Añadida columna `is_favourite` en `books`       |
+
 
 
 Definidas en `JuguitoReaderDatabase.kt`, registradas en `DatabaseModule.kt`.

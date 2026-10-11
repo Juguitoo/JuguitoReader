@@ -126,6 +126,21 @@ class RegistryViewModelTest {
     }
 
     @Test
+    fun `favourites criteria keeps only favourite books`() = runTest {
+        val books = listOf(
+            Book(id = 1, title = "Fav", author = "A", isPhysical = false, isFavourite = true),
+            Book(id = 2, title = "Other", author = "B", isPhysical = false)
+        )
+        every { getBooksUseCase() } returns flowOf(books)
+        viewModel = RegistryViewModel(application, getBooksUseCase, updateBookUseCase)
+
+        viewModel.onEvent(RegistryEvent.OnCriteriaChanged(BookCriteria(favouritesOnly = true)))
+
+        assertThat(viewModel.uiState.value.criteria.favouritesOnly).isTrue()
+        assertThat(viewModel.uiState.value.filteredBooks.map { it.id }).containsExactly(1)
+    }
+
+    @Test
     fun `loadData catch sets errorMessage and stops loading`() = runTest {
         every { getBooksUseCase() } returns flow { throw RuntimeException("db down") }
         viewModel = RegistryViewModel(application, getBooksUseCase, updateBookUseCase)

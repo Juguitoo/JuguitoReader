@@ -57,6 +57,7 @@ fun BookCard(
     onReadBook: (Int) -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
+    val canRead = !book.isPhysical && !book.localFilePath.isNullOrBlank()
 
     // 1. Convertimos la raíz en un Box para poder superponer las "páginas" debajo de la portada
     Box(
@@ -65,7 +66,9 @@ fun BookCard(
             // Dejamos margen derecho e inferior para que el efecto de grosor no se corte
             .padding(end = 6.dp)
             .combinedClickable(
-                onClick = { onReadBook(book.id) },
+                onClick = {
+                    if (canRead) onReadBook(book.id) else onBookDetails(book.id)
+                },
                 onLongClick = { showMenu = true }
             )
     ) {
@@ -175,14 +178,16 @@ fun BookCard(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                MenuOverlayItem(
-                                    icon = Icons.AutoMirrored.Filled.MenuBook,
-                                    size = 40,
-                                    onClick = {
-                                        showMenu = false
-                                        onReadBook(book.id)
-                                    }
-                                )
+                                if (canRead) {
+                                    MenuOverlayItem(
+                                        icon = Icons.AutoMirrored.Filled.MenuBook,
+                                        size = 40,
+                                        onClick = {
+                                            showMenu = false
+                                            onReadBook(book.id)
+                                        }
+                                    )
+                                }
                                 MenuOverlayItem(
                                     icon = Icons.Default.Info,
                                     size = 40,

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -57,7 +56,6 @@ import com.juguito.juguitoreader.ui.home.components.BookListSection
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import kotlinx.coroutines.flow.Flow
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -255,8 +253,9 @@ fun HomeContent(
                 is HomeUiState.Success -> {
                     val hasReading = state.readingBooks.isNotEmpty()
                     val hasPending = state.pendingBooks.isNotEmpty()
+                    val hasFavourites = state.favouriteBooks.isNotEmpty()
 
-                    if (!hasReading && !hasPending) {
+                    if (!hasReading && !hasPending && !hasFavourites) {
                         EmptyLibraryView(
                             onNavigateToAddBook = onNavigateToAddBook,
                             onImportClick = {
@@ -278,6 +277,16 @@ fun HomeContent(
                         ) {
                             item {
                                 Column(modifier = Modifier.fillMaxWidth()) {
+                                    if (hasFavourites) {
+                                        BookListSection(
+                                            title = stringResource(R.string.favourites),
+                                            books = state.favouriteBooks,
+                                            onBookDetails = onNavigateToBookDetail,
+                                            onDeleteBook = { bookToDelete = it },
+                                            onReadBook = onNavigateToReadBook
+                                        )
+                                    }
+
                                     if (hasReading) {
                                         BookListSection(
                                             title = stringResource(R.string.continue_reading),
@@ -285,12 +294,6 @@ fun HomeContent(
                                             onBookDetails = onNavigateToBookDetail,
                                             onDeleteBook = { bookToDelete = it },
                                             onReadBook = onNavigateToReadBook
-                                        )
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(12.dp)
-                                                .background(Color(0xFF5F4934))
                                         )
                                     }
 
@@ -311,13 +314,6 @@ fun HomeContent(
                                         onBookDetails = onNavigateToBookDetail,
                                         onDeleteBook = { bookToDelete = it },
                                         onReadBook = onNavigateToReadBook
-                                    )
-
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(12.dp)
-                                            .background(Color(0xFF5F4934))
                                     )
                                 }
                             }

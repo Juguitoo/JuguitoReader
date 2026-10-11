@@ -17,6 +17,7 @@ sealed interface LibraryUiState {
         val filteredBooks: List<Book>,
         val folders: List<Folder> = emptyList(),
         val selectedFolder: Folder? = null,
-        val searchText: String = ""
+        val searchText: String = "",
+        val favouritesOnly: Boolean = false
     ): LibraryUiState
 }

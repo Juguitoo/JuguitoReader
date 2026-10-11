@@ -22,6 +22,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarOutline
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -57,6 +59,7 @@ import com.juguito.juguitoreader.ui.common.ObserveAsEvents
 import com.juguito.juguitoreader.ui.common.components.EmptyLibraryView
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.ErrorView
+import com.juguito.juguitoreader.ui.library.LibraryEvent.OnFavouritesFilterChanged
 import com.juguito.juguitoreader.ui.library.LibraryEvent.OnSearchTextChanged
 import com.juguito.juguitoreader.ui.library.LibraryEvent.OnSelectedFolderChanged
 import com.juguito.juguitoreader.ui.library.LibraryEvent.OnStatusChanged
@@ -228,6 +231,20 @@ fun LibraryContent(
                 },
                 actions = {
                     if (!isSearchVisible) {
+                        val favouritesOnly = (state as? LibraryUiState.Success)?.favouritesOnly == true
+                        if (state is LibraryUiState.Success) {
+                            IconButton(
+                                onClick = { onEvent(OnFavouritesFilterChanged(!favouritesOnly)) }
+                            ) {
+                                Icon(
+                                    imageVector = if (favouritesOnly) Icons.Default.Star else Icons.Default.StarOutline,
+                                    contentDescription = stringResource(
+                                        if (favouritesOnly) R.string.clear_favourites_filter else R.string.show_favourites_only
+                                    ),
+                                    tint = Color.White
+                                )
+                            }
+                        }
                         IconButton(onClick = { onToggleSearch(true) }) {
                             Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_hint))
                         }
@@ -296,6 +313,7 @@ fun LibraryContent(
                             if (state.filteredBooks.isEmpty()) {
                                 EmptySearchPlaceholder(
                                     isSearching = state.searchText.isNotBlank(),
+                                    isFilteringFavourites = state.favouritesOnly,
                                     modifier = Modifier.align(Alignment.Center)
                                 )
                             } else {

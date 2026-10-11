@@ -90,11 +90,15 @@ class HomeViewModel @Inject constructor(
                     .filter { it.status == BookStatus.READING }
                     .sortedByDescending { progressMap[it.id]?.lastReadAt ?: it.createdAt }
                     .take(10)
+                val favouriteBooks = books
+                    .filter { it.isFavourite }
+                    .sortedBy { it.title.lowercase() }
 
                 HomeUiState.Success(
                     readingBooks = recentBooks,
                     pendingBooks = pendingBooks,
-                    stats = newStats
+                    stats = newStats,
+                    favouriteBooks = favouriteBooks
                 ) as HomeUiState
             }.catch { exception ->
                 exception.printStackTrace()

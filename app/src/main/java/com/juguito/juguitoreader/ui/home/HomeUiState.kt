@@ -10,7 +10,8 @@ sealed interface HomeUiState {
     data class Success(
         val readingBooks: List<Book>,
         val pendingBooks: List<Book>,
-        val stats: StatsUiState
+        val stats: StatsUiState,
+        val favouriteBooks: List<Book> = emptyList()
     ): HomeUiState
 }
 

@@ -238,6 +238,7 @@
     <string name="delete_permanently">Eliminar este libro permanentemente</string>
     <string name="no_search_results">No se encontraron libros que coincidan</string>
     <string name="no_books_in_folder">No hay libros en esta carpeta</string>
+    <string name="no_favourite_books">No hay libros favoritos</string>
     <string name="filter_books">Filtrar libros</string>
     <string name="clear_filters">Limpiar filtros</string>
     <string name="reading_status">Estado de lectura</string>
@@ -355,6 +356,8 @@
     <string name="authors">Autores</string>
     <string name="all_authors">Todos los autores</string>
     <string name="favourites">Favoritos</string>
+    <string name="show_favourites_only">Mostrar solo favoritos</string>
+    <string name="clear_favourites_filter">Quitar filtro de favoritos</string>
     <string name="favourite">Favorito</string>
 
     <!-- Changelog -->
