@@ -386,6 +386,7 @@
     <string name="show_favourites_only">Mostrar solo favoritos</string>
     <string name="clear_favourites_filter">Quitar filtro de favoritos</string>
     <string name="favourite">Favorito</string>
+    <string name="donation" >Haz una donación</string>
 
     <!-- Changelog -->
     <string-array name="changelog_1_2_3">
@@ -429,4 +430,6 @@
         <item>Registro de lecturas.</item>
         <item>Biblioteca con carpetas y géneros.</item>
     </string-array>
+    <string name="donation_url" translatable="false">http://buymeacoffee.com/juguitoreader</string>
+    <string name="donation_no_browser">No hay un navegador para abrir la página</string>
 </resources>

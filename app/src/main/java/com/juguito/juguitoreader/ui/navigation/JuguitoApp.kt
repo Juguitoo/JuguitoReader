@@ -1,5 +1,6 @@
 package com.juguito.juguitoreader.ui.navigation
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -24,6 +25,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.AutoStories
+import androidx.compose.material.icons.filled.Coffee
 import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
@@ -59,6 +61,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -92,9 +95,9 @@ import com.juguito.juguitoreader.ui.management.ManagementScreen
 import com.juguito.juguitoreader.ui.reader.ReaderScreen
 import com.juguito.juguitoreader.ui.registry.RegistryScreen
 import com.juguito.juguitoreader.ui.settings.SettingsScreen
+import com.juguito.juguitoreader.utils.openDonationPage
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JuguitoApp(
     whatsNewViewModel: WhatsNewViewModel = hiltViewModel(),
@@ -103,6 +106,7 @@ fun JuguitoApp(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
+    val context = LocalContext.current
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
@@ -261,32 +265,48 @@ fun JuguitoApp(
                 HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
 
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 4.dp),
-                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     DrawerFooterIcon(
-                        icon = Icons.Default.Settings,
-                        contentDescription = stringResource(R.string.settings),
-                        selected = currentRoute == "settings",
+                        icon = Icons.Default.Coffee,
+                        contentDescription = stringResource(R.string.donation),
+                        selected = false,
                         onClick = {
                             scope.launch { drawerState.close() }
-                            navController.navigate("settings")
+                            if (!context.openDonationPage()) {
+                                Toast.makeText(context, R.string.donation_no_browser, Toast.LENGTH_SHORT).show()
+                            }
                         }
                     )
-                    DrawerFooterIcon(
-                        icon = Icons.Default.Info,
-                        contentDescription = stringResource(R.string.about),
-                        selected = currentRoute == "about",
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                            navController.navigate("about")
-                        }
-                    )
-                }
 
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        DrawerFooterIcon(
+                            icon = Icons.Default.Settings,
+                            contentDescription = stringResource(R.string.settings),
+                            selected = currentRoute == "settings",
+                            onClick = {
+                                scope.launch { drawerState.close() }
+                                navController.navigate("settings")
+                            }
+                        )
+                        DrawerFooterIcon(
+                            icon = Icons.Default.Info,
+                            contentDescription = stringResource(R.string.about),
+                            selected = currentRoute == "about",
+                            onClick = {
+                                scope.launch { drawerState.close() }
+                                navController.navigate("about")
+                            }
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.height(12.dp))
             }
         }

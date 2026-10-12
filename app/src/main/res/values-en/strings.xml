@@ -384,6 +384,7 @@
     <string name="show_favourites_only">Show favourites only</string>
     <string name="clear_favourites_filter">Clear favourites filter</string>
     <string name="favourite">Favourite</string>
+    <string name="donation" >Make a donation</string>
 
 
     <!-- Changelog -->
@@ -428,4 +429,5 @@
         <item>Reading log.</item>
         <item>Library with folders and genres.</item>
     </string-array>
+    <string name="donation_no_browser">No browser to open the page</string>
 </resources>

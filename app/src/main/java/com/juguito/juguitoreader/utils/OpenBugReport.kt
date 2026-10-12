@@ -28,3 +28,4 @@ fun Context.openBugReport(): Boolean {
         false
     }
 }
+
