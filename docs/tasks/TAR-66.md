@@ -1,6 +1,6 @@
 # TAR-66 — Rediseño del Home
 
-- estado: pendiente
+- estado: hecho
 - version: v1.3.0
 - tipo: enhance
 

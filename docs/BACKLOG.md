@@ -18,10 +18,6 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 ### v1.3.0
 
 
-- [ ] TAR-66 Rediseño del Home
-  - version: v1.3.0
-  - tipo: enhance
-  - ref: tasks/TAR-66.md
 
 - [ ] TAR-68 Donación Buy Me a Coffee
   - version: v1.3.0
