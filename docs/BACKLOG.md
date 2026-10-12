@@ -6,10 +6,6 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 ## En curso
 
-- [ ] TAR-68 Donación Buy Me a Coffee
-  - version: v1.3.0
-  - tipo: enhance
-  - ref: tasks/TAR-68.md
 
 ## Pendiente
 

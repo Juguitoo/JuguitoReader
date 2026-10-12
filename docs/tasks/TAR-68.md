@@ -1,6 +1,6 @@
 # TAR-68 — Donación Buy Me a Coffee
 
-- estado: en curso
+- estado: hecho
 - version: v1.3.0
 - tipo: enhance
 
