@@ -71,6 +71,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.ui.about.AboutScreen
 import com.juguito.juguitoreader.ui.book.add.AddBookScreen
 import com.juguito.juguitoreader.ui.book.detail.BookDetailScreen
@@ -173,7 +174,7 @@ fun JuguitoApp(
                 DrawerItem(
                     label = stringResource(R.string.library_label),
                     icon = Icons.Default.AutoStories,
-                    selected = currentRoute == "library",
+                    selected = currentRoute.matchesTopLevel("library"),
                     onClick = {
                         scope.launch {
                             drawerState.close()
@@ -320,6 +321,15 @@ fun JuguitoApp(
                         },
                         onNavigateToReadBook = { bookId ->
                             navController.navigate("reader/$bookId")
+                        },
+                        onViewActiveReadings = {
+                            navController.navigate("library?status=${BookStatus.READING.name}")
+                        },
+                        onViewFavourites = {
+                            navController.navigate("library?favourites=true")
+                        },
+                        onViewPending = {
+                            navController.navigate("library?status=${BookStatus.PENDING.name}")
                         }
                     )
                 }
@@ -406,7 +416,20 @@ fun JuguitoApp(
                     )
                 }
 
-                composable (route = "library") {
+                composable(
+                    route = "library?favourites={favourites}&status={status}",
+                    arguments = listOf(
+                        navArgument("favourites") {
+                            type = NavType.BoolType
+                            defaultValue = false
+                        },
+                        navArgument("status") {
+                            type = NavType.StringType
+                            nullable = true
+                            defaultValue = null
+                        }
+                    )
+                ) {
                     LibraryScreen(
                         onOpenDrawer = { scope.launch { drawerState.open() } },
                         onNavigateToAddBook = {
@@ -473,6 +496,11 @@ internal fun areDrawerGesturesEnabled(route: String?): Boolean {
         "settings" -> false
         else -> true
     }
+}
+
+private fun String?.matchesTopLevel(route: String): Boolean {
+    if (this == null) return false
+    return this == route || this.startsWith("$route?")
 }
 
 private fun NavHostController.navigateToTopLevel(route: String) {

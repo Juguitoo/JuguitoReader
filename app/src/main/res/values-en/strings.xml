@@ -70,7 +70,34 @@
     <string name="import_epub">Import EPUB</string>
     <string name="your_shelf">Your Shelf</string>
     <string name="continue_reading">Continue Reading</string>
+    <string name="active_reading_label">Now reading</string>
+    <string name="active_readings">Active reading</string>
+    <string name="progress_read">%d%% read</string>
+    <string name="progress_label">Progress</string>
+    <string name="epub_badge">EPUB</string>
+    <string name="digital_badge">Digital</string>
+    <string name="home_favourites_title">Your favourites</string>
+    <string name="home_favourites_kicker">Personal Top</string>
+    <string name="podium_gold">Gold</string>
+    <string name="podium_silver">Silver</string>
+    <string name="podium_bronze">Bronze</string>
+    <string name="home_pending_title">Pending</string>
+    <string name="see_history">View history</string>
+    <string name="see_all">View all</string>
+    <string name="see_collection">View collection</string>
+    <string name="see_list">View list</string>
+    <string name="clear_status_filter">Clear status filter</string>
+    <string name="no_books_for_status">No books with this status</string>
+    <string name="add_or_import_book">Add a book or import an EPUB</string>
     <string name="pending_books">Pending Books</string>
+    <plurals name="readings_in_progress">
+        <item quantity="one">%d in progress</item>
+        <item quantity="other">%d in progress</item>
+    </plurals>
+    <plurals name="pending_to_start">
+        <item quantity="one">%d to start</item>
+        <item quantity="other">%d to start</item>
+    </plurals>
     <string name="general_stats">General Stats</string>
     <string name="undo">Undo</string>
     <string name="book_restored">The book was successfully restored.</string>
@@ -357,6 +384,7 @@
     <string name="show_favourites_only">Show favourites only</string>
     <string name="clear_favourites_filter">Clear favourites filter</string>
     <string name="favourite">Favourite</string>
+
 
     <!-- Changelog -->
     <string-array name="changelog_1_2_3">

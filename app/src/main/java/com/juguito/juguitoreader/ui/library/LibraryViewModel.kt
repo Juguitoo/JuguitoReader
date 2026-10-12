@@ -16,6 +16,7 @@ import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,12 +33,20 @@ class LibraryViewModel @Inject constructor(
     private val getBooksUseCase: GetBooksUseCase,
     private val getFoldersUseCase: GetFoldersUseCase,
     private val updateBookUseCase: UpdateBookUseCase,
-    private val importBookFromUriUseCase: ImportBookFromUriUseCase
+    private val importBookFromUriUseCase: ImportBookFromUriUseCase,
+    savedStateHandle: SavedStateHandle = SavedStateHandle(),
 ) : ViewModel() {
 
     private val _searchText = MutableStateFlow("")
     private val _selectedFolder = MutableStateFlow<Folder?>(null)
-    private val _favouritesOnly = MutableStateFlow(false)
+    private val _shelfFilter = MutableStateFlow(
+        ShelfFilter(
+            favouritesOnly = savedStateHandle.get<Boolean>("favourites") ?: false,
+            status = savedStateHandle.get<String>("status")?.let { name ->
+                runCatching { BookStatus.valueOf(name) }.getOrNull()
+            }
+        )
+    )
     private val _internalState = MutableStateFlow<LibraryUiState>(LibraryUiState.Loading)
     val uiState: StateFlow<LibraryUiState> = _internalState.asStateFlow()
 
@@ -60,8 +69,8 @@ class LibraryViewModel @Inject constructor(
                 getBooksUseCase(),
                 _searchText,
                 _selectedFolder,
-                _favouritesOnly
-            ) { folders, books, query, currentFolder, favouritesOnly ->
+                _shelfFilter
+            ) { folders, books, query, currentFolder, filter ->
 
                 if (books.isEmpty()) {
                     return@combine LibraryUiState.Empty(
@@ -79,9 +88,10 @@ class LibraryViewModel @Inject constructor(
 
                     val matchesFolder = currentFolder == null || book.folders.any {it.id == currentFolder.id}
 
-                    val matchesFavourite = !favouritesOnly || book.isFavourite
+                    val matchesFavourite = !filter.favouritesOnly || book.isFavourite
+                    val matchesStatus = filter.status == null || book.status == filter.status
 
-                    matchesText && matchesFolder && matchesFavourite
+                    matchesText && matchesFolder && matchesFavourite && matchesStatus
                 }
 
                 LibraryUiState.Success(
@@ -90,7 +100,8 @@ class LibraryViewModel @Inject constructor(
                     allBooks = books,
                     selectedFolder = currentFolder,
                     searchText = query,
-                    favouritesOnly = favouritesOnly
+                    favouritesOnly = filter.favouritesOnly,
+                    status = filter.status
                 ) as LibraryUiState
             }.catch { error ->
                 error.printStackTrace()
@@ -114,7 +125,10 @@ class LibraryViewModel @Inject constructor(
                 _searchText.value = event.searchText?.trim() ?: ""
             }
             is LibraryEvent.OnFavouritesFilterChanged -> {
-                _favouritesOnly.value = event.enabled
+                _shelfFilter.value = _shelfFilter.value.copy(favouritesOnly = event.enabled)
+            }
+            is LibraryEvent.OnStatusFilterChanged -> {
+                _shelfFilter.value = _shelfFilter.value.copy(status = event.status)
             }
             is LibraryEvent.OnStatusChanged -> {
                 updateBookStatus(event.bookId, event.newStatus)
@@ -148,7 +162,12 @@ class LibraryViewModel @Inject constructor(
         }
     }
 
-    fun dismissError(){
+    fun dismissError() {
         loadData()
     }
 }
+
+private data class ShelfFilter(
+    val favouritesOnly: Boolean = false,
+    val status: BookStatus? = null,
+)

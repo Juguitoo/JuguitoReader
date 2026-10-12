@@ -18,4 +18,15 @@ Un favorito físico abre la ficha. Importar sigue en la barra. La biblioteca y l
 
 ## Durante el desarrollo
 
+La decisión final que se tomó es seguir la siguiente estructura:
+- Ultima lectura activa
+- Fila con otras lecturas activas
+- Podio para los libros favoritos
+- Lista vertical con libros pendientes
+A lo largo de la interfaz se han distribuido varios botones para ir a la biblioteca con filtros preseleccionados para ver todos los libros pendientes, favoritos y activos.
+También durante el desarrollo se descubrió que la tipografía Lora que se estaba usando no se estaba extrayendo correctamente y se estaba utilizando una diferente. Y se cambió también la tipografía Inter por Plus Jakarta Sans.
+Se optó por una interfaz más minimalista con los libros al mismo nivel que el fondo de la app sin tarjetas que los rodeen.
+
 ## Resolución
+
+Los cambios se desarrollaron correctamente, queda pendiente la mejora de los filtros de la biblioteca. Para ver los detalles leer la sección previa.

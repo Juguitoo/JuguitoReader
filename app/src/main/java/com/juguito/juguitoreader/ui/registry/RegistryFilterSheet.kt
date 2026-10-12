@@ -50,7 +50,7 @@ fun RegistryFilterSheet(
             }
 
             // Estado de lectura
-            Text(stringResource(R.string.reading_status), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            Text(stringResource(R.string.reading_status), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
             
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
@@ -84,7 +84,7 @@ fun RegistryFilterSheet(
 
             // Saga
             if (availableSeries.isNotEmpty()) {
-                Text(stringResource(R.string.saga_series), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                Text(stringResource(R.string.saga_series), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
                 var expanded by remember { mutableStateOf(false) }
                 ExposedDropdownMenuBox(
                     expanded = expanded,
@@ -125,7 +125,7 @@ fun RegistryFilterSheet(
             }
 
             if (availableAuthors.isNotEmpty()) {
-                Text(stringResource(R.string.authors), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                Text(stringResource(R.string.authors), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
                 var expanded by remember { mutableStateOf(false) }
                 ExposedDropdownMenuBox(
                     expanded = expanded,
@@ -166,7 +166,7 @@ fun RegistryFilterSheet(
             }
             
             // Ordenación específica
-            Text(stringResource(R.string.other_filters), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            Text(stringResource(R.string.other_filters), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(
                     selected = currentCriteria.favouritesOnly,

@@ -70,7 +70,34 @@
     <string name="import_epub">Importar EPUB</string>
     <string name="your_shelf">Tu estantería</string>
     <string name="continue_reading">Continuar lectura</string>
+    <string name="active_reading_label">Lectura activa</string>
+    <string name="active_readings">Lecturas activas</string>
+    <string name="progress_read">%d%% leído</string>
+    <string name="progress_label">Progreso</string>
+    <string name="epub_badge">EPUB</string>
+    <string name="digital_badge">Digital</string>
+    <string name="home_favourites_title">Tus favoritos</string>
+    <string name="home_favourites_kicker">Top personal</string>
+    <string name="podium_gold">Oro</string>
+    <string name="podium_silver">Plata</string>
+    <string name="podium_bronze">Bronce</string>
+    <string name="home_pending_title">Pendientes</string>
+    <string name="see_history">Ver historial</string>
+    <string name="see_all">Ver todas</string>
+    <string name="see_collection">Ver colección</string>
+    <string name="see_list">Ver lista</string>
+    <string name="clear_status_filter">Quitar filtro de estado</string>
+    <string name="no_books_for_status">No hay libros con este estado</string>
+    <string name="add_or_import_book">Añadir libro o importar EPUB</string>
     <string name="pending_books">Libros pendientes</string>
+    <plurals name="readings_in_progress">
+        <item quantity="one">%d en curso</item>
+        <item quantity="other">%d en curso</item>
+    </plurals>
+    <plurals name="pending_to_start">
+        <item quantity="one">%d por empezar</item>
+        <item quantity="other">%d por empezar</item>
+    </plurals>
     <string name="general_stats">Estadísticas generales</string>
     <string name="undo">Deshacer</string>
     <string name="book_restored">El libro se ha restaurado correctamente.</string>

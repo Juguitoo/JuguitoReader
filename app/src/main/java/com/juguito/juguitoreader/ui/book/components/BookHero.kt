@@ -29,12 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.ui.book.detail.BookDetailUiState
-import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 
 @Composable
 fun BookHero(
@@ -88,7 +86,7 @@ fun BookHero(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
                     text = stringResource(R.string.by_author, draft.author),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.secondary
                 )
                 if (draft.series.isNotBlank()) {

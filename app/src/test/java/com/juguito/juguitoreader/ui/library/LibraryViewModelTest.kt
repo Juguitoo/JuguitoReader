@@ -134,6 +134,24 @@ class LibraryViewModelTest {
     }
 
     @Test
+    fun `onEvent OnStatusFilterChanged keeps only books with that status`() = runTest {
+        val books = listOf(
+            Book(id = 1, title = "Now", author = "A", isPhysical = false, status = BookStatus.READING),
+            Book(id = 2, title = "Later", author = "B", isPhysical = false, status = BookStatus.PENDING)
+        )
+        every { getBooksUseCase() } returns flowOf(books)
+        viewModel = LibraryViewModel(context, getBooksUseCase, getFoldersUseCase, updateBookUseCase, importBookFromUriUseCase)
+
+        viewModel.onEvent(LibraryEvent.OnStatusFilterChanged(BookStatus.READING))
+
+        viewModel.uiState.test {
+            val successState = awaitItem() as LibraryUiState.Success
+            assertThat(successState.status).isEqualTo(BookStatus.READING)
+            assertThat(successState.filteredBooks.map { it.id }).containsExactly(1)
+        }
+    }
+
+    @Test
     fun `importBook calls use case and handles error`() = runTest {
         val uri = mockk<Uri>()
         coEvery { importBookFromUriUseCase(any(), any()) } returns Result.failure(Exception("Error"))

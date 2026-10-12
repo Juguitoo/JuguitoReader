@@ -26,6 +26,7 @@ import com.juguito.juguitoreader.R
 fun EmptySearchPlaceholder(
     isSearching: Boolean,
     isFilteringFavourites: Boolean = false,
+    isFilteringStatus: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -48,6 +49,7 @@ fun EmptySearchPlaceholder(
             text = when {
                 isSearching -> stringResource(R.string.no_search_results)
                 isFilteringFavourites -> stringResource(R.string.no_favourite_books)
+                isFilteringStatus -> stringResource(R.string.no_books_for_status)
                 else -> stringResource(R.string.no_books_in_folder)
             },
             style = MaterialTheme.typography.titleMedium,

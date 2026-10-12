@@ -73,7 +73,6 @@ import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.ErrorView
 import com.juguito.juguitoreader.ui.components.JuguitoDialog
 import com.juguito.juguitoreader.ui.common.components.JuguitoDatePickerDialog
-import com.juguito.juguitoreader.ui.theme.InterFontFamily
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import com.juguito.juguitoreader.utils.FileUtils
 import java.io.File
@@ -268,10 +267,7 @@ fun BookDetailContent(
                 title = {
                     Text(
                         text = titleText,
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontFamily = InterFontFamily,
-                            fontWeight = FontWeight.Medium
-                        ),
+                        style = MaterialTheme.typography.titleLarge,
                         maxLines = 1
                     )
                 },

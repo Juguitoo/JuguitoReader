@@ -1,5 +1,6 @@
 package com.juguito.juguitoreader.ui.library
 
+import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.Folder
 
@@ -18,6 +19,7 @@ sealed interface LibraryUiState {
         val folders: List<Folder> = emptyList(),
         val selectedFolder: Folder? = null,
         val searchText: String = "",
-        val favouritesOnly: Boolean = false
+        val favouritesOnly: Boolean = false,
+        val status: BookStatus? = null
     ): LibraryUiState
 }

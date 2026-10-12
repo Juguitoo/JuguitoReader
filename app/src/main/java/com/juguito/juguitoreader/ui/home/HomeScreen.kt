@@ -4,17 +4,23 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.LibraryBooks
+import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.UploadFile
+import androidx.compose.material.icons.rounded.Book
+import androidx.compose.material.icons.sharp.Book
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -52,7 +59,12 @@ import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.components.EmptyLibraryView
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.ErrorView
-import com.juguito.juguitoreader.ui.home.components.BookListSection
+import com.juguito.juguitoreader.ui.home.components.ActiveReadingsSection
+import com.juguito.juguitoreader.ui.home.components.AddOrImportBooksRow
+import com.juguito.juguitoreader.ui.home.components.FavouriteBooksSection
+import com.juguito.juguitoreader.ui.home.components.FeaturedReading
+import com.juguito.juguitoreader.ui.home.components.HomeSectionHeader
+import com.juguito.juguitoreader.ui.home.components.PendingBookRow
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import kotlinx.coroutines.flow.Flow
 
@@ -65,6 +77,9 @@ fun HomeScreen(
     onNavigateToBookDetail: (Int) -> Unit,
     onNavigateToReadBook: (Int) -> Unit,
     onOpenDrawer: () -> Unit,
+    onViewActiveReadings: () -> Unit = {},
+    onViewFavourites: () -> Unit = {},
+    onViewPending: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val homeState by viewModel.uiState.collectAsState()
@@ -82,6 +97,9 @@ fun HomeScreen(
         onNavigateToBookDetail = onNavigateToBookDetail,
         onNavigateToReadBook = onNavigateToReadBook,
         onOpenDrawer = onOpenDrawer,
+        onViewActiveReadings = onViewActiveReadings,
+        onViewFavourites = onViewFavourites,
+        onViewPending = onViewPending,
         onEvent = viewModel::onEvent,
         effect = viewModel.effect
     )
@@ -100,6 +118,9 @@ fun HomeContent(
     onNavigateToBookDetail: (Int) -> Unit,
     onNavigateToReadBook: (Int) -> Unit,
     onOpenDrawer: () -> Unit,
+    onViewActiveReadings: () -> Unit = {},
+    onViewFavourites: () -> Unit = {},
+    onViewPending: () -> Unit = {},
     onEvent: (HomeEvent) -> Unit,
     effect: Flow<UiEffect>
 ) {
@@ -271,66 +292,104 @@ fun HomeContent(
                             subtitle = stringResource(R.string.empty_home_readable_subtitle)
                         )
                     } else {
+                        val featuredBook = state.readingBooks.firstOrNull()
+                        val otherReadingBooks = state.readingBooks.drop(1)
+                        val openBook: (Book) -> Unit = { book ->
+                            val canRead = !book.isPhysical && !book.localFilePath.isNullOrBlank()
+                            if (canRead) onNavigateToReadBook(book.id) else onNavigateToBookDetail(book.id)
+                        }
+
                         LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(bottom = 24.dp)
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .widthIn(max = 840.dp)
+                                .fillMaxHeight()
+                                .fillMaxWidth(),
+                            contentPadding = PaddingValues(top = 8.dp, bottom = 20.dp)
                         ) {
-                            item {
-                                Column(modifier = Modifier.fillMaxWidth()) {
-                                    if (hasFavourites) {
-                                        BookListSection(
-                                            title = stringResource(R.string.favourites),
-                                            books = state.favouriteBooks,
-                                            onBookDetails = onNavigateToBookDetail,
-                                            onDeleteBook = { bookToDelete = it },
-                                            onReadBook = onNavigateToReadBook
-                                        )
-                                    }
-
-                                    if (hasReading) {
-                                        BookListSection(
-                                            title = stringResource(R.string.continue_reading),
-                                            books = state.readingBooks,
-                                            onBookDetails = onNavigateToBookDetail,
-                                            onDeleteBook = { bookToDelete = it },
-                                            onReadBook = onNavigateToReadBook
-                                        )
-                                    }
-
-                                    BookListSection(
-                                        title = stringResource(R.string.pending_books),
-                                        books = state.pendingBooks,
-                                        showActions = true,
-                                        onNavigateToAddBook = onNavigateToAddBook,
-                                        onImportClick = {
-                                            if (!isImporting) {
-                                                documentPickerLauncher.launch(
-                                                    arrayOf(
-                                                        "application/epub+zip"
-                                                    )
-                                                )
-                                            }
-                                        },
-                                        onBookDetails = onNavigateToBookDetail,
-                                        onDeleteBook = { bookToDelete = it },
-                                        onReadBook = onNavigateToReadBook
+                            if (featuredBook != null) {
+                                item(key = "featured", contentType = "featured") {
+                                    FeaturedReading(
+                                        book = featuredBook,
+                                        onOpen = { openBook(featuredBook) },
+                                        onRead = { onNavigateToReadBook(featuredBook.id) },
+                                        onDetails = { onNavigateToBookDetail(featuredBook.id) },
+                                        onDelete = { bookToDelete = featuredBook },
                                     )
                                 }
                             }
-/*
-                            item {
-                                Text(
-                                    text = "Estadísticas generales".uppercase(),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
-                                    letterSpacing = 1.sp
-                                )
-                                StatsSection(statsUiState = state.stats)
+
+                            if (otherReadingBooks.isNotEmpty()) {
+                                item(key = "active-reading", contentType = "book-row") {
+                                    ActiveReadingsSection(
+                                        books = otherReadingBooks,
+                                        onOpenBook = openBook,
+                                        onReadBook = onNavigateToReadBook,
+                                        onBookDetails = onNavigateToBookDetail,
+                                        onDeleteBook = { bookToDelete = it },
+                                        onViewAll = onViewActiveReadings
+                                    )
+                                }
                             }
 
- */
+                            if (hasFavourites) {
+                                item(key = "favourites", contentType = "book-row") {
+                                    FavouriteBooksSection(
+                                        books = state.favouriteBooks,
+                                        onOpenBook = openBook,
+                                        onReadBook = onNavigateToReadBook,
+                                        onBookDetails = onNavigateToBookDetail,
+                                        onDeleteBook = { bookToDelete = it },
+                                        onViewCollection = onViewFavourites
+                                    )
+                                }
+                            }
+
+                            if (hasPending) {
+                                item(key = "pending-header", contentType = "header") {
+                                    HomeSectionHeader(
+                                        title = stringResource(R.string.home_pending_title),
+                                        iconImage = Icons.Rounded.Book,
+                                        badge = pluralStringResource(
+                                            R.plurals.pending_to_start,
+                                            state.pendingBooks.size,
+                                            state.pendingBooks.size
+                                        ),
+                                        badgeContentColor = MaterialTheme.colorScheme.secondary,
+                                        badgeOutlined = true,
+                                        actionLabel = stringResource(R.string.see_list),
+                                        onAction = onViewPending,
+                                        actionChevron = true
+                                    )
+                                }
+                                items(
+                                    items = state.pendingBooks,
+                                    key = { book -> "pending-${book.id}" },
+                                    contentType = { "pending" }
+                                ) { book ->
+                                    PendingBookRow(
+                                        book = book,
+                                        onOpen = { openBook(book) },
+                                        onRead = { onNavigateToReadBook(book.id) },
+                                        onDetails = { onNavigateToBookDetail(book.id) },
+                                        onDelete = { bookToDelete = book }
+                                    )
+                                }
+                            }
+
+                            item(key = "add-or-import", contentType = "actions") {
+                                AddOrImportBooksRow(
+                                    onAddClick = onNavigateToAddBook,
+                                    onImportClick = {
+                                        if (!isImporting) {
+                                            documentPickerLauncher.launch(
+                                                arrayOf("application/epub+zip")
+                                            )
+                                        }
+                                    },
+                                    importEnabled = !isImporting
+                                )
+                            }
                         }
                     }
                 }

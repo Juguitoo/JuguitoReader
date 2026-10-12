@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.grid.GridCells.Adaptive
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -27,6 +28,7 @@ import androidx.compose.material.icons.filled.StarOutline
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -55,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
 import com.juguito.juguitoreader.ui.common.components.EmptyLibraryView
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
@@ -63,6 +66,7 @@ import com.juguito.juguitoreader.ui.library.LibraryEvent.OnFavouritesFilterChang
 import com.juguito.juguitoreader.ui.library.LibraryEvent.OnSearchTextChanged
 import com.juguito.juguitoreader.ui.library.LibraryEvent.OnSelectedFolderChanged
 import com.juguito.juguitoreader.ui.library.LibraryEvent.OnStatusChanged
+import com.juguito.juguitoreader.ui.library.LibraryEvent.OnStatusFilterChanged
 import com.juguito.juguitoreader.ui.library.components.AllFoldersSheet
 import com.juguito.juguitoreader.ui.library.components.BookGridItem
 import com.juguito.juguitoreader.ui.library.components.EmptySearchPlaceholder
@@ -308,12 +312,39 @@ fun LibraryContent(
                             },
                             onExpandClick = { onShowAllFoldersSheet(true) }
                         )
+                        state.status?.let { status ->
+                            Row(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 4.dp)) {
+                                FilterChip(
+                                    selected = true,
+                                    onClick = { onEvent(OnStatusFilterChanged(null)) },
+                                    label = {
+                                        Text(
+                                            text = stringResource(
+                                                when (status) {
+                                                    BookStatus.PENDING -> R.string.status_pending
+                                                    BookStatus.READING -> R.string.status_reading
+                                                    BookStatus.FINISHED -> R.string.status_finished
+                                                    BookStatus.DROPPED -> R.string.status_dropped
+                                                }
+                                            )
+                                        )
+                                    },
+                                    trailingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Close,
+                                            contentDescription = stringResource(R.string.clear_status_filter)
+                                        )
+                                    }
+                                )
+                            }
+                        }
 
                         Box(modifier = Modifier.fillMaxSize()) {
                             if (state.filteredBooks.isEmpty()) {
                                 EmptySearchPlaceholder(
                                     isSearching = state.searchText.isNotBlank(),
                                     isFilteringFavourites = state.favouritesOnly,
+                                    isFilteringStatus = state.status != null,
                                     modifier = Modifier.align(Alignment.Center)
                                 )
                             } else {

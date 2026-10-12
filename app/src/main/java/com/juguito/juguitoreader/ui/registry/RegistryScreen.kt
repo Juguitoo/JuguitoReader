@@ -363,11 +363,10 @@ fun TableHeaderItem(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = text.uppercase(),
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,
                 color = if (isSorting) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                letterSpacing = 1.sp,
-                fontSize = 13.sp
+                letterSpacing = 1.sp
             )
             if (sortOption != null) {
                 val icon = when (currentSort) {
@@ -502,12 +501,12 @@ fun RegistryRow(
             }
             Spacer(Modifier.width(20.dp))
             Column {
-                Text(book.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, maxLines = 2)
+                Text(book.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, maxLines = 2)
                 Text(book.author, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (!book.series.isNullOrBlank()) {
                     Text(
                         text = "${book.series} #${book.seriesOrder?.let { if (it % 1.0 == 0.0) it.toInt() else it } ?: "?"}",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Medium
                     )
