@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,16 +22,12 @@ import com.juguito.juguitoreader.ui.common.toUiText
 fun StatusBadge(status: BookStatus, percentage: Int?, modifier: Modifier = Modifier) {
     if (status == BookStatus.PENDING) return
 
-    val color = when (status) {
-        BookStatus.READING -> MaterialTheme.colorScheme.primary
-        BookStatus.FINISHED -> Color(0xFF4CAF50)
-        BookStatus.DROPPED -> MaterialTheme.colorScheme.error
-    }
+    val color = bookStatusColor(status)
 
     Surface(
         modifier = modifier.fillMaxWidth(),
         color = color.copy(alpha = 0.95f),
-        shape = RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp)
+        shape = RectangleShape
     ) {
         Box(
             modifier = Modifier.fillMaxWidth().padding(4.dp, 2.dp),
@@ -57,4 +54,12 @@ fun StatusBadge(status: BookStatus, percentage: Int?, modifier: Modifier = Modif
             }
         }
     }
+}
+
+@Composable
+internal fun bookStatusColor(status: BookStatus): Color = when (status) {
+    BookStatus.PENDING -> MaterialTheme.colorScheme.onSurfaceVariant
+    BookStatus.READING -> MaterialTheme.colorScheme.primary
+    BookStatus.FINISHED -> Color(0xFF4CAF50)
+    BookStatus.DROPPED -> MaterialTheme.colorScheme.error
 }

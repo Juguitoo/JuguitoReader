@@ -6,6 +6,10 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 ## En curso
 
+- [ ] TAR-62 Biblioteca: portadas rectangulares / look más libro
+  - version: v1.3.0
+  - tipo: enhance
+  - ref: tasks/TAR-62.md
 
 ## Pendiente
 
@@ -20,13 +24,10 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 
 
+
 - [ ] TAR-47 Reestructuración carpetas (archivadores)
   - version: v1.3.0
   - tipo: feat
-
-- [ ] TAR-62 Biblioteca: portadas rectangulares / look más libro
-  - version: v1.3.0
-  - tipo: enhance
 - [ ] TAR-49 Controles biblioteca (filtros + ordenación)
   - version: v1.3.0
   - tipo: feat

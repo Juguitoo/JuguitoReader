@@ -14,6 +14,7 @@ interface SettingsRepository {
     val lastSeenChangelogVersionFlow: Flow<String?>
     val onboardingCompletedFlow: Flow<Boolean>
     val readerGuideCompletedFlow: Flow<Boolean>
+    val libraryLayoutModeFlow: Flow<Int>
 
     suspend fun saveTextZoom(textZoom: Int)
     suspend fun saveReaderTheme(readerTheme: String)
@@ -26,4 +27,5 @@ interface SettingsRepository {
     suspend fun saveLastSeenChangelogVersion(version: String)
     suspend fun saveOnboardingCompleted(completed: Boolean)
     suspend fun saveReaderGuideCompleted(completed: Boolean)
+    suspend fun saveLibraryLayoutMode(layoutMode: Int)
 }

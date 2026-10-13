@@ -9,4 +9,5 @@ sealed interface LibraryEvent {
     data class OnFavouritesFilterChanged(val enabled: Boolean): LibraryEvent
     data class OnStatusFilterChanged(val status: BookStatus?): LibraryEvent
     data class OnStatusChanged(val bookId: Int, val newStatus: BookStatus): LibraryEvent
+    data class OnLayoutModeChanged(val layoutMode: Int): LibraryEvent
 }

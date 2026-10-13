@@ -15,7 +15,7 @@ import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Book
 
 @Composable
-fun BookActionsMenu(
+fun BookHomeActionsMenu(
     expanded: Boolean,
     book: Book,
     onDismiss: () -> Unit,

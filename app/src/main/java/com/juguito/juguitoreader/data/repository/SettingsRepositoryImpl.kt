@@ -34,6 +34,7 @@ class SettingsRepositoryImpl @Inject constructor(
         val LAST_SEEN_CHANGELOG_VERSION = stringPreferencesKey("last_seen_changelog_version")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val READER_GUIDE_COMPLETED = booleanPreferencesKey("reader_guide_completed")
+        val LIBRARY_LAYOUT_MODE = intPreferencesKey("library_layout_mode")
     }
 
     override val textZoomFlow: Flow<Int> = context.dataStore.data.map { it[TEXT_ZOOM] ?: 100 }
@@ -47,6 +48,7 @@ class SettingsRepositoryImpl @Inject constructor(
     override val lastSeenChangelogVersionFlow: Flow<String?> = context.dataStore.data.map { it[LAST_SEEN_CHANGELOG_VERSION] }
     override val onboardingCompletedFlow: Flow<Boolean> = context.dataStore.data.map { it[ONBOARDING_COMPLETED] ?: false }
     override val readerGuideCompletedFlow: Flow<Boolean> = context.dataStore.data.map { it[READER_GUIDE_COMPLETED] ?: false }
+    override val libraryLayoutModeFlow: Flow<Int> = context.dataStore.data.map { it[LIBRARY_LAYOUT_MODE] ?: 0 }
 
     override suspend fun saveTextZoom(textZoom: Int) {
         context.dataStore.edit { it[TEXT_ZOOM] = textZoom }
@@ -90,5 +92,9 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override suspend fun saveReaderGuideCompleted(completed: Boolean) {
         context.dataStore.edit { it[READER_GUIDE_COMPLETED] = completed }
+    }
+
+    override suspend fun saveLibraryLayoutMode(layoutMode: Int) {
+        context.dataStore.edit { it[LIBRARY_LAYOUT_MODE] = layoutMode }
     }
 }

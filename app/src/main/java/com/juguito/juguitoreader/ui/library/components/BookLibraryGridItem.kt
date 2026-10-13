@@ -10,14 +10,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.StarOutline
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -45,9 +44,10 @@ import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.ui.common.toUiText
+import com.juguito.juguitoreader.ui.home.components.CoverSpineScrim
 
 @Composable
-fun BookGridItem(
+fun BookLibraryGridItem(
     book: Book,
     onClick: () -> Unit,
     onDetailClick: () -> Unit,
@@ -63,17 +63,19 @@ fun BookGridItem(
                 onLongClick = { showMenu = true }
             )
     ) {
-        Box(modifier = Modifier.fillMaxWidth().aspectRatio(0.7f)) {
-            Card(
-                shape = RoundedCornerShape(12.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                modifier = Modifier.fillMaxSize()
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(0.7f)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .libraryCoverShadow()
             ) {
                 if (book.coverUrl != null) {
                     AsyncImage(
                         model = book.coverUrl,
                         contentDescription = book.title,
-                        contentScale = ContentScale.Crop,
+                        contentScale = ContentScale.FillBounds,
                         modifier = Modifier.fillMaxSize()
                     )
                 } else {
@@ -91,6 +93,7 @@ fun BookGridItem(
                         )
                     }
                 }
+                CoverSpineScrim(modifier = Modifier.matchParentSize())
             }
 
             if (book.isPhysical) {
@@ -118,13 +121,15 @@ fun BookGridItem(
             if (book.isFavourite) {
                 Box(
                     modifier = Modifier
-                        .align(Alignment.BottomEnd)
+                        .align(Alignment.TopStart)
                         .padding(6.dp),
                 ) {
                     Icon(
+                        modifier = Modifier
+                            .size(20.dp),
                         imageVector = Icons.Default.Star,
                         contentDescription = stringResource(R.string.favourite),
-                        tint = Color.Yellow
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
             }
@@ -135,43 +140,13 @@ fun BookGridItem(
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
 
-            DropdownMenu(
+            BookLibraryActionsMenu(
                 expanded = showMenu,
-                onDismissRequest = { showMenu = false }
-            ) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.details)) },
-                    onClick = {
-                        showMenu = false
-                        onDetailClick()
-                    },
-                    leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) }
-                )
-
-                HorizontalDivider()
-
-                Text(
-                    stringResource(R.string.change_status),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-                )
-
-                BookStatus.entries.forEach { status ->
-                    DropdownMenuItem(
-                        text = { Text(status.toUiText().asString()) },
-                        onClick = {
-                            showMenu = false
-                            onStatusChange(status)
-                        },
-                        leadingIcon = {
-                            if (book.status == status) {
-                                Icon(Icons.Default.Check, contentDescription = null)
-                            }
-                        }
-                    )
-                }
-            }
+                book = book,
+                onDismiss = { showMenu = false },
+                onDetails = onDetailClick,
+                onStatusChange = onStatusChange
+            )
         }
 
         Spacer(modifier = Modifier.height(10.dp))

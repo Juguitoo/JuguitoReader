@@ -80,6 +80,7 @@ class BackupRepositoryImpl @Inject constructor(
                     .put("lastSeenChangelogVersion", settingsRepository.lastSeenChangelogVersionFlow.first() ?: JSONObject.NULL)
                     .put("onboardingCompleted", settingsRepository.onboardingCompletedFlow.first())
                     .put("readerGuideCompleted", settingsRepository.readerGuideCompletedFlow.first())
+                    .put("libraryLayoutMode", settingsRepository.libraryLayoutModeFlow.first())
                     .toString()
 
                 val backupManifest = BackupManifest(
@@ -229,6 +230,9 @@ class BackupRepositoryImpl @Inject constructor(
                         }
                         if (json.has("readerGuideCompleted")) {
                             settingsRepository.saveReaderGuideCompleted(json.getBoolean("readerGuideCompleted"))
+                        }
+                        if (json.has("libraryLayoutMode")) {
+                            settingsRepository.saveLibraryLayoutMode(json.getInt("libraryLayoutMode"))
                         }
                     }
 

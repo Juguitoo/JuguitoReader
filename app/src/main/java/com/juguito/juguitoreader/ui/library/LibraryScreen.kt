@@ -14,21 +14,23 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.lazy.grid.GridCells.Adaptive
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarOutline
-import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -58,17 +60,20 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
+import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
 import com.juguito.juguitoreader.ui.common.components.EmptyLibraryView
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.ErrorView
+import com.juguito.juguitoreader.ui.home.components.PendingBookRow
 import com.juguito.juguitoreader.ui.library.LibraryEvent.OnFavouritesFilterChanged
 import com.juguito.juguitoreader.ui.library.LibraryEvent.OnSearchTextChanged
 import com.juguito.juguitoreader.ui.library.LibraryEvent.OnSelectedFolderChanged
 import com.juguito.juguitoreader.ui.library.LibraryEvent.OnStatusChanged
 import com.juguito.juguitoreader.ui.library.LibraryEvent.OnStatusFilterChanged
 import com.juguito.juguitoreader.ui.library.components.AllFoldersSheet
-import com.juguito.juguitoreader.ui.library.components.BookGridItem
+import com.juguito.juguitoreader.ui.library.components.BookLibraryGridItem
+import com.juguito.juguitoreader.ui.library.components.BookLibraryRow
 import com.juguito.juguitoreader.ui.library.components.EmptySearchPlaceholder
 import com.juguito.juguitoreader.ui.library.components.FolderSelectorRow
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
@@ -138,6 +143,7 @@ fun LibraryContent(
         is LibraryUiState.Empty -> state.folders
         else -> emptyList()
     }
+    var showMenu by remember { mutableStateOf(false) }
 
     val documentPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
@@ -252,17 +258,33 @@ fun LibraryContent(
                         IconButton(onClick = { onToggleSearch(true) }) {
                             Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_hint))
                         }
-                        IconButton(
-                            onClick = {
-                                documentPickerLauncher.launch(arrayOf("application/epub+zip"))
-                            },
-                            enabled = !isImporting
+                        IconButton(onClick = { showMenu = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.options))
+                        }
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false }
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.UploadFile,
-                                contentDescription = stringResource(R.string.import_book_title),
-                                tint = Color.White
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.import_book_title)) },
+                                onClick = {
+                                    showMenu = false
+                                    documentPickerLauncher.launch(arrayOf("application/epub+zip"))
+                                },
+                                enabled = !isImporting
                             )
+                            if (state is LibraryUiState.Success) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(if (state.layoutMode == 0) R.string.library_rows else R.string.library_grid)) },
+                                    onClick = {
+                                        when (state.layoutMode) {
+                                            0 -> onEvent(LibraryEvent.OnLayoutModeChanged(1))
+                                            1 -> onEvent(LibraryEvent.OnLayoutModeChanged(0))
+                                        }
+                                        showMenu = false
+                                    }
+                                )
+                            }
                         }
                     } else {
                         val currentSearch = (state as? LibraryUiState.Success)?.searchText ?: ""
@@ -348,31 +370,108 @@ fun LibraryContent(
                                     modifier = Modifier.align(Alignment.Center)
                                 )
                             } else {
-                                LazyVerticalGrid(
-                                    columns = Adaptive(minSize = 90.dp),
-                                    contentPadding = PaddingValues(16.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                    verticalArrangement = Arrangement.spacedBy(24.dp),
-                                    modifier = Modifier.fillMaxSize()
+                                HorizontalDivider()
+                                val isRowLayout = state.layoutMode == 1
+                                LazyColumn(
+                                    contentPadding = PaddingValues(
+                                        start = 16.dp,
+                                        top = if (isRowLayout) 0.dp else 16.dp,
+                                        end = 16.dp,
+                                        bottom = 16.dp
+                                    ),
+                                    verticalArrangement = if (isRowLayout) {
+                                        Arrangement.Top
+                                    } else {
+                                        Arrangement.spacedBy(24.dp)
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(top = if (isRowLayout) 0.dp else 8.dp)
                                 ) {
-                                    items(state.filteredBooks, key = { it.id }) { book ->
-                                        BookGridItem(
-                                            book = book,
-                                            onClick = {
-                                                val canOpenReader = !book.isPhysical && !book.localFilePath.isNullOrBlank()
-                                                if (canOpenReader) onNavigateToReadBook(book.id)
-                                                else onNavigateToBookDetail(book.id)
-                                            },
-                                            onDetailClick = { onNavigateToBookDetail(book.id) },
-                                            onStatusChange = { newStatus ->
-                                                onEvent(
-                                                    OnStatusChanged(
-                                                        book.id,
-                                                        newStatus
-                                                    )
-                                                )
+                                    when (state.layoutMode) {
+                                        0 -> {
+                                            val rows = state.filteredBooks.chunked(3)
+                                            rows.forEachIndexed { index, rowBooks ->
+                                                item(
+                                                    key = rowBooks.first().id,
+                                                    contentType = "row"
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        horizontalArrangement = Arrangement.spacedBy(
+                                                            16.dp
+                                                        )
+                                                    ) {
+                                                        rowBooks.forEach { book ->
+                                                            Box(Modifier.weight(1f)) {
+                                                                BookLibraryGridItem(
+                                                                    book = book,
+                                                                    onClick = {
+                                                                        val canOpenReader =
+                                                                            !book.isPhysical && !book.localFilePath.isNullOrBlank()
+                                                                        if (canOpenReader) onNavigateToReadBook(
+                                                                            book.id
+                                                                        )
+                                                                        else onNavigateToBookDetail(
+                                                                            book.id
+                                                                        )
+                                                                    },
+                                                                    onDetailClick = {
+                                                                        onNavigateToBookDetail(
+                                                                            book.id
+                                                                        )
+                                                                    },
+                                                                    onStatusChange = { newStatus ->
+                                                                        onEvent(
+                                                                            OnStatusChanged(
+                                                                                book.id,
+                                                                                newStatus
+                                                                            )
+                                                                        )
+                                                                    }
+                                                                )
+                                                            }
+                                                        }
+                                                        repeat(3 - rowBooks.size) {
+                                                            Spacer(Modifier.weight(1f))
+                                                        }
+                                                    }
+
+                                                }
+                                                if (index < rows.lastIndex) {
+                                                    item(
+                                                        key = "divider-${rowBooks.last().id}",
+                                                        contentType = "divider"
+                                                    ) {
+                                                        HorizontalDivider()
+                                                    }
+                                                }
                                             }
-                                        )
+                                        }
+
+                                        1 -> {
+                                            state.filteredBooks.forEach { book ->
+                                                val openBook: (Book) -> Unit = { book ->
+                                                    val canRead = !book.isPhysical && !book.localFilePath.isNullOrBlank()
+                                                    if (canRead) onNavigateToReadBook(book.id) else onNavigateToBookDetail(book.id)
+                                                }
+                                                item(key = book.id, contentType = "book") {
+                                                    BookLibraryRow(
+                                                        book = book,
+                                                        onOpen = { openBook(book) },
+                                                        onDetails = { onNavigateToBookDetail(book.id) },
+                                                        onStatusChange = { newStatus ->
+                                                            onEvent(
+                                                                OnStatusChanged(
+                                                                    book.id,
+                                                                    newStatus
+                                                                )
+                                                            )
+                                                        }
+                                                    )
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }

@@ -48,7 +48,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Book
-import java.util.Locale
 import androidx.compose.ui.platform.LocalLocale
 
 @Composable
@@ -236,7 +235,7 @@ fun FeaturedReading(
             )
         }
 
-        BookActionsMenu(
+        BookHomeActionsMenu(
             expanded = showMenu,
             book = book,
             onDismiss = { showMenu = false },

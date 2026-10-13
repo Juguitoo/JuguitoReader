@@ -83,48 +83,56 @@ fun PendingBookRow(
                     .padding(bottom = 12.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Column {
-                    Text(
-                    text = book.title,
-                    style = homeSerif(size = 14.sp, lineHeight = 18.sp),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = book.author,
-                        modifier = Modifier.padding(top = 2.dp),
-                        style = homeSans(size = 12.sp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column {
+                        Text(
+                            text = book.title,
+                            style = homeSerif(size = 14.sp, lineHeight = 18.sp),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = book.author,
+                            modifier = Modifier.padding(top = 2.dp),
+                            style = homeSans(size = 12.sp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Box {
+                            IconButton(
+                                onClick = { showMenu = true },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = stringResource(R.string.options),
+                                    modifier = Modifier.size(16.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            BookHomeActionsMenu(
+                                expanded = showMenu,
+                                book = book,
+                                onDismiss = { showMenu = false },
+                                onRead = onRead,
+                                onDetails = onDetails,
+                                onDelete = onDelete
+                            )
+                        }
+                    }
                 }
-
                 PendingGenreLine(
                     names = book.genres.map { it.name },
                     modifier = Modifier.padding(top = 4.dp)
-                )
-            }
-            Box {
-                IconButton(
-                    onClick = { showMenu = true },
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = stringResource(R.string.options),
-                        modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                BookActionsMenu(
-                    expanded = showMenu,
-                    book = book,
-                    onDismiss = { showMenu = false },
-                    onRead = onRead,
-                    onDetails = onDetails,
-                    onDelete = onDelete
                 )
             }
         }

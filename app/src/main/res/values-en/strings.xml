@@ -430,4 +430,7 @@
         <item>Library with folders and genres.</item>
     </string-array>
     <string name="donation_no_browser">No browser to open the page</string>
+    <string name="library_grid">Grid layout</string>
+    <string name="library_rows">Row layout</string>
+
 </resources>

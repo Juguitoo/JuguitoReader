@@ -10,7 +10,8 @@ sealed interface LibraryUiState {
     data class Empty(
         val folders: List<Folder> = emptyList(),
         val selectedFolder: Folder? = null,
-        val searchText: String = ""
+        val searchText: String = "",
+        val layoutMode: Int = 0
     ) : LibraryUiState
 
     data class Success(
@@ -20,6 +21,7 @@ sealed interface LibraryUiState {
         val selectedFolder: Folder? = null,
         val searchText: String = "",
         val favouritesOnly: Boolean = false,
-        val status: BookStatus? = null
+        val status: BookStatus? = null,
+        val layoutMode: Int = 0
     ): LibraryUiState
 }

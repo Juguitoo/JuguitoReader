@@ -11,6 +11,8 @@ import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
+import com.juguito.juguitoreader.domain.usecase.library.GetLibraryLayoutModeUseCase
+import com.juguito.juguitoreader.domain.usecase.library.SaveLibraryLayoutModeUseCase
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -19,6 +21,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -39,26 +42,37 @@ class LibraryViewModelTest {
     private val getFoldersUseCase = mockk<GetFoldersUseCase>()
     private val updateBookUseCase = mockk<UpdateBookUseCase>()
     private val importBookFromUriUseCase = mockk<ImportBookFromUriUseCase>()
+    private val getLibraryLayoutModeUseCase = mockk<GetLibraryLayoutModeUseCase>()
+    private val saveLibraryLayoutModeUseCase = mockk<SaveLibraryLayoutModeUseCase>()
+    private val layoutMode = MutableStateFlow(0)
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         every { getFoldersUseCase() } returns flowOf(emptyList())
         every { getBooksUseCase() } returns flowOf(emptyList())
-        
-        viewModel = LibraryViewModel(
-            context,
-            getBooksUseCase,
-            getFoldersUseCase,
-            updateBookUseCase,
-            importBookFromUriUseCase
-        )
+        every { getLibraryLayoutModeUseCase() } returns layoutMode
+        coEvery { saveLibraryLayoutModeUseCase(any()) } coAnswers {
+            layoutMode.value = firstArg()
+        }
+
+        viewModel = createViewModel()
     }
 
     @After
     fun teardown() {
         Dispatchers.resetMain()
     }
+
+    private fun createViewModel() = LibraryViewModel(
+        context,
+        getBooksUseCase,
+        getFoldersUseCase,
+        updateBookUseCase,
+        importBookFromUriUseCase,
+        getLibraryLayoutModeUseCase,
+        saveLibraryLayoutModeUseCase,
+    )
 
     @Test
     fun `initial state is Empty if no books`() = runTest {
@@ -75,7 +89,7 @@ class LibraryViewModelTest {
             Book(id = 2, title = "Kotlin", author = "B", isPhysical = false)
         )
         every { getBooksUseCase() } returns flowOf(books)
-        viewModel = LibraryViewModel(context, getBooksUseCase, getFoldersUseCase, updateBookUseCase, importBookFromUriUseCase)
+        viewModel = createViewModel()
 
         viewModel.onEvent(LibraryEvent.OnSearchTextChanged("Android"))
 
@@ -94,7 +108,7 @@ class LibraryViewModelTest {
             Book(id = 2, title = "Other", author = "B", isPhysical = false)
         )
         every { getBooksUseCase() } returns flowOf(books)
-        viewModel = LibraryViewModel(context, getBooksUseCase, getFoldersUseCase, updateBookUseCase, importBookFromUriUseCase)
+        viewModel = createViewModel()
 
         viewModel.onEvent(LibraryEvent.OnFavouritesFilterChanged(true))
 
@@ -109,7 +123,7 @@ class LibraryViewModelTest {
     fun `onEvent OnSelectedFolderChanged updates state`() = runTest {
         val folder = Folder(id = 1, name = "My Folder", colorHex = "#000")
         every { getFoldersUseCase() } returns flowOf(listOf(folder))
-        viewModel = LibraryViewModel(context, getBooksUseCase, getFoldersUseCase, updateBookUseCase, importBookFromUriUseCase)
+        viewModel = createViewModel()
 
         viewModel.onEvent(LibraryEvent.OnSelectedFolderChanged(folder))
 
@@ -126,7 +140,7 @@ class LibraryViewModelTest {
         every { getBooksUseCase() } returns flowOf(listOf(book))
         coEvery { updateBookUseCase(any()) } returns Result.success(Unit)
         
-        viewModel = LibraryViewModel(context, getBooksUseCase, getFoldersUseCase, updateBookUseCase, importBookFromUriUseCase)
+        viewModel = createViewModel()
         
         viewModel.onEvent(LibraryEvent.OnStatusChanged(1, BookStatus.READING))
         
@@ -140,7 +154,7 @@ class LibraryViewModelTest {
             Book(id = 2, title = "Later", author = "B", isPhysical = false, status = BookStatus.PENDING)
         )
         every { getBooksUseCase() } returns flowOf(books)
-        viewModel = LibraryViewModel(context, getBooksUseCase, getFoldersUseCase, updateBookUseCase, importBookFromUriUseCase)
+        viewModel = createViewModel()
 
         viewModel.onEvent(LibraryEvent.OnStatusFilterChanged(BookStatus.READING))
 
@@ -149,6 +163,42 @@ class LibraryViewModelTest {
             assertThat(successState.status).isEqualTo(BookStatus.READING)
             assertThat(successState.filteredBooks.map { it.id }).containsExactly(1)
         }
+    }
+
+    @Test
+    fun `layout mode comes from settings and survives a filter change`() = runTest {
+        val books = listOf(
+            Book(id = 1, title = "Fav", author = "A", isPhysical = false, isFavourite = true),
+            Book(id = 2, title = "Other", author = "B", isPhysical = false)
+        )
+        every { getBooksUseCase() } returns flowOf(books)
+        layoutMode.value = 1
+        viewModel = createViewModel()
+
+        viewModel.onEvent(LibraryEvent.OnFavouritesFilterChanged(true))
+
+        viewModel.uiState.test {
+            val successState = awaitItem() as LibraryUiState.Success
+            assertThat(successState.layoutMode).isEqualTo(1)
+            assertThat(successState.filteredBooks.map { it.id }).containsExactly(1)
+        }
+    }
+
+    @Test
+    fun `onEvent OnLayoutModeChanged saves the mode`() = runTest {
+        val books = listOf(
+            Book(id = 1, title = "T", author = "A", isPhysical = false)
+        )
+        every { getBooksUseCase() } returns flowOf(books)
+        viewModel = createViewModel()
+
+        viewModel.onEvent(LibraryEvent.OnLayoutModeChanged(1))
+
+        viewModel.uiState.test {
+            val successState = awaitItem() as LibraryUiState.Success
+            assertThat(successState.layoutMode).isEqualTo(1)
+        }
+        coVerify { saveLibraryLayoutModeUseCase(1) }
     }
 
     @Test

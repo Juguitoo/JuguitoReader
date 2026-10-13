@@ -6,12 +6,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
+import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.model.copy
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
+import com.juguito.juguitoreader.domain.usecase.library.GetLibraryLayoutModeUseCase
+import com.juguito.juguitoreader.domain.usecase.library.SaveLibraryLayoutModeUseCase
 import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,6 +37,8 @@ class LibraryViewModel @Inject constructor(
     private val getFoldersUseCase: GetFoldersUseCase,
     private val updateBookUseCase: UpdateBookUseCase,
     private val importBookFromUriUseCase: ImportBookFromUriUseCase,
+    private val getLibraryLayoutModeUseCase: GetLibraryLayoutModeUseCase,
+    private val saveLibraryLayoutModeUseCase: SaveLibraryLayoutModeUseCase,
     savedStateHandle: SavedStateHandle = SavedStateHandle(),
 ) : ViewModel() {
 
@@ -65,18 +70,29 @@ class LibraryViewModel @Inject constructor(
 
         viewModelScope.launch {
             combine(
-                getFoldersUseCase(),
-                getBooksUseCase(),
-                _searchText,
-                _selectedFolder,
-                _shelfFilter
-            ) { folders, books, query, currentFolder, filter ->
+                combine(
+                    getFoldersUseCase(),
+                    getBooksUseCase(),
+                    _searchText,
+                    _selectedFolder,
+                    _shelfFilter
+                ) { folders, books, query, currentFolder, filter ->
+                    ShelfContent(folders, books, query, currentFolder, filter)
+                },
+                getLibraryLayoutModeUseCase()
+            ) { content, layoutMode ->
+                val folders = content.folders
+                val books = content.books
+                val query = content.query
+                val currentFolder = content.currentFolder
+                val filter = content.filter
 
                 if (books.isEmpty()) {
                     return@combine LibraryUiState.Empty(
                         folders = folders,
                         selectedFolder = currentFolder,
-                        searchText = query
+                        searchText = query,
+                        layoutMode = layoutMode
                     ) as LibraryUiState
                 }
 
@@ -101,7 +117,8 @@ class LibraryViewModel @Inject constructor(
                     selectedFolder = currentFolder,
                     searchText = query,
                     favouritesOnly = filter.favouritesOnly,
-                    status = filter.status
+                    status = filter.status,
+                    layoutMode = layoutMode
                 ) as LibraryUiState
             }.catch { error ->
                 error.printStackTrace()
@@ -132,6 +149,11 @@ class LibraryViewModel @Inject constructor(
             }
             is LibraryEvent.OnStatusChanged -> {
                 updateBookStatus(event.bookId, event.newStatus)
+            }
+            is LibraryEvent.OnLayoutModeChanged -> {
+                viewModelScope.launch {
+                    saveLibraryLayoutModeUseCase(event.layoutMode)
+                }
             }
         }
     }
@@ -170,4 +192,12 @@ class LibraryViewModel @Inject constructor(
 private data class ShelfFilter(
     val favouritesOnly: Boolean = false,
     val status: BookStatus? = null,
+)
+
+private data class ShelfContent(
+    val folders: List<Folder>,
+    val books: List<Book>,
+    val query: String,
+    val currentFolder: Folder?,
+    val filter: ShelfFilter,
 )

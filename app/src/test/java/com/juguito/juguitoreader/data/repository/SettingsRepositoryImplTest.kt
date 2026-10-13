@@ -132,4 +132,15 @@ class SettingsRepositoryImplTest {
         repository.saveReaderGuideCompleted(true)
         assertThat(repository.readerGuideCompletedFlow.first()).isTrue()
     }
+
+    @Test
+    fun `libraryLayoutModeFlow returns default value when empty`() = runTest {
+        assertThat(repository.libraryLayoutModeFlow.first()).isEqualTo(0)
+    }
+
+    @Test
+    fun `saveLibraryLayoutMode updates the flow`() = runTest {
+        repository.saveLibraryLayoutMode(1)
+        assertThat(repository.libraryLayoutModeFlow.first()).isEqualTo(1)
+    }
 }

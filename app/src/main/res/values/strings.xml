@@ -432,4 +432,6 @@
     </string-array>
     <string name="donation_url" translatable="false">http://buymeacoffee.com/juguitoreader</string>
     <string name="donation_no_browser">No hay un navegador para abrir la página</string>
+    <string name="library_grid">Disposición en matriz</string>
+    <string name="library_rows">Disposición en filas</string>
 </resources>

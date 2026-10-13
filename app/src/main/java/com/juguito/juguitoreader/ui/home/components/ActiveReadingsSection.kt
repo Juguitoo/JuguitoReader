@@ -196,7 +196,7 @@ private fun ActiveReadingItem(
             }
         }
 
-        BookActionsMenu(
+        BookHomeActionsMenu(
             expanded = showMenu,
             book = book,
             onDismiss = { showMenu = false },

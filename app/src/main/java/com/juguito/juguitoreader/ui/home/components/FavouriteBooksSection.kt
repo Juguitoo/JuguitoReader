@@ -295,7 +295,7 @@ private fun PodiumPlace(
                 maxLines = 1
             )
         }
-        BookActionsMenu(
+        BookHomeActionsMenu(
             expanded = showMenu,
             book = book,
             onDismiss = { showMenu = false },
