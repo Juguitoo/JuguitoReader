@@ -1,6 +1,6 @@
 # TAR-49 — Controles biblioteca (filtros + ordenación)
 
-- estado: en curso
+- estado: hecho
 - version: v1.3.0
 - tipo: feat
 
