@@ -136,7 +136,11 @@ class LibraryViewModel @Inject constructor(
     fun onEvent(event: LibraryEvent) {
         when (event) {
             is LibraryEvent.OnSelectedFolderChanged -> {
-                _selectedFolder.value = event.selectedFolder
+                if (_selectedFolder.value == event.selectedFolder) {
+                    _selectedFolder.value = null
+                } else {
+                    _selectedFolder.value = event.selectedFolder
+                }
             }
             is LibraryEvent.OnSearchTextChanged -> {
                 _searchText.value = event.searchText?.trim() ?: ""

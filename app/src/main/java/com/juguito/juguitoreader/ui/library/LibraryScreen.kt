@@ -3,13 +3,19 @@ package com.juguito.juguitoreader.ui.library
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -44,6 +50,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,6 +64,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.toColorInt
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
@@ -331,8 +339,7 @@ fun LibraryContent(
                             selectedFolder = state.selectedFolder,
                             onFolderSelected = { folder ->
                                 onEvent(OnSelectedFolderChanged(folder))
-                            },
-                            onExpandClick = { onShowAllFoldersSheet(true) }
+                            }
                         )
                         state.status?.let { status ->
                             Row(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 4.dp)) {
@@ -362,6 +369,10 @@ fun LibraryContent(
                         }
 
                         Box(modifier = Modifier.fillMaxSize()) {
+                            FolderSideMarks(
+                                colorHex = state.selectedFolder?.colorHex,
+                                modifier = Modifier.fillMaxSize()
+                            )
                             if (state.filteredBooks.isEmpty()) {
                                 EmptySearchPlaceholder(
                                     isSearching = state.searchText.isNotBlank(),
@@ -370,7 +381,6 @@ fun LibraryContent(
                                     modifier = Modifier.align(Alignment.Center)
                                 )
                             } else {
-                                HorizontalDivider()
                                 val isRowLayout = state.layoutMode == 1
                                 LazyColumn(
                                     contentPadding = PaddingValues(
@@ -510,6 +520,49 @@ fun LibraryContent(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun FolderSideMarks(
+    colorHex: String?,
+    modifier: Modifier = Modifier
+) {
+    val selected = colorHex?.let { hex ->
+        runCatching { Color(hex.toColorInt()) }.getOrNull()
+    }
+    var accent by remember { mutableStateOf(Color.Transparent) }
+    LaunchedEffect(selected) {
+        if (selected != null) accent = selected
+    }
+    val reveal by animateFloatAsState(
+        targetValue = if (selected != null) 1f else 0f,
+        animationSpec = tween(220, easing = FastOutSlowInEasing),
+        label = "folderSideMark"
+    )
+    val color by animateColorAsState(
+        targetValue = accent,
+        animationSpec = tween(220, easing = FastOutSlowInEasing),
+        label = "folderSideMarkColor"
+    )
+    if (reveal == 0f) return
+
+    val mark = color.copy(alpha = reveal)
+    Box(modifier) {
+        Box(
+            Modifier
+                .align(Alignment.CenterStart)
+                .fillMaxHeight()
+                .width(6.dp)
+                .background(mark)
+        )
+        Box(
+            Modifier
+                .align(Alignment.CenterEnd)
+                .fillMaxHeight()
+                .width(6.dp)
+                .background(mark)
+        )
     }
 }
 
