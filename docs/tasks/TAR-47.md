@@ -1,6 +1,6 @@
 # TAR-47 — Reestructuración carpetas (archivadores)
 
-- estado: en curso
+- estado: hecho
 - version: v1.3.0
 - tipo: feat
 
