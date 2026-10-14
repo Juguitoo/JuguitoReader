@@ -1,24 +1,46 @@
-package com.juguito.juguitoreader.ui.registry
+package com.juguito.juguitoreader.ui.common.components
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.juguito.juguitoreader.R
-import com.juguito.juguitoreader.domain.model.BookCriteria
 import com.juguito.juguitoreader.domain.enums.BookStatus
+import com.juguito.juguitoreader.domain.model.BookCriteria
 import com.juguito.juguitoreader.domain.model.SortOption
 import com.juguito.juguitoreader.ui.common.toUiText
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegistryFilterSheet(
+fun BookFilterSheet(
     currentCriteria: BookCriteria,
     availableSeries: List<String>,
     availableAuthors: List<String>,
@@ -45,13 +67,21 @@ fun RegistryFilterSheet(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(stringResource(R.string.filter_books), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.filter_books),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
                 TextButton(onClick = onClearFilters) { Text(stringResource(R.string.clear_filters)) }
             }
 
             // Estado de lectura
-            Text(stringResource(R.string.reading_status), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
-            
+            Text(
+                stringResource(R.string.reading_status),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -84,7 +114,11 @@ fun RegistryFilterSheet(
 
             // Saga
             if (availableSeries.isNotEmpty()) {
-                Text(stringResource(R.string.saga_series), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+                Text(
+                    stringResource(R.string.saga_series),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
                 var expanded by remember { mutableStateOf(false) }
                 ExposedDropdownMenuBox(
                     expanded = expanded,
@@ -96,7 +130,10 @@ fun RegistryFilterSheet(
                         readOnly = true,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                         modifier = Modifier
-                            .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
+                            .menuAnchor(
+                                type = ExposedDropdownMenuAnchorType.PrimaryNotEditable,
+                                enabled = true
+                            )
                             .fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
@@ -125,7 +162,11 @@ fun RegistryFilterSheet(
             }
 
             if (availableAuthors.isNotEmpty()) {
-                Text(stringResource(R.string.authors), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+                Text(
+                    stringResource(R.string.authors),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
                 var expanded by remember { mutableStateOf(false) }
                 ExposedDropdownMenuBox(
                     expanded = expanded,
@@ -137,9 +178,12 @@ fun RegistryFilterSheet(
                         readOnly = true,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                         modifier = Modifier
-                            .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
+                            .menuAnchor(
+                                type = ExposedDropdownMenuAnchorType.PrimaryNotEditable,
+                                enabled = true
+                            )
                             .fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
                     )
                     ExposedDropdownMenu(
                         expanded = expanded,
@@ -164,9 +208,13 @@ fun RegistryFilterSheet(
                     }
                 }
             }
-            
+
             // Ordenación específica
-            Text(stringResource(R.string.other_filters), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+            Text(
+                stringResource(R.string.other_filters),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary
+            )
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(
                     selected = currentCriteria.favouritesOnly,
@@ -177,7 +225,12 @@ fun RegistryFilterSheet(
                 )
                 FilterChip(
                     selected = currentCriteria.sortBy == SortOption.SERIES_ORDER_ASC,
-                    onClick = { onCriteriaChanged(currentCriteria.copy(sortBy = SortOption.SERIES_ORDER_ASC)) },
+                    onClick = {
+                        val newSortBy =
+                            if (currentCriteria.sortBy == SortOption.SERIES_ORDER_ASC) SortOption.STARTED_AT_DESC
+                            else SortOption.SERIES_ORDER_ASC
+                        onCriteriaChanged(currentCriteria.copy(sortBy = newSortBy))
+                    },
                     label = { Text(stringResource(R.string.series_order)) }
                 )
             }

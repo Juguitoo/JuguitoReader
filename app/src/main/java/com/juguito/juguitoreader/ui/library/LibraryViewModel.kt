@@ -20,6 +20,10 @@ import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import androidx.lifecycle.SavedStateHandle
+import com.juguito.juguitoreader.domain.model.BookCriteria
+import com.juguito.juguitoreader.domain.model.SortOption
+import com.juguito.juguitoreader.domain.model.applyCriteria
+import com.juguito.juguitoreader.domain.model.applyOrderBy
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,14 +48,7 @@ class LibraryViewModel @Inject constructor(
 
     private val _searchText = MutableStateFlow("")
     private val _selectedFolder = MutableStateFlow<Folder?>(null)
-    private val _shelfFilter = MutableStateFlow(
-        ShelfFilter(
-            favouritesOnly = savedStateHandle.get<Boolean>("favourites") ?: false,
-            status = savedStateHandle.get<String>("status")?.let { name ->
-                runCatching { BookStatus.valueOf(name) }.getOrNull()
-            }
-        )
-    )
+    private val _criteria = MutableStateFlow(criteriaFrom(savedStateHandle))
     private val _internalState = MutableStateFlow<LibraryUiState>(LibraryUiState.Loading)
     val uiState: StateFlow<LibraryUiState> = _internalState.asStateFlow()
 
@@ -75,9 +72,9 @@ class LibraryViewModel @Inject constructor(
                     getBooksUseCase(),
                     _searchText,
                     _selectedFolder,
-                    _shelfFilter
-                ) { folders, books, query, currentFolder, filter ->
-                    ShelfContent(folders, books, query, currentFolder, filter)
+                    _criteria
+                ) { folders, books, query, currentFolder, criteria ->
+                    ShelfContent(folders, books, query, currentFolder, criteria)
                 },
                 getLibraryLayoutModeUseCase()
             ) { content, layoutMode ->
@@ -85,39 +82,37 @@ class LibraryViewModel @Inject constructor(
                 val books = content.books
                 val query = content.query
                 val currentFolder = content.currentFolder
-                val filter = content.filter
+                val criteria = content.criteria
 
                 if (books.isEmpty()) {
                     return@combine LibraryUiState.Empty(
                         folders = folders,
                         selectedFolder = currentFolder,
                         searchText = query,
+                        criteria = criteria,
                         layoutMode = layoutMode
                     ) as LibraryUiState
                 }
 
-                val filteredBooks = books.filter { book ->
-                    val matchesText = query.isBlank() ||
-                            book.title.contains(query, ignoreCase = true) ||
-                            book.author.contains(query, ignoreCase = true) ||
-                            (book.series?.contains(query, ignoreCase = true) ?: false)
-
-                    val matchesFolder = currentFolder == null || book.folders.any {it.id == currentFolder.id}
-
-                    val matchesFavourite = !filter.favouritesOnly || book.isFavourite
-                    val matchesStatus = filter.status == null || book.status == filter.status
-
-                    matchesText && matchesFolder && matchesFavourite && matchesStatus
+                val inFolder = if (currentFolder == null) {
+                    books
+                } else {
+                    books.filter { book -> book.folders.any { it.id == currentFolder.id } }
+                }
+                val matched = inFolder.applyCriteria(criteria.copy(searchText = query))
+                val visible = if (criteria.sortBy == SortOption.STARTED_AT_DESC) {
+                    matched
+                } else {
+                    matched.applyOrderBy(criteria.sortBy)
                 }
 
                 LibraryUiState.Success(
                     folders = folders,
-                    filteredBooks = filteredBooks,
+                    filteredBooks = visible,
                     allBooks = books,
                     selectedFolder = currentFolder,
                     searchText = query,
-                    favouritesOnly = filter.favouritesOnly,
-                    status = filter.status,
+                    criteria = criteria,
                     layoutMode = layoutMode
                 ) as LibraryUiState
             }.catch { error ->
@@ -145,12 +140,6 @@ class LibraryViewModel @Inject constructor(
             is LibraryEvent.OnSearchTextChanged -> {
                 _searchText.value = event.searchText?.trim() ?: ""
             }
-            is LibraryEvent.OnFavouritesFilterChanged -> {
-                _shelfFilter.value = _shelfFilter.value.copy(favouritesOnly = event.enabled)
-            }
-            is LibraryEvent.OnStatusFilterChanged -> {
-                _shelfFilter.value = _shelfFilter.value.copy(status = event.status)
-            }
             is LibraryEvent.OnStatusChanged -> {
                 updateBookStatus(event.bookId, event.newStatus)
             }
@@ -158,6 +147,12 @@ class LibraryViewModel @Inject constructor(
                 viewModelScope.launch {
                     saveLibraryLayoutModeUseCase(event.layoutMode)
                 }
+            }
+            is LibraryEvent.OnCriteriaChanged -> {
+                updateCriteria(event.criteria)
+            }
+            LibraryEvent.OnClearFilters -> {
+                updateCriteria(BookCriteria())
             }
         }
     }
@@ -170,6 +165,10 @@ class LibraryViewModel @Inject constructor(
         viewModelScope.launch {
             updateBookUseCase(book.copy(status = newStatus))
         }
+    }
+
+    private fun updateCriteria(criteria: BookCriteria) {
+        _criteria.value = criteria
     }
 
     fun importBook(uri: Uri) {
@@ -193,15 +192,20 @@ class LibraryViewModel @Inject constructor(
     }
 }
 
-private data class ShelfFilter(
-    val favouritesOnly: Boolean = false,
-    val status: BookStatus? = null,
-)
+private fun criteriaFrom(savedStateHandle: SavedStateHandle): BookCriteria {
+    val status = savedStateHandle.get<String>("status")?.let { name ->
+        runCatching { BookStatus.valueOf(name) }.getOrNull()
+    }
+    return BookCriteria(
+        favouritesOnly = savedStateHandle.get<Boolean>("favourites") ?: false,
+        statuses = status?.let { setOf(it) } ?: emptySet()
+    )
+}
 
 private data class ShelfContent(
     val folders: List<Folder>,
     val books: List<Book>,
     val query: String,
     val currentFolder: Folder?,
-    val filter: ShelfFilter,
+    val criteria: BookCriteria
 )

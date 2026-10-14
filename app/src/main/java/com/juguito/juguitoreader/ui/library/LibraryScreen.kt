@@ -12,30 +12,30 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.StarOutline
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -67,18 +67,17 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.juguito.juguitoreader.R
-import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.domain.model.BookCriteria
+import com.juguito.juguitoreader.domain.model.hasFilters
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
+import com.juguito.juguitoreader.ui.common.components.BookFilterSheet
 import com.juguito.juguitoreader.ui.common.components.EmptyLibraryView
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.ErrorView
-import com.juguito.juguitoreader.ui.home.components.PendingBookRow
-import com.juguito.juguitoreader.ui.library.LibraryEvent.OnFavouritesFilterChanged
 import com.juguito.juguitoreader.ui.library.LibraryEvent.OnSearchTextChanged
 import com.juguito.juguitoreader.ui.library.LibraryEvent.OnSelectedFolderChanged
 import com.juguito.juguitoreader.ui.library.LibraryEvent.OnStatusChanged
-import com.juguito.juguitoreader.ui.library.LibraryEvent.OnStatusFilterChanged
 import com.juguito.juguitoreader.ui.library.components.AllFoldersSheet
 import com.juguito.juguitoreader.ui.library.components.BookLibraryGridItem
 import com.juguito.juguitoreader.ui.library.components.BookLibraryRow
@@ -151,7 +150,35 @@ fun LibraryContent(
         is LibraryUiState.Empty -> state.folders
         else -> emptyList()
     }
+    val currentCriteria = when (state) {
+        is LibraryUiState.Success -> state.criteria
+        is LibraryUiState.Empty -> state.criteria
+        else -> BookCriteria()
+    }
+
+    val currentAvailableAuthors = when(state) {
+        is LibraryUiState.Success -> state.availableAuthors
+        else -> emptyList()
+    }
+
+    val currentAvailableSeries = when(state) {
+        is LibraryUiState.Success -> state.availableSeries
+        else -> emptyList()
+    }
+
     var showMenu by remember { mutableStateOf(false) }
+    var showFilterSheet by remember { mutableStateOf(false) }
+
+    if (showFilterSheet) {
+        BookFilterSheet(
+            currentCriteria = currentCriteria,
+            availableSeries = currentAvailableSeries,
+            availableAuthors = currentAvailableAuthors,
+            onCriteriaChanged = { onEvent(LibraryEvent.OnCriteriaChanged(it)) },
+            onDismiss = { showFilterSheet = false },
+            onClearFilters = { onEvent(LibraryEvent.OnClearFilters) }
+        )
+    }
 
     val documentPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
@@ -249,22 +276,16 @@ fun LibraryContent(
                 },
                 actions = {
                     if (!isSearchVisible) {
-                        val favouritesOnly = (state as? LibraryUiState.Success)?.favouritesOnly == true
-                        if (state is LibraryUiState.Success) {
-                            IconButton(
-                                onClick = { onEvent(OnFavouritesFilterChanged(!favouritesOnly)) }
-                            ) {
-                                Icon(
-                                    imageVector = if (favouritesOnly) Icons.Default.Star else Icons.Default.StarOutline,
-                                    contentDescription = stringResource(
-                                        if (favouritesOnly) R.string.clear_favourites_filter else R.string.show_favourites_only
-                                    ),
-                                    tint = Color.White
-                                )
-                            }
-                        }
                         IconButton(onClick = { onToggleSearch(true) }) {
                             Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_hint))
+                        }
+                        IconButton(
+                            onClick = { showFilterSheet = true }
+                        ) {
+                            val isFiltered = currentCriteria.hasFilters()
+                            BadgedBox(badge = { if (isFiltered) Badge() }) {
+                                Icon(imageVector = Icons.Default.FilterList, contentDescription = stringResource(R.string.filters))
+                            }
                         }
                         IconButton(onClick = { showMenu = true }) {
                             Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.options))
@@ -341,32 +362,6 @@ fun LibraryContent(
                                 onEvent(OnSelectedFolderChanged(folder))
                             }
                         )
-                        state.status?.let { status ->
-                            Row(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 4.dp)) {
-                                FilterChip(
-                                    selected = true,
-                                    onClick = { onEvent(OnStatusFilterChanged(null)) },
-                                    label = {
-                                        Text(
-                                            text = stringResource(
-                                                when (status) {
-                                                    BookStatus.PENDING -> R.string.status_pending
-                                                    BookStatus.READING -> R.string.status_reading
-                                                    BookStatus.FINISHED -> R.string.status_finished
-                                                    BookStatus.DROPPED -> R.string.status_dropped
-                                                }
-                                            )
-                                        )
-                                    },
-                                    trailingIcon = {
-                                        Icon(
-                                            imageVector = Icons.Default.Close,
-                                            contentDescription = stringResource(R.string.clear_status_filter)
-                                        )
-                                    }
-                                )
-                            }
-                        }
 
                         Box(modifier = Modifier.fillMaxSize()) {
                             FolderSideMarks(
@@ -376,8 +371,7 @@ fun LibraryContent(
                             if (state.filteredBooks.isEmpty()) {
                                 EmptySearchPlaceholder(
                                     isSearching = state.searchText.isNotBlank(),
-                                    isFilteringFavourites = state.favouritesOnly,
-                                    isFilteringStatus = state.status != null,
+                                    isFiltering = state.criteria != BookCriteria(),
                                     modifier = Modifier.align(Alignment.Center)
                                 )
                             } else {

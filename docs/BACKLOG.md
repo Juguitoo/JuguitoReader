@@ -6,6 +6,10 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 ## En curso
 
+- [ ] TAR-49 Controles biblioteca (filtros + ordenación)
+  - version: v1.3.0
+  - tipo: feat
+  - ref: tasks/TAR-49.md
 
 ## Pendiente
 
@@ -21,9 +25,6 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 
 
-- [ ] TAR-49 Controles biblioteca (filtros + ordenación)
-  - version: v1.3.0
-  - tipo: feat
 
 - [ ] TAR-19 Recopilación de estadísticas
   - version: v1.3.0

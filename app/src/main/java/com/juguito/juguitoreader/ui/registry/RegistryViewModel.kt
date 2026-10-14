@@ -8,6 +8,7 @@ import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.BookCriteria
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.applyCriteria
+import com.juguito.juguitoreader.domain.model.applyOrderBy
 import com.juguito.juguitoreader.domain.model.copy
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
@@ -51,7 +52,8 @@ class RegistryViewModel @Inject constructor(
                     )
                 }
                 .collect { books ->
-                    val filtered = books.applyCriteria(_uiState.value.criteria)
+                    val criteria = _uiState.value.criteria
+                    val filtered = books.applyCriteria(criteria).applyOrderBy(criteria.sortBy)
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         errorMessage = null,
@@ -116,7 +118,7 @@ class RegistryViewModel @Inject constructor(
     }
 
     private fun updateCriteria(criteria: BookCriteria) {
-        val filtered = _uiState.value.books.applyCriteria(criteria)
+        val filtered = _uiState.value.books.applyCriteria(criteria).applyOrderBy(criteria.sortBy)
         _uiState.value = _uiState.value.copy(
             criteria = criteria,
             filteredBooks = filtered

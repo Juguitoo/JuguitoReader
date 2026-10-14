@@ -50,6 +50,8 @@ import com.juguito.juguitoreader.ui.common.toUiText
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.SortOption
+import com.juguito.juguitoreader.domain.model.hasFilters
+import com.juguito.juguitoreader.ui.common.components.BookFilterSheet
 import com.juguito.juguitoreader.ui.common.components.JuguitoDatePickerDialog
 import com.juguito.juguitoreader.ui.components.ErrorView
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
@@ -63,7 +65,6 @@ private val ColFechaWidth = 140.dp
 private val ColComentarioWidth = 350.dp
 private val TotalTableWidth = ColLibroWidth + ColEstadoWidth + ColNotaWidth + (ColFechaWidth * 2) + ColComentarioWidth + 10.dp
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistryScreen(
     onOpenDrawer: () -> Unit,
@@ -100,7 +101,7 @@ fun RegistryContent(
     val focusManager = LocalFocusManager.current
 
     if (state.showFilterSheet) {
-        RegistryFilterSheet(
+        BookFilterSheet(
             currentCriteria = state.criteria,
             availableSeries = state.availableSeries,
             availableAuthors = state.availableAuthors,
@@ -177,7 +178,7 @@ fun RegistryContent(
                         }
                     }
                     IconButton(onClick = { onEvent(RegistryEvent.OnShowFilterSheet(true)) }) {
-                        val isFiltered = state.criteria.statuses.isNotEmpty() || state.criteria.series != null
+                        val isFiltered = state.criteria.hasFilters()
                         BadgedBox(badge = { if (isFiltered) Badge() }) {
                             Icon(imageVector = Icons.Default.FilterList, contentDescription = stringResource(R.string.filters))
                         }

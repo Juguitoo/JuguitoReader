@@ -2,6 +2,7 @@ package com.juguito.juguitoreader.ui.library
 
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.domain.model.BookCriteria
 import com.juguito.juguitoreader.domain.model.Folder
 
 sealed interface LibraryUiState {
@@ -11,6 +12,7 @@ sealed interface LibraryUiState {
         val folders: List<Folder> = emptyList(),
         val selectedFolder: Folder? = null,
         val searchText: String = "",
+        val criteria: BookCriteria = BookCriteria(),
         val layoutMode: Int = 0
     ) : LibraryUiState
 
@@ -20,8 +22,10 @@ sealed interface LibraryUiState {
         val folders: List<Folder> = emptyList(),
         val selectedFolder: Folder? = null,
         val searchText: String = "",
-        val favouritesOnly: Boolean = false,
-        val status: BookStatus? = null,
+        val criteria: BookCriteria = BookCriteria(),
         val layoutMode: Int = 0
-    ): LibraryUiState
+    ): LibraryUiState {
+        val availableSeries: List<String> = allBooks.mapNotNull { it.series }.filter { it.isNotBlank() }.distinct().sorted()
+        val availableAuthors: List<String> = allBooks.map { it.author }.filter { it.isNotBlank() }.distinct().sorted()
+    }
 }

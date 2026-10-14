@@ -25,9 +25,8 @@ import com.juguito.juguitoreader.R
 @Composable
 fun EmptySearchPlaceholder(
     isSearching: Boolean,
-    isFilteringFavourites: Boolean = false,
-    isFilteringStatus: Boolean = false,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isFiltering: Boolean = false
 ) {
     Column(
         modifier = modifier.padding(24.dp),
@@ -37,7 +36,6 @@ fun EmptySearchPlaceholder(
         Icon(
             imageVector = when {
                 isSearching -> Icons.Default.SearchOff
-                isFilteringFavourites -> Icons.Default.Star
                 else -> Icons.Default.Folder
             },
             contentDescription = null,
@@ -48,8 +46,7 @@ fun EmptySearchPlaceholder(
         Text(
             text = when {
                 isSearching -> stringResource(R.string.no_search_results)
-                isFilteringFavourites -> stringResource(R.string.no_favourite_books)
-                isFilteringStatus -> stringResource(R.string.no_books_for_status)
+                isFiltering -> stringResource(R.string.no_search_results)
                 else -> stringResource(R.string.no_books_in_folder)
             },
             style = MaterialTheme.typography.titleMedium,

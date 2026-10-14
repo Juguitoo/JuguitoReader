@@ -24,23 +24,24 @@ enum class SortOption(@StringRes val displayName: Int) {
 }
 
 fun List<Book>.applyCriteria(criteria: BookCriteria): List<Book> {
-    return this.filter { book ->
-        val matchesText = criteria.searchText.isBlank() || 
+    return filter { book ->
+        val matchesText = criteria.searchText.isBlank() ||
                 book.title.contains(criteria.searchText, ignoreCase = true) ||
                 book.author.contains(criteria.searchText, ignoreCase = true) ||
                 (book.series?.contains(criteria.searchText, ignoreCase = true) ?: false)
-        
-        val matchesStatus = criteria.statuses.isEmpty() || criteria.statuses.contains(book.status)
-        
+
+        val matchesStatus = criteria.statuses.isEmpty() || book.status in criteria.statuses
         val matchesSeries = criteria.series == null || book.series == criteria.series
-
         val matchesAuthor = criteria.author == null || book.author == criteria.author
-
         val matchesFavourite = !criteria.favouritesOnly || book.isFavourite
-        
+
         matchesText && matchesStatus && matchesSeries && matchesAuthor && matchesFavourite
-    }.sortedWith(
-        when (criteria.sortBy) {
+    }
+}
+
+fun List<Book>.applyOrderBy(sortBy: SortOption): List<Book> {
+    return sortedWith(
+        when (sortBy) {
             SortOption.TITLE_ASC -> compareBy { it.title.lowercase() }
             SortOption.TITLE_DESC -> compareByDescending { it.title.lowercase() }
             SortOption.RATING_DESC -> compareByDescending { it.rating }
@@ -50,4 +51,13 @@ fun List<Book>.applyCriteria(criteria: BookCriteria): List<Book> {
             SortOption.SERIES_ORDER_ASC -> compareBy<Book> { it.series?.lowercase() }.thenBy { it.seriesOrder }
         }
     )
+}
+
+fun BookCriteria.hasFilters(): Boolean {
+    return searchText.isNotBlank()
+            || statuses.isNotEmpty()
+            || !series.isNullOrBlank()
+            || !author.isNullOrBlank()
+            || favouritesOnly
+            || sortBy != SortOption.STARTED_AT_DESC
 }

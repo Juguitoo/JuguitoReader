@@ -208,7 +208,7 @@ No es el inicio de una modularización `:core` / `:feature-*`.
 
 ### Filtros en cliente (`BookCriteria`)
 
-`List<Book>.applyCriteria()` filtra y ordena en memoria. Aceptable para biblioteca personal (< miles de libros). Si crece, mover filtros a queries SQL.
+`List<Book>.applyCriteria()` filtra en memoria y `applyOrderBy()` ordena. Aceptable para biblioteca personal (< miles de libros). Si crece, mover filtros a queries SQL.
 
 ### Domain enums en entities Room
 

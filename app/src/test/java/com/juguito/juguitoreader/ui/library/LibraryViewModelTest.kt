@@ -2,10 +2,12 @@ package com.juguito.juguitoreader.ui.library
 
 import android.content.Context
 import android.net.Uri
+import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.domain.model.BookCriteria
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
@@ -64,7 +66,9 @@ class LibraryViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel() = LibraryViewModel(
+    private fun createViewModel(
+        savedStateHandle: SavedStateHandle = SavedStateHandle(),
+    ) = LibraryViewModel(
         context,
         getBooksUseCase,
         getFoldersUseCase,
@@ -72,6 +76,7 @@ class LibraryViewModelTest {
         importBookFromUriUseCase,
         getLibraryLayoutModeUseCase,
         saveLibraryLayoutModeUseCase,
+        savedStateHandle,
     )
 
     @Test
@@ -102,7 +107,7 @@ class LibraryViewModelTest {
     }
 
     @Test
-    fun `onEvent OnFavouritesFilterChanged keeps only favourite books`() = runTest {
+    fun `onEvent OnCriteriaChanged keeps only favourite books`() = runTest {
         val books = listOf(
             Book(id = 1, title = "Fav", author = "A", isPhysical = false, isFavourite = true),
             Book(id = 2, title = "Other", author = "B", isPhysical = false)
@@ -110,11 +115,11 @@ class LibraryViewModelTest {
         every { getBooksUseCase() } returns flowOf(books)
         viewModel = createViewModel()
 
-        viewModel.onEvent(LibraryEvent.OnFavouritesFilterChanged(true))
+        viewModel.onEvent(LibraryEvent.OnCriteriaChanged(BookCriteria(favouritesOnly = true)))
 
         viewModel.uiState.test {
             val successState = awaitItem() as LibraryUiState.Success
-            assertThat(successState.favouritesOnly).isTrue()
+            assertThat(successState.criteria.favouritesOnly).isTrue()
             assertThat(successState.filteredBooks.map { it.id }).containsExactly(1)
         }
     }
@@ -148,7 +153,7 @@ class LibraryViewModelTest {
     }
 
     @Test
-    fun `onEvent OnStatusFilterChanged keeps only books with that status`() = runTest {
+    fun `onEvent OnCriteriaChanged keeps only books with that status`() = runTest {
         val books = listOf(
             Book(id = 1, title = "Now", author = "A", isPhysical = false, status = BookStatus.READING),
             Book(id = 2, title = "Later", author = "B", isPhysical = false, status = BookStatus.PENDING)
@@ -156,11 +161,53 @@ class LibraryViewModelTest {
         every { getBooksUseCase() } returns flowOf(books)
         viewModel = createViewModel()
 
-        viewModel.onEvent(LibraryEvent.OnStatusFilterChanged(BookStatus.READING))
+        viewModel.onEvent(LibraryEvent.OnCriteriaChanged(BookCriteria(statuses = setOf(BookStatus.READING))))
 
         viewModel.uiState.test {
             val successState = awaitItem() as LibraryUiState.Success
-            assertThat(successState.status).isEqualTo(BookStatus.READING)
+            assertThat(successState.criteria.statuses).containsExactly(BookStatus.READING)
+            assertThat(successState.filteredBooks.map { it.id }).containsExactly(1)
+        }
+    }
+
+    @Test
+    fun `home nav args seed criteria and filter the shelf`() = runTest {
+        val books = listOf(
+            Book(id = 1, title = "Now", author = "A", isPhysical = false, status = BookStatus.READING, isFavourite = true),
+            Book(id = 2, title = "Later", author = "B", isPhysical = false, status = BookStatus.PENDING, isFavourite = true),
+            Book(id = 3, title = "Other", author = "C", isPhysical = false, status = BookStatus.PENDING)
+        )
+        every { getBooksUseCase() } returns flowOf(books)
+        viewModel = createViewModel(
+            SavedStateHandle(mapOf("favourites" to true, "status" to BookStatus.PENDING.name))
+        )
+
+        viewModel.uiState.test {
+            val successState = awaitItem() as LibraryUiState.Success
+            assertThat(successState.criteria.favouritesOnly).isTrue()
+            assertThat(successState.criteria.statuses).containsExactly(BookStatus.PENDING)
+            assertThat(successState.filteredBooks.map { it.id }).containsExactly(2)
+        }
+    }
+
+    @Test
+    fun `criteria change keeps the selected folder`() = runTest {
+        val folder = Folder(id = 1, name = "Shelf", colorHex = "#000")
+        val books = listOf(
+            Book(id = 1, title = "In", author = "A", isPhysical = false, isFavourite = true, folders = listOf(folder)),
+            Book(id = 2, title = "Out", author = "B", isPhysical = false, isFavourite = true)
+        )
+        every { getFoldersUseCase() } returns flowOf(listOf(folder))
+        every { getBooksUseCase() } returns flowOf(books)
+        viewModel = createViewModel()
+
+        viewModel.onEvent(LibraryEvent.OnSelectedFolderChanged(folder))
+        viewModel.onEvent(LibraryEvent.OnCriteriaChanged(BookCriteria(favouritesOnly = true)))
+
+        viewModel.uiState.test {
+            val successState = awaitItem() as LibraryUiState.Success
+            assertThat(successState.selectedFolder).isEqualTo(folder)
+            assertThat(successState.criteria.favouritesOnly).isTrue()
             assertThat(successState.filteredBooks.map { it.id }).containsExactly(1)
         }
     }
@@ -175,7 +222,7 @@ class LibraryViewModelTest {
         layoutMode.value = 1
         viewModel = createViewModel()
 
-        viewModel.onEvent(LibraryEvent.OnFavouritesFilterChanged(true))
+        viewModel.onEvent(LibraryEvent.OnCriteriaChanged(BookCriteria(favouritesOnly = true)))
 
         viewModel.uiState.test {
             val successState = awaitItem() as LibraryUiState.Success
