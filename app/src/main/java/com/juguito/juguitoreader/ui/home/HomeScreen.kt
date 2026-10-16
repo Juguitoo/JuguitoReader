@@ -3,25 +3,21 @@ package com.juguito.juguitoreader.ui.home
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.LibraryBooks
-import androidx.compose.material.icons.filled.Book
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.UploadFile
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.rounded.Book
-import androidx.compose.material.icons.sharp.Book
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -33,9 +29,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -49,12 +43,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
+import com.juguito.juguitoreader.ui.common.components.JuguitoTopBar
 import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.components.EmptyLibraryView
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
@@ -76,7 +72,7 @@ fun HomeScreen(
     onNavigateToAddBook: () -> Unit,
     onNavigateToBookDetail: (Int) -> Unit,
     onNavigateToReadBook: (Int) -> Unit,
-    onOpenDrawer: () -> Unit,
+    onNavigateToSettings: () -> Unit,
     onViewActiveReadings: () -> Unit = {},
     onViewFavourites: () -> Unit = {},
     onViewPending: () -> Unit = {},
@@ -96,7 +92,7 @@ fun HomeScreen(
         onNavigateToAddBook = onNavigateToAddBook,
         onNavigateToBookDetail = onNavigateToBookDetail,
         onNavigateToReadBook = onNavigateToReadBook,
-        onOpenDrawer = onOpenDrawer,
+        onNavigateToSettings = onNavigateToSettings,
         onViewActiveReadings = onViewActiveReadings,
         onViewFavourites = onViewFavourites,
         onViewPending = onViewPending,
@@ -117,7 +113,7 @@ fun HomeContent(
     onNavigateToAddBook: () -> Unit,
     onNavigateToBookDetail: (Int) -> Unit,
     onNavigateToReadBook: (Int) -> Unit,
-    onOpenDrawer: () -> Unit,
+    onNavigateToSettings: () -> Unit,
     onViewActiveReadings: () -> Unit = {},
     onViewFavourites: () -> Unit = {},
     onViewPending: () -> Unit = {},
@@ -194,48 +190,40 @@ fun HomeContent(
             }
         },
         topBar = {
-            Surface(
-                shadowElevation = 6.dp,
-                modifier = Modifier.statusBarsPadding()
-            ) {
-                CenterAlignedTopAppBar(
-                    title = {
+            JuguitoTopBar(
+                centerAligned = true,
+                title = {
+                    Row(
+                        horizontalArrangement = Arrangement.Center
+                    ) {
                         Text(
-                            stringResource(R.string.app_name),
+                            stringResource(R.string.juguito_label),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontStyle = FontStyle.Italic,
+                            fontFamily = LoraFontFamily,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            stringResource(R.string.reader_label),
                             style = MaterialTheme.typography.titleLarge,
                             fontFamily = LoraFontFamily,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onOpenDrawer) {
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = stringResource(R.string.menu),
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(
-                            onClick = {
-                                documentPickerLauncher.launch(arrayOf("application/epub+zip"))
-                            },
-                            enabled = !isImporting
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.UploadFile,
-                                contentDescription = stringResource(R.string.import_epub),
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = Color.White
-                    )
-                )
-            }
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = { onNavigateToSettings() }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = stringResource(R.string.settings_label)
+                        )
+                    }
+                }
+            )
         }
     ) { paddingValues ->
 

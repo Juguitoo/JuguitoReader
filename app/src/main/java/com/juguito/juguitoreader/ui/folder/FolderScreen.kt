@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -31,10 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -52,6 +48,7 @@ import androidx.core.graphics.toColorInt
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
+import com.juguito.juguitoreader.ui.common.components.JuguitoTopBar
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.folder.components.FolderColorTonePicker
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
@@ -88,34 +85,24 @@ fun FolderScreen(
             }
         },
         topBar = {
-            Surface(
-                shadowElevation = 4.dp,
-                modifier = Modifier.statusBarsPadding()
-            ) {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = if (state.isEditing) stringResource(R.string.edit_folder) else stringResource(R.string.new_folder),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontFamily = LoraFontFamily,
-                            fontWeight = FontWeight.Bold
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onNavigateBack) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.back),
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = Color.White
+            JuguitoTopBar(
+                title = {
+                    Text(
+                        text = if (state.isEditing) stringResource(R.string.edit_folder) else stringResource(R.string.new_folder),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontFamily = LoraFontFamily,
+                        fontWeight = FontWeight.Bold
                     )
-                )
-            }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
+                    }
+                }
+            )
         }
     ) { paddingValues ->
         Column(

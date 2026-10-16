@@ -53,7 +53,7 @@ Activar al inicio del mensaje: `[MODO: PAIR - N3]` o abreviado `PAIR - N2`.
 ### PLANNER
 
 - Entrada: ID/tag del backlog (ej. `DATA-002`) o tarea nueva; puede incluir constraints e ideas.
-- Referencia de formato: planes en `[.artifacts/plans/](.artifacts/plans/)` (ej. `DATA-001-insert-update-separation.md`).
+- Referencia de formato: planes en `[.artifacts/plans/](.artifacts/plans/)`.
 - **Dónde vive el plan:**
   - N0 / N1 → chat (corto; sin archivo salvo que Hugo lo pida).
   - N2 / N3 / N4 → archivo en `.artifacts/plans/` con estructura completa.

@@ -6,6 +6,10 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 ## En curso
 
+- [ ] TAR-69 Cambiar la navegación en drawer por un bottomNavigation
+  - version: v1.3.0
+  - tipo: feat
+  - ref: tasks/TAR-69.md
 
 ## Pendiente
 

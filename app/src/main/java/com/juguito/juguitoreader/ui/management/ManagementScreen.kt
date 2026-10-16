@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -44,13 +43,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -78,6 +73,8 @@ import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.model.Genre
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
+import com.juguito.juguitoreader.ui.common.components.JuguitoTopBar
+import com.juguito.juguitoreader.ui.common.components.juguitoTopBarTextFieldColors
 import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.JuguitoDialog
@@ -85,12 +82,10 @@ import com.juguito.juguitoreader.ui.genre.AddGenreDialog
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import kotlinx.coroutines.flow.Flow
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManagementScreen(
     managementMessage: Int? = null,
     onClearManagementMessage: () -> Unit,
-    onOpenDrawer: () -> Unit,
     onNavigateToEditFolder: (Int) -> Unit,
     onNavigateToAddFolder: () -> Unit,
     viewModel: ManagementViewModel = hiltViewModel()
@@ -102,7 +97,6 @@ fun ManagementScreen(
         onEvent = viewModel::onEvent,
         managementMessage = managementMessage,
         onClearManagementMessage = onClearManagementMessage,
-        onOpenDrawer = onOpenDrawer,
         onNavigateToEditFolder = onNavigateToEditFolder,
         onNavigateToAddFolder = onNavigateToAddFolder,
         effect = viewModel.effect
@@ -116,7 +110,6 @@ fun ManagementContent(
     onEvent: (ManagementEvent) -> Unit,
     managementMessage: Int?,
     onClearManagementMessage: () -> Unit,
-    onOpenDrawer: () -> Unit,
     onNavigateToEditFolder: (Int) -> Unit,
     onNavigateToAddFolder: () -> Unit,
     effect: Flow<UiEffect>
@@ -200,91 +193,49 @@ fun ManagementContent(
             }
         },
         topBar = {
-            Surface(
-                shadowElevation = 6.dp,
-                modifier = Modifier.statusBarsPadding()
-            ) {
-                TopAppBar(
-                    title = {
-                        if (state.isSearchActive) {
-                            TextField(
-                                value = state.searchQuery,
-                                onValueChange = { onEvent(ManagementEvent.OnSearchQueryChanged(it)) },
-                                placeholder = {
-                                    Text(
-                                        stringResource(R.string.search_hint),
-                                        color = Color.White.copy(alpha = 0.7f),
-                                        style = MaterialTheme.typography.bodyLarge
-                                    )
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .focusRequester(focusRequester),
-                                singleLine = true,
-                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                                colors = TextFieldDefaults.colors(
-                                    focusedContainerColor = Color.Transparent,
-                                    unfocusedContainerColor = Color.Transparent,
-                                    disabledContainerColor = Color.Transparent,
-                                    cursorColor = Color.White,
-                                    focusedIndicatorColor = Color.Transparent,
-                                    unfocusedIndicatorColor = Color.Transparent,
-                                    focusedTextColor = Color.White,
-                                    unfocusedTextColor = Color.White
+            JuguitoTopBar(
+                title = {
+                    if (state.isSearchActive) {
+                        TextField(
+                            value = state.searchQuery,
+                            onValueChange = { onEvent(ManagementEvent.OnSearchQueryChanged(it)) },
+                            placeholder = {
+                                Text(
+                                    stringResource(R.string.search_hint),
+                                    style = MaterialTheme.typography.bodyLarge
                                 )
-                            )
-                        } else {
-                            Text(
-                                stringResource(R.string.content_manager),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontFamily = LoraFontFamily,
-                                fontWeight = FontWeight.Bold
-                            )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .focusRequester(focusRequester),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                            colors = juguitoTopBarTextFieldColors()
+                        )
+                    } else {
+                        Text(
+                            stringResource(R.string.content_manager),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontFamily = LoraFontFamily,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                },
+                actions = {
+                    if (state.isSearchActive) {
+                        IconButton(onClick = { onEvent(ManagementEvent.OnSearchQueryChanged("")) }) {
+                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.clear))
                         }
-                    },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = if (state.isSearchActive) {
-                                { onEvent(ManagementEvent.OnToggleSearch) }
-                            } else {
-                                onOpenDrawer
-                            }
-                        ) {
-                            Icon(
-                                imageVector = if (state.isSearchActive) {
-                                    Icons.AutoMirrored.Filled.ArrowBack
-                                } else {
-                                    Icons.Default.Menu
-                                },
-                                contentDescription = if (state.isSearchActive) {
-                                    stringResource(R.string.return_text)
-                                } else {
-                                    stringResource(R.string.menu)
-                                },
-                                tint = Color.White
-                            )
+                    } else {
+                        IconButton(onClick = { onEvent(ManagementEvent.OnToggleSearch) }) {
+                            Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_hint))
                         }
-                    },
-                    actions = {
-                        if (state.isSearchActive) {
-                            IconButton(onClick = { onEvent(ManagementEvent.OnSearchQueryChanged("")) }) {
-                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.clear), tint = Color.White)
-                            }
-                        } else {
-                            IconButton(onClick = { onEvent(ManagementEvent.OnToggleSearch) }) {
-                                Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_hint), tint = Color.White)
-                            }
-                        }
-                        IconButton(onClick = { if (state.selectedTab == 0) {onNavigateToAddFolder()} else {showAddGenreDialog = true} }) {
-                            Icon(Icons.Default.Add, contentDescription = stringResource(R.string.create), tint = Color.White)
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = Color.White
-                    )
-                )
-            }
+                    }
+                    IconButton(onClick = { if (state.selectedTab == 0) {onNavigateToAddFolder()} else {showAddGenreDialog = true} }) {
+                        Icon(Icons.Default.Add, contentDescription = stringResource(R.string.create))
+                    }
+                }
+            )
         }
     ) { paddingValues ->
         val filteredFolders = remember(state.folders, state.searchQuery) {

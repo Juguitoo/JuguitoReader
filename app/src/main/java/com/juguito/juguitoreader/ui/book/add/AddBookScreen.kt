@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -53,8 +52,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -64,7 +61,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -75,6 +71,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.ui.common.components.JuguitoTopBar
 import com.juguito.juguitoreader.ui.book.components.FolderMultiSelector
 import com.juguito.juguitoreader.ui.book.components.GenreHybridSelector
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
@@ -243,50 +240,37 @@ fun AddBookContent(
             }
         },
         topBar = {
-            Surface(
-                shadowElevation = 6.dp,
-                modifier = Modifier
-                    .background(Color.Transparent)
-                    .statusBarsPadding(),
-            ) {
-                TopAppBar(
-                    title = {
-                        Text(
-                            stringResource(R.string.add_book_title),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontFamily = LoraFontFamily,
-                            fontWeight = FontWeight.Bold
+            JuguitoTopBar(
+                title = {
+                    Text(
+                        stringResource(R.string.add_book_title),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontFamily = LoraFontFamily,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        onEvent(AddBookEvent.OnDiscard)
+                        onNavigateBack()
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
                         )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            onEvent(AddBookEvent.OnDiscard)
-                            onNavigateBack()
-                        }) {
+                    }
+                },
+                actions = {
+                    if (!state.bookDraft.isPhysical) {
+                        IconButton(onClick = { showImportDialog = true }) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.back),
-                                tint = Color.White
+                                imageVector = Icons.Default.Download,
+                                contentDescription = stringResource(R.string.autocomplete_epub)
                             )
                         }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = Color.White
-                    ),
-                    actions = {
-                        if (!state.bookDraft.isPhysical) {
-                            IconButton(onClick = { showImportDialog = true }) {
-                                Icon(
-                                    imageVector = Icons.Default.Download,
-                                    contentDescription = stringResource(R.string.autocomplete_epub),
-                                    tint = Color.White
-                                )
-                            }
-                        }
                     }
-                )
-            }
+                }
+            )
         }
     ) { paddingValues ->
         Column(

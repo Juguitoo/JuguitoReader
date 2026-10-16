@@ -1,7 +1,5 @@
 package com.juguito.juguitoreader.ui.navigation
 
-import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -10,52 +8,40 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.AppRegistration
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.AutoStories
-import androidx.compose.material.icons.filled.Coffee
-import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.LibraryAdd
-import androidx.compose.material.icons.filled.NewLabel
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Widgets
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -63,6 +49,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -84,7 +71,6 @@ import com.juguito.juguitoreader.ui.changelog.WhatsNewEvent
 import com.juguito.juguitoreader.ui.changelog.WhatsNewUiState
 import com.juguito.juguitoreader.ui.changelog.WhatsNewViewModel
 import com.juguito.juguitoreader.ui.folder.FolderScreen
-import com.juguito.juguitoreader.ui.genre.AddGenreDialog
 import com.juguito.juguitoreader.ui.home.HomeScreen
 import com.juguito.juguitoreader.ui.library.LibraryScreen
 import com.juguito.juguitoreader.ui.onboarding.OnboardingEvent
@@ -95,7 +81,7 @@ import com.juguito.juguitoreader.ui.management.ManagementScreen
 import com.juguito.juguitoreader.ui.reader.ReaderScreen
 import com.juguito.juguitoreader.ui.registry.RegistryScreen
 import com.juguito.juguitoreader.ui.settings.SettingsScreen
-import com.juguito.juguitoreader.utils.openDonationPage
+import com.juguito.juguitoreader.ui.theme.chromeNavInactiveColor
 import kotlinx.coroutines.launch
 
 @Composable
@@ -103,10 +89,8 @@ fun JuguitoApp(
     whatsNewViewModel: WhatsNewViewModel = hiltViewModel(),
     onboardingViewModel: OnboardingViewModel = hiltViewModel()
 ) {
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
-    val context = LocalContext.current
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
@@ -115,22 +99,6 @@ fun JuguitoApp(
     val isOnboardingVisible = onboardingState is OnboardingUiState.Visible
     val isWhatsNewVisible = whatsNewState is WhatsNewUiState.Visible && !isOnboardingVisible
 
-    var showAddGenreDialog by remember { mutableStateOf(false) }
-
-    if (showAddGenreDialog) {
-        AddGenreDialog(
-            onDismissRequest = {showAddGenreDialog = false},
-        )
-    }
-
-    var managementExpanded by rememberSaveable { mutableStateOf(true) }
-
-    LaunchedEffect(currentRoute) {
-        if (currentRoute == "add_book" || currentRoute == "add_folder") {
-            managementExpanded = true
-        }
-    }
-
     if (isWhatsNewVisible) {
         WhatsNewDialog(
             state = whatsNewState,
@@ -138,361 +106,209 @@ fun JuguitoApp(
         )
     }
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        gesturesEnabled = areDrawerGesturesEnabled(currentRoute) && !showAddGenreDialog && !isWhatsNewVisible && !isOnboardingVisible,
-        drawerContent = {
-            ModalDrawerSheet(
-                modifier = Modifier.fillMaxWidth(0.75f),
-                drawerContainerColor = MaterialTheme.colorScheme.surface,
-                drawerShape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
-            ) {
-                DrawerHeader()
-                
-                Spacer(modifier = Modifier.height(12.dp))
-
-                DrawerItem(
-                    label = stringResource(R.string.home_label),
-                    icon = Icons.Default.Home,
-                    selected = currentRoute == "home",
-                    onClick = { 
-                        scope.launch { 
-                            drawerState.close()
-                            navController.navigateToTopLevel("home")
-                        } 
-                    }
-                )
-
-                DrawerItem(
-                    label = stringResource(R.string.registry_label),
-                    icon = Icons.Default.AppRegistration,
-                    selected = currentRoute == "registry",
-                    onClick = { 
-                        scope.launch { 
-                            drawerState.close()
-                            navController.navigateToTopLevel("registry")
-                        } 
-                    }
-                )
-
-                DrawerItem(
-                    label = stringResource(R.string.library_label),
-                    icon = Icons.Default.AutoStories,
-                    selected = currentRoute.matchesTopLevel("library"),
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                            navController.navigateToTopLevel("library")
-                        }
-                    }
-                )
-
-                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
-
-                Text(
-                    text = stringResource(R.string.management_label),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(start = 28.dp, bottom = 8.dp)
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(end = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(Modifier.weight(1f)) {
-                        DrawerItem(
-                            label = stringResource(R.string.content_manager),
-                            icon = Icons.Default.Widgets,
-                            selected = currentRoute == "management",
-                            onClick = {
-                                scope.launch {
-                                    drawerState.close()
-                                    navController.navigateToTopLevel("management")
-                                }
+    Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        bottomBar =
+            {
+                if (shouldShowNavigationBar(currentRoute)) {
+                    JuguitoNavigationBar(
+                        currentRoute = currentRoute,
+                        onHomeClick = {
+                            scope.launch {
+                                navController.navigateToTopLevel("home")
                             }
-                        )
-                    }
-
-                    IconButton(onClick = { managementExpanded = !managementExpanded }) {
-                        Icon(
-                            imageVector = if (managementExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                            contentDescription = stringResource(
-                                if (managementExpanded) R.string.collapse_management else R.string.expand_management
-                            )
-                        )
-                    }
-                }
-
-                AnimatedVisibility(visible = managementExpanded) {
-                    Column(Modifier.padding(start = 16.dp)) {
-                        DrawerItem(
-                            label = stringResource(R.string.create_book),
-                            icon = Icons.Default.LibraryAdd,
-                            onClick = {
-                                scope.launch {
-                                    drawerState.close()
-                                    navController.navigate("add_book")
-                                }
+                        },
+                        onLibraryClick = {
+                            scope.launch {
+                                navController.navigateToTopLevel("library")
                             }
-                        )
-
-                        DrawerItem(
-                            label = stringResource(R.string.create_folder),
-                            icon = Icons.Default.CreateNewFolder,
-                            onClick = {
-                                scope.launch {
-                                    drawerState.close()
-                                    navController.navigate("add_folder")
-                                }
-                            }
-                        )
-
-                        DrawerItem(
-                            label = stringResource(R.string.create_genre),
-                            icon = Icons.Default.NewLabel,
-                            onClick = {
-                                scope.launch { drawerState.close() }
-                                showAddGenreDialog = true
-                            }
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    DrawerFooterIcon(
-                        icon = Icons.Default.Coffee,
-                        contentDescription = stringResource(R.string.donation),
-                        selected = false,
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                            if (!context.openDonationPage()) {
-                                Toast.makeText(context, R.string.donation_no_browser, Toast.LENGTH_SHORT).show()
+                        },
+                        onRegistryClick = {
+                            scope.launch {
+                                navController.navigateToTopLevel("registry")
                             }
                         }
                     )
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        DrawerFooterIcon(
-                            icon = Icons.Default.Settings,
-                            contentDescription = stringResource(R.string.settings),
-                            selected = currentRoute == "settings",
-                            onClick = {
-                                scope.launch { drawerState.close() }
-                                navController.navigate("settings")
-                            }
-                        )
-                        DrawerFooterIcon(
-                            icon = Icons.Default.Info,
-                            contentDescription = stringResource(R.string.about),
-                            selected = currentRoute == "about",
-                            onClick = {
-                                scope.launch { drawerState.close() }
-                                navController.navigate("about")
-                            }
-                        )
-                    }
                 }
-                Spacer(modifier = Modifier.height(12.dp))
             }
-        }
-    ) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
+    ) { paddingValues ->
+        NavHost(
+            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
+            navController = navController,
+            startDestination = "home",
+            enterTransition = { fadeIn(animationSpec = tween(300)) },
+            exitTransition = { fadeOut(animationSpec = tween(300)) }
         ) {
-            NavHost(
-                navController = navController,
-                startDestination = "home",
-                enterTransition = { fadeIn(animationSpec = tween(300)) },
-                exitTransition = { fadeOut(animationSpec = tween(300)) }
+            composable(route = "home") { backStackEntry ->
+                val savedStateHandle = backStackEntry.savedStateHandle
+                val snackbarMessage by savedStateHandle
+                    .getStateFlow<Int?>("snackbar_result", null)
+                    .collectAsState()
+
+                HomeScreen(
+                    snackbarMessage = snackbarMessage,
+                    onClearSnackbarMessage = {
+                        savedStateHandle.remove<Int>("snackbar_result")
+                    },
+                    onNavigateToAddBook = {
+                        navController.navigate("add_book")
+                    },
+                    onNavigateToBookDetail = { bookId ->
+                        navController.navigate("book_detail/$bookId")
+                    },
+                    onNavigateToReadBook = { bookId ->
+                        navController.navigate("reader/$bookId")
+                    },
+                    onNavigateToSettings = {
+                        navController.navigate("settings")
+                    },
+                    onViewActiveReadings = {
+                        navController.navigate("library?status=${BookStatus.READING.name}")
+                    },
+                    onViewFavourites = {
+                        navController.navigate("library?favourites=true")
+                    },
+                    onViewPending = {
+                        navController.navigate("library?status=${BookStatus.PENDING.name}")
+                    }
+                )
+            }
+
+            composable(route = "add_book") {
+                AddBookScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onBookSavedSuccessfully = {
+                        navController.popBackStack()
+                    },
+                    onNavigateToAddFolder = { navController.navigate("add_folder") }
+                )
+            }
+
+            composable(route = "add_folder") {
+                FolderScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onFolderSavedSuccessfully = {
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("snackbar_result", R.string.folder_created)
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(
+                route = "edit_folder/{folderId}",
+                arguments = listOf(navArgument("folderId") { type = NavType.IntType })
             ) {
-                composable(route = "home") { backStackEntry ->
-                    val savedStateHandle = backStackEntry.savedStateHandle
-                    val snackbarMessage by savedStateHandle
-                        .getStateFlow<Int?>("snackbar_result", null)
-                        .collectAsState()
+                FolderScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onFolderSavedSuccessfully = {
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("snackbar_result", R.string.folder_updated)
+                        navController.popBackStack()
+                    }
+                )
+            }
 
-                    HomeScreen(
-                        snackbarMessage = snackbarMessage,
-                        onClearSnackbarMessage = {
-                            savedStateHandle.remove<Int>("snackbar_result")
-                        },
-                        onOpenDrawer = { scope.launch { drawerState.open() } },
-                        onNavigateToAddBook = {
-                            navController.navigate("add_book")
-                        },
-                        onNavigateToBookDetail = { bookId ->
-                            navController.navigate("book_detail/$bookId")
-                        },
-                        onNavigateToReadBook = { bookId ->
-                            navController.navigate("reader/$bookId")
-                        },
-                        onViewActiveReadings = {
-                            navController.navigate("library?status=${BookStatus.READING.name}")
-                        },
-                        onViewFavourites = {
-                            navController.navigate("library?favourites=true")
-                        },
-                        onViewPending = {
-                            navController.navigate("library?status=${BookStatus.PENDING.name}")
-                        }
-                    )
-                }
+            composable(route = "management") { backStackEntry ->
+                val savedStateHandle = backStackEntry.savedStateHandle
+                val snackbarMessage by savedStateHandle
+                    .getStateFlow<Int?>("snackbar_result", null)
+                    .collectAsState()
 
-                composable(route = "add_book") {
-                    AddBookScreen(
-                        onNavigateBack = { navController.popBackStack() },
-                        onBookSavedSuccessfully = {
-                            navController.popBackStack()
-                        },
-                        onNavigateToAddFolder = { navController.navigate("add_folder") }
-                    )
-                }
+                ManagementScreen(
+                    managementMessage = snackbarMessage,
+                    onClearManagementMessage = {
+                        savedStateHandle.remove<Int>("snackbar_result")
+                    },
+                    onNavigateToEditFolder = { folderId ->
+                        navController.navigate("edit_folder/$folderId")
+                    },
+                    onNavigateToAddFolder = { navController.navigate("add_folder") }
+                )
+            }
 
-                composable(route = "add_folder") {
-                    FolderScreen(
-                        onNavigateBack = { navController.popBackStack() },
-                        onFolderSavedSuccessfully = {
-                            navController.previousBackStackEntry
-                                ?.savedStateHandle
-                                ?.set("snackbar_result", R.string.folder_created)
-                            navController.popBackStack()
-                        }
-                    )
-                }
+            composable(
+                route = "book_detail/{bookId}",
+                arguments = listOf(navArgument("bookId") { type = NavType.IntType })
+            ) {
+                BookDetailScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToAddFolder = { navController.navigate("add_folder") },
+                    onNavigateToReadBook = { bookId ->
+                        navController.navigate("reader/$bookId")
+                    }
+                )
+            }
 
-                composable(
-                    route = "edit_folder/{folderId}",
-                    arguments = listOf(navArgument("folderId") { type = NavType.IntType })
-                ) {
-                    FolderScreen(
-                        onNavigateBack = { navController.popBackStack() },
-                        onFolderSavedSuccessfully = {
-                            navController.previousBackStackEntry
-                                ?.savedStateHandle
-                                ?.set("snackbar_result", R.string.folder_updated)
-                            navController.popBackStack()
-                        }
-                    )
-                }
+            composable(route = "registry") {
+                RegistryScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToAddBook = {
+                        navController.navigate("add_book")
+                    },
+                    onNavigateToBookDetail = { bookId ->
+                        navController.navigate("book_detail/$bookId")
+                    }
+                )
+            }
 
-                composable(route = "management") { backStackEntry ->
-                    val savedStateHandle = backStackEntry.savedStateHandle
-                    val snackbarMessage by savedStateHandle
-                        .getStateFlow<Int?>("snackbar_result", null)
-                        .collectAsState()
+            composable(
+                route = "library?favourites={favourites}&status={status}",
+                arguments = listOf(
+                    navArgument("favourites") {
+                        type = NavType.BoolType
+                        defaultValue = false
+                    },
+                    navArgument("status") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+            ) {
+                LibraryScreen(
+                    onNavigateToAddBook = {
+                        navController.navigate("add_book")
+                    },
+                    onNavigateToReadBook = { bookId ->
+                        navController.navigate("reader/$bookId")
+                    },
+                    onNavigateToBookDetail = { bookId ->
+                        navController.navigate("book_detail/$bookId")
+                    }
+                )
+            }
 
-                    ManagementScreen(
-                        managementMessage = snackbarMessage,
-                        onClearManagementMessage = {
-                            savedStateHandle.remove<Int>("snackbar_result")
-                        },
-                        onOpenDrawer = { scope.launch { drawerState.open() } },
-                        onNavigateToEditFolder = { folderId ->
-                            navController.navigate("edit_folder/$folderId")
-                        },
-                        onNavigateToAddFolder = { navController.navigate("add_folder") }
-                    )
-                }
+            composable(
+                route = "reader/{bookId}",
+                arguments = listOf(navArgument("bookId") { type = NavType.IntType })
+            ) {
+                ReaderScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
 
-                composable(
-                    route = "book_detail/{bookId}",
-                    arguments = listOf(navArgument("bookId") { type = NavType.IntType })
-                ) {
-                    BookDetailScreen(
-                        onNavigateBack = { navController.popBackStack() },
-                        onNavigateToAddFolder = { navController.navigate("add_folder") },
-                        onNavigateToReadBook = { bookId ->
-                            navController.navigate("reader/$bookId")
-                        }
-                    )
-                }
+            composable(
+                route = "settings"
+            ) {
+                SettingsScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                )
+            }
 
-                composable (route = "registry") {
-                    RegistryScreen(
-                        onOpenDrawer = { scope.launch { drawerState.open() } },
-                        onNavigateBack = { navController.popBackStack() },
-                        onNavigateToAddBook = {
-                            navController.navigate("add_book")
-                        },
-                        onNavigateToBookDetail = { bookId ->
-                            navController.navigate("book_detail/$bookId")
-                        }
-                    )
-                }
+            composable(route = "about") {
+                AboutScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onOpenChangelog = { navController.navigate("changelog") }
+                )
+            }
 
-                composable(
-                    route = "library?favourites={favourites}&status={status}",
-                    arguments = listOf(
-                        navArgument("favourites") {
-                            type = NavType.BoolType
-                            defaultValue = false
-                        },
-                        navArgument("status") {
-                            type = NavType.StringType
-                            nullable = true
-                            defaultValue = null
-                        }
-                    )
-                ) {
-                    LibraryScreen(
-                        onOpenDrawer = { scope.launch { drawerState.open() } },
-                        onNavigateToAddBook = {
-                            navController.navigate("add_book")
-                        },
-                        onNavigateToReadBook = { bookId ->
-                            navController.navigate("reader/$bookId")
-                        },
-                        onNavigateToBookDetail = { bookId ->
-                            navController.navigate("book_detail/$bookId")
-                        }
-                    )
-                }
-
-                composable (
-                    route = "reader/{bookId}",
-                    arguments = listOf(navArgument("bookId") { type = NavType.IntType })
-                ) {
-                    ReaderScreen(
-                        onNavigateBack = { navController.popBackStack() }
-                    )
-                }
-                
-                composable (
-                    route = "settings"
-                ) {
-                    SettingsScreen(
-                        onNavigateBack = { navController.popBackStack() },
-                    )
-                }
-
-                composable(route = "about") {
-                    AboutScreen(
-                        onNavigateBack = { navController.popBackStack() },
-                        onOpenChangelog = { navController.navigate("changelog") }
-                    )
-                }
-
-                composable(route = "changelog") {
-                    ChangelogScreen(
-                        onNavigateBack = { navController.popBackStack() },
-                    )
-                }
+            composable(route = "changelog") {
+                ChangelogScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                )
             }
         }
     }
@@ -504,18 +320,11 @@ fun JuguitoApp(
     }
 }
 
-internal fun areDrawerGesturesEnabled(route: String?): Boolean {
-    return when (route) {
-        "add_book",
-        "add_folder",
-        "edit_folder/{folderId}",
-        "book_detail/{bookId}",
-        "reader/{bookId}",
-        "changelog",
-        "about",
-        "settings" -> false
-        else -> true
-    }
+private fun shouldShowNavigationBar(route: String?): Boolean {
+    if (route == null) return false
+    return route == "home" ||
+            route == "registry" ||
+            route.matchesTopLevel("library")
 }
 
 private fun String?.matchesTopLevel(route: String): Boolean {
@@ -533,95 +342,82 @@ private fun NavHostController.navigateToTopLevel(route: String) {
 }
 
 @Composable
-fun DrawerHeader() {
-    val colorScheme = MaterialTheme.colorScheme
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(160.dp)
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(colorScheme.primary, colorScheme.secondary)
-                )
-            )
-            .padding(24.dp),
-        contentAlignment = Alignment.BottomStart
-    ) {
+private fun JuguitoNavigationBar(
+    currentRoute: String?,
+    onHomeClick: () -> Unit,
+    onLibraryClick: () -> Unit,
+    onRegistryClick: () -> Unit,
+) {
+    Surface(color = MaterialTheme.colorScheme.background) {
         Column {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.MenuBook,
-                contentDescription = null,
-                tint = colorScheme.onPrimary,
-                modifier = Modifier.size(40.dp)
+            HorizontalDivider(
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant
             )
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.headlineMedium,
-                color = colorScheme.onPrimary,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = stringResource(R.string.your_personal_library),
-                style = MaterialTheme.typography.bodySmall,
-                color = colorScheme.onPrimary.copy(alpha = 0.8f)
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .windowInsetsPadding(NavigationBarDefaults.windowInsets),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                JuguitoNavigationBarItem(
+                    selected = currentRoute == "home",
+                    icon = Icons.Default.Home,
+                    label = stringResource(R.string.home_label),
+                    onClick = onHomeClick
+                )
+                JuguitoNavigationBarItem(
+                    selected = currentRoute.matchesTopLevel("library"),
+                    icon = Icons.Default.AutoStories,
+                    label = stringResource(R.string.library_label),
+                    onClick = onLibraryClick
+                )
+                JuguitoNavigationBarItem(
+                    selected = currentRoute == "registry",
+                    icon = Icons.Default.AppRegistration,
+                    label = stringResource(R.string.registry_label),
+                    onClick = onRegistryClick
+                )
+            }
         }
     }
 }
 
 @Composable
-fun DrawerItem(
-    label: String,
-    icon: ImageVector,
-    selected: Boolean = false,
-    onClick: () -> Unit
-) {
-    NavigationDrawerItem(
-        label = { 
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
-            ) 
-        },
-        selected = selected,
-        onClick = onClick,
-        icon = { Icon(icon, contentDescription = null) },
-        modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp),
-        colors = NavigationDrawerItemDefaults.colors(
-            selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-            selectedIconColor = MaterialTheme.colorScheme.primary,
-            selectedTextColor = MaterialTheme.colorScheme.primary,
-            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            unselectedTextColor = MaterialTheme.colorScheme.onSurface
-        ),
-        shape = RoundedCornerShape(12.dp)
-    )
-}
-
-@Composable
-private fun DrawerFooterIcon(
-    icon: ImageVector,
-    contentDescription: String,
+private fun RowScope.JuguitoNavigationBarItem(
     selected: Boolean,
-    onClick: () -> Unit
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
 ) {
-    val colorScheme = MaterialTheme.colorScheme
-    IconButton(
-        onClick = onClick,
-        modifier = Modifier.background(
-            color = if (selected) colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent,
-            shape = CircleShape
-        ),
-        colors = IconButtonDefaults.iconButtonColors(
-            contentColor = if (selected) colorScheme.primary else colorScheme.onSurfaceVariant
-        )
+    val color = if (selected) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        chromeNavInactiveColor()
+    }
+    Column(
+        modifier = Modifier
+            .weight(1f)
+            .selectable(
+                selected = selected,
+                onClick = onClick,
+                role = Role.Tab
+            )
+            .padding(vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = contentDescription,
+            contentDescription = null,
+            tint = color,
             modifier = Modifier.size(24.dp)
+        )
+        Text(
+            text = label,
+            color = color,
+            style = MaterialTheme.typography.labelMedium,
+            maxLines = 1
         )
     }
 }

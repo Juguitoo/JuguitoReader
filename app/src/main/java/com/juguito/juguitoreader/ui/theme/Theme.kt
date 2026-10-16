@@ -115,3 +115,19 @@ fun JuguitoReaderTheme(
         content = content
     )
 }
+
+@Composable
+fun chromeIconColor(): Color = when (MaterialTheme.colorScheme.background) {
+    PastelBackground -> PastelIcon
+    DarkBackground -> DarkIcon
+    NeonBackground -> NeonIcon
+    else -> JuguitoIcon
+}
+
+@Composable
+fun chromeNavInactiveColor(): Color = when (MaterialTheme.colorScheme.background) {
+    PastelBackground -> PastelNavInactive
+    DarkBackground -> DarkNavInactive
+    NeonBackground -> NeonNavInactive
+    else -> JuguitoNavInactive
+}

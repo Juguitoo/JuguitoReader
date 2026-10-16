@@ -45,6 +45,16 @@ val DarkOnPrimaryContainer = Color(0xFFD6E4F0)
 val DarkOnSecondaryContainer = Color(0xFFE8D4C8)
 val DarkOnTertiaryContainer = Color(0xFFCDE3D2)
 
+// Cromo de las barras. Dos roles por tema: icono de la top bar y destino inactivo.
+val JuguitoIcon = Color(0xFF4B4543)
+val JuguitoNavInactive = Color(0xFF8C8176)
+val PastelIcon = Color(0xFF4A444B)
+val PastelNavInactive = Color(0xFF9A8B93)
+val DarkIcon = Color(0xFFE8E2DC)
+val DarkNavInactive = Color(0xFFA39890)
+val NeonIcon = Color(0xFFE6E6E6)
+val NeonNavInactive = Color(0xFFBDBDBD)
+
 // Colores de soporte comunes
 val ErrorRed = Color(0xFFBA1A1A)
 val SuccessGreen = Color(0xFF2E7D32)

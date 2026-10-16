@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,9 +45,8 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import com.juguito.juguitoreader.ui.common.components.JuguitoTopBar
+import com.juguito.juguitoreader.ui.common.components.juguitoTopBarTextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -87,7 +85,6 @@ import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 
 @Composable
 fun LibraryScreen(
-    onOpenDrawer: () -> Unit,
     onNavigateToAddBook: () -> Unit,
     onNavigateToReadBook: (Int) -> Unit,
     onNavigateToBookDetail: (Int) -> Unit,
@@ -105,7 +102,6 @@ fun LibraryScreen(
         showAllFoldersSheet = showAllFoldersSheet,
         onToggleSearch = { isSearchVisible = it },
         onShowAllFoldersSheet = { showAllFoldersSheet = it },
-        onOpenDrawer = onOpenDrawer,
         onNavigateToAddBook = onNavigateToAddBook,
         onNavigateToReadBook = onNavigateToReadBook,
         onNavigateToBookDetail = onNavigateToBookDetail,
@@ -125,7 +121,6 @@ fun LibraryContent(
     showAllFoldersSheet: Boolean,
     onToggleSearch: (Boolean) -> Unit,
     onShowAllFoldersSheet: (Boolean) -> Unit,
-    onOpenDrawer: () -> Unit,
     onNavigateToAddBook: () -> Unit,
     onNavigateToReadBook: (Int) -> Unit,
     onNavigateToBookDetail: (Int) -> Unit,
@@ -225,25 +220,15 @@ fun LibraryContent(
         },
         modifier = Modifier.imePadding(),
         topBar = {
-            TopAppBar(
-                modifier = Modifier.statusBarsPadding(),
+            JuguitoTopBar(
                 title = {
                     if (isSearchVisible) {
                         TextField(
                             value = currentSearchText,
                             onValueChange = { onEvent(OnSearchTextChanged(it)) },
-                            placeholder = { Text(stringResource(R.string.search_library_hint), fontSize = 14.sp, color = Color.White.copy(alpha = 0.7f)) },
+                            placeholder = { Text(stringResource(R.string.search_library_hint), fontSize = 14.sp) },
                             modifier = Modifier.fillMaxWidth(),
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                disabledContainerColor = Color.Transparent,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                cursorColor = Color.White
-                            ),
+                            colors = juguitoTopBarTextFieldColors(),
                             singleLine = true,
                             textStyle = MaterialTheme.typography.bodyLarge
                         )
@@ -254,23 +239,6 @@ fun LibraryContent(
                             style = MaterialTheme.typography.titleLarge,
                             fontFamily = LoraFontFamily,
                             fontWeight = FontWeight.Bold
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            if (isSearchVisible) {
-                                onToggleSearch(false)
-                                onEvent(OnSearchTextChanged(""))
-                            } else {
-                                onOpenDrawer()
-                            }
-                        }
-                    ) {
-                        Icon(
-                            imageVector = if (isSearchVisible) Icons.AutoMirrored.Filled.ArrowBack else Icons.Default.Menu,
-                            contentDescription = if (isSearchVisible) stringResource(R.string.return_text) else stringResource(R.string.menu)
                         )
                     }
                 },
@@ -323,13 +291,7 @@ fun LibraryContent(
                             }
                         }
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White,
-                    actionIconContentColor = Color.White
-                )
+                }
             )
         }
     ) { paddingValues ->

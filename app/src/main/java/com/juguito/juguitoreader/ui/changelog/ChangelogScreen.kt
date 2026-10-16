@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,8 +23,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +31,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.ui.common.components.JuguitoTopBar
+import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,12 +40,13 @@ fun ChangelogScreen(
     onNavigateBack: () -> Unit,
 ) {
     Scaffold(
-        modifier = Modifier.statusBarsPadding(),
         topBar = {
-            TopAppBar(
+            JuguitoTopBar(
                 title = {
                     Text(
                         text = stringResource(R.string.changelog),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontFamily = LoraFontFamily,
                         fontWeight = FontWeight.Bold
                     )
                 },
@@ -57,12 +57,7 @@ fun ChangelogScreen(
                             contentDescription = stringResource(R.string.back)
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
-                )
+                }
             )
         }
     ) { innerPadding ->

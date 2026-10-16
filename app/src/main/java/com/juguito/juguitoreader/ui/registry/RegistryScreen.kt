@@ -45,6 +45,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.ui.common.components.JuguitoTopBar
+import com.juguito.juguitoreader.ui.common.components.juguitoTopBarTextFieldColors
 import coil.compose.AsyncImage
 import com.juguito.juguitoreader.ui.common.toUiText
 import com.juguito.juguitoreader.domain.model.Book
@@ -67,7 +69,6 @@ private val TotalTableWidth = ColLibroWidth + ColEstadoWidth + ColNotaWidth + (C
 
 @Composable
 fun RegistryScreen(
-    onOpenDrawer: () -> Unit,
     onNavigateBack: () -> Unit,
     onNavigateToAddBook: () -> Unit,
     onNavigateToBookDetail: (Int) -> Unit,
@@ -78,7 +79,6 @@ fun RegistryScreen(
     RegistryContent(
         state = state,
         onEvent = viewModel::onEvent,
-        onOpenDrawer = onOpenDrawer,
         onNavigateBack = onNavigateBack,
         onNavigateToAddBook = onNavigateToAddBook,
         onNavigateToBookDetail = onNavigateToBookDetail
@@ -90,7 +90,6 @@ fun RegistryScreen(
 fun RegistryContent(
     state: RegistryUiState,
     onEvent: (RegistryEvent) -> Unit,
-    onOpenDrawer: () -> Unit,
     onNavigateBack: () -> Unit,
     onNavigateToAddBook: () -> Unit,
     onNavigateToBookDetail: (Int) -> Unit
@@ -129,8 +128,7 @@ fun RegistryContent(
     Scaffold(
         modifier = Modifier.imePadding(),
         topBar = {
-            TopAppBar(
-                modifier = Modifier.statusBarsPadding(),
+            JuguitoTopBar(
                 title = {
                     if (state.isSearchExpanded) {
                         TextField(
@@ -138,16 +136,7 @@ fun RegistryContent(
                             onValueChange = { onEvent(RegistryEvent.OnSearchTextChanged(it)) },
                             placeholder = { Text(stringResource(R.string.search_registry_hint), fontSize = 14.sp) },
                             modifier = Modifier.fillMaxWidth(),
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                disabledContainerColor = Color.Transparent,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                cursorColor = Color.White
-                            ),
+                            colors = juguitoTopBarTextFieldColors(),
                             singleLine = true,
                             textStyle = MaterialTheme.typography.bodyLarge
                         )
@@ -158,17 +147,6 @@ fun RegistryContent(
                             fontFamily = LoraFontFamily,
                             fontWeight = FontWeight.Bold
                         )
-                    }
-                },
-                navigationIcon = {
-                    if (state.isSearchExpanded) {
-                        IconButton(onClick = { onEvent(RegistryEvent.OnToggleSearch(false)) }) {
-                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.close_search))
-                        }
-                    } else {
-                        IconButton(onClick = onOpenDrawer) {
-                            Icon(imageVector = Icons.Default.Menu, contentDescription = stringResource(R.string.open_menu))
-                        }
                     }
                 },
                 actions = {
@@ -186,13 +164,7 @@ fun RegistryContent(
                     IconButton(onClick = onNavigateToAddBook) {
                         Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.add_book))
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White,
-                    actionIconContentColor = Color.White
-                )
+                }
             )
         }
     ) { paddingValues ->
