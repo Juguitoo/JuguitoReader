@@ -26,7 +26,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Badge
@@ -34,7 +33,6 @@ import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,8 +43,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import com.juguito.juguitoreader.ui.common.components.JuguitoTopBar
-import com.juguito.juguitoreader.ui.common.components.juguitoTopBarTextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -56,6 +52,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -71,6 +69,8 @@ import com.juguito.juguitoreader.domain.model.hasFilters
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
 import com.juguito.juguitoreader.ui.common.components.BookFilterSheet
 import com.juguito.juguitoreader.ui.common.components.EmptyLibraryView
+import com.juguito.juguitoreader.ui.common.components.JuguitoTopBar
+import com.juguito.juguitoreader.ui.common.components.juguitoTopBarTextFieldColors
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.ErrorView
 import com.juguito.juguitoreader.ui.library.LibraryEvent.OnSearchTextChanged
@@ -82,9 +82,11 @@ import com.juguito.juguitoreader.ui.library.components.BookLibraryRow
 import com.juguito.juguitoreader.ui.library.components.EmptySearchPlaceholder
 import com.juguito.juguitoreader.ui.library.components.FolderSelectorRow
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
+import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun LibraryScreen(
+    onNavigateToContentManager: () -> Unit,
     onNavigateToAddBook: () -> Unit,
     onNavigateToReadBook: (Int) -> Unit,
     onNavigateToBookDetail: (Int) -> Unit,
@@ -102,6 +104,7 @@ fun LibraryScreen(
         showAllFoldersSheet = showAllFoldersSheet,
         onToggleSearch = { isSearchVisible = it },
         onShowAllFoldersSheet = { showAllFoldersSheet = it },
+        onNavigateToContentManager = onNavigateToContentManager,
         onNavigateToAddBook = onNavigateToAddBook,
         onNavigateToReadBook = onNavigateToReadBook,
         onNavigateToBookDetail = onNavigateToBookDetail,
@@ -112,7 +115,6 @@ fun LibraryScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryContent(
     state: LibraryUiState,
@@ -121,13 +123,14 @@ fun LibraryContent(
     showAllFoldersSheet: Boolean,
     onToggleSearch: (Boolean) -> Unit,
     onShowAllFoldersSheet: (Boolean) -> Unit,
+    onNavigateToContentManager: () -> Unit,
     onNavigateToAddBook: () -> Unit,
     onNavigateToReadBook: (Int) -> Unit,
     onNavigateToBookDetail: (Int) -> Unit,
     onEvent: (LibraryEvent) -> Unit,
     onImportBook: (Uri) -> Unit,
     onDismissError: () -> Unit,
-    effect: kotlinx.coroutines.flow.Flow<UiEffect>
+    effect: Flow<UiEffect>
 ) {
     val context = LocalContext.current
     val currentSelectedFolder = when (state) {
@@ -136,8 +139,8 @@ fun LibraryContent(
         else -> null
     }
     val currentSearchText = when (state) {
-        is LibraryUiState.Success -> state.searchText
-        is LibraryUiState.Empty -> state.searchText
+        is LibraryUiState.Success -> state.criteria.searchText
+        is LibraryUiState.Empty -> state.criteria.searchText
         else -> ""
     }
     val currentFolders = when (state) {
@@ -163,6 +166,7 @@ fun LibraryContent(
 
     var showMenu by remember { mutableStateOf(false) }
     var showFilterSheet by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
 
     if (showFilterSheet) {
         BookFilterSheet(
@@ -196,6 +200,12 @@ fun LibraryContent(
         )
     }
 
+    LaunchedEffect(isSearchVisible) {
+        if (isSearchVisible) {
+            focusRequester.requestFocus()
+        }
+    }
+
     val snackbarHostState = remember { SnackbarHostState() }
     ObserveAsEvents(effect) { uiEffect ->
         when (uiEffect) {
@@ -227,7 +237,7 @@ fun LibraryContent(
                             value = currentSearchText,
                             onValueChange = { onEvent(OnSearchTextChanged(it)) },
                             placeholder = { Text(stringResource(R.string.search_library_hint), fontSize = 14.sp) },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                             colors = juguitoTopBarTextFieldColors(),
                             singleLine = true,
                             textStyle = MaterialTheme.typography.bodyLarge
@@ -242,53 +252,65 @@ fun LibraryContent(
                         )
                     }
                 },
+                navigationIcon = {
+                    if (isSearchVisible) {
+                        IconButton(onClick = { onToggleSearch(false) } ) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.close_search))
+                        }
+                    }
+                },
                 actions = {
                     if (!isSearchVisible) {
                         IconButton(onClick = { onToggleSearch(true) }) {
                             Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_hint))
                         }
-                        IconButton(
-                            onClick = { showFilterSheet = true }
-                        ) {
-                            val isFiltered = currentCriteria.hasFilters()
-                            BadgedBox(badge = { if (isFiltered) Badge() }) {
-                                Icon(imageVector = Icons.Default.FilterList, contentDescription = stringResource(R.string.filters))
-                            }
-                        }
-                        IconButton(onClick = { showMenu = true }) {
-                            Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.options))
-                        }
-                        DropdownMenu(
-                            expanded = showMenu,
-                            onDismissRequest = { showMenu = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.import_book_title)) },
-                                onClick = {
-                                    showMenu = false
-                                    documentPickerLauncher.launch(arrayOf("application/epub+zip"))
-                                },
-                                enabled = !isImporting
-                            )
-                            if (state is LibraryUiState.Success) {
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(if (state.layoutMode == 0) R.string.library_rows else R.string.library_grid)) },
-                                    onClick = {
-                                        when (state.layoutMode) {
-                                            0 -> onEvent(LibraryEvent.OnLayoutModeChanged(1))
-                                            1 -> onEvent(LibraryEvent.OnLayoutModeChanged(0))
-                                        }
-                                        showMenu = false
-                                    }
-                                )
-                            }
-                        }
                     } else {
-                        val currentSearch = (state as? LibraryUiState.Success)?.searchText ?: ""
-                        if (currentSearch.isNotEmpty()) {
+                        if (currentSearchText.isNotEmpty()) {
                             IconButton(onClick = { onEvent(OnSearchTextChanged("")) }) {
                                 Icon(Icons.Default.Close, contentDescription = stringResource(R.string.clear_search))
                             }
+                        }
+                    }
+                    IconButton(
+                        onClick = { showFilterSheet = true }
+                    ) {
+                        val isFiltered = currentCriteria.hasFilters()
+                        BadgedBox(badge = { if (isFiltered) Badge() }) {
+                            Icon(imageVector = Icons.Default.FilterList, contentDescription = stringResource(R.string.filters))
+                        }
+                    }
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.options))
+                    }
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.import_book_title)) },
+                            onClick = {
+                                showMenu = false
+                                documentPickerLauncher.launch(arrayOf("application/epub+zip"))
+                            },
+                            enabled = !isImporting
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.content_manager)) },
+                            onClick = {
+                                onNavigateToContentManager()
+                            }
+                        )
+                        if (state is LibraryUiState.Success) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(if (state.layoutMode == 0) R.string.library_rows else R.string.library_grid)) },
+                                onClick = {
+                                    when (state.layoutMode) {
+                                        0 -> onEvent(LibraryEvent.OnLayoutModeChanged(1))
+                                        1 -> onEvent(LibraryEvent.OnLayoutModeChanged(0))
+                                    }
+                                    showMenu = false
+                                }
+                            )
                         }
                     }
                 }
@@ -332,7 +354,7 @@ fun LibraryContent(
                             )
                             if (state.filteredBooks.isEmpty()) {
                                 EmptySearchPlaceholder(
-                                    isSearching = state.searchText.isNotBlank(),
+                                    isSearching = state.criteria.searchText.isNotBlank(),
                                     isFiltering = state.criteria != BookCriteria(),
                                     modifier = Modifier.align(Alignment.Center)
                                 )

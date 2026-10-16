@@ -1,13 +1,29 @@
 package com.juguito.juguitoreader.ui.registry
 
+import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -18,21 +34,55 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SearchOff
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -40,25 +90,29 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.juguito.juguitoreader.R
-import com.juguito.juguitoreader.ui.common.components.JuguitoTopBar
-import com.juguito.juguitoreader.ui.common.components.juguitoTopBarTextFieldColors
 import coil.compose.AsyncImage
-import com.juguito.juguitoreader.ui.common.toUiText
-import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
+import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.SortOption
 import com.juguito.juguitoreader.domain.model.hasFilters
+import com.juguito.juguitoreader.ui.common.ObserveAsEvents
 import com.juguito.juguitoreader.ui.common.components.BookFilterSheet
 import com.juguito.juguitoreader.ui.common.components.JuguitoDatePickerDialog
+import com.juguito.juguitoreader.ui.common.components.JuguitoTopBar
+import com.juguito.juguitoreader.ui.common.components.juguitoTopBarTextFieldColors
+import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
+import com.juguito.juguitoreader.ui.common.toUiText
 import com.juguito.juguitoreader.ui.components.ErrorView
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
+import kotlinx.coroutines.flow.Flow
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 private val ColLibroWidth = 280.dp
 private val ColEstadoWidth = 160.dp
@@ -72,32 +126,53 @@ fun RegistryScreen(
     onNavigateBack: () -> Unit,
     onNavigateToAddBook: () -> Unit,
     onNavigateToBookDetail: (Int) -> Unit,
+    onNavigateToContentManager: () -> Unit,
     viewModel: RegistryViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val isImporting by viewModel.isImporting.collectAsState()
 
     RegistryContent(
         state = state,
         onEvent = viewModel::onEvent,
         onNavigateBack = onNavigateBack,
         onNavigateToAddBook = onNavigateToAddBook,
-        onNavigateToBookDetail = onNavigateToBookDetail
+        onNavigateToBookDetail = onNavigateToBookDetail,
+        onNavigateToContentManager = onNavigateToContentManager,
+        onImportBook = viewModel::importBook,
+        effect = viewModel.effect,
+        isImporting = isImporting
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistryContent(
     state: RegistryUiState,
     onEvent: (RegistryEvent) -> Unit,
     onNavigateBack: () -> Unit,
     onNavigateToAddBook: () -> Unit,
-    onNavigateToBookDetail: (Int) -> Unit
+    onNavigateToBookDetail: (Int) -> Unit,
+    onNavigateToContentManager: () -> Unit,
+    onImportBook: (Uri) -> Unit,
+    effect: Flow<UiEffect>,
+    isImporting: Boolean
 ) {
+    val context = LocalContext.current
+    var showMenu by remember { mutableStateOf(false) }
     var flushFocusedComment by remember { mutableStateOf<(() -> Unit)?>(null) }
     val flushFocusedCommentState = rememberUpdatedState(flushFocusedComment)
     val lifecycleOwner = LocalLifecycleOwner.current
     val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
+
+    val documentPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri ->
+            uri?.let {
+                onImportBook(it)
+            }
+        }
+    )
 
     if (state.showFilterSheet) {
         BookFilterSheet(
@@ -108,6 +183,12 @@ fun RegistryContent(
             onDismiss = { onEvent(RegistryEvent.OnShowFilterSheet(false)) },
             onClearFilters = { onEvent(RegistryEvent.OnClearFilters) }
         )
+    }
+
+    LaunchedEffect(state.isSearchExpanded) {
+        if (state.isSearchExpanded) {
+            focusRequester.requestFocus()
+        }
     }
 
     BackHandler {
@@ -125,6 +206,16 @@ fun RegistryContent(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    ObserveAsEvents(effect) { uiEffect ->
+        when (uiEffect) {
+            is UiEffect.ShowSnackbar -> {
+                snackbarHostState.showSnackbar(uiEffect.message.asString(context))
+            }
+            else -> Unit
+        }
+    }
+
     Scaffold(
         modifier = Modifier.imePadding(),
         topBar = {
@@ -135,7 +226,7 @@ fun RegistryContent(
                             value = state.criteria.searchText,
                             onValueChange = { onEvent(RegistryEvent.OnSearchTextChanged(it)) },
                             placeholder = { Text(stringResource(R.string.search_registry_hint), fontSize = 14.sp) },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                             colors = juguitoTopBarTextFieldColors(),
                             singleLine = true,
                             textStyle = MaterialTheme.typography.bodyLarge
@@ -149,10 +240,24 @@ fun RegistryContent(
                         )
                     }
                 },
+                navigationIcon = {
+                    if (state.isSearchExpanded) {
+                        IconButton(onClick = { onEvent(RegistryEvent.OnToggleSearch(false)) } ) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.close_search))
+                        }
+                    }
+                },
                 actions = {
                     if (!state.isSearchExpanded) {
                         IconButton(onClick = { onEvent(RegistryEvent.OnToggleSearch(true)) }) {
                             Icon(imageVector = Icons.Default.Search, contentDescription = stringResource(R.string.search_hint))
+                        }
+                    } else {
+                        val currentSearch = state.criteria.searchText
+                        if (currentSearch.isNotEmpty()) {
+                            IconButton(onClick = { onEvent(RegistryEvent.OnSearchTextChanged("")) }) {
+                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.clear_search))
+                            }
                         }
                     }
                     IconButton(onClick = { onEvent(RegistryEvent.OnShowFilterSheet(true)) }) {
@@ -161,8 +266,27 @@ fun RegistryContent(
                             Icon(imageVector = Icons.Default.FilterList, contentDescription = stringResource(R.string.filters))
                         }
                     }
-                    IconButton(onClick = onNavigateToAddBook) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.add_book))
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.options))
+                    }
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.import_book_title)) },
+                            onClick = {
+                                showMenu = false
+                                documentPickerLauncher.launch(arrayOf("application/epub+zip"))
+                            },
+                            enabled = !isImporting
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.content_manager)) },
+                            onClick = {
+                                onNavigateToContentManager()
+                            }
+                        )
                     }
                 }
             )

@@ -3,6 +3,8 @@ package com.juguito.juguitoreader.ui.registry
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import android.app.Application
+import android.content.Context
+import android.net.Uri
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.BookCriteria
@@ -11,29 +13,42 @@ import com.juguito.juguitoreader.domain.model.applyCriteria
 import com.juguito.juguitoreader.domain.model.applyOrderBy
 import com.juguito.juguitoreader.domain.model.copy
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
+import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
 import com.juguito.juguitoreader.ui.common.UiText
+import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class RegistryViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val application: Application,
     private val getBooksUseCase: GetBooksUseCase,
-    private val updateBookUseCase: UpdateBookUseCase
+    private val updateBookUseCase: UpdateBookUseCase,
+    private val importBookFromUriUseCase: ImportBookFromUriUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RegistryUiState())
     val uiState: StateFlow<RegistryUiState> = _uiState.asStateFlow()
+
+    private val _isImporting = MutableStateFlow(false)
+    val isImporting: StateFlow<Boolean> = _isImporting.asStateFlow()
     private val persistScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+
+    private val _effect = Channel<UiEffect>()
+    val effect = _effect.receiveAsFlow()
 
     init {
         loadData()
@@ -131,6 +146,22 @@ class RegistryViewModel @Inject constructor(
 
         persistScope.launch {
             updateBookUseCase(updatedBook)
+        }
+    }
+
+    fun importBook(uri: Uri) {
+        if (_isImporting.value) return
+        _isImporting.value = true
+        viewModelScope.launch {
+            try {
+                importBookFromUriUseCase(context, uri)
+                    .onFailure { exception ->
+                        exception.printStackTrace()
+                        _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.something_went_wrong)))
+                    }
+            } finally {
+                _isImporting.value = false
+            }
         }
     }
 }

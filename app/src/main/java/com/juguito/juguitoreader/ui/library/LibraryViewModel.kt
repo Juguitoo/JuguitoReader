@@ -45,8 +45,6 @@ class LibraryViewModel @Inject constructor(
     private val saveLibraryLayoutModeUseCase: SaveLibraryLayoutModeUseCase,
     savedStateHandle: SavedStateHandle = SavedStateHandle(),
 ) : ViewModel() {
-
-    private val _searchText = MutableStateFlow("")
     private val _selectedFolder = MutableStateFlow<Folder?>(null)
     private val _criteria = MutableStateFlow(criteriaFrom(savedStateHandle))
     private val _internalState = MutableStateFlow<LibraryUiState>(LibraryUiState.Loading)
@@ -70,11 +68,10 @@ class LibraryViewModel @Inject constructor(
                 combine(
                     getFoldersUseCase(),
                     getBooksUseCase(),
-                    _searchText,
                     _selectedFolder,
                     _criteria
-                ) { folders, books, query, currentFolder, criteria ->
-                    ShelfContent(folders, books, query, currentFolder, criteria)
+                ) { folders, books, currentFolder, criteria ->
+                    ShelfContent(folders, books, criteria.searchText ,currentFolder, criteria)
                 },
                 getLibraryLayoutModeUseCase()
             ) { content, layoutMode ->
@@ -88,7 +85,6 @@ class LibraryViewModel @Inject constructor(
                     return@combine LibraryUiState.Empty(
                         folders = folders,
                         selectedFolder = currentFolder,
-                        searchText = query,
                         criteria = criteria,
                         layoutMode = layoutMode
                     ) as LibraryUiState
@@ -111,7 +107,6 @@ class LibraryViewModel @Inject constructor(
                     filteredBooks = visible,
                     allBooks = books,
                     selectedFolder = currentFolder,
-                    searchText = query,
                     criteria = criteria,
                     layoutMode = layoutMode
                 ) as LibraryUiState
@@ -138,7 +133,7 @@ class LibraryViewModel @Inject constructor(
                 }
             }
             is LibraryEvent.OnSearchTextChanged -> {
-                _searchText.value = event.searchText?.trim() ?: ""
+                _criteria.value = _criteria.value.copy(searchText = event.searchText?.trim() ?: "")
             }
             is LibraryEvent.OnStatusChanged -> {
                 updateBookStatus(event.bookId, event.newStatus)

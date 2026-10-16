@@ -11,7 +11,6 @@ sealed interface LibraryUiState {
     data class Empty(
         val folders: List<Folder> = emptyList(),
         val selectedFolder: Folder? = null,
-        val searchText: String = "",
         val criteria: BookCriteria = BookCriteria(),
         val layoutMode: Int = 0
     ) : LibraryUiState
@@ -21,7 +20,6 @@ sealed interface LibraryUiState {
         val filteredBooks: List<Book>,
         val folders: List<Folder> = emptyList(),
         val selectedFolder: Folder? = null,
-        val searchText: String = "",
         val criteria: BookCriteria = BookCriteria(),
         val layoutMode: Int = 0
     ): LibraryUiState {

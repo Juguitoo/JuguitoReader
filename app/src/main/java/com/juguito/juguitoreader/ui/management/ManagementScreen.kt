@@ -30,11 +30,9 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -59,6 +57,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -67,15 +66,16 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.model.Genre
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
+import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.components.JuguitoTopBar
 import com.juguito.juguitoreader.ui.common.components.juguitoTopBarTextFieldColors
-import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.JuguitoDialog
 import com.juguito.juguitoreader.ui.genre.AddGenreDialog
@@ -84,6 +84,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun ManagementScreen(
+    onNavigateBack: () -> Unit,
     managementMessage: Int? = null,
     onClearManagementMessage: () -> Unit,
     onNavigateToEditFolder: (Int) -> Unit,
@@ -93,6 +94,7 @@ fun ManagementScreen(
     val state by viewModel.uiState.collectAsState()
 
     ManagementContent(
+        onNavigateBack = onNavigateBack,
         state = state,
         onEvent = viewModel::onEvent,
         managementMessage = managementMessage,
@@ -103,9 +105,9 @@ fun ManagementScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManagementContent(
+    onNavigateBack: () -> Unit,
     state: ManagementUiState,
     onEvent: (ManagementEvent) -> Unit,
     managementMessage: Int?,
@@ -199,18 +201,11 @@ fun ManagementContent(
                         TextField(
                             value = state.searchQuery,
                             onValueChange = { onEvent(ManagementEvent.OnSearchQueryChanged(it)) },
-                            placeholder = {
-                                Text(
-                                    stringResource(R.string.search_hint),
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .focusRequester(focusRequester),
+                            placeholder = { Text(stringResource(R.string.search_library_hint), fontSize = 14.sp) },
+                            modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                            colors = juguitoTopBarTextFieldColors(),
                             singleLine = true,
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                            colors = juguitoTopBarTextFieldColors()
+                            textStyle = MaterialTheme.typography.bodyLarge
                         )
                     } else {
                         Text(
@@ -221,10 +216,24 @@ fun ManagementContent(
                         )
                     }
                 },
+                navigationIcon = {
+                    if (!state.isSearchActive) {
+                        IconButton(onClick = { onNavigateBack() }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                        }
+                    } else {
+                        IconButton(onClick = { onEvent(ManagementEvent.OnToggleSearch) }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                        }
+                    }
+                },
                 actions = {
                     if (state.isSearchActive) {
-                        IconButton(onClick = { onEvent(ManagementEvent.OnSearchQueryChanged("")) }) {
-                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.clear))
+                        val currentSearch = state.searchQuery
+                        if (currentSearch.isNotEmpty()) {
+                            IconButton(onClick = { onEvent(ManagementEvent.OnSearchQueryChanged("")) }) {
+                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.clear))
+                            }
                         }
                     } else {
                         IconButton(onClick = { onEvent(ManagementEvent.OnToggleSearch) }) {
@@ -465,7 +474,7 @@ fun GenreItem(
                     textStyle = MaterialTheme.typography.titleMedium.copy(
                         color = MaterialTheme.colorScheme.onSurface
                     ),
-                    cursorBrush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.primary),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = {
                         onConfirm()

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -48,6 +49,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -110,7 +112,10 @@ fun JuguitoApp(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar =
             {
-                if (shouldShowNavigationBar(currentRoute)) {
+                val density = LocalDensity.current
+                val isImeVisible = WindowInsets.ime.getBottom(density) > 0
+
+                if (shouldShowNavigationBar(currentRoute) && !isImeVisible) {
                     JuguitoNavigationBar(
                         currentRoute = currentRoute,
                         onHomeClick = {
@@ -218,6 +223,7 @@ fun JuguitoApp(
                     .collectAsState()
 
                 ManagementScreen(
+                    onNavigateBack = { navController.popBackStack() },
                     managementMessage = snackbarMessage,
                     onClearManagementMessage = {
                         savedStateHandle.remove<Int>("snackbar_result")
@@ -250,6 +256,9 @@ fun JuguitoApp(
                     },
                     onNavigateToBookDetail = { bookId ->
                         navController.navigate("book_detail/$bookId")
+                    },
+                    onNavigateToContentManager = {
+                        navController.navigate("management")
                     }
                 )
             }
@@ -269,6 +278,9 @@ fun JuguitoApp(
                 )
             ) {
                 LibraryScreen(
+                    onNavigateToContentManager = {
+                        navController.navigate("management")
+                    },
                     onNavigateToAddBook = {
                         navController.navigate("add_book")
                     },
