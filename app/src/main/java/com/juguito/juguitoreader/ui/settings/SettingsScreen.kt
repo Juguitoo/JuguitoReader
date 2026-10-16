@@ -25,8 +25,10 @@ import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.BookmarkAdded
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.CheckCircleOutline
+import androidx.compose.material.icons.filled.Coffee
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.FormatSize
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.UploadFile
@@ -77,6 +79,7 @@ import com.juguito.juguitoreader.ui.settings.components.SettingsSelectorRow
 import com.juguito.juguitoreader.ui.settings.components.SettingsSwitchRow
 import com.juguito.juguitoreader.ui.theme.AppTheme
 import com.juguito.juguitoreader.utils.openBugReport
+import com.juguito.juguitoreader.utils.openDonationPage
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.launch
@@ -85,6 +88,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SettingsScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToAbout: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
     backupViewModel: BackupViewModel = hiltViewModel()
 ) {
@@ -359,7 +363,7 @@ fun SettingsScreen(
                         icon = Icons.Default.BugReport,
                         title = stringResource(R.string.bug_report_title),
                         subtitle = stringResource(R.string.bug_report_subtitle),
-                        enabled = !isWorking,
+                        enabled = true,
                         onClick = {
                             if (!context.openBugReport()) {
                                 scope.launch {
@@ -368,6 +372,25 @@ fun SettingsScreen(
                                     )
                                 }
                             }
+                        }
+                    )
+                    SettingsActionRow(
+                        icon = Icons.Default.Info,
+                        title = stringResource(R.string.about),
+                        subtitle = stringResource(R.string.about_subtitle),
+                        enabled = true,
+                        onClick = {
+                           onNavigateToAbout()
+                        }
+                    )
+
+                    SettingsActionRow(
+                        icon = Icons.Default.Coffee,
+                        title = stringResource(R.string.donation_title),
+                        subtitle = stringResource(R.string.donation_subtitle),
+                        enabled = true,
+                        onClick = {
+                            context.openDonationPage()
                         }
                     )
                 }

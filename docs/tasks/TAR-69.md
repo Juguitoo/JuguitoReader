@@ -10,8 +10,10 @@ Cambiar el sistema de navegación en formato drawer por uno clásico y reestruct
 
 ## Decisión
 
-Las pantallas principales serán Home, Library, Registry, Stats cuando esté disponible la funcionalidad. A parte botones auxiliares como el gestor de contenidos, ajustes, about, etc se redistriburirán en las topBar de cada pantalla.
+La barra inferior tiene Inicio, Biblioteca y Registro. Estadísticas entra como cuarto destino cuando exista TAR-20. El gestor se abre desde el menú de Biblioteca y de Registro. Ajustes se abre desde Inicio, y About y la donación viven dentro de Ajustes. La barra se oculta en el resto de pantallas y también mientras el teclado está abierto. El índice del lector conserva su drawer.
 
 ## Durante el desarrollo
+
+Se cambió el modelo de navegación correctamente y además se aprovechó para realizar un cambio visual a las topBar de cada pantalla.
 
 ## Resolución

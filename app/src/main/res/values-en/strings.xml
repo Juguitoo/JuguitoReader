@@ -384,7 +384,7 @@
     <string name="show_favourites_only">Show favourites only</string>
     <string name="clear_favourites_filter">Clear favourites filter</string>
     <string name="favourite">Favourite</string>
-    <string name="donation" >Make a donation</string>
+    <string name="donation_title" >Make a donation</string>
 
 
     <!-- Changelog -->
@@ -432,5 +432,7 @@
     <string name="donation_no_browser">No browser to open the page</string>
     <string name="library_grid">Grid Layout</string>
     <string name="library_rows">Row Layout</string>
+    <string name="about_subtitle">App information</string>
+    <string name="donation_subtitle">Support the app\'s creator with a small donation</string>
 
 </resources>

@@ -45,7 +45,7 @@ Organizada por feature:
 | `ui/settings/backup` | Export/import local (ZIP); segundo ViewModel en Settings |
 | `ui/about` | Acerca de (estática; sin ViewModel) |
 | `ui/changelog` | Novedades de versiones |
-| `ui/navigation` | NavHost, drawer, rutas |
+| `ui/navigation` | NavHost, barra de navegación, rutas |
 | `ui/common` | Componentes, `UiText`, interfaces compartidas |
 
 #### Patrón por pantalla
@@ -167,7 +167,7 @@ El undo de delete es estado (ventana viva), no `UiEffect` one-shot. Ver `common/
 Centralizada en `ui/navigation/JuguitoApp.kt`:
 
 - Navigation Compose con rutas string.
-- Drawer modal para secciones principales.
+- Barra inferior en Inicio, Biblioteca y Registro. El gestor, Ajustes y About se abren desde esas pantallas y no muestran la barra. El índice del lector sigue en su propio drawer.
 - Argumentos vía `SavedStateHandle` en ViewModels (`bookId`, `folderId`).
 
 | Ruta | Pantalla |

@@ -6,6 +6,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.ui.theme.JuguitoReaderTheme
+import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 
@@ -23,9 +24,13 @@ class RegistryScreenTest {
                 RegistryContent(
                     state = state,
                     onEvent = {},
-                    onOpenDrawer = {},
+                    onNavigateBack = {},
                     onNavigateToAddBook = {},
-                    onNavigateToBookDetail = {}
+                    onNavigateToBookDetail = {},
+                    onNavigateToContentManager = {},
+                    onImportBook = {},
+                    effect = emptyFlow(),
+                    isImporting = false
                 )
             }
         }
@@ -48,9 +53,13 @@ class RegistryScreenTest {
                 RegistryContent(
                     state = state,
                     onEvent = {},
-                    onOpenDrawer = {},
+                    onNavigateBack = {},
                     onNavigateToAddBook = {},
-                    onNavigateToBookDetail = {}
+                    onNavigateToBookDetail = {},
+                    onNavigateToContentManager = {},
+                    onImportBook = {},
+                    effect = emptyFlow(),
+                    isImporting = false
                 )
             }
         }
@@ -71,9 +80,13 @@ class RegistryScreenTest {
                 RegistryContent(
                     state = state,
                     onEvent = {},
-                    onOpenDrawer = {},
+                    onNavigateBack = {},
                     onNavigateToAddBook = {},
-                    onNavigateToBookDetail = {}
+                    onNavigateToBookDetail = {},
+                    onNavigateToContentManager = {},
+                    onImportBook = {},
+                    effect = emptyFlow(),
+                    isImporting = false
                 )
             }
         }

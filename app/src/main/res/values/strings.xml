@@ -386,7 +386,7 @@
     <string name="show_favourites_only">Mostrar solo favoritos</string>
     <string name="clear_favourites_filter">Quitar filtro de favoritos</string>
     <string name="favourite">Favorito</string>
-    <string name="donation" >Haz una donación</string>
+    <string name="donation_title" >Haz una donación</string>
 
     <!-- Changelog -->
     <string-array name="changelog_1_2_3">
@@ -435,4 +435,6 @@
     <string name="library_grid">Disposición en matriz</string>
     <string name="library_rows">Disposición en filas</string>
     <string name="reader_label">Reader</string>
+    <string name="about_subtitle">Información sobre la aplicación</string>
+    <string name="donation_subtitle">Apoya al creador de la aplicación con una pequeña donación</string>
 </resources>

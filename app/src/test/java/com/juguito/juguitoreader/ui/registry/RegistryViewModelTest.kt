@@ -7,6 +7,7 @@ import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.BookCriteria
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
+import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -32,6 +33,7 @@ class RegistryViewModelTest {
     private val application = mockk<Application>(relaxed = true)
     private val getBooksUseCase = mockk<GetBooksUseCase>()
     private val updateBookUseCase = mockk<UpdateBookUseCase>()
+    private val importBookFromUriUseCase = mockk<ImportBookFromUriUseCase>(relaxed = true)
 
     @Before
     fun setup() {
@@ -40,7 +42,13 @@ class RegistryViewModelTest {
             application.getString(R.string.something_went_wrong, *emptyArray())
         } returns "Algo ha salido mal"
         every { getBooksUseCase() } returns flowOf(emptyList())
-        viewModel = RegistryViewModel(application, getBooksUseCase, updateBookUseCase)
+        viewModel = RegistryViewModel(
+            application,
+            application,
+            getBooksUseCase,
+            updateBookUseCase,
+            importBookFromUriUseCase
+        )
     }
 
     @After
@@ -52,7 +60,13 @@ class RegistryViewModelTest {
     fun `onEvent update field events call updateBookUseCase`() = runTest {
         val book = Book(id = 1, title = "T", author = "A", isPhysical = false)
         every { getBooksUseCase() } returns flowOf(listOf(book))
-        viewModel = RegistryViewModel(application, getBooksUseCase, updateBookUseCase)
+        viewModel = RegistryViewModel(
+            application,
+            application,
+            getBooksUseCase,
+            updateBookUseCase,
+            importBookFromUriUseCase
+        )
         coEvery { updateBookUseCase(any()) } returns Result.success(Unit)
 
         viewModel.onEvent(RegistryEvent.OnRatingChanged(1, 5f))
@@ -75,7 +89,13 @@ class RegistryViewModelTest {
     fun `onEvent OnStartDateChanged null clears start date`() = runTest {
         val book = Book(id = 1, title = "T", author = "A", isPhysical = false, startDate = 100L)
         every { getBooksUseCase() } returns flowOf(listOf(book))
-        viewModel = RegistryViewModel(application, getBooksUseCase, updateBookUseCase)
+        viewModel = RegistryViewModel(
+            application,
+            application,
+            getBooksUseCase,
+            updateBookUseCase,
+            importBookFromUriUseCase
+        )
         coEvery { updateBookUseCase(any()) } returns Result.success(Unit)
 
         viewModel.onEvent(RegistryEvent.OnStartDateChanged(1, null))
@@ -94,7 +114,13 @@ class RegistryViewModelTest {
             endDate = 200L,
         )
         every { getBooksUseCase() } returns flowOf(listOf(book))
-        viewModel = RegistryViewModel(application, getBooksUseCase, updateBookUseCase)
+        viewModel = RegistryViewModel(
+            application,
+            application,
+            getBooksUseCase,
+            updateBookUseCase,
+            importBookFromUriUseCase
+        )
         coEvery { updateBookUseCase(any()) } returns Result.success(Unit)
 
         viewModel.onEvent(RegistryEvent.OnEndDateChanged(1, null))
@@ -132,7 +158,13 @@ class RegistryViewModelTest {
             Book(id = 2, title = "Other", author = "B", isPhysical = false)
         )
         every { getBooksUseCase() } returns flowOf(books)
-        viewModel = RegistryViewModel(application, getBooksUseCase, updateBookUseCase)
+        viewModel = RegistryViewModel(
+            application,
+            application,
+            getBooksUseCase,
+            updateBookUseCase,
+            importBookFromUriUseCase
+        )
 
         viewModel.onEvent(RegistryEvent.OnCriteriaChanged(BookCriteria(favouritesOnly = true)))
 
@@ -143,7 +175,13 @@ class RegistryViewModelTest {
     @Test
     fun `loadData catch sets errorMessage and stops loading`() = runTest {
         every { getBooksUseCase() } returns flow { throw RuntimeException("db down") }
-        viewModel = RegistryViewModel(application, getBooksUseCase, updateBookUseCase)
+        viewModel = RegistryViewModel(
+            application,
+            application,
+            getBooksUseCase,
+            updateBookUseCase,
+            importBookFromUriUseCase
+        )
 
         val state = viewModel.uiState.value
         assertThat(state.isLoading).isFalse()
@@ -154,7 +192,13 @@ class RegistryViewModelTest {
     @Test
     fun `onEvent OnDismissError reloads books and clears error`() = runTest {
         every { getBooksUseCase() } returns flow { throw RuntimeException("db down") }
-        viewModel = RegistryViewModel(application, getBooksUseCase, updateBookUseCase)
+        viewModel = RegistryViewModel(
+            application,
+            application,
+            getBooksUseCase,
+            updateBookUseCase,
+            importBookFromUriUseCase
+        )
         assertThat(viewModel.uiState.value.errorMessage).isEqualTo("Algo ha salido mal")
 
         val book = Book(id = 1, title = "1984", author = "Orwell", isPhysical = true)

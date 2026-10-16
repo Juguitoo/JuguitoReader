@@ -30,7 +30,7 @@ class HomeScreenTest {
                     onNavigateToAddBook = {},
                     onNavigateToBookDetail = {},
                     onNavigateToReadBook = {},
-                    onOpenDrawer = {},
+                    onNavigateToSettings = {},
                     onEvent = {},
                     effect = emptyFlow()
                 )
@@ -49,7 +49,7 @@ class HomeScreenTest {
                     onNavigateToAddBook = {},
                     onNavigateToBookDetail = {},
                     onNavigateToReadBook = {},
-                    onOpenDrawer = {},
+                    onNavigateToSettings = {},
                     onEvent = {},
                     effect = emptyFlow()
                 )
@@ -74,7 +74,7 @@ class HomeScreenTest {
                     onNavigateToAddBook = {},
                     onNavigateToBookDetail = {},
                     onNavigateToReadBook = {},
-                    onOpenDrawer = {},
+                    onNavigateToSettings = {},
                     onEvent = {},
                     effect = emptyFlow()
                 )
@@ -116,7 +116,7 @@ class HomeScreenTest {
                     onNavigateToAddBook = {},
                     onNavigateToBookDetail = {},
                     onNavigateToReadBook = {},
-                    onOpenDrawer = {},
+                    onNavigateToSettings = {},
                     onEvent = {},
                     effect = emptyFlow()
                 )
@@ -177,7 +177,7 @@ class HomeScreenTest {
                     onNavigateToAddBook = {},
                     onNavigateToBookDetail = {},
                     onNavigateToReadBook = {},
-                    onOpenDrawer = {},
+                    onNavigateToSettings = {},
                     onEvent = {},
                     effect = emptyFlow()
                 )
