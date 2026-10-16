@@ -1,6 +1,6 @@
 # TAR-69 — Cambiar la navegación en drawer por un bottomNavigation
 
-- estado: en curso
+- estado: hecho
 - version: v1.3.0
 - tipo: feat
 
