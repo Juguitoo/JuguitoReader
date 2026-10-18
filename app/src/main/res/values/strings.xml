@@ -437,4 +437,8 @@
     <string name="reader_label">Reader</string>
     <string name="about_subtitle">Información sobre la aplicación</string>
     <string name="donation_subtitle">Apoya al creador de la aplicación con una pequeña donación</string>
+    <string name="stats_week" >Semanal</string>
+    <string name="stats_month">Mensual</string>
+    <string name="stats_year">Anual</string>
+    <string name="stats_all">Todo</string>
 </resources>

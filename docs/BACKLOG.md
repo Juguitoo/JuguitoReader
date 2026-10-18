@@ -6,6 +6,15 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 ## En curso
 
+- [ ] TAR-20 Sección estadísticas
+  - version: v1.3.0
+  - tipo: feat
+  - ref: tasks/TAR-20.md
+
+- [ ] TAR-19 Recopilación de estadísticas
+  - version: v1.3.0
+  - tipo: feat
+  - ref: tasks/TAR-19.md
 
 ## Pendiente
 
@@ -22,13 +31,7 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 
 
-- [ ] TAR-19 Recopilación de estadísticas
-  - version: v1.3.0
-  - tipo: feat
 
-- [ ] TAR-20 Sección estadísticas
-  - version: v1.3.0
-  - tipo: feat
 
 - [ ] TAR-51 Marcadores en libros
   - version: v1.3.0

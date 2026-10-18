@@ -434,5 +434,9 @@
     <string name="library_rows">Row Layout</string>
     <string name="about_subtitle">App information</string>
     <string name="donation_subtitle">Support the app\'s creator with a small donation</string>
+    <string name="stats_week" >Weekly</string>
+    <string name="stats_month">Monthly</string>
+    <string name="stats_year">Yearly</string>
+    <string name="stats_all">All</string>
 
 </resources>

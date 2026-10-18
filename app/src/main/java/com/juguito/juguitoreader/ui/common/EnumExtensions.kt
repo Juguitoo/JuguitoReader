@@ -3,6 +3,7 @@ package com.juguito.juguitoreader.ui.common
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.enums.Language
+import com.juguito.juguitoreader.domain.enums.StatsPeriod
 import com.juguito.juguitoreader.ui.reader.ReaderTheme
 import com.juguito.juguitoreader.ui.theme.AppTheme
 
@@ -37,5 +38,14 @@ fun ReaderTheme.toUiText(): UiText {
         ReaderTheme.DAY -> UiText.StringResource(R.string.reader_day)
         ReaderTheme.SEPIA -> UiText.StringResource(R.string.reader_sepia)
         ReaderTheme.NIGHT -> UiText.StringResource(R.string.reader_night)
+    }
+}
+
+fun StatsPeriod.toUiText(): UiText {
+    return when (this) {
+        StatsPeriod.WEEK -> UiText.StringResource(R.string.stats_week)
+        StatsPeriod.MONTH -> UiText.StringResource(R.string.stats_month)
+        StatsPeriod.YEAR -> UiText.StringResource(R.string.stats_year)
+        StatsPeriod.ALL -> UiText.StringResource(R.string.stats_all)
     }
 }

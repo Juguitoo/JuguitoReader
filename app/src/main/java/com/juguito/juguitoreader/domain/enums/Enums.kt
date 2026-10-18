@@ -12,3 +12,11 @@ enum class Language(val code: String) {
     SPANISH("es"),
     ENGLISH("en")
 }
+
+
+enum class StatsPeriod {
+    WEEK,
+    MONTH,
+    YEAR,
+    ALL
+}
