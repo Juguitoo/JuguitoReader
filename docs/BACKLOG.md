@@ -6,55 +6,32 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 ## En curso
 
-- [ ] TAR-20 Sección estadísticas
-  - version: v1.3.0
-  - tipo: feat
-  - ref: tasks/TAR-20.md
-
-- [ ] TAR-19 Recopilación de estadísticas
-  - version: v1.3.0
-  - tipo: feat
-  - ref: tasks/TAR-19.md
-
 ## Pendiente
-
-### v1.2.3
-
-
-
-
 
 ### v1.3.0
 
-
-
-
-
-
-
-
-- [ ] TAR-51 Marcadores en libros
+- [ ] TAR-63 Pase de modo oscuro (Classic + Neon)
   - version: v1.3.0
-  - tipo: feat
-
-- [ ] TAR-52 Tipografías en lector
-  - version: v1.3.0
-  - tipo: feat
-
-- [ ] TAR-53 Modo horizontal
-  - version: v1.3.0
-  - tipo: feat
-
-- [ ] TAR-67 Lista TBR
-  - version: v1.3.0
-  - tipo: feat
-  - ref: tasks/TAR-67.md
+  - tipo: enhance
 
 ### v1.3.1
 
-- [ ] TAR-63 Pase de modo oscuro (Classic + Neon)
+- [ ] TAR-51 Marcadores en libros
   - version: v1.3.1
-  - tipo: enhance
+  - tipo: feat
+
+- [ ] TAR-52 Tipografías en lector
+  - version: v1.3.1
+  - tipo: feat
+
+- [ ] TAR-53 Modo horizontal
+  - version: v1.3.1
+  - tipo: feat
+
+- [ ] TAR-67 Lista TBR
+  - version: v1.3.1
+  - tipo: feat
+  - ref: tasks/TAR-67.md
 
 ### v1.4.0
 

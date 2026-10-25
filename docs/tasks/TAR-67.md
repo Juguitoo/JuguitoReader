@@ -1,7 +1,7 @@
 # TAR-67 — Lista TBR
 
 - estado: pendiente
-- version: v1.3.0
+- version: v1.3.1
 - tipo: feat
 
 ## Problema

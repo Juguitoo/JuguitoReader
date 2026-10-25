@@ -14,7 +14,7 @@ El archive es opcional. La ruta es relativa a esta carpeta. Conviene una sola ve
 
 ## Previstas
 
-- v1.3.1 | Tema oscuro
+- v1.3.1 | Lector y lista TBR
 - v1.4.0 | EPUB3
 - v2.0.0 | Cloud
 - v3.0.0 | Motor nativo

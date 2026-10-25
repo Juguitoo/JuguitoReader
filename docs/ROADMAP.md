@@ -44,13 +44,13 @@ Guías de primer uso (TAR-64) e informe de problemas por correo (TAR-65). Pendie
 
 - estado: en curso
 
-Estadísticas (TAR-19/20), carpetas como archivadores (TAR-47), filtros y ordenación (TAR-49), portadas (TAR-62), marcadores, tipografías, modo horizontal y favoritos (TAR-51–55). El Home pasa a libro en curso arriba y favoritos como vitrina (TAR-66). Entran también una lista TBR, distinta de pendientes (TAR-67), y un enlace de donación (TAR-68). Las stats se desacoplan del WebView de cara al motor nativo.
+Estadísticas (TAR-19 y TAR-20: el tiempo sale de `daily_reading` y un físico terminado cuenta por estado y fecha de fin), carpetas como archivadores (TAR-47), filtros y ordenación (TAR-49), portadas (TAR-62) y favoritos (TAR-54). El Home pasa a libro en curso arriba y favoritos como vitrina (TAR-66). Entran la barra inferior (TAR-69), el enlace de donación (TAR-68) y el pase de Classic Dark y Neon (TAR-63). El visual de biblioteca ya está cerrado, así que el contraste se revisa una sola vez, con las pantallas nuevas incluidas.
 
-## v1.3.1 — Tema oscuro
+## v1.3.1 — Lector y lista TBR
 
 - estado: prevista
 
-Classic Dark y Neon (TAR-63), después del visual de biblioteca (TAR-62), para no retocar el contraste dos veces.
+Marcadores (TAR-51), tipografías del lector (TAR-52) y modo horizontal (TAR-53). También una lista TBR, distinta de pendientes (TAR-67).
 
 ## v1.4.0 — EPUB3
 

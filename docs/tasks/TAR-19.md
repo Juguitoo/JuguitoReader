@@ -1,6 +1,6 @@
 # TAR-19 — Recopilación de estadísticas
 
-- estado: en curso
+- estado: hecho
 - version: v1.3.0
 - tipo: feat
 
@@ -18,4 +18,8 @@ La forma de anotar esa sesión en un físico, y el contrato para que el motor es
 
 ## Durante el desarrollo
 
+No se añadió una pantalla para anotar la sesión de un físico, ni un contrato aparte para el motor nativo. Los dos pueden escribir la misma fila de `daily_reading` cuando existan.
+
 ## Resolución
+
+La sesión sigue siendo una fila de `daily_reading`, sin tabla nueva. El lector la escribe al cerrar, y las estadísticas leen esa fila venga de quien venga. Un físico terminado cuenta por estado y fecha de fin; su tiempo y su velocidad quedan en cero hasta que exista esa sesión. Esta versión no añade una pantalla para anotarla a mano ni un contrato distinto para el motor nativo.
