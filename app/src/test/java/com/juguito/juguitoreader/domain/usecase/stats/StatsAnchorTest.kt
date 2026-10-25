@@ -36,10 +36,4 @@ class StatsAnchorTest {
     fun `next stays put when the period already contains today`() {
         assertThat(nextStatsAnchor(StatsPeriod.WEEK, wednesday, wednesday)).isNull()
     }
-
-    @Test
-    fun `all time has no previous or next period`() {
-        assertThat(previousStatsAnchor(StatsPeriod.ALL, wednesday)).isNull()
-        assertThat(nextStatsAnchor(StatsPeriod.ALL, wednesday, wednesday)).isNull()
-    }
 }

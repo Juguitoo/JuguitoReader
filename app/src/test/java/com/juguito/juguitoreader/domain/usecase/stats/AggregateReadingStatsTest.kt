@@ -50,30 +50,6 @@ class AggregateReadingStatsTest {
     }
 
     @Test
-    fun `all time keeps every finished book and has no chart or previous period`() {
-        val stats = aggregateReadingStats(
-            books = listOf(
-                finished(1, LocalDate.of(2026, 10, 18)),
-                finished(2, null),
-                reading(3),
-            ),
-            dailyReadings = listOf(
-                session(1, LocalDate.of(2024, 1, 2)),
-                session(1, LocalDate.of(2026, 10, 14)),
-            ),
-            period = StatsPeriod.ALL,
-            today = wednesday,
-        )
-
-        assertThat(stats.totalFinished).isEqualTo(2)
-        assertThat(stats.finishedInPeriod.map { it.id }).containsExactly(1, 2).inOrder()
-        assertThat(stats.readingMinutes).isEmpty()
-        assertThat(stats.readingTimeComparison.currentMinutes).isEqualTo(2)
-        assertThat(stats.readingTimeComparison.previousMinutes).isNull()
-        assertThat(stats.daysReadInPeriod).isEqualTo(2)
-    }
-
-    @Test
     fun `finished without an end date counts in the total and not in the month`() {
         val stats = aggregateReadingStats(
             books = listOf(
@@ -341,7 +317,7 @@ class AggregateReadingStatsTest {
                 finished(2, LocalDate.of(2026, 10, 2), genres = listOf(Genre(2, "Aventura"))),
             ),
             dailyReadings = emptyList(),
-            period = StatsPeriod.ALL,
+            period = StatsPeriod.MONTH,
             today = wednesday,
         )
 
@@ -354,7 +330,7 @@ class AggregateReadingStatsTest {
         val stats = aggregateReadingStats(
             books = listOf(finished(1, LocalDate.of(2026, 10, 1)), reading(2, genres = listOf(Genre(1, "Fantasy")))),
             dailyReadings = emptyList(),
-            period = StatsPeriod.ALL,
+            period = StatsPeriod.MONTH,
             today = wednesday,
         )
 

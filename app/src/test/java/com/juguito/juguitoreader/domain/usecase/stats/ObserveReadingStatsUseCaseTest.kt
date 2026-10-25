@@ -64,7 +64,7 @@ class ObserveReadingStatsUseCaseTest {
         every { getDailyReadingsUseCase() } returns flowOf(emptyList())
         books.emit(emptyList())
 
-        useCase(StatsPeriod.ALL, today).test {
+        useCase(StatsPeriod.MONTH, today).test {
             assertThat(awaitItem().totalFinished).isEqualTo(0)
             books.emit(
                 listOf(
