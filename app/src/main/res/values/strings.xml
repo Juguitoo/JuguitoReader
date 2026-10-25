@@ -439,6 +439,75 @@
     <string name="donation_subtitle">Apoya al creador de la aplicación con una pequeña donación</string>
     <string name="stats_week" >Semanal</string>
     <string name="stats_month">Mensual</string>
-    <string name="stats_year">Anual</string>
-    <string name="stats_all">Todo</string>
+    <string name="stats_year">Año</string>
+    <string name="stats_all">Histórico</string>
+    <string name="stats_kicker">Hábitos de lectura</string>
+    <string name="stats_subtitle">Resumen de tu lectura y de tu progreso en este periodo.</string>
+    <string name="stats_previous_period">Periodo anterior</string>
+    <string name="stats_next_period">Periodo siguiente</string>
+    <string name="stats_streak">Racha actual</string>
+    <string name="stats_record">Récord: %1$d</string>
+    <string name="stats_time_read">Tiempo leído</string>
+    <string name="stats_finished">Terminados</string>
+    <string name="stats_finished_total">%1$d en total</string>
+    <string name="stats_speed">Velocidad media</string>
+    <string name="stats_wpm">palabras / min</string>
+    <string name="stats_minutes_chart">Minutos</string>
+    <string name="stats_time_from_reader">El tiempo sale de lo leído en la app.</string>
+    <string name="stats_bar_description">%1$s, %2$s</string>
+    <string name="stats_finished_books">Terminados · %1$d</string>
+    <string name="stats_genre">Género más leído</string>
+    <string name="stats_genre_period">Género de este periodo</string>
+    <string name="stats_genre_share">%1$d%% de tus libros terminados</string>
+    <string name="stats_genre_share_period">%1$d%% de los terminados de este periodo</string>
+    <string name="stats_average_rating">Nota media</string>
+    <string name="stats_average_rating_detail">De los terminados que tienen nota</string>
+    <string name="stats_vs_previous_more">%1$d%% más que el periodo anterior</string>
+    <string name="stats_vs_previous_less">%1$d%% menos que el periodo anterior</string>
+    <string name="stats_vs_previous_same">Igual que el periodo anterior</string>
+    <string name="stats_vs_previous_none">En el periodo anterior no leíste</string>
+    <plurals name="stats_day_unit">
+        <item quantity="one">día</item>
+        <item quantity="other">días</item>
+    </plurals>
+    <plurals name="stats_book_unit">
+        <item quantity="one">libro</item>
+        <item quantity="other">libros</item>
+    </plurals>
+    <plurals name="stats_days_read">
+        <item quantity="one">%d día con lectura</item>
+        <item quantity="other">%d días con lectura</item>
+    </plurals>
+    <string name="stats_see_all">Ver todos</string>
+    <string name="stats_finished_on">Terminado el %1$s</string>
+    <string name="stats_chart_title">Tiempo de lectura</string>
+    <string name="stats_chart_axis">Escala de 0 a %1$s</string>
+    <string name="stats_pace_day">Ritmo promedio: %1$s al día</string>
+    <string name="stats_pace_month">Ritmo promedio: %1$s al mes</string>
+    <string name="stats_chart_total">Total: %1$s</string>
+    <string name="stats_chart_empty">Sin sesiones en este periodo.</string>
+    <string name="stats_chart_no_breakdown">En el histórico ves el total, sin barras por día.</string>
+    <string name="stats_bar_value">%1$s · %2$s</string>
+    <string name="stats_pages_per_hour">%1$d págs/h</string>
+    <string name="stats_insights">Hábitos e insights</string>
+    <string name="stats_genre_predominant">Género predominante</string>
+    <string name="stats_heatmap_inactive">Inactivo</string>
+    <string name="stats_heatmap_read">Leído</string>
+    <string name="stats_heatmap_day">%1$s, %2$s</string>
+    <string name="stats_heatmap_none">%1$s, sin lectura</string>
+    <string name="stats_streak_best">Estás en tu mejor racha</string>
+    <string name="stats_streak_best_detail">Sigue leyendo para alargarla.</string>
+    <string name="stats_streak_record_detail">Una sesión hoy empieza una racha nueva.</string>
+    <plurals name="stats_streak_active">
+        <item quantity="one">Llevas %d día seguido</item>
+        <item quantity="other">Llevas %d días seguidos</item>
+    </plurals>
+    <plurals name="stats_streak_to_record">
+        <item quantity="one">Te falta %d día para igualar tu récord</item>
+        <item quantity="other">Te faltan %d días para igualar tu récord</item>
+    </plurals>
+    <plurals name="stats_streak_record_only">
+        <item quantity="one">Tu récord es de %d día</item>
+        <item quantity="other">Tu récord es de %d días</item>
+    </plurals>
 </resources>

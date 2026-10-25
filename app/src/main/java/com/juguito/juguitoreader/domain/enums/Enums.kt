@@ -17,6 +17,5 @@ enum class Language(val code: String) {
 enum class StatsPeriod {
     WEEK,
     MONTH,
-    YEAR,
-    ALL
+    YEAR
 }

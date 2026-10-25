@@ -436,7 +436,75 @@
     <string name="donation_subtitle">Support the app\'s creator with a small donation</string>
     <string name="stats_week" >Weekly</string>
     <string name="stats_month">Monthly</string>
-    <string name="stats_year">Yearly</string>
-    <string name="stats_all">All</string>
-
+    <string name="stats_year">Year</string>
+    <string name="stats_all">All-time</string>
+    <string name="stats_kicker">Reading habits</string>
+    <string name="stats_subtitle">A summary of your reading and your progress this period.</string>
+    <string name="stats_previous_period">Previous period</string>
+    <string name="stats_next_period">Next period</string>
+    <string name="stats_streak">Current streak</string>
+    <string name="stats_record">Record: %1$d</string>
+    <string name="stats_time_read">Time read</string>
+    <string name="stats_finished">Finished</string>
+    <string name="stats_finished_total">%1$d overall</string>
+    <string name="stats_speed">Average speed</string>
+    <string name="stats_wpm">words / min</string>
+    <string name="stats_minutes_chart">Minutes</string>
+    <string name="stats_time_from_reader">Time comes from reading inside the app.</string>
+    <string name="stats_bar_description">%1$s, %2$s</string>
+    <string name="stats_finished_books">Finished · %1$d</string>
+    <string name="stats_genre">Most read genre</string>
+    <string name="stats_genre_period">Genre this period</string>
+    <string name="stats_genre_share">%1$d%% of your finished books</string>
+    <string name="stats_genre_share_period">%1$d%% of the books finished this period</string>
+    <string name="stats_average_rating">Average rating</string>
+    <string name="stats_average_rating_detail">Finished books that have a rating</string>
+    <string name="stats_vs_previous_more">%1$d%% more than the previous period</string>
+    <string name="stats_vs_previous_less">%1$d%% less than the previous period</string>
+    <string name="stats_vs_previous_same">Same as the previous period</string>
+    <string name="stats_vs_previous_none">You did not read in the previous period</string>
+    <plurals name="stats_day_unit">
+        <item quantity="one">day</item>
+        <item quantity="other">days</item>
+    </plurals>
+    <plurals name="stats_book_unit">
+        <item quantity="one">book</item>
+        <item quantity="other">books</item>
+    </plurals>
+    <plurals name="stats_days_read">
+        <item quantity="one">%d day with reading</item>
+        <item quantity="other">%d days with reading</item>
+    </plurals>
+    <string name="stats_see_all">See all</string>
+    <string name="stats_finished_on">Finished on %1$s</string>
+    <string name="stats_chart_title">Reading time</string>
+    <string name="stats_chart_axis">Scale from 0 to %1$s</string>
+    <string name="stats_pace_day">Average pace: %1$s a day</string>
+    <string name="stats_pace_month">Average pace: %1$s a month</string>
+    <string name="stats_chart_total">Total: %1$s</string>
+    <string name="stats_chart_empty">No sessions in this period.</string>
+    <string name="stats_chart_no_breakdown">All-time shows the total, without daily bars.</string>
+    <string name="stats_bar_value">%1$s · %2$s</string>
+    <string name="stats_pages_per_hour">%1$d pages/h</string>
+    <string name="stats_insights">Habits and insights</string>
+    <string name="stats_genre_predominant">Main genre</string>
+    <string name="stats_heatmap_inactive">Inactive</string>
+    <string name="stats_heatmap_read">Read</string>
+    <string name="stats_heatmap_day">%1$s, %2$s</string>
+    <string name="stats_heatmap_none">%1$s, no reading</string>
+    <string name="stats_streak_best">This is your best streak</string>
+    <string name="stats_streak_best_detail">Keep reading to extend it.</string>
+    <string name="stats_streak_record_detail">A session today starts a new streak.</string>
+    <plurals name="stats_streak_active">
+        <item quantity="one">%d day in a row</item>
+        <item quantity="other">%d days in a row</item>
+    </plurals>
+    <plurals name="stats_streak_to_record">
+        <item quantity="one">%d day left to match your record</item>
+        <item quantity="other">%d days left to match your record</item>
+    </plurals>
+    <plurals name="stats_streak_record_only">
+        <item quantity="one">Your record is %d day</item>
+        <item quantity="other">Your record is %d days</item>
+    </plurals>
 </resources>

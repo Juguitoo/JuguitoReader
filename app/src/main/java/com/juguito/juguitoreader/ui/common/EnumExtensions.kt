@@ -46,6 +46,5 @@ fun StatsPeriod.toUiText(): UiText {
         StatsPeriod.WEEK -> UiText.StringResource(R.string.stats_week)
         StatsPeriod.MONTH -> UiText.StringResource(R.string.stats_month)
         StatsPeriod.YEAR -> UiText.StringResource(R.string.stats_year)
-        StatsPeriod.ALL -> UiText.StringResource(R.string.stats_all)
     }
 }

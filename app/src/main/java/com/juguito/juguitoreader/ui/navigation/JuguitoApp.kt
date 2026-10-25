@@ -17,6 +17,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AppRegistration
 import androidx.compose.material.icons.filled.AutoStories
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -35,6 +36,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -65,6 +67,7 @@ import com.juguito.juguitoreader.ui.onboarding.OnboardingViewModel
 import com.juguito.juguitoreader.ui.reader.ReaderScreen
 import com.juguito.juguitoreader.ui.registry.RegistryScreen
 import com.juguito.juguitoreader.ui.settings.SettingsScreen
+import com.juguito.juguitoreader.ui.stats.StatsScreen
 import com.juguito.juguitoreader.ui.theme.chromeNavInactiveColor
 import kotlinx.coroutines.launch
 
@@ -113,6 +116,11 @@ fun JuguitoApp(
                         onRegistryClick = {
                             scope.launch {
                                 navController.navigateToTopLevel("registry")
+                            }
+                        },
+                        onStatsClick = {
+                            scope.launch {
+                                navController.navigateToTopLevel("statistics")
                             }
                         }
                     )
@@ -245,6 +253,17 @@ fun JuguitoApp(
                 )
             }
 
+            composable(route = "statistics") {
+                StatsScreen(
+                    onNavigateToBookDetail = { bookId ->
+                        navController.navigate("book_detail/$bookId")
+                    },
+                    onViewFinishedBooks = {
+                        navController.navigate("library?status=${BookStatus.FINISHED.name}")
+                    },
+                )
+            }
+
             composable(
                 route = "library?favourites={favourites}&status={status}",
                 arguments = listOf(
@@ -319,6 +338,7 @@ internal fun shouldShowNavigationBar(route: String?): Boolean {
     if (route == null) return false
     return route == "home" ||
             route == "registry" ||
+            route == "statistics" ||
             route.matchesTopLevel("library")
 }
 
@@ -342,6 +362,7 @@ private fun JuguitoNavigationBar(
     onHomeClick: () -> Unit,
     onLibraryClick: () -> Unit,
     onRegistryClick: () -> Unit,
+    onStatsClick: () -> Unit,
 ) {
     Surface(color = MaterialTheme.colorScheme.background) {
         Column {
@@ -372,6 +393,12 @@ private fun JuguitoNavigationBar(
                     icon = Icons.Default.AppRegistration,
                     label = stringResource(R.string.registry_label),
                     onClick = onRegistryClick
+                )
+                JuguitoNavigationBarItem(
+                    selected = currentRoute == "statistics",
+                    icon = Icons.Default.BarChart,
+                    label = stringResource(R.string.stats),
+                    onClick = onStatsClick
                 )
             }
         }
@@ -412,7 +439,8 @@ private fun RowScope.JuguitoNavigationBarItem(
             text = label,
             color = color,
             style = MaterialTheme.typography.labelMedium,
-            maxLines = 1
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }

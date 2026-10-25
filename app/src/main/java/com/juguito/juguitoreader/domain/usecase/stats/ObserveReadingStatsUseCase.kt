@@ -21,7 +21,13 @@ class ObserveReadingStatsUseCase @Inject constructor(
             getBooksUseCase(),
             getDailyReadingsUseCase(),
         ) { books, readings ->
-            aggregateReadingStats(books, readings, period, today)
+            aggregateReadingStats(
+                books = books,
+                dailyReadings = readings,
+                period = period,
+                today = today,
+                streakAsOf = LocalDate.now(),
+            )
         }
     }
 }

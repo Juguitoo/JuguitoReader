@@ -21,7 +21,8 @@ fun aggregateReadingStats(
     books: List<Book>,
     dailyReadings: List<DailyReading>,
     period: StatsPeriod,
-    today: LocalDate
+    today: LocalDate,
+    streakAsOf: LocalDate = today,
 ): ReadingStats {
     val periodRange = periodRange(period, today)
 
@@ -43,7 +44,7 @@ fun aggregateReadingStats(
     return ReadingStats(
         totalFinished = totalFinished.size,
         finishedInPeriod = finishedInPeriod.sortedByDescending { it.endDate ?: Long.MIN_VALUE },
-        readingStreak = currentStreak(readingDays, today),
+        readingStreak = currentStreak(readingDays, streakAsOf),
         bestReadingStreak = bestCurrentStreak(readingDays),
         readingMinutes = readingMinutes(minutesByDay, periodRange, period),
         readingTimeComparison = ReadingTimeComparison(
@@ -61,7 +62,7 @@ fun aggregateReadingStats(
 private fun Long.asUtcDate(): LocalDate =
     Instant.ofEpochMilli(this).atZone(ZoneOffset.UTC).toLocalDate()
 
-private fun periodRange(period: StatsPeriod, today: LocalDate): ClosedRange<LocalDate>? {
+internal fun periodRange(period: StatsPeriod, today: LocalDate): ClosedRange<LocalDate>? {
     return when (period) {
         StatsPeriod.WEEK -> {
             val start = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
@@ -75,7 +76,6 @@ private fun periodRange(period: StatsPeriod, today: LocalDate): ClosedRange<Loca
             val start = today.withDayOfYear(1)
             start..start.with(TemporalAdjusters.lastDayOfYear())
         }
-        StatsPeriod.ALL -> null
     }
 }
 
@@ -125,13 +125,11 @@ private fun previousSliceMinutes(
         StatsPeriod.WEEK -> current.start.minusWeeks(1)
         StatsPeriod.MONTH -> current.start.minusMonths(1)
         StatsPeriod.YEAR -> current.start.minusYears(1)
-        StatsPeriod.ALL -> return null
     }
     val previousEnd = when (period) {
         StatsPeriod.WEEK -> previousStart.plusDays(6)
         StatsPeriod.MONTH -> previousStart.withDayOfMonth(previousStart.lengthOfMonth())
         StatsPeriod.YEAR -> previousStart.with(TemporalAdjusters.lastDayOfYear())
-        StatsPeriod.ALL -> return null
     }
     val sliceEnd = minOf(previousStart.plusDays(elapsed - 1), previousEnd)
     val slice = previousStart..sliceEnd

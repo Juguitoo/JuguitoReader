@@ -268,6 +268,25 @@ class AggregateReadingStatsTest {
     }
 
     @Test
+    fun `current streak follows the real day when the viewed period is older`() {
+        val stats = aggregateReadingStats(
+            books = emptyList(),
+            dailyReadings = listOf(
+                session(1, LocalDate.of(2026, 9, 1)),
+                session(1, LocalDate.of(2026, 10, 12)),
+                session(1, LocalDate.of(2026, 10, 13)),
+                session(1, LocalDate.of(2026, 10, 14)),
+            ),
+            period = StatsPeriod.MONTH,
+            today = LocalDate.of(2026, 9, 15),
+            streakAsOf = wednesday,
+        )
+
+        assertThat(stats.daysReadInPeriod).isEqualTo(1)
+        assertThat(stats.readingStreak).isEqualTo(3)
+    }
+
+    @Test
     fun `average rating uses rated finished books only`() {
         val rated = aggregateReadingStats(
             books = listOf(
