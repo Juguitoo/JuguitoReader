@@ -388,6 +388,14 @@
 
 
     <!-- Changelog -->
+    <string-array name="changelog_1_3_0">
+        <item>Reading statistics: streak, time, finished books, and a calendar.</item>
+        <item>Home shows the book in progress and your favourites.</item>
+        <item>Folders work as binders, and the library can be filtered and sorted.</item>
+        <item>Navigation moves to the bottom bar.</item>
+        <item>Classic Dark and Neon themes, tuned for reading at night.</item>
+        <item>You can support the app with a donation.</item>
+    </string-array>
     <string-array name="changelog_1_2_3">
         <item>Added a use guide of the app and explanation to the reader.</item>
         <item>You can report a problem by email from Settings.</item>

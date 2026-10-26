@@ -21,8 +21,8 @@ android {
         applicationId = "com.juguito.juguitoreader"
         minSdk = 26
         targetSdk = 37
-        versionCode = 9
-        versionName = "1.2.3"
+        versionCode = 10
+        versionName = "1.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

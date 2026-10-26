@@ -10,8 +10,6 @@ El archive es opcional. La ruta es relativa a esta carpeta. Conviene una sola ve
 
 ## En curso
 
-- v1.3.0 | Biblioteca y estadísticas | archive/v1.3.0.md
-
 ## Previstas
 
 - v1.3.1 | Lector y lista TBR
@@ -21,6 +19,7 @@ El archive es opcional. La ruta es relativa a esta carpeta. Conviene una sola ve
 
 ## Publicadas
 
+- v1.3.0 | Biblioteca y estadísticas | archive/v1.3.0.md
 - v1.2.3 | Pulido de uso | archive/v1.2.3.md
 - v1.2.2 | Sesiones y barra del lector | archive/v1.2.2.md
 - v1.2.1 | Store polish y backup manual | archive/v1.2.1.md

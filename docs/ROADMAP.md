@@ -42,9 +42,9 @@ Guías de primer uso (TAR-64) e informe de problemas por correo (TAR-65). Pendie
 
 ## v1.3.0 — Biblioteca y estadísticas
 
-- estado: en curso
+- estado: publicada
 
-Estadísticas (TAR-19 y TAR-20: el tiempo sale de `daily_reading` y un físico terminado cuenta por estado y fecha de fin), carpetas como archivadores (TAR-47), filtros y ordenación (TAR-49), portadas (TAR-62) y favoritos (TAR-54). El Home pasa a libro en curso arriba y favoritos como vitrina (TAR-66). Entran la barra inferior (TAR-69), el enlace de donación (TAR-68) y el pase de Classic Dark y Neon (TAR-63). El visual de biblioteca ya está cerrado, así que el contraste se revisa una sola vez, con las pantallas nuevas incluidas.
+Estadísticas (TAR-19 y TAR-20: el tiempo sale de `daily_reading` y un físico terminado cuenta por estado y fecha de fin), carpetas como archivadores (TAR-47), filtros y ordenación (TAR-49), portadas (TAR-62) y favoritos (TAR-54). El Home pasa a libro en curso arriba y favoritos como vitrina (TAR-66). Entran la barra inferior (TAR-69), el enlace de donación (TAR-68) y el pase de Classic Dark y Neon (TAR-63). Código en `versionName` 1.3.0 / `versionCode` 10.
 
 ## v1.3.1 — Lector y lista TBR
 

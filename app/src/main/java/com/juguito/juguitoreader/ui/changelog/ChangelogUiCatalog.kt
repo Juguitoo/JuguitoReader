@@ -7,6 +7,7 @@ data class ChangelogUiRelease(val versionName: String, @ArrayRes val highlightsR
 
 object ChangelogUiCatalog {
     val newestFirst = listOf(
+        ChangelogUiRelease("1.3.0", R.array.changelog_1_3_0),
         ChangelogUiRelease("1.2.3", R.array.changelog_1_2_3),
         ChangelogUiRelease("1.2.2", R.array.changelog_1_2_2),
         ChangelogUiRelease("1.2.1", R.array.changelog_1_2_1),

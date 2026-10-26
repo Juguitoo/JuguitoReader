@@ -389,6 +389,14 @@
     <string name="donation_title" >Haz una donación</string>
 
     <!-- Changelog -->
+    <string-array name="changelog_1_3_0">
+        <item>Estadísticas de lectura: racha, tiempo, libros terminados y calendario.</item>
+        <item>El inicio muestra el libro en curso y los favoritos.</item>
+        <item>Las carpetas son archivadores, y la biblioteca se puede filtrar y ordenar.</item>
+        <item>La navegación pasa a la barra inferior.</item>
+        <item>Temas Classic Dark y Neon, ajustados para leer de noche.</item>
+        <item>Puedes apoyar la app con una donación.</item>
+    </string-array>
     <string-array name="changelog_1_2_3">
         <item>Añadida guía de uso de la app y explicación del lector.</item>
         <item>Desde Ajustes puedes informar de un problema por correo.</item>
