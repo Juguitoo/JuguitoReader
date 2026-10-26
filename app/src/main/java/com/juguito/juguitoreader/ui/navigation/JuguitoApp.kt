@@ -258,9 +258,12 @@ fun JuguitoApp(
                     onNavigateToBookDetail = { bookId ->
                         navController.navigate("book_detail/$bookId")
                     },
+                    onNavigateToSettings = {
+                        navController.navigate("settings")
+                    },
                     onViewFinishedBooks = {
                         navController.navigate("library?status=${BookStatus.FINISHED.name}")
-                    },
+                    }
                 )
             }
 

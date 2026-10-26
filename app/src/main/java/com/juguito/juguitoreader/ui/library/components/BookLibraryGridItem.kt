@@ -88,6 +88,7 @@ fun BookLibraryGridItem(
                         Text(
                             text = book.title,
                             style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(8.dp)
                         )

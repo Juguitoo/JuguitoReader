@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.ReadingStatsBucket
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
+import com.juguito.juguitoreader.utils.contrastingContent
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -253,13 +255,9 @@ private fun HeatDay(
     val background = if (intensity == 0f) {
         MaterialTheme.colorScheme.surfaceVariant
     } else {
-        accent.copy(alpha = intensity)
+        lerp(MaterialTheme.colorScheme.surface, accent, intensity)
     }
-    val contentColor = when {
-        intensity == 0f -> MaterialTheme.colorScheme.onSurfaceVariant
-        intensity >= 0.72f -> MaterialTheme.colorScheme.onSecondary
-        else -> MaterialTheme.colorScheme.onSurface
-    }
+    val contentColor = background.contrastingContent()
     val dateLabel = date.format(DateTimeFormatter.ofPattern("d MMM", locale))
     val description = if (minutes > 0) {
         stringResource(R.string.stats_heatmap_day, dateLabel, formatReadingMinutes(minutes))

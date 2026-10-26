@@ -1,6 +1,5 @@
 package com.juguito.juguitoreader.ui.library.components
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,6 +20,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.juguito.juguitoreader.domain.model.Folder
@@ -54,7 +55,7 @@ fun FolderSelectorRow(
 
 @Composable
 private fun ShelfBackdrop(modifier: Modifier = Modifier) {
-    val dark = isSystemInDarkTheme()
+    val dark = MaterialTheme.colorScheme.background.luminance() < 0.5f
     val top = if (dark) Color(0xFF3E2723) else Color(0xFF8D6E63)
     val bottom = if (dark) Color(0xFF4E342E) else Color(0xFFA1887F)
     val grain = if (dark) Color(0xFF2B1B17) else Color(0xFF6D4C41)
@@ -80,7 +81,7 @@ private fun ShelfBackdrop(modifier: Modifier = Modifier) {
 
 @Composable
 private fun ShelfPlank(modifier: Modifier = Modifier) {
-    val dark = isSystemInDarkTheme()
+    val dark = MaterialTheme.colorScheme.background.luminance() < 0.5f
     val face = if (dark) Color(0xFF4E342E) else Color(0xFFA0724A)
     val lip = if (dark) Color(0xFF6D4C41) else Color(0xFFC4A574)
     val grain = if (dark) Color(0xFF3E2723) else Color(0xFF6D4C41)

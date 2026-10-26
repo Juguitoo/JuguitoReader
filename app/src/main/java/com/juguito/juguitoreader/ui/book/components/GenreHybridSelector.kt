@@ -94,7 +94,11 @@ fun GenreHybridSelector(
                         },
                         label = { Text(genre.name) },
                         trailingIcon = { Icon(Icons.Default.Close, contentDescription = stringResource(R.string.erase), modifier = Modifier.size(16.dp)) },
-                        colors = InputChipDefaults.inputChipColors(selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer)
+                        colors = InputChipDefaults.inputChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            selectedTrailingIconColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
                     )
                 }
             }

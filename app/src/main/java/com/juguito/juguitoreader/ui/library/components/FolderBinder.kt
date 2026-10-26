@@ -40,7 +40,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.core.graphics.toColorInt
 import com.juguito.juguitoreader.domain.model.Folder
-import com.juguito.juguitoreader.utils.prefersDarkContent
+import com.juguito.juguitoreader.utils.contrastingContent
+import com.juguito.juguitoreader.utils.contrastsWith
 
 @Composable
 fun FolderBinder(
@@ -61,6 +62,11 @@ fun FolderBinder(
     val shape = RoundedCornerShape(topStart = 7.dp, topEnd = 7.dp, bottomStart = 2.dp, bottomEnd = 2.dp)
     val edgeColor = lerp(binderColor, Color.Black, 0.35f)
     val labelColor = lerp(binderColor, Color(0xFFFFF8E7), 0.78f)
+    val labelInk = if (binderColor.contrastsWith(labelColor)) {
+        binderColor
+    } else {
+        labelColor.contrastingContent()
+    }
 
     val spineHeight = 88.dp
     val pullDistance = 8.dp
@@ -118,7 +124,7 @@ fun FolderBinder(
                                 overflow = TextOverflow.Ellipsis,
                                 style = MaterialTheme.typography.bodySmall,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(folder.colorHex.toColorInt())
+                                color = labelInk
                             )
                         }
                     ) { measurables, constraints ->

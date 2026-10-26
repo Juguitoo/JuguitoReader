@@ -48,7 +48,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -69,6 +68,7 @@ fun ReaderControls(
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
+    val chrome = MaterialTheme.colorScheme.onPrimary
 
     var bottomBarMode by remember { mutableStateOf(BottomBarMode.DEFAULT) }
     var brightness by remember(state.brightness) { mutableFloatStateOf(state.brightness) }
@@ -106,13 +106,13 @@ fun ReaderControls(
                     IconButton(onClick = { onEvent(ReaderEvent.OnBackRequested) }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) }
                 },
                 actions = {
-                    IconButton(onClick = { onEvent(ReaderEvent.OnToggleSessionsDialog) }) { Icon(Icons.Default.BarChart, contentDescription = stringResource(R.string.stats), tint = Color.White) }
+                    IconButton(onClick = { onEvent(ReaderEvent.OnToggleSessionsDialog) }) { Icon(Icons.Default.BarChart, contentDescription = stringResource(R.string.stats), tint = chrome) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White,
-                    actionIconContentColor = Color.White
+                    titleContentColor = chrome,
+                    navigationIconContentColor = chrome,
+                    actionIconContentColor = chrome
                 )
             )
         }
@@ -126,7 +126,7 @@ fun ReaderControls(
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White,
+                contentColor = chrome,
                 shadowElevation = 8.dp
             ) {
                 Column(
@@ -149,7 +149,7 @@ fun ReaderControls(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 IconButton(onClick = { bottomBarMode = BottomBarMode.DEFAULT }) {
-                                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close), tint = Color.White)
+                                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close), tint = chrome)
                                 }
                                 Icon(
                                     Icons.Default.FormatSize,
@@ -167,14 +167,14 @@ fun ReaderControls(
                                         Box(
                                             modifier = Modifier
                                                 .size(16.dp)
-                                                .background(Color.White, CircleShape)
+                                                .background(chrome, CircleShape)
                                         )
                                     },
                                     track = { positions ->
                                         SliderDefaults.Track(
                                             colors = SliderDefaults.colors(
-                                                activeTrackColor = Color.White,
-                                                inactiveTrackColor = Color.White.copy(alpha = 0.3f)
+                                                activeTrackColor = chrome,
+                                                inactiveTrackColor = chrome.copy(alpha = 0.3f)
                                             ),
                                             sliderState = positions,
                                             modifier = Modifier.height(2.dp)
@@ -196,7 +196,7 @@ fun ReaderControls(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 IconButton(onClick = { bottomBarMode = BottomBarMode.DEFAULT }) {
-                                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close), tint = Color.White)
+                                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close), tint = chrome)
                                 }
                                 Icon(
                                     Icons.Default.LightMode,
@@ -217,14 +217,14 @@ fun ReaderControls(
                                         Box(
                                             modifier = Modifier
                                                 .size(16.dp)
-                                                .background(Color.White, CircleShape)
+                                                .background(chrome, CircleShape)
                                         )
                                     },
                                     track = { positions ->
                                         SliderDefaults.Track(
                                             colors = SliderDefaults.colors(
-                                                activeTrackColor = Color.White,
-                                                inactiveTrackColor = Color.White.copy(alpha = 0.3f)
+                                                activeTrackColor = chrome,
+                                                inactiveTrackColor = chrome.copy(alpha = 0.3f)
                                             ),
                                             sliderState = positions,
                                             modifier = Modifier.height(2.dp)
@@ -247,8 +247,8 @@ fun ReaderControls(
                                     .padding(top = 6.dp, bottom = 2.dp)
                                     .height(4.dp)
                                     .clip(CircleShape),
-                                color = Color.White,
-                                trackColor = Color.White.copy(alpha = 0.3f)
+                                color = chrome,
+                                trackColor = chrome.copy(alpha = 0.3f)
                             )
                             Row(
                                 modifier = Modifier
@@ -274,8 +274,8 @@ fun ReaderControls(
                                         onClick = { onEvent(ReaderEvent.OnPreviousChapter) },
                                         enabled = state.currentChapterIndex > 0,
                                         colors = IconButtonDefaults.iconButtonColors(
-                                            contentColor = Color.White,
-                                            disabledContentColor = Color.White.copy(alpha = 0.4f)
+                                            contentColor = chrome,
+                                            disabledContentColor = chrome.copy(alpha = 0.4f)
                                         )
                                     ) {
                                         Icon(
@@ -293,8 +293,8 @@ fun ReaderControls(
                                         onClick = { onEvent(ReaderEvent.OnNextChapter) },
                                         enabled = state.currentChapterIndex < state.epubContent.spine.size - 1,
                                         colors = IconButtonDefaults.iconButtonColors(
-                                            contentColor = Color.White,
-                                            disabledContentColor = Color.White.copy(alpha = 0.4f)
+                                            contentColor = chrome,
+                                            disabledContentColor = chrome.copy(alpha = 0.4f)
                                         )
                                     ) {
                                         Icon(

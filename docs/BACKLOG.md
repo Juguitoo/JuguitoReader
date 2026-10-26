@@ -8,12 +8,6 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 ## Pendiente
 
-### v1.3.0
-
-- [ ] TAR-63 Pase de modo oscuro (Classic + Neon)
-  - version: v1.3.0
-  - tipo: enhance
-
 ### v1.3.1
 
 - [ ] TAR-51 Marcadores en libros

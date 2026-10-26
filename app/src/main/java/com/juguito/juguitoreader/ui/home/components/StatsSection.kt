@@ -30,19 +30,22 @@ fun StatsSection(
             title = stringResource(R.string.books_in_library),
             value = statsUiState.totalBooksCount.toString(),
             icon = Icons.AutoMirrored.Filled.LibraryBooks,
-            color = MaterialTheme.colorScheme.primaryContainer
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
         )
         StatCard(
             title = stringResource(R.string.books_reading),
             value = statsUiState.readingBooksCount.toString(),
             icon = Icons.Default.AutoStories,
-            color = MaterialTheme.colorScheme.secondaryContainer
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
         )
         StatCard(
             title = stringResource(R.string.books_finished),
             value = statsUiState.finishedBooksCount.toString(),
             icon = Icons.Default.DoneAll,
-            color = MaterialTheme.colorScheme.tertiaryContainer
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
         )
         /* TODO: Calculador de velocidad de lectura
         StatCard(

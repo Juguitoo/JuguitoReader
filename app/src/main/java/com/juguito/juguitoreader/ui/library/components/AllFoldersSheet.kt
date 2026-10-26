@@ -78,8 +78,8 @@ fun AllFoldersSheet(
                         },
                         shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = color.copy(alpha = 0.15f),
-                            selectedLabelColor = color
+                            selectedContainerColor = color.copy(alpha = 0.28f),
+                            selectedLabelColor = MaterialTheme.colorScheme.onSurface
                         )
                     )
                 }

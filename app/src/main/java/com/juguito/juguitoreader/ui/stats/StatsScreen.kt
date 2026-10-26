@@ -8,7 +8,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -37,28 +41,31 @@ import java.time.LocalDate
 
 @Composable
 fun StatsScreen(
-    onNavigateToBookDetail: (Int) -> Unit,
-    onViewFinishedBooks: () -> Unit = {},
     modifier: Modifier = Modifier,
+    onNavigateToBookDetail: (Int) -> Unit,
+    onNavigateToSettings: () -> Unit,
+    onViewFinishedBooks: () -> Unit = {},
     viewModel: StatsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
     StatsContent(
+        modifier = modifier,
         state = state,
         onEvent = viewModel::onEvent,
         onNavigateToBookDetail = onNavigateToBookDetail,
-        onViewFinishedBooks = onViewFinishedBooks,
-        modifier = modifier,
+        onNavigateToSettings = onNavigateToSettings,
+        onViewFinishedBooks = onViewFinishedBooks
     )
 }
 
 @Composable
 fun StatsContent(
+    modifier: Modifier = Modifier,
     state: StatsUiState,
     onEvent: (StatsEvent) -> Unit,
     onNavigateToBookDetail: (Int) -> Unit,
-    onViewFinishedBooks: () -> Unit = {},
-    modifier: Modifier = Modifier,
+    onNavigateToSettings: () -> Unit,
+    onViewFinishedBooks: () -> Unit = {}
 ) {
     Scaffold(
         modifier = modifier,
@@ -71,6 +78,16 @@ fun StatsContent(
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge,
                     )
+                },
+                actions = {
+                    IconButton(
+                        onClick = { onNavigateToSettings() }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = stringResource(R.string.settings_label)
+                        )
+                    }
                 }
             )
         },

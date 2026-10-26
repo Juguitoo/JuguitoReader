@@ -1,6 +1,23 @@
 package com.juguito.juguitoreader.utils
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import kotlin.math.pow
+
+private val ContentInk = Color(0xFF1A1C1E)
+
+internal fun Color.contrastingContent(): Color {
+    val luminance = luminance()
+    val contrastWithBlack = (luminance + 0.05) / 0.05
+    val contrastWithWhite = 1.05 / (luminance + 0.05)
+    return if (contrastWithBlack >= contrastWithWhite) ContentInk else Color.White
+}
+
+internal fun Color.contrastsWith(other: Color, minimum: Double = 4.5): Boolean {
+    val lighter = maxOf(luminance(), other.luminance())
+    val darker = minOf(luminance(), other.luminance())
+    return (lighter + 0.05) / (darker + 0.05) >= minimum
+}
 
 internal fun prefersDarkContent(colorHex: String): Boolean? {
     val rgb = parseRgb(colorHex) ?: return null

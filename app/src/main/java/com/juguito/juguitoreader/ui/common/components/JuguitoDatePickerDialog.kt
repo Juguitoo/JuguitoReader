@@ -14,7 +14,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.juguito.juguitoreader.R
@@ -77,10 +76,10 @@ fun JuguitoDatePickerDialog(
                 yearContentColor = MaterialTheme.colorScheme.onSurface,
                 currentYearContentColor = MaterialTheme.colorScheme.primary,
                 selectedYearContainerColor = MaterialTheme.colorScheme.primary,
-                selectedYearContentColor = Color.White,
+                selectedYearContentColor = MaterialTheme.colorScheme.onPrimary,
                 dayContentColor = MaterialTheme.colorScheme.onSurface,
                 selectedDayContainerColor = MaterialTheme.colorScheme.primary,
-                selectedDayContentColor = Color.White,
+                selectedDayContentColor = MaterialTheme.colorScheme.onPrimary,
                 todayDateBorderColor = MaterialTheme.colorScheme.primary,
                 todayContentColor = MaterialTheme.colorScheme.primary
             )

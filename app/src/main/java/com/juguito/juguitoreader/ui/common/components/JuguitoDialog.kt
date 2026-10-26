@@ -136,9 +136,15 @@ fun JuguitoDialog(
                                 modifier = Modifier.weight(1f),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = if (isDestructive) {
-                                    ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                                    ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.error,
+                                        contentColor = MaterialTheme.colorScheme.onError
+                                    )
                                 } else {
-                                    ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                                    ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                        contentColor = MaterialTheme.colorScheme.onPrimary
+                                    )
                                 }
                             ) {
                                 Text(confirmButtonText)

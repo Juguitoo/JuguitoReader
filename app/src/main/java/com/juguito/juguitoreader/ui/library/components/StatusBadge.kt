@@ -17,12 +17,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.ui.common.toUiText
+import com.juguito.juguitoreader.utils.contrastingContent
 
 @Composable
 fun StatusBadge(status: BookStatus, percentage: Int?, modifier: Modifier = Modifier) {
     if (status == BookStatus.PENDING) return
 
     val color = bookStatusColor(status)
+    val content = when (status) {
+        BookStatus.READING -> MaterialTheme.colorScheme.onPrimary
+        BookStatus.DROPPED -> MaterialTheme.colorScheme.onError
+        BookStatus.FINISHED -> color.contrastingContent()
+        BookStatus.PENDING -> MaterialTheme.colorScheme.onSurface
+    }
 
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -35,7 +42,7 @@ fun StatusBadge(status: BookStatus, percentage: Int?, modifier: Modifier = Modif
         ) {
             Text(
                 text = status.toUiText().asString().uppercase(),
-                color = Color.White,
+                color = content,
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,
                 fontSize = 9.sp,
@@ -45,7 +52,7 @@ fun StatusBadge(status: BookStatus, percentage: Int?, modifier: Modifier = Modif
             if (status == BookStatus.READING && percentage != null) {
                 Text(
                     text = "${percentage}%",
-                    color = Color.White.copy(alpha = 0.75f),
+                    color = content.copy(alpha = 0.75f),
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
                     fontSize = 9.sp,

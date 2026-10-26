@@ -25,11 +25,13 @@ fun StatCard(
     title: String,
     value: String,
     icon: ImageVector,
-    color: Color
+    containerColor: Color,
+    contentColor: Color,
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = color,
+        color = containerColor,
+        contentColor = contentColor,
         shape = RoundedCornerShape(16.dp)
     ) {
         Row(

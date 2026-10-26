@@ -18,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -32,9 +31,9 @@ fun ActionBookCard(
     width: Dp,
     onClick: () -> Unit
 ) {
-    val outlineColor = Color.Black.copy(alpha = 0.5f)
-    val contentColor = Color.Black.copy(alpha = 0.7f)
-    val backgroundColor = Color.Black.copy(alpha = 0.15f)
+    val outlineColor = MaterialTheme.colorScheme.outline
+    val contentColor = MaterialTheme.colorScheme.onSurface
+    val backgroundColor = MaterialTheme.colorScheme.surfaceContainerHigh
 
     val stroke = Stroke(
         width = 4f,
