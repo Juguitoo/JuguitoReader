@@ -10,22 +10,70 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 ### v1.3.1
 
+- [ ] UX-028 Eliminar espacio extra entre la navegación y la pantalla abajo
+  - version: v1.3.1
+  - tipo: enhance
+  - ref: tasks/UX-028.md
+
 - [ ] TAR-51 Marcadores en libros
   - version: v1.3.1
   - tipo: feat
+  - ref: tasks/TAR-51.md
 
-- [ ] TAR-52 Tipografías en lector
+- [ ] TAR-73 Mejorar menús emergentes de biblioteca, inicio...
+  - version: v1.3.1
+  - tipo: enhance
+  - ref: tasks/TAR-73.md
+
+- [ ] TAR-74 Modo lectura para libros en físico
   - version: v1.3.1
   - tipo: feat
+  - ref: tasks/TAR-74.md
 
-- [ ] TAR-53 Modo horizontal
+- [ ] TAR-75 Registro de sesiones de lecturas para libros físicos y digitales
   - version: v1.3.1
   - tipo: feat
+  - ref: tasks/TAR-75.md
+
+- [ ] TAR-78 Progreso opcional de un libro físico
+  - version: v1.3.1
+  - tipo: feat
+  - ref: tasks/TAR-78.md
+
+- [ ] TAR-76 Notificación del cronómetro en segundo plano
+  - version: v1.3.1
+  - tipo: feat
+  - ref: tasks/TAR-76.md
 
 - [ ] TAR-67 Lista TBR
   - version: v1.3.1
   - tipo: feat
   - ref: tasks/TAR-67.md
+
+- [ ] TAR-72 Sistema de randomización de siguiente lectura en TBR
+  - version: v1.3.1
+  - tipo: feat
+  - ref: tasks/TAR-72.md
+
+- [ ] TAR-71 Opciones de configuración del footer del reader
+  - version: v1.3.1
+  - tipo: feat
+  - ref: tasks/TAR-71.md
+
+- [ ] TAR-70 Diálogo de rachas con animación currada
+  - version: v1.3.1
+  - tipo: feat
+  - ref: tasks/TAR-70.md
+
+- [ ] TAR-77 Aviso de racha a mitad del día
+  - version: v1.3.1
+  - tipo: feat
+  - ref: tasks/TAR-77.md
+
+- [ ] TAR-52 Tipografías en lector
+  - version: v1.3.1
+  - tipo: feat
+  - ref: tasks/TAR-52.md
 
 ### v1.4.0
 

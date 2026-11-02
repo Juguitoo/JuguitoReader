@@ -44,13 +44,13 @@ Guías de primer uso (TAR-64) e informe de problemas por correo (TAR-65). Pendie
 
 - estado: publicada
 
-Estadísticas (TAR-19 y TAR-20: el tiempo sale de `daily_reading` y un físico terminado cuenta por estado y fecha de fin), carpetas como archivadores (TAR-47), filtros y ordenación (TAR-49), portadas (TAR-62) y favoritos (TAR-54). El Home pasa a libro en curso arriba y favoritos como vitrina (TAR-66). Entran la barra inferior (TAR-69), el enlace de donación (TAR-68) y el pase de Classic Dark y Neon (TAR-63). Código en `versionName` 1.3.0 / `versionCode` 10.
+Estadísticas (TAR-19 y TAR-20: el tiempo sale de `daily_reading` y un físico terminado cuenta por estado y fecha de fin), carpetas como archivadores (TAR-47), filtros y ordenación (TAR-49), portadas (TAR-62) y favoritos (TAR-54). El Home pasa a libro en curso arriba y favoritos como vitrina (TAR-66). Entran la barra inferior (TAR-69), el enlace de donación (TAR-68) y el pase de Classic Dark y Neon (TAR-63). Código en `versionName` 1.3.0 / `versionCode` 11.
 
-## v1.3.1 — Lector y lista TBR
+## v1.3.1 — Lector, sesiones y TBR
 
 - estado: prevista
 
-Marcadores (TAR-51), tipografías del lector (TAR-52) y modo horizontal (TAR-53). También una lista TBR, distinta de pendientes (TAR-67).
+Marcadores en el EPUB (TAR-51), familia tipográfica global del lector (TAR-52) y un pie de lectura configurable (TAR-71). La sesión sigue siendo una fila de `daily_reading` por libro y día: cronómetro para el físico (TAR-74) y registro manual en físico y digital (TAR-75). Si ese guardado sube la racha o iguala el récord, un diálogo animado (TAR-70). El cronómetro puede seguir fuera de la app con una notificación (TAR-76), y a mitad del día un aviso local recuerda la racha si hoy aún no hay sesión (TAR-77). Un físico puede llevar, si se quiere, páginas y capítulo aparte de la ficha común (TAR-78). La TBR (TAR-67) es aparte de Pendiente y se quita a mano; de ahí se puede sacar un libro al azar (TAR-72). También se rehacen los menús (TAR-73) y se quita el hueco bajo la barra (UX-028).
 
 ## v1.4.0 — EPUB3
 
