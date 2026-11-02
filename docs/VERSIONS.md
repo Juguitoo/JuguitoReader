@@ -10,9 +10,10 @@ El archive es opcional. La ruta es relativa a esta carpeta. Conviene una sola ve
 
 ## En curso
 
+- v1.3.1 | Lector, sesiones y TBR | archive/v1.3.1.md
+
 ## Previstas
 
-- v1.3.1 | Lector, sesiones y TBR
 - v1.4.0 | EPUB3
 - v2.0.0 | Cloud
 - v3.0.0 | Motor nativo

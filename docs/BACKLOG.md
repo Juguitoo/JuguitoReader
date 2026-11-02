@@ -6,14 +6,11 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 ## En curso
 
+
 ## Pendiente
 
 ### v1.3.1
 
-- [ ] UX-028 Eliminar espacio extra entre la navegación y la pantalla abajo
-  - version: v1.3.1
-  - tipo: enhance
-  - ref: tasks/UX-028.md
 
 - [ ] TAR-51 Marcadores en libros
   - version: v1.3.1

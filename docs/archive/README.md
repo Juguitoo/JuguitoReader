@@ -16,3 +16,4 @@ Histórico de trabajo **cerrado**. Un archivo por versión (`vX.Y.Z.md`). Cada t
 | v1.2.2 | [v1.2.2.md](v1.2.2.md) |
 | v1.2.3 | [v1.2.3.md](v1.2.3.md) |
 | v1.3.0 | [v1.3.0.md](v1.3.0.md) |
+| v1.3.1 | [v1.3.1.md](v1.3.1.md) |
