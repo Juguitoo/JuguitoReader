@@ -2,6 +2,7 @@ package com.juguito.juguitoreader.data.repository
 
 import androidx.room.withTransaction
 import com.juguito.juguitoreader.data.local.JuguitoReaderDatabase
+import com.juguito.juguitoreader.data.local.dao.BookmarkDAO
 import com.juguito.juguitoreader.data.local.dao.BookDAO
 import com.juguito.juguitoreader.data.local.dao.DailyReadingDAO
 import com.juguito.juguitoreader.data.local.dao.ReadingProgressDAO
@@ -18,6 +19,7 @@ class BookRepositoryImpl @Inject constructor(
     private val bookDAO: BookDAO,
     private val readingProgressDAO: ReadingProgressDAO,
     private val dailyReadingDAO: DailyReadingDAO,
+    private val bookmarkDAO: BookmarkDAO,
     private val database: JuguitoReaderDatabase
 ): BookRepository{
     override fun getAllBooks(): Flow<List<Book>> {
@@ -64,6 +66,7 @@ class BookRepositoryImpl @Inject constructor(
         updateBookWithCrossRefs(book, folderIds, genreIds)
         readingProgressDAO.deleteReadingProgressById(book.id)
         dailyReadingDAO.deleteBookDailyReadings(book.id)
+        bookmarkDAO.deleteBookBookmarks(book.id)
     }
 
     override suspend fun restoreDeletedBook(snapshot: DeletedBookSnapshot, folderIds : List<Int>, genreIds : List<Int>) = database.withTransaction {
@@ -71,6 +74,9 @@ class BookRepositoryImpl @Inject constructor(
         snapshot.dailyReadings.forEach { dailyReadingDAO.insert(it.toEntity()) }
         if (snapshot.readingProgress != null) {
             readingProgressDAO.insertReadingProgress(snapshot.readingProgress.toEntity())
+        }
+        if (snapshot.bookmarks.isNotEmpty()) {
+            bookmarkDAO.insertBookmarks(snapshot.bookmarks.map { it.toEntity() })
         }
     }
 

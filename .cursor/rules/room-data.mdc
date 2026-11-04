@@ -43,6 +43,10 @@ Resolución por `name` solo cuando `id == 0` (creación / import EPUB).
 
 FK CASCADE a `books` (schema v12). Delete de libro elimina progreso automáticamente; undo desde Home lo restaura con `DeletedBookSnapshot`.
 
+## bookmark
+
+FK CASCADE a `books` (schema v14). Borrar el libro elimina sus marcas. El undo desde Home las restaura con el mismo snapshot. Sustituir el EPUB las borra en la transacción que limpia el progreso. Nada de `@Insert(REPLACE)`.
+
 ## Migraciones
 
 - Incrementar version en @Database

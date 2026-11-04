@@ -7,8 +7,11 @@ import com.google.common.truth.Truth.assertThat
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.domain.model.Bookmark
 import com.juguito.juguitoreader.domain.model.DailyReading
 import com.juguito.juguitoreader.domain.model.DeletedBookSnapshot
+import com.juguito.juguitoreader.domain.enums.BookmarkKind
+import com.juguito.juguitoreader.domain.usecase.bookmark.GetBookBookmarksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.DeleteBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
@@ -49,6 +52,7 @@ class HomeViewModelTest {
     private val getReadingProgressesUseCase = mockk<GetReadingProgressesUseCase>()
     private val getBookDailyReadingsUseCase = mockk<GetBookDailyReadingsUseCase>()
     private val getReadingProgressByIdUseCase = mockk<GetReadingProgressByIdUseCase>()
+    private val getBookBookmarksUseCase = mockk<GetBookBookmarksUseCase>()
     private val importBookFromUriUseCase = mockk<ImportBookFromUriUseCase>()
     private val deleteBookUseCase = mockk<DeleteBookUseCase>()
     private val restoreDeletedBookUseCase = mockk<RestoreDeletedBookUseCase>()
@@ -59,6 +63,7 @@ class HomeViewModelTest {
         every { getBooksUseCase() } returns flowOf(emptyList())
         every { getReadingProgressesUseCase() } returns flowOf(emptyList())
         every { getBookDailyReadingsUseCase(any()) } returns flowOf(emptyList())
+        every { getBookBookmarksUseCase(any()) } returns flowOf(emptyList())
         coEvery { getReadingProgressByIdUseCase(any()) } returns null
 
         viewModel = createViewModel()
@@ -79,11 +84,27 @@ class HomeViewModelTest {
             getReadingProgressesUseCase,
             getBookDailyReadingsUseCase,
             getReadingProgressByIdUseCase,
+            getBookBookmarksUseCase,
             importBookFromUriUseCase,
             deleteBookUseCase,
             restoreDeletedBookUseCase
         )
     }
+
+    private fun sampleBookmark() = Bookmark(
+        id = 9,
+        bookId = 1,
+        kind = BookmarkKind.BOOKMARK,
+        chapterHref = "chapter.xhtml",
+        quote = "frase",
+        prefix = "",
+        suffix = "",
+        imageSrc = null,
+        color = null,
+        noteText = null,
+        scrollPosition = 0.2f,
+        createdAt = 1L
+    )
 
     @Test
     fun `Success state shows stats and filtered books`() = runTest {
@@ -256,13 +277,16 @@ class HomeViewModelTest {
             scrollPosition = 0.75f,
             lastReadAt = 100L
         )
+        val bookmark = sampleBookmark()
         val expectedSnapshot = DeletedBookSnapshot(
             book = book,
             dailyReadings = listOf(dailyReading),
-            readingProgress = readingProgress
+            readingProgress = readingProgress,
+            bookmarks = listOf(bookmark)
         )
 
         every { getBookDailyReadingsUseCase(1) } returns flowOf(listOf(dailyReading))
+        every { getBookBookmarksUseCase(1) } returns flowOf(listOf(bookmark))
         coEvery { getReadingProgressByIdUseCase(1) } returns readingProgress
         coEvery { deleteBookUseCase(1) } returns Result.success(Unit)
         coEvery { restoreDeletedBookUseCase(any()) } returns Result.success(Unit)

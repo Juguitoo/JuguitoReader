@@ -37,6 +37,7 @@ class BookRepositoryIntegrationTest {
             bookDAO = database.bookDAO,
             readingProgressDAO = database.readingProgressDAO,
             dailyReadingDAO = database.dailyReadingDAO,
+            bookmarkDAO = database.bookmarkDAO,
             database = database
         )
     }

@@ -3,11 +3,16 @@ package com.juguito.juguitoreader.data.repository
 import com.google.common.truth.Truth.assertThat
 import androidx.room.withTransaction
 import com.juguito.juguitoreader.data.local.JuguitoReaderDatabase
+import com.juguito.juguitoreader.data.local.dao.BookmarkDAO
 import com.juguito.juguitoreader.data.local.dao.BookDAO
 import com.juguito.juguitoreader.data.local.dao.DailyReadingDAO
 import com.juguito.juguitoreader.data.local.dao.ReadingProgressDAO
+import com.juguito.juguitoreader.data.local.entity.BookmarkEntity
 import com.juguito.juguitoreader.data.local.entity.BookEntity
 import com.juguito.juguitoreader.data.local.entity.BookWithDetails
+import com.juguito.juguitoreader.domain.enums.BookmarkColor
+import com.juguito.juguitoreader.domain.enums.BookmarkKind
+import com.juguito.juguitoreader.domain.model.Bookmark
 import com.juguito.juguitoreader.domain.model.ReadingProgress
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.DailyReading
@@ -17,6 +22,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.slot
 import io.mockk.unmockkStatic
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -31,6 +37,7 @@ class BookRepositoryImplTest {
     private val bookDAO = mockk<BookDAO>()
     private val readingProgressDAO = mockk<ReadingProgressDAO>()
     private val dailyReadingDAO = mockk<DailyReadingDAO>()
+    private val bookmarkDAO = mockk<BookmarkDAO>()
     private val database = mockk<JuguitoReaderDatabase>()
 
     @Before
@@ -46,6 +53,7 @@ class BookRepositoryImplTest {
             bookDAO = bookDAO,
             readingProgressDAO = readingProgressDAO,
             dailyReadingDAO = dailyReadingDAO,
+            bookmarkDAO = bookmarkDAO,
             database = database
         )
     }
@@ -153,6 +161,7 @@ class BookRepositoryImplTest {
         coEvery { bookDAO.syncBookCrossRefs(any(), any(), any()) } returns Unit
         coEvery { readingProgressDAO.deleteReadingProgressById(1) } returns Unit
         coEvery { dailyReadingDAO.deleteBookDailyReadings(1) } returns Unit
+        coEvery { bookmarkDAO.deleteBookBookmarks(1) } returns Unit
 
         repository.updateBookWithNewEpub(book, listOf(5), listOf(3))
 
@@ -160,6 +169,7 @@ class BookRepositoryImplTest {
         coVerify { bookDAO.syncBookCrossRefs(1, listOf(5), listOf(3)) }
         coVerify { readingProgressDAO.deleteReadingProgressById(1) }
         coVerify { dailyReadingDAO.deleteBookDailyReadings(1) }
+        coVerify { bookmarkDAO.deleteBookBookmarks(1) }
     }
 
     @Test
@@ -218,5 +228,40 @@ class BookRepositoryImplTest {
         repository.restoreDeletedBook(snapshot, emptyList(), emptyList())
 
         coVerify { readingProgressDAO.insertReadingProgress(any()) }
+    }
+
+    @Test
+    fun `restoreDeletedBook inserts bookmarks from the snapshot`() = runTest {
+        val book = Book(id = 1, title = "Title", author = "Author", isPhysical = false)
+        val bookmark = Bookmark(
+            id = 4,
+            bookId = 1,
+            kind = BookmarkKind.HIGHLIGHT,
+            chapterHref = "chapter.xhtml",
+            quote = "frase",
+            prefix = "antes",
+            suffix = "despues",
+            imageSrc = null,
+            color = BookmarkColor.AMBER,
+            noteText = null,
+            scrollPosition = 0.2f,
+            createdAt = 1L
+        )
+        val snapshot = DeletedBookSnapshot(
+            book = book,
+            dailyReadings = emptyList(),
+            readingProgress = null,
+            bookmarks = listOf(bookmark)
+        )
+
+        coEvery { bookDAO.insertBook(any()) } returns 1L
+        coEvery { bookDAO.syncBookCrossRefs(any(), any(), any()) } returns Unit
+        val saved = slot<List<BookmarkEntity>>()
+        coEvery { bookmarkDAO.insertBookmarks(capture(saved)) } returns Unit
+
+        repository.restoreDeletedBook(snapshot, emptyList(), emptyList())
+
+        assertThat(saved.captured).hasSize(1)
+        assertThat(saved.captured.first().quote).isEqualTo("frase")
     }
 }

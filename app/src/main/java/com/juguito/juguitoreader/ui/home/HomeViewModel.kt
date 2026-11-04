@@ -9,6 +9,7 @@ import com.juguito.juguitoreader.common.ActionUndoManager
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.DeletedBookSnapshot
+import com.juguito.juguitoreader.domain.usecase.bookmark.GetBookBookmarksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.DeleteBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
@@ -40,6 +41,7 @@ class HomeViewModel @Inject constructor(
     private val getReadingProgressesUseCase: GetReadingProgressesUseCase,
     private val getBookDailyReadingsUseCase: GetBookDailyReadingsUseCase,
     private val getReadingProgressByIdUseCase: GetReadingProgressByIdUseCase,
+    private val getBookBookmarksUseCase: GetBookBookmarksUseCase,
     private val importBookFromUriUseCase: ImportBookFromUriUseCase,
     private val deleteBookUseCase: DeleteBookUseCase,
     private val restoreDeletedBookUseCase: RestoreDeletedBookUseCase
@@ -164,7 +166,8 @@ class HomeViewModel @Inject constructor(
             val snapshot = DeletedBookSnapshot(
                 book,
                 getBookDailyReadingsUseCase(book.id).first(),
-                getReadingProgressByIdUseCase(book.id)
+                getReadingProgressByIdUseCase(book.id),
+                getBookBookmarksUseCase(book.id).first()
             )
             bookUndoManager.executeAction(
                 item = snapshot,
