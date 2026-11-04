@@ -506,6 +506,15 @@
     <string name="stats_streak_best">Estás en tu mejor racha</string>
     <string name="stats_streak_best_detail">Sigue leyendo para alargarla.</string>
     <string name="stats_streak_record_detail">Una sesión hoy empieza una racha nueva.</string>
+    <string name="error_delete_bookmark">Error al borrar el marcador</string>
+    <string name="error_delete_bookmarks">Error al borrar los marcadores</string>
+    <string name="error_add_bookmark">Error al añadir el marcador</string>
+    <string name="error_update_bookmark">Error al actualizar el marcador</string>
+    <string name="error_bookmark_empty_text">No hay texto para marcar</string>
+    <string name="error_bookmark_too_long">La selección es demasiado larga</string>
+    <string name="error_bookmark_duplicate">Esa marca ya existe</string>
+    <string name="error_bookmark_position">Un marcador de posición no se edita</string>
+    <string name="error_bookmark_color">El subrayado necesita un color</string>
     <plurals name="stats_streak_active">
         <item quantity="one">Llevas %d día seguido</item>
         <item quantity="other">Llevas %d días seguidos</item>

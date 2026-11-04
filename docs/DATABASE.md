@@ -2,7 +2,7 @@
 
 ## Motor y configuración
 
-- **Room** 2.8.4, base de datos `juguito_db`, **versión 13**.
+- **Room** 2.8.4, base de datos `juguito_db`, **versión 14**.
 - Schemas exportados en `app/schemas/com.juguito.juguitoreader.data.local.JuguitoReaderDatabase/`.
 - Config KSP: `room.schemaLocation = $projectDir/schemas`.
 - Política actual: `fallbackToDestructiveMigration(false)`.
@@ -25,7 +25,9 @@ books (1) ──────< book_folders >────── (N) folders
   │
   ├────── (1) reading_progress  [FK CASCADE a books]
   │
-  └──────< daily_reading        [FK CASCADE a books]
+  ├──────< daily_reading        [FK CASCADE a books]
+  │
+  └──────< bookmark             [FK CASCADE a books]
 ```
 
 
@@ -42,6 +44,7 @@ books (1) ──────< book_folders >────── (N) folders
 | `book_genres`      | Junction M:N libro ↔ género (FK CASCADE ambos lados)                             |
 | `reading_progress` | Capítulo actual, scroll, `total_chapters`, `last_read_at`                        |
 | `daily_reading`    | Sesiones diarias: tiempo, % alcanzado, WPM (`reading_speed`)                     |
+| `bookmark`         | Marcas del EPUB: posición, subrayado y nota. Ancla de texto o `image_src`       |
 
 
 
@@ -51,12 +54,14 @@ books (1) ──────< book_folders >────── (N) folders
 `RoomConverters.kt` persiste enums como `String`:
 
 - `BookStatus`
+- `BookmarkKind`
+- `BookmarkColor`
 
 
 
 ## Migraciones definidas
 
-Solo existen migraciones **6 → 13**:
+Solo existen migraciones **6 → 14**:
 
 
 | Migración | Cambio                                                 |
@@ -68,6 +73,7 @@ Solo existen migraciones **6 → 13**:
 | 10→11     | FK CASCADE en `reading_progress`; limpia huérfanos     |
 | 11→12     | Elimina columna `sync_status` (scaffold cloud)         |
 | 12→13     | Añadida columna `is_favourite` en `books`       |
+| 13→14     | Tabla `bookmark` (marcas del lector, FK CASCADE) |
 
 
 

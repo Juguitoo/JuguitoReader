@@ -6,6 +6,7 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.juguito.juguitoreader.data.local.dao.BookDAO
+import com.juguito.juguitoreader.data.local.dao.BookmarkDAO
 import com.juguito.juguitoreader.data.local.dao.DailyReadingDAO
 import com.juguito.juguitoreader.data.local.dao.FolderDAO
 import com.juguito.juguitoreader.data.local.dao.GenreDAO
@@ -15,6 +16,7 @@ import com.juguito.juguitoreader.data.local.entity.FolderEntity
 import com.juguito.juguitoreader.data.local.entity.GenreEntity
 import com.juguito.juguitoreader.data.local.entity.BookFolderCrossRef
 import com.juguito.juguitoreader.data.local.entity.BookGenreCrossRef
+import com.juguito.juguitoreader.data.local.entity.BookmarkEntity
 import com.juguito.juguitoreader.data.local.entity.DailyReadingEntity
 import com.juguito.juguitoreader.data.local.entity.ReadingProgressEntity
 
@@ -26,9 +28,10 @@ import com.juguito.juguitoreader.data.local.entity.ReadingProgressEntity
         ReadingProgressEntity::class,
         DailyReadingEntity::class,
         BookFolderCrossRef::class,
-        BookGenreCrossRef::class
+        BookGenreCrossRef::class,
+        BookmarkEntity::class
     ],
-    version = 13,
+    version = 14,
     exportSchema = true
 )
 
@@ -39,6 +42,7 @@ abstract class JuguitoReaderDatabase : RoomDatabase() {
     abstract val genreDAO: GenreDAO
     abstract val readingProgressDAO: ReadingProgressDAO
     abstract val dailyReadingDAO: DailyReadingDAO
+    abstract val bookmarkDAO: BookmarkDAO
 
     companion object {
         val MIGRATION_6_7 = object : Migration(6, 7) {
@@ -221,6 +225,31 @@ abstract class JuguitoReaderDatabase : RoomDatabase() {
         val MIGRATION_12_13 = object : Migration(12, 13) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE books ADD COLUMN is_favourite INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        val MIGRATION_13_14 = object : Migration(13, 14) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `bookmark` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `book_id` INTEGER NOT NULL,
+                        `kind` TEXT NOT NULL,
+                        `chapter_href` TEXT NOT NULL,
+                        `quote` TEXT NOT NULL,
+                        `prefix` TEXT NOT NULL,
+                        `suffix` TEXT NOT NULL,
+                        `image_src` TEXT,
+                        `color` TEXT,
+                        `note_text` TEXT,
+                        `scroll_position` REAL NOT NULL,
+                        `created_at` INTEGER NOT NULL,
+                        FOREIGN KEY(`book_id`) REFERENCES `books`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                db.execSQL("""
+                    CREATE INDEX IF NOT EXISTS `index_bookmark_book_id` ON `bookmark` (`book_id`)
+                """.trimIndent())
             }
         }
     }

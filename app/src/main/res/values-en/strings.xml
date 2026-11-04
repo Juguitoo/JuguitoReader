@@ -503,6 +503,15 @@
     <string name="stats_streak_best">This is your best streak</string>
     <string name="stats_streak_best_detail">Keep reading to extend it.</string>
     <string name="stats_streak_record_detail">A session today starts a new streak.</string>
+    <string name="error_delete_bookmark">Error deleting the bookmark</string>
+    <string name="error_delete_bookmarks">Error deleting the bookmarks</string>
+    <string name="error_add_bookmark">Error adding the bookmark</string>
+    <string name="error_update_bookmark">Error updating the bookmark</string>
+    <string name="error_bookmark_empty_text">There is no text to mark</string>
+    <string name="error_bookmark_too_long">The selection is too long</string>
+    <string name="error_bookmark_duplicate">That mark already exists</string>
+    <string name="error_bookmark_position">A position bookmark can\'t be edited</string>
+    <string name="error_bookmark_color">The highlight needs a color</string>
     <plurals name="stats_streak_active">
         <item quantity="one">%d day in a row</item>
         <item quantity="other">%d days in a row</item>

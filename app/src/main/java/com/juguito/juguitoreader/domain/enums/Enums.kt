@@ -19,3 +19,17 @@ enum class StatsPeriod {
     MONTH,
     YEAR
 }
+
+enum class BookmarkKind {
+    BOOKMARK,
+    NOTE,
+    HIGHLIGHT
+}
+
+enum class BookmarkColor {
+    AMBER,
+    GREEN,
+    BLUE,
+    PINK,
+    LILAC
+}

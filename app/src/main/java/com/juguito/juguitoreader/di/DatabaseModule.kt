@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.room.Room
 import com.juguito.juguitoreader.data.local.JuguitoReaderDatabase
 import com.juguito.juguitoreader.data.local.dao.BookDAO
+import com.juguito.juguitoreader.data.local.dao.BookmarkDAO
 import com.juguito.juguitoreader.data.local.dao.DailyReadingDAO
 import com.juguito.juguitoreader.data.local.dao.FolderDAO
 import com.juguito.juguitoreader.data.local.dao.GenreDAO
@@ -33,7 +34,8 @@ object DatabaseModule {
                 JuguitoReaderDatabase.MIGRATION_9_10,
                 JuguitoReaderDatabase.MIGRATION_10_11,
                 JuguitoReaderDatabase.MIGRATION_11_12,
-                JuguitoReaderDatabase.MIGRATION_12_13
+                JuguitoReaderDatabase.MIGRATION_12_13,
+                JuguitoReaderDatabase.MIGRATION_13_14
             )
             .fallbackToDestructiveMigration(false)
             .build()
@@ -67,5 +69,11 @@ object DatabaseModule {
     @Singleton
     fun provideDailyReadingDao(database: JuguitoReaderDatabase): DailyReadingDAO {
         return database.dailyReadingDAO
+    }
+
+    @Provides
+    @Singleton
+    fun provideBookmarkDao(database: JuguitoReaderDatabase): BookmarkDAO {
+        return database.bookmarkDAO
     }
 }

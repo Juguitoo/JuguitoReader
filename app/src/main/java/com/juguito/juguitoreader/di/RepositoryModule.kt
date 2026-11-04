@@ -2,6 +2,7 @@ package com.juguito.juguitoreader.di
 
 import com.juguito.juguitoreader.data.repository.BackupRepositoryImpl
 import com.juguito.juguitoreader.data.repository.BookRepositoryImpl
+import com.juguito.juguitoreader.data.repository.BookmarkRepositoryImpl
 import com.juguito.juguitoreader.data.repository.DailyReadingRepositoryImpl
 import com.juguito.juguitoreader.data.repository.FolderRepositoryImpl
 import com.juguito.juguitoreader.data.repository.GenreRepositoryImpl
@@ -9,6 +10,7 @@ import com.juguito.juguitoreader.data.repository.ReadingProgressRepositoryImpl
 import com.juguito.juguitoreader.data.repository.SettingsRepositoryImpl
 import com.juguito.juguitoreader.domain.repository.BackupRepository
 import com.juguito.juguitoreader.domain.repository.BookRepository
+import com.juguito.juguitoreader.domain.repository.BookmarkRepository
 import com.juguito.juguitoreader.domain.repository.DailyReadingRepository
 import com.juguito.juguitoreader.domain.repository.FolderRepository
 import com.juguito.juguitoreader.domain.repository.GenreRepository
@@ -65,4 +67,10 @@ abstract class RepositoryModule {
     abstract fun bindBackupRepository(
         backupRepositoryImpl: BackupRepositoryImpl
     ): BackupRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindBookmarkRepository(
+        bookmarkRepositoryImpl: BookmarkRepositoryImpl
+    ): BookmarkRepository
 }
