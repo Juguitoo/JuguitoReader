@@ -42,6 +42,7 @@ fun JuguitoDialog(
     icon: ImageVector? = null,
     dismissButtonText: String? = stringResource(R.string.cancel),
     isDestructive: Boolean = false,
+    confirmEnabled: Boolean = true,
     content: (@Composable () -> Unit)? = null
 ) {
     Dialog(
@@ -133,6 +134,7 @@ fun JuguitoDialog(
                         if (confirmButtonText != null && onConfirm != null) {
                             Button(
                                 onClick = onConfirm,
+                                enabled = confirmEnabled,
                                 modifier = Modifier.weight(1f),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = if (isDestructive) {

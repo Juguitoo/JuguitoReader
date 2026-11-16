@@ -37,7 +37,7 @@ class AddBookmarkUseCaseTest {
 
         assertThat(result.isSuccess).isTrue()
         assertThat(result.getOrNull()).isEqualTo(7)
-        assertThat(slot.captured.kind).isEqualTo(BookmarkKind.BOOKMARK)
+        assertThat(slot.captured.kind).isEqualTo(BookmarkKind.POSITION)
         assertThat(slot.captured.color).isNull()
         assertThat(slot.captured.noteText).isNull()
         assertThat(slot.captured.id).isEqualTo(0)
@@ -106,7 +106,7 @@ class AddBookmarkUseCaseTest {
         )
 
         assertThat(result.isSuccess).isTrue()
-        assertThat(slot.captured.kind).isEqualTo(BookmarkKind.BOOKMARK)
+        assertThat(slot.captured.kind).isEqualTo(BookmarkKind.POSITION)
         assertThat(slot.captured.quote).isEqualTo("")
         assertThat(slot.captured.imageSrc).isEqualTo("images/map.jpg")
     }
@@ -138,13 +138,36 @@ class AddBookmarkUseCaseTest {
     @Test
     fun `same position anchor returns duplicate`() = runTest {
         coEvery { repository.getBookBookmarks(1) } returns flowOf(
-            listOf(stored(kind = BookmarkKind.BOOKMARK, quote = "frase", prefix = "antes"))
+            listOf(stored(kind = BookmarkKind.POSITION, quote = "frase", prefix = "antes"))
         )
 
         val result = useCase(position())
 
         assertThat(failureId(result)).isEqualTo(R.string.error_bookmark_duplicate)
         coVerify(exactly = 0) { repository.insertBookmark(any()) }
+    }
+
+    @Test
+    fun `image draft inserts a pinned image without color`() = runTest {
+        val slot = slot<Bookmark>()
+        coEvery { repository.insertBookmark(capture(slot)) } returns 7L
+
+        val result = useCase(
+            NewBookmark.Image(
+                bookId = 1,
+                chapterHref = "chapter.xhtml",
+                quote = "Mapa",
+                prefix = "",
+                suffix = "",
+                scrollPosition = 0.4f,
+                imageSrc = "../images/map.jpg"
+            )
+        )
+
+        assertThat(result.isSuccess).isTrue()
+        assertThat(slot.captured.kind).isEqualTo(BookmarkKind.IMAGE)
+        assertThat(slot.captured.imageSrc).isEqualTo("../images/map.jpg")
+        assertThat(slot.captured.color).isNull()
     }
 
     private fun position(quote: String = "frase") = NewBookmark.Position(

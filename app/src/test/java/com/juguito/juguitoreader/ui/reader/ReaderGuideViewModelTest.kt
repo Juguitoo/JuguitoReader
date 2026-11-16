@@ -4,6 +4,9 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.juguito.juguitoreader.domain.usecase.reader.GetReaderGuideCompletedUseCase
 import com.juguito.juguitoreader.domain.usecase.reader.MarkReaderGuideCompletedUseCase
+import com.juguito.juguitoreader.ui.reader.guide.ReaderGuideEvent
+import com.juguito.juguitoreader.ui.reader.guide.ReaderGuideUiState
+import com.juguito.juguitoreader.ui.reader.guide.ReaderGuideViewModel
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk

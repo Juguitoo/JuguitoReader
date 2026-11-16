@@ -1,4 +1,4 @@
-package com.juguito.juguitoreader.ui.reader
+package com.juguito.juguitoreader.ui.reader.guide
 
 sealed interface ReaderGuideUiState {
     data object Loading : ReaderGuideUiState

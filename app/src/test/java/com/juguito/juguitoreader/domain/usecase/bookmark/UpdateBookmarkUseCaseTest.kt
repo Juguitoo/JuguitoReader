@@ -55,7 +55,7 @@ class UpdateBookmarkUseCaseTest {
 
     @Test
     fun `position bookmark is rejected`() = runTest {
-        val result = useCase(stored(kind = BookmarkKind.BOOKMARK, noteText = "margen"))
+        val result = useCase(stored(kind = BookmarkKind.POSITION, noteText = "margen"))
 
         assertThat(failureId(result)).isEqualTo(R.string.error_bookmark_position)
         coVerify(exactly = 0) { repository.updateBookmark(any()) }
@@ -69,10 +69,62 @@ class UpdateBookmarkUseCaseTest {
         coVerify(exactly = 0) { repository.updateBookmark(any()) }
     }
 
+    @Test
+    fun `image caption is trimmed and the mark stays an image`() = runTest {
+        val slot = slot<Bookmark>()
+        coEvery { repository.updateBookmark(capture(slot)) } returns Unit
+
+        val result = useCase(
+            stored(
+                kind = BookmarkKind.IMAGE,
+                noteText = "  mapa de la ciudad  ",
+                color = BookmarkColor.PINK,
+                imageSrc = "images/map.jpg"
+            )
+        )
+
+        assertThat(result.isSuccess).isTrue()
+        assertThat(slot.captured.kind).isEqualTo(BookmarkKind.IMAGE)
+        assertThat(slot.captured.noteText).isEqualTo("mapa de la ciudad")
+        assertThat(slot.captured.color).isNull()
+        assertThat(slot.captured.imageSrc).isEqualTo("images/map.jpg")
+        assertThat(slot.captured.quote).isEqualTo("frase")
+    }
+
+    @Test
+    fun `blank image caption clears the note`() = runTest {
+        val slot = slot<Bookmark>()
+        coEvery { repository.updateBookmark(capture(slot)) } returns Unit
+
+        val result = useCase(
+            stored(kind = BookmarkKind.IMAGE, noteText = "   ", imageSrc = "images/map.jpg")
+        )
+
+        assertThat(result.isSuccess).isTrue()
+        assertThat(slot.captured.kind).isEqualTo(BookmarkKind.IMAGE)
+        assertThat(slot.captured.noteText).isNull()
+        assertThat(slot.captured.color).isNull()
+    }
+
+    @Test
+    fun `image caption over the cap returns failure`() = runTest {
+        val result = useCase(
+            stored(
+                kind = BookmarkKind.IMAGE,
+                noteText = "a".repeat(MAX_BOOKMARK_NOTE + 1),
+                imageSrc = "images/map.jpg"
+            )
+        )
+
+        assertThat(failureId(result)).isEqualTo(R.string.error_bookmark_too_long)
+        coVerify(exactly = 0) { repository.updateBookmark(any()) }
+    }
+
     private fun stored(
         kind: BookmarkKind,
         noteText: String?,
-        color: BookmarkColor? = BookmarkColor.AMBER
+        color: BookmarkColor? = BookmarkColor.AMBER,
+        imageSrc: String? = null
     ) = Bookmark(
         id = 4,
         bookId = 1,
@@ -81,7 +133,7 @@ class UpdateBookmarkUseCaseTest {
         quote = "frase",
         prefix = "antes",
         suffix = "despues",
-        imageSrc = null,
+        imageSrc = imageSrc,
         color = color,
         noteText = noteText,
         scrollPosition = 0.2f,

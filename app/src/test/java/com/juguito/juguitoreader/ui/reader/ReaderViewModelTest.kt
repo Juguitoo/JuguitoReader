@@ -5,14 +5,22 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
+import com.juguito.juguitoreader.domain.enums.BookmarkColor
+import com.juguito.juguitoreader.domain.enums.BookmarkKind
 import com.juguito.juguitoreader.domain.exception.JuguitoException
 import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.domain.model.Bookmark
 import com.juguito.juguitoreader.domain.model.DailyReading
 import com.juguito.juguitoreader.domain.model.EpubContent
 import com.juguito.juguitoreader.domain.model.ReadingProgress
 import com.juguito.juguitoreader.domain.repository.SettingsRepository
 import com.juguito.juguitoreader.domain.usecase.book.GetBookByIdUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
+import com.juguito.juguitoreader.domain.usecase.bookmark.AddBookmarkUseCase
+import com.juguito.juguitoreader.domain.usecase.bookmark.DeleteBookmarkUseCase
+import com.juguito.juguitoreader.domain.usecase.bookmark.GetBookBookmarksUseCase
+import com.juguito.juguitoreader.domain.usecase.bookmark.NewBookmark
+import com.juguito.juguitoreader.domain.usecase.bookmark.UpdateBookmarkUseCase
 import com.juguito.juguitoreader.domain.usecase.dailyReading.AddDailyReadingUseCase
 import com.juguito.juguitoreader.domain.usecase.dailyReading.DeleteBookDailyReadingUseCase
 import com.juguito.juguitoreader.domain.usecase.dailyReading.GetBookDailyReadingsUseCase
@@ -54,10 +62,14 @@ class ReaderViewModelTest {
     private val getBookByIdUseCase = mockk<GetBookByIdUseCase>()
     private val getReadingProgressByIdUseCase = mockk<GetReadingProgressByIdUseCase>()
     private val getBookDailyReadingsUseCase = mockk<GetBookDailyReadingsUseCase>()
+    private val getBookBookmarksUseCase = mockk<GetBookBookmarksUseCase>()
     private val updateReadingProgressUseCase = mockk<UpdateReadingProgressUseCase>()
     private val addReadingProgressUseCase = mockk<AddReadingProgressUseCase>()
     private val addDailyReadingUseCase = mockk<AddDailyReadingUseCase>()
+    private val addBookmarkUseCase = mockk<AddBookmarkUseCase>()
+    private val updateBookmarkUseCase = mockk<UpdateBookmarkUseCase>()
     private val deleteBookDailyReadingUseCase = mockk<DeleteBookDailyReadingUseCase>()
+    private val deleteBookmarkUseCase = mockk<DeleteBookmarkUseCase>()
     private val updateBookUseCase = mockk<UpdateBookUseCase>()
     private val parseEpubUseCase = mockk<ParseEpubUseCase>()
     private val settingsRepository = mockk<SettingsRepository>()
@@ -83,21 +95,31 @@ class ReaderViewModelTest {
         coEvery { deleteBookDailyReadingUseCase(any(), any()) } returns Result.success(Unit)
         coEvery { updateBookUseCase(any()) } returns Result.success(Unit)
         coEvery { getBookDailyReadingsUseCase(any()) } returns flowOf(listOf(DailyReading(1, "0000-00-00", 300, 10f, readingSpeed = 0)))
+        every { getBookBookmarksUseCase(any()) } returns flowOf(emptyList())
+        coEvery { addBookmarkUseCase(any()) } returns Result.success(1)
+        coEvery { updateBookmarkUseCase(any()) } returns Result.success(sampleBookmark())
+        coEvery { deleteBookmarkUseCase(any()) } returns Result.success(Unit)
 
-        viewModel = ReaderViewModel(
-            getBookByIdUseCase,
-            getReadingProgressByIdUseCase,
-            getBookDailyReadingsUseCase,
-            updateReadingProgressUseCase,
-            addReadingProgressUseCase,
-            addDailyReadingUseCase,
-            deleteBookDailyReadingUseCase,
-            updateBookUseCase,
-            parseEpubUseCase,
-            settingsRepository,
-            savedStateHandle
-        )
+        viewModel = newReaderViewModel()
     }
+
+    private fun newReaderViewModel() = ReaderViewModel(
+        getBookByIdUseCase,
+        getReadingProgressByIdUseCase,
+        getBookDailyReadingsUseCase,
+        getBookBookmarksUseCase,
+        addReadingProgressUseCase,
+        addDailyReadingUseCase,
+        addBookmarkUseCase,
+        updateReadingProgressUseCase,
+        updateBookmarkUseCase,
+        updateBookUseCase,
+        deleteBookDailyReadingUseCase,
+        deleteBookmarkUseCase,
+        parseEpubUseCase,
+        settingsRepository,
+        savedStateHandle
+    )
 
     @After
     fun teardown() {
@@ -125,19 +147,7 @@ class ReaderViewModelTest {
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
         coEvery { getReadingProgressByIdUseCase(1) } returns resolvedProgress
 
-        val vm = ReaderViewModel(
-            getBookByIdUseCase,
-            getReadingProgressByIdUseCase,
-            getBookDailyReadingsUseCase,
-            updateReadingProgressUseCase,
-            addReadingProgressUseCase,
-            addDailyReadingUseCase,
-            deleteBookDailyReadingUseCase,
-            updateBookUseCase,
-            parseEpubUseCase,
-            settingsRepository,
-            savedStateHandle
-        )
+        val vm = newReaderViewModel()
         val job = backgroundScope.launch { vm.uiState.collect { } }
         advanceUntilIdle()
         clearMocks(updateReadingProgressUseCase, answers = false, recordedCalls = true)
@@ -161,19 +171,7 @@ class ReaderViewModelTest {
             lastReadAt = 0L
         )
 
-        return ReaderViewModel(
-            getBookByIdUseCase,
-            getReadingProgressByIdUseCase,
-            getBookDailyReadingsUseCase,
-            updateReadingProgressUseCase,
-            addReadingProgressUseCase,
-            addDailyReadingUseCase,
-            deleteBookDailyReadingUseCase,
-            updateBookUseCase,
-            parseEpubUseCase,
-            settingsRepository,
-            savedStateHandle
-        )
+        return newReaderViewModel()
     }
 
     /** Reloj fake inyectado antes de que el load arranque el timer (Main no es Unconfined). */
@@ -189,7 +187,7 @@ class ReaderViewModelTest {
     fun `initial state is Loading then Error if parse fails`() = runTest {
         coEvery { parseEpubUseCase(any(), any()) } returns Result.failure(Exception("Parse error"))
         
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, deleteBookDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = newReaderViewModel()
 
         viewModel.uiState.test {
             val state = awaitItem()
@@ -215,7 +213,7 @@ class ReaderViewModelTest {
         val progressSlot = slot<ReadingProgress>()
         coEvery { updateReadingProgressUseCase(capture(progressSlot)) } returns Result.success(Unit)
 
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, deleteBookDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = newReaderViewModel()
         val job = backgroundScope.launch { viewModel.uiState.collect { } }
         advanceUntilIdle()
 
@@ -249,7 +247,7 @@ class ReaderViewModelTest {
             lastReadAt = 0L
         )
 
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, deleteBookDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = newReaderViewModel()
         val job = backgroundScope.launch { viewModel.uiState.collect { } }
         advanceUntilIdle()
 
@@ -269,7 +267,7 @@ class ReaderViewModelTest {
         coEvery { settingsRepository.saveReaderTheme(any()) } returns Unit
         coEvery { settingsRepository.saveReaderBrightness(any()) } returns Unit
         
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, deleteBookDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = newReaderViewModel()
 
         viewModel.onEvent(ReaderEvent.OnTextZoomChanged(120))
         viewModel.onEvent(ReaderEvent.OnThemeChanged(ReaderTheme.NIGHT))
@@ -286,7 +284,7 @@ class ReaderViewModelTest {
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
         coEvery { updateReadingProgressUseCase(any()) } returns Result.success(Unit)
         
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, deleteBookDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = newReaderViewModel()
 
         viewModel.onEvent(ReaderEvent.OnNextChapter)
         coVerify { updateReadingProgressUseCase(match { it.lastChapterIndex == 1 }) }
@@ -304,7 +302,7 @@ class ReaderViewModelTest {
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
         coEvery { updateReadingProgressUseCase(any()) } returns Result.success(Unit)
 
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, deleteBookDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = newReaderViewModel()
 
         val job = backgroundScope.launch { viewModel.uiState.collect { } }
         advanceUntilIdle()
@@ -422,7 +420,7 @@ class ReaderViewModelTest {
         val epubContent = EpubContent(baseDir = "", spine = listOf("ch1"), chaptersTree = emptyList())
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
         
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, deleteBookDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = newReaderViewModel()
 
         viewModel.onEvent(ReaderEvent.OnToggleControls)
 
@@ -437,7 +435,7 @@ class ReaderViewModelTest {
         val epubContent = EpubContent(baseDir = "", spine = listOf("ch1"), chaptersTree = emptyList())
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
         
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, deleteBookDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = newReaderViewModel()
 
         viewModel.onEvent(ReaderEvent.OnTimeRemainingChanged(15))
 
@@ -452,7 +450,7 @@ class ReaderViewModelTest {
         val epubContent = EpubContent(baseDir = "", spine = List(10) {"ch$it"}, chaptersTree = emptyList())
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
 
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase,updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, deleteBookDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = newReaderViewModel()
 
         viewModel.onEvent(ReaderEvent.OnChapterSelected(2))
 
@@ -469,7 +467,7 @@ class ReaderViewModelTest {
         val epubContent = EpubContent(baseDir = "", spine = List(10) {"ch$it"}, chaptersTree = emptyList())
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
 
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, deleteBookDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = newReaderViewModel()
 
         viewModel.onEvent(ReaderEvent.OnChapterSelected(1))
 
@@ -487,7 +485,7 @@ class ReaderViewModelTest {
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
         coEvery { updateBookUseCase(any()) } returns Result.success(Unit)
 
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, deleteBookDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = newReaderViewModel()
 
         viewModel.onEvent(ReaderEvent.OnChapterSelected(2))
         viewModel.onEvent(ReaderEvent.OnBackRequested)
@@ -506,7 +504,7 @@ class ReaderViewModelTest {
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
         coEvery { updateBookUseCase(any()) } returns Result.success(Unit)
 
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, deleteBookDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = newReaderViewModel()
 
         viewModel.onEvent(ReaderEvent.OnChapterSelected(2))
         viewModel.onEvent(ReaderEvent.OnBackRequested)
@@ -524,7 +522,7 @@ class ReaderViewModelTest {
         val epubContent = EpubContent(baseDir = "", spine = listOf("ch1"), chaptersTree = emptyList())
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
 
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, deleteBookDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = newReaderViewModel()
 
         val job = backgroundScope.launch { viewModel.uiState.collect { } }
         advanceUntilIdle()
@@ -547,7 +545,7 @@ class ReaderViewModelTest {
         val epubContent = EpubContent(baseDir = "", spine = listOf("ch1"), chaptersTree = emptyList())
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
 
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, deleteBookDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = newReaderViewModel()
 
         val job = backgroundScope.launch { viewModel.uiState.collect { } }
         advanceUntilIdle()
@@ -573,7 +571,7 @@ class ReaderViewModelTest {
         val epubContent = EpubContent(baseDir = "", spine = listOf("ch1"), chaptersTree = emptyList())
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
 
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, deleteBookDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = newReaderViewModel()
 
         val job = backgroundScope.launch { viewModel.uiState.collect { } }
         advanceUntilIdle()
@@ -598,7 +596,7 @@ class ReaderViewModelTest {
         val epubContent = EpubContent(baseDir = "", spine = listOf("ch1", "ch2"), chaptersTree = emptyList())
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
 
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, deleteBookDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = newReaderViewModel()
 
         val job = backgroundScope.launch { viewModel.uiState.collect { } }
         advanceUntilIdle()
@@ -621,7 +619,7 @@ class ReaderViewModelTest {
         val epubContent = EpubContent(baseDir = "", spine = listOf("ch1", "ch2"), chaptersTree = emptyList())
         coEvery { parseEpubUseCase(any(), any()) } returns Result.success(epubContent)
 
-        viewModel = ReaderViewModel(getBookByIdUseCase, getReadingProgressByIdUseCase, getBookDailyReadingsUseCase, updateReadingProgressUseCase, addReadingProgressUseCase, addDailyReadingUseCase, deleteBookDailyReadingUseCase, updateBookUseCase, parseEpubUseCase, settingsRepository, savedStateHandle)
+        viewModel = newReaderViewModel()
 
         val job = backgroundScope.launch { viewModel.uiState.collect { } }
         advanceUntilIdle()
@@ -927,4 +925,271 @@ class ReaderViewModelTest {
             assertThat(message.resId).isEqualTo(R.string.error_delete_reading_session)
         }
     }
+
+    @Test
+    fun `TAR-51 saving a bookmark does not update reading progress`() = runTest {
+        val viewModel = loadReaderViewModel(
+            epubContent = EpubContent(baseDir = "", spine = listOf("ch1", "ch2"), chaptersTree = emptyList()),
+            progress = ReadingProgress(
+                bookId = 1,
+                totalChapters = 2,
+                lastChapterIndex = 0,
+                scrollPosition = 0.3f,
+                lastReadAt = 5L
+            )
+        )
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        val slot = slot<NewBookmark>()
+        coEvery { addBookmarkUseCase(capture(slot)) } returns Result.success(7)
+
+        viewModel.onEvent(
+            ReaderEvent.OnAddBookmark(
+                NewBookmark.Highlight(
+                    bookId = 99,
+                    chapterHref = "otro.xhtml",
+                    quote = "frase",
+                    prefix = "antes",
+                    suffix = "despues",
+                    scrollPosition = 0.8f,
+                    color = BookmarkColor.GREEN
+                )
+            )
+        )
+        advanceUntilIdle()
+
+        val saved = slot.captured as NewBookmark.Highlight
+        assertThat(saved.bookId).isEqualTo(1)
+        assertThat(saved.chapterHref).isEqualTo("ch1")
+        assertThat(saved.color).isEqualTo(BookmarkColor.GREEN)
+        coVerify(exactly = 0) { updateReadingProgressUseCase(any()) }
+
+        val state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.readingProgress.lastChapterIndex).isEqualTo(0)
+        assertThat(state.readingProgress.scrollPosition).isEqualTo(0.3f)
+        assertThat(state.clearSelectionRequest).isEqualTo(1)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `TAR-51 a rejected bookmark shows a snackbar and keeps the reading point`() = runTest {
+        coEvery { addBookmarkUseCase(any()) } returns Result.failure(
+            JuguitoException(R.string.error_bookmark_duplicate)
+        )
+        val viewModel = loadReaderViewModel(
+            progress = ReadingProgress(
+                bookId = 1,
+                totalChapters = 1,
+                lastChapterIndex = 0,
+                scrollPosition = 0.3f,
+                lastReadAt = 5L
+            )
+        )
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.effect.test {
+            viewModel.onEvent(
+                ReaderEvent.OnAddBookmark(
+                    NewBookmark.Note(
+                        bookId = 1,
+                        chapterHref = "ch1",
+                        quote = "frase",
+                        prefix = "",
+                        suffix = "",
+                        scrollPosition = 0.2f,
+                        color = BookmarkColor.AMBER,
+                        noteText = "margen"
+                    )
+                )
+            )
+
+            val effect = awaitItem() as UiEffect.ShowSnackbar
+            val message = effect.message as UiText.StringResource
+            assertThat(message.resId).isEqualTo(R.string.error_bookmark_duplicate)
+        }
+
+        coVerify(exactly = 0) { updateReadingProgressUseCase(any()) }
+        val state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.readingProgress.scrollPosition).isEqualTo(0.3f)
+        assertThat(state.clearSelectionRequest).isEqualTo(0)
+        assertThat(state.pendingSelection).isNull()
+
+        job.cancel()
+    }
+
+    @Test
+    fun `TAR-51 choosing a bookmark in another chapter opens that chapter`() = runTest {
+        val bookmark = sampleBookmark(chapterHref = "ch2", scrollPosition = 0.6f)
+        val viewModel = loadReaderViewModel(
+            epubContent = EpubContent(baseDir = "", spine = listOf("ch1", "ch2"), chaptersTree = emptyList()),
+            progress = ReadingProgress(
+                bookId = 1,
+                totalChapters = 2,
+                lastChapterIndex = 0,
+                scrollPosition = 0.3f,
+                lastReadAt = 5L
+            )
+        )
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.onEvent(ReaderEvent.OnToggleBookmarksList)
+        viewModel.onEvent(ReaderEvent.OnMoveToBookmark(bookmark))
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.currentChapterIndex).isEqualTo(1)
+        assertThat(state.showBookmarkList).isFalse()
+        assertThat(state.pendingJump).isSameInstanceAs(bookmark)
+        assertThat(state.readingProgress.lastChapterIndex).isEqualTo(1)
+        assertThat(state.readingProgress.scrollPosition).isEqualTo(0f)
+        coVerify(exactly = 1) {
+            updateReadingProgressUseCase(match { it.lastChapterIndex == 1 && it.scrollPosition == 0f })
+        }
+
+        job.cancel()
+    }
+
+    @Test
+    fun `TAR-51 choosing a bookmark in the current chapter keeps the reading point`() = runTest {
+        val bookmark = sampleBookmark(chapterHref = "ch1", scrollPosition = 0.6f)
+        val viewModel = loadReaderViewModel(
+            epubContent = EpubContent(baseDir = "", spine = listOf("ch1", "ch2"), chaptersTree = emptyList()),
+            progress = ReadingProgress(
+                bookId = 1,
+                totalChapters = 2,
+                lastChapterIndex = 0,
+                scrollPosition = 0.3f,
+                lastReadAt = 5L
+            )
+        )
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.onEvent(ReaderEvent.OnToggleBookmarksList)
+        viewModel.onEvent(ReaderEvent.OnMoveToBookmark(bookmark))
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.currentChapterIndex).isEqualTo(0)
+        assertThat(state.pendingJump).isSameInstanceAs(bookmark)
+        assertThat(state.showBookmarkList).isFalse()
+        assertThat(state.readingProgress.lastChapterIndex).isEqualTo(0)
+        assertThat(state.readingProgress.scrollPosition).isEqualTo(0.3f)
+        coVerify(exactly = 0) { updateReadingProgressUseCase(any()) }
+
+        job.cancel()
+    }
+
+    @Test
+    fun `TAR-51 choosing a bookmark outside the spine does nothing`() = runTest {
+        val viewModel = loadReaderViewModel(
+            epubContent = EpubContent(baseDir = "", spine = listOf("ch1", "ch2"), chaptersTree = emptyList()),
+            progress = ReadingProgress(
+                bookId = 1,
+                totalChapters = 2,
+                lastChapterIndex = 0,
+                scrollPosition = 0.3f,
+                lastReadAt = 5L
+            )
+        )
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.onEvent(ReaderEvent.OnToggleBookmarksList)
+        viewModel.onEvent(ReaderEvent.OnMoveToBookmark(sampleBookmark(chapterHref = "gone.xhtml")))
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.currentChapterIndex).isEqualTo(0)
+        assertThat(state.pendingJump).isNull()
+        assertThat(state.showBookmarkList).isTrue()
+        assertThat(state.readingProgress.scrollPosition).isEqualTo(0.3f)
+        coVerify(exactly = 0) { updateReadingProgressUseCase(any()) }
+
+        job.cancel()
+    }
+
+    @Test
+    fun `TAR-51 editing a bookmark color calls update`() = runTest {
+        val stored = sampleBookmark(
+            id = 4,
+            kind = BookmarkKind.NOTE,
+            color = BookmarkColor.AMBER,
+            noteText = "margen"
+        )
+        every { getBookBookmarksUseCase(any()) } returns flowOf(listOf(stored))
+        val viewModel = loadReaderViewModel()
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        val slot = slot<Bookmark>()
+        coEvery { updateBookmarkUseCase(capture(slot)) } returns Result.success(stored)
+
+        viewModel.onEvent(ReaderEvent.OnOpenNote(stored.id))
+        viewModel.onEvent(ReaderEvent.OnEditBookmark(stored.id, BookmarkColor.PINK, "margen"))
+        advanceUntilIdle()
+
+        assertThat(slot.captured.id).isEqualTo(4)
+        assertThat(slot.captured.color).isEqualTo(BookmarkColor.PINK)
+        assertThat(slot.captured.noteText).isEqualTo("margen")
+        assertThat(slot.captured.kind).isEqualTo(BookmarkKind.NOTE)
+        val state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.selectedBookmark).isNull()
+        coVerify(exactly = 0) { updateReadingProgressUseCase(any()) }
+
+        job.cancel()
+    }
+
+    @Test
+    fun `TAR-51 a rejected bookmark edit shows a snackbar and keeps the note open`() = runTest {
+        val stored = sampleBookmark(id = 4, kind = BookmarkKind.HIGHLIGHT, noteText = null)
+        every { getBookBookmarksUseCase(any()) } returns flowOf(listOf(stored))
+        coEvery { updateBookmarkUseCase(any()) } returns Result.failure(
+            JuguitoException(R.string.error_bookmark_too_long)
+        )
+        val viewModel = loadReaderViewModel()
+        val job = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.onEvent(ReaderEvent.OnOpenNote(stored.id))
+        viewModel.effect.test {
+            viewModel.onEvent(ReaderEvent.OnEditBookmark(stored.id, BookmarkColor.AMBER, "margen"))
+
+            val effect = awaitItem() as UiEffect.ShowSnackbar
+            val message = effect.message as UiText.StringResource
+            assertThat(message.resId).isEqualTo(R.string.error_bookmark_too_long)
+        }
+
+        val state = viewModel.uiState.value as ReaderUiState.Success
+        assertThat(state.selectedBookmark).isSameInstanceAs(stored)
+        coVerify(exactly = 0) { updateReadingProgressUseCase(any()) }
+
+        job.cancel()
+    }
+
+    private fun sampleBookmark(
+        id: Int = 8,
+        kind: BookmarkKind = BookmarkKind.HIGHLIGHT,
+        chapterHref: String = "ch1",
+        color: BookmarkColor? = BookmarkColor.BLUE,
+        noteText: String? = null,
+        scrollPosition: Float = 0.4f
+    ) = Bookmark(
+        id = id,
+        bookId = 1,
+        kind = kind,
+        chapterHref = chapterHref,
+        quote = "frase",
+        prefix = "antes",
+        suffix = "despues",
+        imageSrc = null,
+        color = color,
+        noteText = noteText,
+        scrollPosition = scrollPosition,
+        createdAt = 1L
+    )
 }

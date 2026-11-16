@@ -109,6 +109,7 @@ class ReaderBrightnessTest {
             book = Book(id = 1, title = "Test Book", author = "Author", isPhysical = false),
             epubContent = EpubContent(baseDir = baseDir, spine = listOf("ch1"), chaptersTree = emptyList()),
             bookSessions = emptyList(),
+            bookmarks = emptyList(),
             readingProgress = ReadingProgress(
                 bookId = 1,
                 totalChapters = 1,

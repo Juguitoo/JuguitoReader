@@ -1,6 +1,7 @@
 package com.juguito.juguitoreader.ui.reader
 
 import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.domain.model.Bookmark
 import com.juguito.juguitoreader.domain.model.DailyReading
 import com.juguito.juguitoreader.domain.model.EpubContent
 import com.juguito.juguitoreader.domain.model.ReadingProgress
@@ -13,6 +14,8 @@ enum class ReaderTheme(val bgColor: String, val textColor: String) {
     NIGHT(bgColor = "#000000", textColor = "#CCCCCC")
 }
 
+enum class LibraryTab { BOOKMARKS, IMAGES }
+
 sealed interface ReaderUiState {
     data object Loading: ReaderUiState
     data class Error(val message: UiText): ReaderUiState
@@ -21,6 +24,7 @@ sealed interface ReaderUiState {
         val epubContent: EpubContent,
         val readingProgress: ReadingProgress,
         val bookSessions: List<DailyReading>,
+        val bookmarks: List<Bookmark>,
         val currentChapterIndex: Int,
         val isControlsVisible: Boolean = false,
         val textZoom: Int = 100,
@@ -29,9 +33,20 @@ sealed interface ReaderUiState {
         val timeRemaining: Int? = null,
         val showStatusPrompt: Boolean = false,
         val showSessionsDialog: Boolean = false,
+        val showBookmarkList: Boolean = false,
+        val selectedBookmark: Bookmark? = null,
+        val pendingJump: Bookmark? = null,
+        val pendingSelection: TextSelection? = null,
+        val showNewNote: Boolean = false,
+        val markMenuId: Int? = null,
+        val markMenuAnchor: MenuAnchor? = null,
+        val captureBookmarkRequest: Int = 0,
+        val clearSelectionRequest: Int = 0,
         val lastReportedChapterWords: Int = 0,
         val accumulatedReadWords: Int = 0,
-        val webViewInstanceKey: Int = 0
+        val webViewInstanceKey: Int = 0,
+        val libraryTab: LibraryTab = LibraryTab.BOOKMARKS,
+        val openImageId: Int? = null
     ): ReaderUiState {
         val currentChapterUrl: String
             get() = epubChapterUrl(epubContent.spine[currentChapterIndex])

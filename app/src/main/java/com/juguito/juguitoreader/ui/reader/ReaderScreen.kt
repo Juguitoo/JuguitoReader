@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -59,6 +62,11 @@ import com.juguito.juguitoreader.ui.common.ObserveAsEvents
 import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.JuguitoDialog
+import com.juguito.juguitoreader.ui.reader.bookmark.BookmarkContextMenu
+import com.juguito.juguitoreader.ui.reader.bookmark.BookmarkNoteDialog
+import com.juguito.juguitoreader.ui.reader.bookmark.BookmarksSheet
+import com.juguito.juguitoreader.ui.reader.bookmark.PinnedImageViewer
+import com.juguito.juguitoreader.ui.reader.components.SystemMenuState
 import com.juguito.juguitoreader.ui.reader.components.ChangeStatusPromptDialog
 import com.juguito.juguitoreader.ui.reader.components.CollapsibleIndexItem
 import com.juguito.juguitoreader.ui.reader.components.EpubWebView
@@ -66,6 +74,10 @@ import com.juguito.juguitoreader.ui.reader.components.OverscrollIndicators
 import com.juguito.juguitoreader.ui.reader.components.ReaderControls
 import com.juguito.juguitoreader.ui.reader.components.ReaderFooter
 import com.juguito.juguitoreader.ui.reader.components.ReadingSessionsSheet
+import com.juguito.juguitoreader.ui.reader.guide.ReaderGuideDialog
+import com.juguito.juguitoreader.ui.reader.guide.ReaderGuideEvent
+import com.juguito.juguitoreader.ui.reader.guide.ReaderGuideUiState
+import com.juguito.juguitoreader.ui.reader.guide.ReaderGuideViewModel
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import kotlinx.coroutines.launch
 
@@ -81,9 +93,15 @@ fun ReaderScreen(
     val activity = context as? Activity
     val lifecycleOwner = LocalLifecycleOwner.current
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     ObserveAsEvents(viewModel.effect) { uiEffect ->
         when (uiEffect) {
             is UiEffect.NavigateBack -> onNavigateBack()
+            is UiEffect.ShowSnackbar -> scope.launch {
+                snackbarHostState.showSnackbar(uiEffect.message.asString(context))
+            }
             else -> Unit
         }
     }
@@ -132,10 +150,19 @@ fun ReaderScreen(
         is ReaderUiState.Loading -> ReaderLoading()
         is ReaderUiState.Error -> ReaderError(currentState.message, onNavigateBack)
         is ReaderUiState.Success -> {
-            ReaderContent(
-                state = currentState,
-                onEvent = viewModel::onEvent
-            )
+            Box(modifier = Modifier.fillMaxSize()) {
+                ReaderContent(
+                    state = currentState,
+                    onEvent = viewModel::onEvent
+                )
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding()
+                        .padding(bottom = 24.dp)
+                )
+            }
             if (guideState is ReaderGuideUiState.Visible) {
                 ReaderGuideDialog(
                     onDismiss = { readerGuideViewModel.onEvent(ReaderGuideEvent.OnDismiss) }
@@ -174,7 +201,6 @@ fun ReaderError(message: UiText, onDismiss: () -> Unit) {
 }
 
 enum class BottomBarMode { DEFAULT, FONT_SIZE, BRIGHTNESS }
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReaderContent(
     state: ReaderUiState.Success,
@@ -249,6 +275,7 @@ fun ReaderContent(
         }
     ) {
         val currentState = rememberUpdatedState(state)
+        val systemMenu = remember { SystemMenuState() }
         Box(modifier = Modifier
             .fillMaxSize()
             .background(Color(state.theme.bgColor.toColorInt())))
@@ -257,7 +284,8 @@ fun ReaderContent(
                 EpubWebView(
                     state = currentState.value,
                     onEvent = onEvent,
-                    onOverscroll = { overscrollDelta = it }
+                    onOverscroll = { overscrollDelta = it },
+                    systemMenu = systemMenu
                 )
             }
 
@@ -278,8 +306,24 @@ fun ReaderContent(
                 modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(horizontal = 24.dp, vertical = 8.dp)
             )
 
+            val readerState = currentState.value
             if (state.showStatusPrompt) ChangeStatusPromptDialog(onEvent)
-            if (state.showSessionsDialog) ReadingSessionsSheet(state = currentState.value, onEvent = onEvent)
+            if (state.showSessionsDialog) ReadingSessionsSheet(state = readerState, onEvent = onEvent)
+            if (readerState.showBookmarkList) BookmarksSheet(state = readerState, onEvent = onEvent)
+            if (!readerState.showBookmarkList && readerState.openImageId != null) {
+                PinnedImageViewer(
+                    state = readerState,
+                    onEvent = onEvent,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+            BookmarkContextMenu(
+                state = readerState,
+                systemActions = systemMenu.actions,
+                onSystemAction = { systemMenu.perform(it) },
+                onEvent = onEvent
+            )
+            BookmarkNoteDialog(state = readerState, onEvent = onEvent)
         }
     }
 }

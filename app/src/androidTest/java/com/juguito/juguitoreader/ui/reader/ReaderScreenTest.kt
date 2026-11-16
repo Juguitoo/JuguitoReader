@@ -30,6 +30,7 @@ class ReaderScreenTest {
             book = book,
             epubContent = epubContent,
             bookSessions = emptyList(),
+            bookmarks = emptyList(),
             readingProgress = progress,
             currentChapterIndex = 0,
             isControlsVisible = true

@@ -14,10 +14,17 @@ class AddBookmarkUseCase @Inject constructor(
     suspend operator fun invoke(draft: NewBookmark): Result<Int> {
         val quote = draft.quote.trim()
         val chapterHref = draft.chapterHref.trim()
-        val imageSrc = (draft as? NewBookmark.Position)?.imageSrc?.trim()?.ifBlank { null }
+        val imageSrc = when (draft) {
+            is NewBookmark.Position -> draft.imageSrc?.trim()?.ifBlank { null }
+            is NewBookmark.Image -> draft.imageSrc.trim().ifBlank { null }
+            else -> null
+        }
         val noteText = (draft as? NewBookmark.Note)?.noteText?.trim()
 
-        if (draft !is NewBookmark.Position && quote.isBlank()) {
+        if (draft is NewBookmark.Image && imageSrc == null) {
+            return Result.failure(JuguitoException(R.string.error_bookmark_empty_text))
+        }
+        if (draft !is NewBookmark.Position && draft !is NewBookmark.Image && quote.isBlank()) {
             return Result.failure(JuguitoException(R.string.error_bookmark_empty_text))
         }
         if (draft is NewBookmark.Position &&
@@ -39,20 +46,31 @@ class AddBookmarkUseCase @Inject constructor(
         val kind = when (draft) {
             is NewBookmark.Highlight -> BookmarkKind.HIGHLIGHT
             is NewBookmark.Note -> BookmarkKind.NOTE
-            is NewBookmark.Position -> BookmarkKind.BOOKMARK
+            is NewBookmark.Position -> BookmarkKind.POSITION
+            is NewBookmark.Image -> BookmarkKind.IMAGE
         }
         val color = when (draft) {
             is NewBookmark.Highlight -> draft.color
             is NewBookmark.Note -> draft.color
             is NewBookmark.Position -> null
+            is NewBookmark.Image -> null
         }
 
-        val duplicate = repository.getBookBookmarks(draft.bookId).first().any { existing ->
-            existing.kind == kind &&
-                existing.chapterHref == chapterHref &&
-                existing.quote == quote &&
-                existing.prefix == draft.prefix &&
-                existing.imageSrc == imageSrc
+        val existingMarks = repository.getBookBookmarks(draft.bookId).first()
+        val duplicate = if (draft is NewBookmark.Image) {
+            existingMarks.any { existing ->
+                existing.kind == BookmarkKind.IMAGE &&
+                    existing.chapterHref == chapterHref &&
+                    existing.imageSrc == imageSrc
+            }
+        } else {
+            existingMarks.any { existing ->
+                existing.kind == kind &&
+                    existing.chapterHref == chapterHref &&
+                    existing.quote == quote &&
+                    existing.prefix == draft.prefix &&
+                    existing.imageSrc == imageSrc
+            }
         }
         if (duplicate) {
             return Result.failure(JuguitoException(R.string.error_bookmark_duplicate))

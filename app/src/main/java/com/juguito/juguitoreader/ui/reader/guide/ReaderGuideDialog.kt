@@ -1,4 +1,4 @@
-package com.juguito.juguitoreader.ui.reader
+package com.juguito.juguitoreader.ui.reader.guide
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook

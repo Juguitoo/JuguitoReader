@@ -40,4 +40,14 @@ sealed interface NewBookmark {
         val color: BookmarkColor,
         val noteText: String
     ) : NewBookmark
+
+    data class Image(
+        override val bookId: Int,
+        override val chapterHref: String,
+        override val quote: String,
+        override val prefix: String,
+        override val suffix: String,
+        override val scrollPosition: Float,
+        val imageSrc: String
+    ) : NewBookmark
 }

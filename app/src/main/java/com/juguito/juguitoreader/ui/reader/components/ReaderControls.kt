@@ -19,6 +19,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
@@ -106,6 +108,9 @@ fun ReaderControls(
                     IconButton(onClick = { onEvent(ReaderEvent.OnBackRequested) }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) }
                 },
                 actions = {
+                    IconButton(onClick = { onEvent(ReaderEvent.OnToggleBookmarksList) }) {
+                        Icon(Icons.Default.Bookmark, contentDescription = stringResource(R.string.bookmarks), tint = chrome)
+                    }
                     IconButton(onClick = { onEvent(ReaderEvent.OnToggleSessionsDialog) }) { Icon(Icons.Default.BarChart, contentDescription = stringResource(R.string.stats), tint = chrome) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

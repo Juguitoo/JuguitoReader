@@ -3,26 +3,34 @@ package com.juguito.juguitoreader.ui.reader
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
+import com.juguito.juguitoreader.domain.enums.BookmarkKind
+import com.juguito.juguitoreader.domain.exception.JuguitoException
 import com.juguito.juguitoreader.domain.model.DailyReading
 import com.juguito.juguitoreader.domain.model.ReadingProgress
 import com.juguito.juguitoreader.domain.model.copy
+import com.juguito.juguitoreader.domain.model.hasSamePersistedValues
 import com.juguito.juguitoreader.domain.repository.SettingsRepository
 import com.juguito.juguitoreader.domain.usecase.book.GetBookByIdUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
+import com.juguito.juguitoreader.domain.usecase.bookmark.AddBookmarkUseCase
+import com.juguito.juguitoreader.domain.usecase.bookmark.DeleteBookmarkUseCase
+import com.juguito.juguitoreader.domain.usecase.bookmark.GetBookBookmarksUseCase
+import com.juguito.juguitoreader.domain.usecase.bookmark.NewBookmark
+import com.juguito.juguitoreader.domain.usecase.bookmark.UpdateBookmarkUseCase
 import com.juguito.juguitoreader.domain.usecase.dailyReading.AddDailyReadingUseCase
+import com.juguito.juguitoreader.domain.usecase.dailyReading.DeleteBookDailyReadingUseCase
 import com.juguito.juguitoreader.domain.usecase.dailyReading.GetBookDailyReadingsUseCase
 import com.juguito.juguitoreader.domain.usecase.reader.ParseEpubUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.AddReadingProgressUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgressByIdUseCase
 import com.juguito.juguitoreader.domain.usecase.readingProgress.UpdateReadingProgressUseCase
-import com.juguito.juguitoreader.R
-import com.juguito.juguitoreader.domain.exception.JuguitoException
-import com.juguito.juguitoreader.domain.model.hasSamePersistedValues
-import com.juguito.juguitoreader.domain.usecase.dailyReading.DeleteBookDailyReadingUseCase
 import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.asUiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
+import com.juguito.juguitoreader.ui.common.interfaces.UiEffect.NavigateBack
+import com.juguito.juguitoreader.ui.common.interfaces.UiEffect.ShowSnackbar
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -45,16 +53,35 @@ private const val MAX_CHAPTER_WORDS = 200_000
 
 private const val MAX_BASE_CREDIT_WORDS = 1_000L
 
+data class MenuAnchor(
+    val left: Float,
+    val top: Float,
+    val right: Float,
+    val bottom: Float
+)
+
+data class TextSelection(
+    val quote: String,
+    val prefix: String,
+    val suffix: String,
+    val scrollPosition: Float,
+    val anchor: MenuAnchor = MenuAnchor(0f, 0f, 0f, 0f)
+)
+
 @HiltViewModel
 class ReaderViewModel @Inject constructor(
     private val getBookByIdUseCase: GetBookByIdUseCase,
     private val getReadingProgressByIdUseCase: GetReadingProgressByIdUseCase,
     private val getBookDailyReadingsUseCase: GetBookDailyReadingsUseCase,
-    private val updateReadingProgressUseCase: UpdateReadingProgressUseCase,
+    private val getBookBookmarksUseCase: GetBookBookmarksUseCase,
     private val addReadingProgressUseCase: AddReadingProgressUseCase,
     private val addDailyReadingUseCase: AddDailyReadingUseCase,
-    private val deleteBookDailyReadingUseCase: DeleteBookDailyReadingUseCase,
+    private val addBookmarkUseCase: AddBookmarkUseCase,
+    private val updateReadingProgressUseCase: UpdateReadingProgressUseCase,
+    private val updateBookmarkUseCase: UpdateBookmarkUseCase,
     private val updateBookUseCase: UpdateBookUseCase,
+    private val deleteBookDailyReadingUseCase: DeleteBookDailyReadingUseCase,
+    private val deleteBookmarkUseCase: DeleteBookmarkUseCase,
     private val parseEpubUseCase: ParseEpubUseCase,
     private val settingsRepository: SettingsRepository,
     savedStateHandle: SavedStateHandle
@@ -89,6 +116,7 @@ class ReaderViewModel @Inject constructor(
     private val bookId: Int = checkNotNull(savedStateHandle["bookId"])
     private var initialPercentage: Int = -1
     internal var currentTimeProvider: () -> Long = { System.currentTimeMillis() }
+    private var ignoreControlsUntil: Long = 0L
     private val sessionClock = ReadingSessionClock(now = { currentTimeProvider() })
     private var persistProgressJob: Job? = null
     private var lastPersistedProgress: ReadingProgress? = null
@@ -148,7 +176,8 @@ class ReaderViewModel @Inject constructor(
                             textZoom = zoom,
                             theme = initialTheme,
                             brightness = brightness,
-                            bookSessions = emptyList()
+                            bookSessions = emptyList(),
+                            bookmarks = emptyList()
                         )
 
                         startSessionTimerIfPossible()
@@ -157,6 +186,13 @@ class ReaderViewModel @Inject constructor(
                             getBookDailyReadingsUseCase.invoke(bookId).collect { sessions ->
                                 val currentState = _internalState.value
                                 if (currentState is ReaderUiState.Success) _internalState.value = currentState.copy(bookSessions = sessions)
+                            }
+                        }
+
+                        viewModelScope.launch {
+                            getBookBookmarksUseCase.invoke(bookId).collect { bookmarks ->
+                                val currentState = _internalState.value
+                                if (currentState is ReaderUiState.Success) _internalState.value = currentState.copy(bookmarks = bookmarks)
                             }
                         }
                     },
@@ -187,6 +223,18 @@ class ReaderViewModel @Inject constructor(
                 updateChapter(currentState, currentState.currentChapterIndex - 1)
             }
             is ReaderEvent.OnToggleControls -> {
+                if (currentTimeProvider() < ignoreControlsUntil) return
+                if (
+                    currentState.showBookmarkList ||
+                    currentState.showNewNote ||
+                    currentState.selectedBookmark != null ||
+                    currentState.showSessionsDialog ||
+                    currentState.showStatusPrompt
+                ) return
+                if (currentState.markMenuId != null) {
+                    updateSuccessState { it.copy(markMenuId = null, markMenuAnchor = null) }
+                    return
+                }
                 _internalState.value = currentState.copy(isControlsVisible = !currentState.isControlsVisible)
             }
             is ReaderEvent.OnTextZoomChanged -> {
@@ -241,8 +289,190 @@ class ReaderViewModel @Inject constructor(
             is ReaderEvent.OnDeleteDailyReading -> {
                 viewModelScope.launch {
                     deleteBookDailyReadingUseCase(currentState.book.id, event.date)
-                        .onFailure { _effect.send(UiEffect.ShowSnackbar(it.asUiText())) }
+                        .onFailure { _effect.send(ShowSnackbar(it.asUiText())) }
                 }
+            }
+            is ReaderEvent.OnAddBookmark -> addBookmark(currentState, event.bookmark)
+            is ReaderEvent.OnCloseNote -> {
+                updateSuccessState { it.copy(selectedBookmark = null) }
+            }
+            is ReaderEvent.OnDeleteBookmark -> {
+                viewModelScope.launch {
+                    deleteBookmarkUseCase(event.id)
+                        .onFailure { _effect.send(ShowSnackbar(it.asUiText())) }
+                        .onSuccess {
+                            updateSuccessState { state ->
+                                state.copy(
+                                    markMenuId = state.markMenuId.takeUnless { it == event.id },
+                                    markMenuAnchor = state.markMenuAnchor.takeUnless { state.markMenuId == event.id },
+                                    selectedBookmark = state.selectedBookmark?.takeIf { it.id != event.id },
+                                    openImageId = state.openImageId.takeUnless { it == event.id }
+                                )
+                            }
+                        }
+                }
+            }
+            is ReaderEvent.OnEditBookmark -> {
+                viewModelScope.launch {
+                    val bookmark = currentState.bookmarks.firstOrNull { it.id == event.id }?.copy(color = event.color, noteText = event.noteText)
+                    if (bookmark == null) return@launch
+                    updateBookmarkUseCase(bookmark)
+                        .onFailure { _effect.send(ShowSnackbar(it.asUiText())) }
+                        .onSuccess {
+                            updateSuccessState { it.copy(selectedBookmark = null) }
+                        }
+                }
+            }
+            is ReaderEvent.OnOpenNote -> {
+                val bookmark = currentState.bookmarks.firstOrNull { it.id == event.id }
+                if (bookmark == null || bookmark.kind == BookmarkKind.POSITION) return
+                suppressControls()
+                updateSuccessState { it.copy(selectedBookmark = bookmark, markMenuId = null, markMenuAnchor = null, showNewNote = false) }
+            }
+            is ReaderEvent.OnMoveToBookmark -> {
+                val newIndex = currentState.epubContent.spine.indexOf(event.bookmark.chapterHref)
+                if (newIndex == -1) return
+                if (newIndex != currentState.currentChapterIndex) updateChapter(currentState, newIndex)
+                updateSuccessState { it.copy(showBookmarkList = false, pendingJump = event.bookmark) }
+                startSessionTimerIfPossible()
+            }
+            is ReaderEvent.OnToggleBookmarksList -> {
+                if (currentState.showBookmarkList && currentState.libraryTab == LibraryTab.BOOKMARKS) {
+                    updateSuccessState { it.copy(showBookmarkList = false, openImageId = null) }
+                    startSessionTimerIfPossible()
+                } else {
+                    sessionClock.freeze()
+                    updateSuccessState { it.copy(showBookmarkList = true, libraryTab = LibraryTab.BOOKMARKS) }
+                }
+            }
+            is ReaderEvent.OnToggleImageList -> {
+                if (currentState.showBookmarkList && currentState.libraryTab == LibraryTab.IMAGES) {
+                    updateSuccessState { it.copy(showBookmarkList = false, openImageId = null) }
+                    startSessionTimerIfPossible()
+                } else {
+                    sessionClock.freeze()
+                    updateSuccessState { it.copy(showBookmarkList = true, libraryTab = LibraryTab.IMAGES) }
+                }
+            }
+            is ReaderEvent.OnSelectLibraryTab -> {
+                updateSuccessState { it.copy(libraryTab = event.tab, openImageId = null) }
+            }
+            is ReaderEvent.OnCloseLibrarySheet -> {
+                if (!currentState.showBookmarkList) return
+                updateSuccessState { it.copy(showBookmarkList = false, openImageId = null) }
+                startSessionTimerIfPossible()
+            }
+            is ReaderEvent.OnBookmarkJumpFinished -> {
+                updateSuccessState { it.copy(pendingJump = null) }
+            }
+            is ReaderEvent.OnTextSelected -> {
+                if (isStaleJsChapter(event.chapterIndex, currentState.currentChapterIndex)) return
+                if (event.overlapsMark) {
+                    suppressControls()
+                    updateSuccessState { it.copy(pendingSelection = null) }
+                    viewModelScope.launch {
+                        _effect.send(ShowSnackbar(UiText.StringResource(R.string.error_bookmark_overlap)))
+                    }
+                    return
+                }
+                val quote = event.quote.trim()
+                if (quote.isEmpty()) {
+                    if (currentState.pendingSelection != null) suppressControls()
+                    updateSuccessState { it.copy(pendingSelection = null) }
+                } else {
+                    updateSuccessState {
+                        it.copy(
+                            pendingSelection = TextSelection(
+                                quote = quote,
+                                prefix = event.prefix,
+                                suffix = event.suffix,
+                                scrollPosition = event.scrollPosition,
+                                anchor = MenuAnchor(event.anchorLeft, event.anchorTop, event.anchorRight, event.anchorBottom)
+                            ),
+                            markMenuId = null,
+                            markMenuAnchor = null
+                        )
+                    }
+                }
+            }
+            is ReaderEvent.OnRequestBookmarkHere -> {
+                updateSuccessState { it.copy(captureBookmarkRequest = it.captureBookmarkRequest + 1) }
+            }
+            is ReaderEvent.OnBookmarkCaptured -> {
+                if (isStaleJsChapter(event.chapterIndex, currentState.currentChapterIndex)) return
+                val imageSrc = event.imageSrc.trim().ifBlank { null }
+                val quote = event.quote.trim()
+                if (quote.isEmpty() && imageSrc == null) {
+                    viewModelScope.launch {
+                        _effect.send(ShowSnackbar(UiText.StringResource(R.string.error_bookmark_empty_text)))
+                    }
+                    return
+                }
+                addBookmark(
+                    currentState,
+                    NewBookmark.Position(
+                        bookId = bookId,
+                        chapterHref = "",
+                        quote = quote,
+                        prefix = event.prefix,
+                        suffix = event.suffix,
+                        scrollPosition = event.scrollPosition,
+                        imageSrc = imageSrc
+                    )
+                )
+            }
+            is ReaderEvent.OnOpenNewNote -> {
+                if (currentState.pendingSelection == null) return
+                suppressControls()
+                updateSuccessState { it.copy(showNewNote = true, markMenuId = null, markMenuAnchor = null) }
+            }
+            is ReaderEvent.OnCloseNewNote -> {
+                updateSuccessState { it.copy(showNewNote = false) }
+            }
+            is ReaderEvent.OnPinImage -> {
+                if (isStaleJsChapter(event.chapterIndex, currentState.currentChapterIndex)) return
+                val src = event.imageSrc.trim()
+                if (src.isEmpty()) return
+                suppressControls()
+                addBookmark(
+                    currentState,
+                    NewBookmark.Image(
+                        bookId = bookId,
+                        chapterHref = "",
+                        quote = event.alt.trim(),
+                        prefix = "",
+                        suffix = "",
+                        scrollPosition = event.scrollPosition,
+                        imageSrc = src
+                    )
+                )
+            }
+            is ReaderEvent.OnOpenPinnedImage -> {
+                val mark = currentState.bookmarks.firstOrNull { it.id == event.id } ?: return
+                if (mark.kind != BookmarkKind.IMAGE) return
+                updateSuccessState { it.copy(openImageId = mark.id) }
+            }
+            is ReaderEvent.OnClosePinnedImage -> {
+                updateSuccessState { it.copy(openImageId = null) }
+            }
+            is ReaderEvent.OnMarkTapped -> {
+                val mark = currentState.bookmarks.firstOrNull { it.id == event.id } ?: return
+                if (mark.kind == BookmarkKind.POSITION || mark.kind == BookmarkKind.IMAGE) return
+                if (currentState.markMenuId == mark.id) {
+                    updateSuccessState { it.copy(markMenuId = null, markMenuAnchor = null) }
+                    return
+                }
+                suppressControls()
+                updateSuccessState {
+                    it.copy(
+                        markMenuId = mark.id,
+                        markMenuAnchor = MenuAnchor(event.anchorLeft, event.anchorTop, event.anchorRight, event.anchorBottom),
+                        pendingSelection = null
+                    )
+                }
+            }
+            is ReaderEvent.OnCloseMarkMenu -> {
+                updateSuccessState { it.copy(markMenuId = null, markMenuAnchor = null) }
             }
         }
     }
@@ -292,7 +522,7 @@ class ReaderViewModel @Inject constructor(
             if (currentState.book.status == BookStatus.PENDING && sessionDelta >= 15 && !autoStart && shouldPrompt) {
                 updateSuccessState { it.copy(showStatusPrompt = true) }
             } else {
-                _effect.send(UiEffect.NavigateBack)
+                _effect.send(NavigateBack)
             }
         }
     }
@@ -350,6 +580,37 @@ class ReaderViewModel @Inject constructor(
         }
     }
 
+    private fun suppressControls() {
+        ignoreControlsUntil = currentTimeProvider() + 500L
+    }
+
+    private fun addBookmark(currentState: ReaderUiState.Success, incoming: NewBookmark) {
+        val href = currentState.epubContent.spine[currentState.currentChapterIndex]
+        val draft = when (incoming) {
+            is NewBookmark.Highlight -> incoming.copy(bookId = bookId, chapterHref = href)
+            is NewBookmark.Note -> incoming.copy(bookId = bookId, chapterHref = href)
+            is NewBookmark.Position -> incoming.copy(bookId = bookId, chapterHref = href)
+            is NewBookmark.Image -> incoming.copy(bookId = bookId, chapterHref = href)
+        }
+        viewModelScope.launch {
+            addBookmarkUseCase(draft)
+                .onFailure { _effect.send(ShowSnackbar(it.asUiText())) }
+                .onSuccess {
+                    if (draft is NewBookmark.Image) {
+                        _effect.send(ShowSnackbar(UiText.StringResource(R.string.bookmark_image_saved)))
+                    } else if (draft !is NewBookmark.Position) {
+                        updateSuccessState {
+                            it.copy(
+                                pendingSelection = null,
+                                showNewNote = false,
+                                clearSelectionRequest = it.clearSelectionRequest + 1
+                            )
+                        }
+                    }
+                }
+        }
+    }
+
     private fun isStaleJsChapter(chapterIndex: Int, currentChapterIndex: Int): Boolean =
         chapterIndex >= 0 && chapterIndex != currentChapterIndex
 
@@ -373,7 +634,10 @@ class ReaderViewModel @Inject constructor(
             currentChapterIndex = newIndex,
             readingProgress = updatedProgress,
             lastReportedChapterWords = 0,
-            timeRemaining = null
+            timeRemaining = null,
+            pendingSelection = null,
+            markMenuId = null,
+            markMenuAnchor = null
         )
 
         viewModelScope.launch {

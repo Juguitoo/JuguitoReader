@@ -94,7 +94,7 @@ class HomeViewModelTest {
     private fun sampleBookmark() = Bookmark(
         id = 9,
         bookId = 1,
-        kind = BookmarkKind.BOOKMARK,
+        kind = BookmarkKind.POSITION,
         chapterHref = "chapter.xhtml",
         quote = "frase",
         prefix = "",

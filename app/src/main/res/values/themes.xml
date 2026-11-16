@@ -2,4 +2,15 @@
 <resources>
 
     <style name="Theme.JuguitoReader" parent="Theme.AppCompat.Light.NoActionBar" />
+
+    <style name="Theme.JuguitoReader.WebView" parent="Theme.JuguitoReader">
+        <item name="colorAccent">#FF7F50</item>
+        <item name="colorControlActivated">#FF7F50</item>
+        <item name="android:colorAccent">#FF7F50</item>
+        <item name="android:colorControlActivated">#FF7F50</item>
+        <item name="android:textColorHighlight">#59FF7F50</item>
+        <item name="android:textSelectHandle">@drawable/text_select_handle</item>
+        <item name="android:textSelectHandleLeft">@drawable/text_select_handle_left</item>
+        <item name="android:textSelectHandleRight">@drawable/text_select_handle_right</item>
+    </style>
 </resources>

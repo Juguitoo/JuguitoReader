@@ -21,9 +21,10 @@ enum class StatsPeriod {
 }
 
 enum class BookmarkKind {
-    BOOKMARK,
+    POSITION,
     NOTE,
-    HIGHLIGHT
+    HIGHLIGHT,
+    IMAGE
 }
 
 enum class BookmarkColor {

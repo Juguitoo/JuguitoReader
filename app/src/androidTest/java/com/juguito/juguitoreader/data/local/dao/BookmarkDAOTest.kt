@@ -58,7 +58,7 @@ class BookmarkDAOTest {
 
     private fun bookmark(bookId: Int, quote: String) = BookmarkEntity(
         bookId = bookId,
-        kind = BookmarkKind.BOOKMARK,
+        kind = BookmarkKind.POSITION,
         chapterHref = "chapter.xhtml",
         quote = quote,
         prefix = "",

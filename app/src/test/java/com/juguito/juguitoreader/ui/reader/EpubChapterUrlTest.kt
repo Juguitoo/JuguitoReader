@@ -57,6 +57,7 @@ class EpubChapterUrlTest {
                 lastReadAt = 0L
             ),
             bookSessions = emptyList(),
+            bookmarks = emptyList(),
             currentChapterIndex = 0
         )
 

@@ -17,3 +17,24 @@ class Bookmark(
     val scrollPosition: Float,
     val createdAt: Long
 )
+
+fun Bookmark.copy(
+    kind: BookmarkKind = this.kind,
+    color: BookmarkColor? = this.color,
+    noteText: String? = this.noteText
+): Bookmark {
+    return Bookmark(
+        id = id,
+        bookId = bookId,
+        kind = kind,
+        chapterHref = chapterHref,
+        quote = quote,
+        prefix = prefix,
+        suffix = suffix,
+        imageSrc = imageSrc,
+        color = color,
+        noteText = noteText,
+        scrollPosition = scrollPosition,
+        createdAt = createdAt
+    )
+}

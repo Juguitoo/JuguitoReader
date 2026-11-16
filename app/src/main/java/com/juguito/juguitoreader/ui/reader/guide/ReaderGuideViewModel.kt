@@ -1,4 +1,4 @@
-package com.juguito.juguitoreader.ui.reader
+package com.juguito.juguitoreader.ui.reader.guide
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
