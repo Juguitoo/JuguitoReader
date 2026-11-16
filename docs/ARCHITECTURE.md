@@ -190,7 +190,7 @@ Centralizada en `ui/navigation/JuguitoApp.kt`:
 
 **Pros:** renderiza HTML/CSS de EPUBs sin dependencia externa pesada; control total del JS bridge (scroll, capítulos, WPM).
 
-**Contras:** rendimiento y batería vs. renderer nativo; accesibilidad limitada. Contenido EPUB se sirve con `WebViewAssetLoader` (origen HTTPS sintético, sin `file://` ni `allowFileAccess`). El JS del capítulo comparte origen con `JavascriptInterface` (`AndroidBridge`); el ViewModel acota palabras acreditadas (SEC-004). Aislar stats del WebView queda para TAR-19 / motor nativo (TAR-30). `onRenderProcessGone` recrea el WebView (READER-012).
+**Contras:** rendimiento y batería vs. renderer nativo; accesibilidad limitada. Contenido EPUB se sirve con `WebViewAssetLoader` (origen HTTPS sintético, sin `file://` ni `allowFileAccess`). El JS del capítulo comparte origen con `JavascriptInterface` (`AndroidBridge`); el ViewModel acota palabras acreditadas (SEC-004). Aislar stats del WebView queda para TAR-19 / motor nativo (TAR-30). `onRenderProcessGone` recrea el WebView (READER-012). Las marcas se anclan a la frase del capítulo, con el href del spine y un poco de contexto: este visor las pinta y el motor nativo usará el mismo dato.
 
 **Alternativas descartadas por ahora:** Readium, FolioReader.
 

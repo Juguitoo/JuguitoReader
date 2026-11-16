@@ -6,11 +6,6 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 ## En curso
 
-- [ ] TAR-51 Marcadores en libros
-  - version: v1.3.1
-  - tipo: feat
-  - ref: tasks/TAR-51.md
-
 ## Pendiente
 
 ### v1.3.1
