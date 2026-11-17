@@ -2,22 +2,55 @@ package com.juguito.juguitoreader.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Paleta "Juguito"
+// Paleta "Juguito". Neutros cálidos: el crema de fondo y una arena para surfaceVariant.
 val JuguitoPrimary = Color(0xFFFF7F50) // Coral vibrante
+val JuguitoOnPrimary = Color(0xFF4A1C00)
 val JuguitoPrimaryContainer = Color(0xFFFFDAB9) // Melocotón suave
 val JuguitoOnPrimaryContainer = Color(0xFF8B3A00)
 val JuguitoSecondary = Color(0xFFFFB347) // Naranja pastel
+val JuguitoSecondaryContainer = Color(0xFFFFE3A6)
+val JuguitoOnSecondaryContainer = Color(0xFF4A2C00)
+val JuguitoTertiary = Color(0xFF1F6F6C) // Verde azulado, el tercer acento de Oscuro en claro
+val JuguitoTertiaryContainer = Color(0xFFD7EEEC)
+val JuguitoOnTertiaryContainer = Color(0xFF0E3F3C)
+val JuguitoTertiaryDim = Color(0xFF8FCFCB)
 val JuguitoBackground = Color(0xFFF9F4E8) // Tono sepia/crema cálido
 val JuguitoOnBackground = Color(0xFF1A1C1E)
+val JuguitoSurfaceVariant = Color(0xFFE8CDB6) // Arena
+val JuguitoOnSurfaceVariant = Color(0xFF6B5648)
+val JuguitoSurfaceContainerLowest = Color(0xFFFFFCF6)
+val JuguitoSurfaceContainerLow = Color(0xFFF6F0E4)
+val JuguitoSurfaceContainer = Color(0xFFEFE6D6)
+val JuguitoSurfaceContainerHigh = Color(0xFFE6DCC8)
+val JuguitoSurfaceContainerHighest = Color(0xFFDDD1BA)
+val JuguitoSurfaceDim = Color(0xFFD4C6B0)
+val JuguitoOutline = Color(0xFF7A6456)
+val JuguitoOutlineVariant = Color(0xFFC0AA90)
+val JuguitoInverseSurface = Color(0xFF2C241C)
 
 // Paleta "Pastel"
 val PastelPink = Color(0xFFF48FB1) // Rosa pastel
+val PastelOnPrimary = Color(0xFF4A2434)
 val PastelPinkContainer = Color(0xFFFCE4EC)
 val PastelPurple = Color(0xFFCE93D8) // Morado/Lavanda
+val PastelOnSecondary = Color(0xFF3E2A44)
 val PastelPurpleContainer = Color(0xFFF3E5F5)
 val PastelCoral = Color(0xFFFFAB91) // Coral pastel
+val PastelOnTertiary = Color(0xFF6A3A2E)
+val PastelTertiaryContainer = Color(0xFFFFD8CC)
+val PastelOnTertiaryContainer = Color(0xFF5C2E24)
 val PastelText = Color(0xFF4A444B)
 val PastelBackground = Color(0xFFFFF9FB) // Blanco rosado muy suave
+val PastelSurfaceVariant = Color(0xFFEFD4DE)
+val PastelOnSurfaceVariant = Color(0xFF5C4E56)
+val PastelSurfaceContainerLow = Color(0xFFFFF3F7)
+val PastelSurfaceContainer = Color(0xFFFBE8EF)
+val PastelSurfaceContainerHigh = Color(0xFFF4DCE6)
+val PastelSurfaceContainerHighest = Color(0xFFEBD0DC)
+val PastelSurfaceDim = Color(0xFFE4C9D4)
+val PastelOutline = Color(0xFF8D7582)
+val PastelOutlineVariant = Color(0xFFBE96A6)
+val PastelInverseSurface = Color(0xFF3A2C32)
 
 // Paleta "Alto contraste". Acentos neón sobre negro; los contenedores son
 // lo bastante claros para verse, y el texto que va encima contrasta con ellos.
@@ -107,9 +140,9 @@ val DarkNavInactive = DarkOutline
 val NeonIcon = NeonText
 val NeonNavInactive = NeonOutline
 
-// Colores de soporte comunes
+// Colores de soporte comunes. El error claro lo comparten Juguito y Pastel.
 val ErrorRed = Color(0xFFBA1A1A)
+val LightErrorContainer = Color(0xFFF6D5CE)
+val LightOnErrorContainer = Color(0xFF5C1512)
 val SuccessGreen = Color(0xFF2E7D32)
 val DeepNavy = Color(0xFF1A1C1E)
-val SoftGray = Color(0xFF74777F)
-val SurfaceVariant = Color(0xFFDEE3EB)

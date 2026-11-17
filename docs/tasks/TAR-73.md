@@ -1,6 +1,6 @@
 # TAR-73 — Mejorar menús emergentes de biblioteca, inicio...
 
-- estado: pendiente
+- estado: en curso
 - version: v1.3.1
 - tipo: enhance
 

@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paletas y tipografía — JuguitoReader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f3efe6;
+      --panel: #fffdf8;
+      --ink: #221c16;
+      --muted: #6f675f;
+      --line: #e0d8cc;
+      --serif: "Lora", "Palatino Linotype", Palatino, serif;
+      --sans: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+      --mono: ui-monospace, "Cascadia Code", "Segoe UI Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.5;
+      font-synthesis: none;
+    }
+
+    .wrap {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 72px;
+    }
+
+    header.page h1 {
+      font-family: var(--serif);
+      font-size: 40px;
+      line-height: 1.15;
+      font-weight: 700;
+      margin: 0 0 12px;
+    }
+
+    .lede, .foot, .hint, .warn, .alias, .same, .extra, .ratio, .legend span, .kicker {
+      color: var(--muted);
+    }
+
+    .lede { max-width: 68ch; margin: 0 0 28px; }
+
+    .kicker {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin: 0 0 8px;
+    }
+
+    .tabs {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 10px 0;
+      background: color-mix(in srgb, var(--paper) 92%, transparent);
+      backdrop-filter: blur(10px);
+    }
+
+    .tabs button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font: 600 14px/1 var(--sans);
+      padding: 10px 12px 12px;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+    }
+
+    .tabs button[aria-selected="true"] {
+      color: var(--ink);
+      border-bottom-color: var(--ink);
+    }
+
+    .tabs button:focus-visible,
+    .grounds button:focus-visible,
+    .chip:focus-visible,
+    .ramp-cell:focus-visible,
+    .hex:focus-visible {
+      outline: 2px solid var(--ink);
+      outline-offset: 2px;
+    }
+
+    .panel-head h2 {
+      font-family: var(--serif);
+      font-size: 32px;
+      line-height: 1.2;
+      margin: 8px 0;
+    }
+
+    .scheme {
+      font-family: var(--mono);
+      font-size: 13px;
+      margin: 0 0 20px;
+    }
+
+    .stage-row {
+      display: grid;
+      grid-template-columns: minmax(280px, 420px) 1fr;
+      gap: 28px;
+      align-items: start;
+      margin: 8px 0 36px;
+    }
+
+    .stage {
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(34, 28, 22, 0.16);
+    }
+
+    .stage-bar, .stage-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+    }
+
+    .stage-bar strong {
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .mark {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      box-shadow: inset 0 0 0 1px rgba(34, 28, 22, 0.2);
+    }
+
+    .stage-card {
+      margin: 0 16px 12px;
+      padding: 16px;
+      border-radius: 16px;
+    }
+
+    .stage-card h3 {
+      font-family: var(--serif);
+      font-size: 22px;
+      line-height: 1.25;
+      margin: 0 0 4px;
+    }
+
+    .stage-card p { margin: 0; font-size: 14px; }
+
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .stage-error {
+      margin: 0 16px 8px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .stage-nav { justify-content: space-around; font-size: 12px; font-weight: 600; }
+
+    .legend {
+      list-style: none;
+      margin: 0;
+      padding: 4px 0 0;
+    }
+
+    .legend li {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 4px 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+    }
+
+    .legend i {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      grid-row: span 2;
+      align-self: center;
+      box-shadow: inset 0 0 0 1px rgba(34, 28, 22, 0.18);
+    }
+
+    .legend code, code {
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .legend b { font-weight: 600; color: var(--ink); }
+
+    h3.group {
+      font-family: var(--serif);
+      font-size: 24px;
+      margin: 36px 0 6px;
+    }
+
+    .hint { margin: 0 0 14px; max-width: 72ch; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .chip, .hex, .grounds button, .ramp-cell {
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .chip {
+      display: flex;
+      align-items: flex-end;
+      width: 100%;
+      min-height: 96px;
+      border: 0;
+      padding: 12px;
+      text-align: left;
+      box-shadow: inset 0 0 0 1px rgba(34, 28, 22, 0.16);
+    }
+
+    .chip-hex, .ramp-cell em { font-family: var(--mono); font-style: normal; font-size: 13px; }
+
+    .card-body { padding: 12px 14px 14px; }
+
+    .card-body h3, .family h3 {
+      font-size: 16px;
+      line-height: 1.35;
+      margin: 0;
+    }
+
+    .alias, .same, .extra, .ratio { margin: 6px 0 0; font-size: 13px; }
+
+    .roles { list-style: none; margin: 10px 0 0; padding: 0; }
+
+    .roles li + li { margin-top: 10px; }
+
+    .roles p { margin: 2px 0 0; }
+
+    .ramp {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(168px, 1fr);
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+    }
+
+    .ramp-cell {
+      min-height: 220px;
+      border: 0;
+      border-radius: 14px;
+      padding: 12px;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 6px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14), inset 0 0 0 1px rgba(34, 28, 22, 0.2);
+    }
+
+    .ramp-cell strong { font-size: 13px; line-height: 1.3; }
+    .ramp-cell code { font-size: 11px; color: inherit; opacity: 0.85; }
+    .ramp-cell span { font-size: 12px; line-height: 1.35; }
+
+    .warn {
+      max-width: 78ch;
+      margin: 0 0 8px;
+      padding: 10px 12px;
+      background: var(--panel);
+      border-left: 3px solid #8a5a2a;
+    }
+
+    details.foreign {
+      margin-top: 28px;
+      background: var(--panel);
+      border: 1px dashed #c4b8a8;
+      border-radius: 16px;
+      padding: 12px 16px 16px;
+    }
+
+    details.foreign summary { cursor: pointer; font-weight: 600; }
+    details.foreign .hint { margin-top: 10px; }
+
+    .families {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 8px 0 28px;
+    }
+
+    .family {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px 18px 18px;
+    }
+
+    .family .specimen {
+      margin: 12px 0;
+      font-size: 28px;
+      line-height: 1.25;
+      color: var(--ink);
+    }
+
+    .probeta {
+      border-radius: 20px;
+      padding: 8px 8px 20px;
+      box-shadow: inset 0 0 0 1px rgba(34, 28, 22, 0.14);
+    }
+
+    .grounds { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; }
+
+    .grounds button {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .grounds button[aria-pressed="true"] {
+      background: var(--ink);
+      color: var(--panel);
+      border-color: var(--ink);
+    }
+
+    .type-row {
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      gap: 18px;
+      padding: 16px 12px;
+      border-top: 1px solid rgba(34, 28, 22, 0.12);
+    }
+
+    .type-meta { font-size: 13px; }
+    .type-meta p { margin: 4px 0; }
+    .badge {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(34, 28, 22, 0.08);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .foot {
+      margin-top: 40px;
+      font-size: 13px;
+      max-width: 78ch;
+    }
+
+    @media (max-width: 800px) {
+      .stage-row, .families, .type-row { grid-template-columns: 1fr; }
+      header.page h1 { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="page">
+      <p class="kicker">JuguitoReader · ui/theme</p>
+      <h1>Paletas y tipografía</h1>
+      <p class="lede">Cada pestaña es una paleta: el color, su nombre en código y el rol de <code>colorScheme</code> donde está enganchado. La tipografía es la misma en los cuatro temas. Juguito y Pastel ya asignan los roles que las pantallas leen; los acentos fijos reutilizan colores de la propia paleta para no caer en el baseline morado.</p>
+    </header>
+    <nav class="tabs" role="tablist" aria-label="Paletas" id="tabs"></nav>
+    <main id="panel" role="tabpanel" tabindex="-1"></main>
+    <p class="foot">Foto tomada de <code>Color.kt</code>, <code>Theme.kt</code> y <code>Type.kt</code>, con Material 3 1.4.0. Si cambias un color en el theme, este archivo no se actualiza solo. Los tonos de carpeta no entran: no forman parte del <code>colorScheme</code>. Las fuentes de la muestra llegan de Google Fonts; sin red, el navegador usa un serif y un sans del sistema.</p>
+  </div>
+  <script>
+    const TABS = [
+      ["juguito", "Juguito"],
+      ["pastel", "Pastel"],
+      ["oscuro", "Oscuro"],
+      ["contraste", "Alto contraste"],
+      ["tipo", "Tipografía"],
+      ["comunes", "Comunes"]
+    ];
+
+    const GROUNDS = {
+      paper: { label: "Papel", bg: "#FFFDF8", ink: "#221C16", muted: "#6F675F" },
+      juguito: { label: "Juguito", bg: "#F9F4E8", ink: "#1A1C1E", muted: "#6B5648" },
+      pastel: { label: "Pastel", bg: "#FFF9FB", ink: "#4A444B", muted: "#5C4E56" },
+      oscuro: { label: "Oscuro", bg: "#111316", ink: "#E2E2E6", muted: "#DEC0B7" },
+      contraste: { label: "Alto contraste", bg: "#000000", ink: "#E6E6E6", muted: "#C8C8C8" }
+    };
+
+    const TYPE = [
+      ["displayLarge", "Lora", 700, "Bold", 36, 44, 0, "Hero muy puntual. En la app baja de los 57 sp del baseline a 36, en negrita y con interletraje 0.", "medida propia"],
+      ["displayMedium", "Lora", 400, "Regular", 45, 52, 0, "Segundo display. Conserva la medida de Material; solo cambia la fuente.", "solo la fuente"],
+      ["displaySmall", "Lora", 400, "Regular", 36, 44, 0, "Display pequeño. Mismo cuerpo que nuestro displayLarge, en regular.", "solo la fuente"],
+      ["headlineLarge", "Lora", 400, "Regular", 32, 40, 0, "Título de pantalla grande.", "solo la fuente"],
+      ["headlineMedium", "Lora", 700, "Bold", 28, 36, 0, "Título de pantalla. El tamaño es el de Material; el peso pasa a negrita.", "peso propio"],
+      ["headlineSmall", "Lora", 400, "Regular", 24, 32, 0, "Título de pantalla más corto, en regular.", "solo la fuente"],
+      ["titleLarge", "Lora", 700, "Bold", 24, 32, 0, "Título de barra y de bloque. El baseline es 22 sp regular; aquí es 24 sp negrita. Es el título de trabajo de la app.", "medida propia"],
+      ["titleMedium", "Lora", 500, "Medium", 16, 24, 0.2, "Título de fila o de sección compacta.", "solo la fuente"],
+      ["titleSmall", "Lora", 500, "Medium", 14, 20, 0.1, "Título todavía más compacto.", "solo la fuente"],
+      ["bodyLarge", "Jakarta", 400, "Regular", 16, 24, 0.5, "Párrafo principal y texto de lectura de la interfaz.", "solo la fuente"],
+      ["bodyMedium", "Jakarta", 400, "Regular", 14, 20, 0.25, "Texto de apoyo. El interletraje está en 0.25 sp; el baseline de Material 3 1.4 es 0.2 sp.", "interletraje propio"],
+      ["bodySmall", "Jakarta", 400, "Regular", 12, 16, 0.4, "Metadatos: autor, fecha, pie de una fila.", "solo la fuente"],
+      ["labelLarge", "Jakarta", 500, "Medium", 14, 20, 0.1, "Texto de botón y de pestaña.", "solo la fuente"],
+      ["labelMedium", "Jakarta", 500, "Medium", 12, 16, 0.5, "Chips, etiquetas y captions.", "solo la fuente"],
+      ["labelSmall", "Jakarta", 500, "Medium", 11, 16, 0.5, "La etiqueta más pequeña.", "solo la fuente"]
+    ];
+
+    const PALETTES = {
+      juguito: {
+        theme: "AppTheme.JUGUITO",
+        factory: "lightColorScheme",
+        scheme: "JuguitoColorScheme",
+        lede: "Tema por defecto. Coral, melocotón, arena y crema. El tercer acento es el verde azulado, el mismo papel que el cian tiene en Oscuro.",
+        preview: {
+          bg: "#F9F4E8", ink: "#1A1C1E", card: "#E8CDB6", muted: "#6B5648", border: "#C0AA90",
+          primary: "#FF7F50", onPrimary: "#4A1C00",
+          primaryContainer: "#FFDAB9", onPrimaryContainer: "#8B3A00",
+          secondary: "#FFB347", onSecondary: "#1A1C1E",
+          tertiary: "#1F6F6C", onTertiary: "#FFFFFF",
+          error: "#BA1A1A", icon: "#4B4543", nav: "#8C8176"
+        },
+        legend: [
+          ["Fondo", "background", "JuguitoBackground", "#F9F4E8"],
+          ["Tarjeta", "surfaceVariant", "JuguitoSurfaceVariant", "#E8CDB6"],
+          ["Título", "onSurface", "JuguitoOnBackground", "#1A1C1E"],
+          ["Autor", "onSurfaceVariant", "JuguitoOnSurfaceVariant", "#6B5648"],
+          ["Botón Seguir", "primary / onPrimary", "JuguitoPrimary · JuguitoOnPrimary", "#FF7F50"],
+          ["Botón tonal", "primaryContainer / onPrimaryContainer", "JuguitoPrimaryContainer · JuguitoOnPrimaryContainer", "#FFDAB9"],
+          ["Pastilla secundaria", "secondary / onSecondary", "JuguitoSecondary · JuguitoOnBackground", "#FFB347"],
+          ["Pastilla terciaria", "tertiary / onTertiary", "JuguitoTertiary · Color.White", "#1F6F6C"],
+          ["Aviso", "error", "ErrorRed", "#BA1A1A"],
+          ["Borde de la tarjeta", "outlineVariant", "JuguitoOutlineVariant", "#C0AA90"],
+          ["Icono de la top bar", "chromeIconColor()", "JuguitoIcon", "#4B4543"],
+          ["Destino inactivo", "chromeNavInactiveColor()", "JuguitoNavInactive", "#8C8176"],
+          ["Destino activo", "primary", "JuguitoPrimary", "#FF7F50"]
+        ],
+        groups: [
+          {
+            title: "Principal",
+            hint: "El acento de máxima énfasis y su versión suave.",
+            items: [
+              { name: "JuguitoPrimary", alias: "Coral vibrante", hex: "#FF7F50", roles: [
+                { role: "primary", use: "Botón principal, interruptor activo, indicador seleccionado, progreso y acento del lector. El destino activo de la barra inferior también usa primary." },
+                { role: "inversePrimary", use: "El mismo coral como acento sobre el snackbar." },
+                { role: "surfaceTint", use: "Tinte de elevación. Así un componente elevado no vuelve al morado del baseline." },
+                { role: "primaryFixedDim", use: "Versión atenuada del primario fijo." }
+              ]},
+              { name: "JuguitoOnPrimary", hex: "#4A1C00", roles: [
+                { role: "onPrimary", use: "Texto e icono encima de primary: botón, barra del lector y thumb del switch. El blanco sobre este coral se quedaba en 2.5:1.", against: "#FF7F50", againstName: "primary" },
+                { role: "onPrimaryFixed", use: "El mismo marrón cuando el rol fijo pide tinta sobre el melocotón." }
+              ]},
+              { name: "JuguitoPrimaryContainer", alias: "Melocotón suave", hex: "#FFDAB9", roles: [
+                { role: "primaryContainer", use: "Relleno de menor énfasis: botón tonal, chip seleccionado, bloque destacado y el fondo del icono en algunos diálogos." },
+                { role: "primaryFixed", use: "El mismo melocotón cuando un componente pide el primario fijo." }
+              ]},
+              { name: "JuguitoOnPrimaryContainer", hex: "#8B3A00", roles: [
+                { role: "onPrimaryContainer", use: "Texto e iconos encima de primaryContainer.", against: "#FFDAB9", againstName: "primaryContainer" },
+                { role: "onPrimaryFixedVariant", use: "Tinta de menor énfasis sobre el primario fijo." },
+                { role: "onSecondaryFixedVariant", use: "La misma tinta sobre el oro fijo." }
+              ]}
+            ]
+          },
+          {
+            title: "Secundario",
+            hint: "El contenedor es oro claro, para que la tarjeta de estadísticas no se confunda con el melocotón.",
+            items: [
+              { name: "JuguitoSecondary", alias: "Naranja pastel", hex: "#FFB347", extra: "Además es el marcador ámbar (BookmarkColor.AMBER), fuera del scheme.", roles: [
+                { role: "secondary", use: "Acento por debajo del coral: badges, botón secundario y pastillas de apoyo." },
+                { role: "secondaryFixedDim", use: "Versión atenuada del secundario fijo. Mismo val." }
+              ]},
+              { name: "JuguitoSecondaryContainer", hex: "#FFE3A6", roles: [
+                { role: "secondaryContainer", use: "Fondo de la tarjeta secundaria de estadísticas y de los selectores suaves." },
+                { role: "secondaryFixed", use: "El mismo oro cuando un componente pide secondaryFixed." }
+              ]},
+              { name: "JuguitoOnSecondaryContainer", hex: "#4A2C00", roles: [
+                { role: "onSecondaryContainer", use: "Texto encima del oro.", against: "#FFE3A6", againstName: "secondaryContainer" },
+                { role: "onSecondaryFixed", use: "La misma tinta sobre secondaryFixed." }
+              ]},
+              { name: "JuguitoOnBackground", hex: "#1A1C1E", roles: [
+                { role: "onSecondary", use: "Texto e iconos encima de secondary.", against: "#FFB347", againstName: "secondary" },
+                { role: "onBackground", use: "Texto e iconos sobre el fondo de la pantalla.", against: "#F9F4E8", againstName: "background" },
+                { role: "onSurface", use: "Títulos y texto principal sobre surface. Aquí surface y background son el mismo crema.", against: "#F9F4E8", againstName: "surface" }
+              ]}
+            ]
+          },
+          {
+            title: "Fondo y superficie",
+            hint: "El crema sigue siendo fondo y surface. La arena de surfaceVariant sustituye al gris frío #DEE3EB, que era el neutro básico y no pertenecía a la paleta.",
+            items: [
+              { name: "JuguitoBackground", alias: "Sepia, crema cálido", hex: "#F9F4E8", roles: [
+                { role: "background", use: "Fondo de la app, el Surface raíz de JuguitoApp." },
+                { role: "surface", use: "Diálogos, drawer del lector y hojas. Mismo hex que el fondo." },
+                { role: "inverseOnSurface", use: "Texto del snackbar, sobre el marrón oscuro." }
+              ]},
+              { name: "JuguitoSurfaceVariant", alias: "Arena", hex: "#E8CDB6", roles: [
+                { role: "surfaceVariant", use: "Campos, celdas y bloques que tienen que separarse del crema sin volverse melocotón." }
+              ]},
+              { name: "JuguitoOnSurfaceVariant", hex: "#6B5648", roles: [
+                { role: "onSurfaceVariant", use: "Texto secundario, autor, fechas, placeholders e iconos de menor énfasis.", against: "#F9F4E8", againstName: "background" }
+              ]},
+              { name: "JuguitoSurfaceDim", hex: "#D4C6B0", roles: [
+                { role: "surfaceDim", use: "Extremo más oscuro de la escala de superficie." }
+              ]}
+            ]
+          },
+          {
+            title: "Escala de contenedores",
+            hint: "De más claro a más cálido. surfaceContainerHigh es la tarjeta de libro y el menú del marcador. surfaceContainerLowest es la tarjeta del marcador.",
+            layout: "ramp",
+            items: [
+              { name: "JuguitoSurfaceContainerLowest", hex: "#FFFCF6", roles: [
+                { role: "surfaceContainerLowest", use: "Tarjeta de cada marcador. También surfaceBright." },
+                { role: "surfaceBright", use: "Extremo claro de la escala." }
+              ]},
+              { name: "JuguitoSurfaceContainerLow", hex: "#F6F0E4", roles: [
+                { role: "surfaceContainerLow", use: "Peldaño bajo, por si un componente lo pide." }
+              ]},
+              { name: "JuguitoSurfaceContainer", hex: "#EFE6D6", roles: [
+                { role: "surfaceContainer", use: "Peldaño medio." }
+              ]},
+              { name: "JuguitoSurfaceContainerHigh", hex: "#E6DCC8", roles: [
+                { role: "surfaceContainerHigh", use: "Tarjetas de libro, lomo de carpeta y menú del marcador." }
+              ]},
+              { name: "JuguitoSurfaceContainerHighest", hex: "#DDD1BA", roles: [
+                { role: "surfaceContainerHighest", use: "Peldaño más alto de la escala." }
+              ]}
+            ]
+          },
+          {
+            title: "Terciario",
+            hint: "Verde azulado para la tercera tarjeta de estadísticas. En Oscuro ese papel lo hace el cian, así el tercer acento no se mezcla con el coral ni con el ámbar.",
+            items: [
+              { name: "JuguitoTertiary", hex: "#1F6F6C", roles: [
+                { role: "tertiary", use: "Acento suelto del tercer color." }
+              ]},
+              { name: "Color.White", alias: "Blanco", hex: "#FFFFFF", roles: [
+                { role: "onTertiary", use: "Texto encima del verde azulado.", against: "#1F6F6C", againstName: "tertiary" },
+                { role: "onError", use: "Texto del botón de error.", against: "#BA1A1A", againstName: "error" }
+              ]},
+              { name: "JuguitoTertiaryContainer", hex: "#D7EEEC", roles: [
+                { role: "tertiaryContainer", use: "Tarjeta terciaria de estadísticas y pastilla de algunos libros en cuadrícula." },
+                { role: "tertiaryFixed", use: "El mismo verde pálido como terciario fijo." }
+              ]},
+              { name: "JuguitoOnTertiaryContainer", hex: "#0E3F3C", roles: [
+                { role: "onTertiaryContainer", use: "Texto encima del contenedor.", against: "#D7EEEC", againstName: "tertiaryContainer" },
+                { role: "onTertiaryFixed", use: "Tinta de los roles fijos terciarios." },
+                { role: "onTertiaryFixedVariant", use: "La misma tinta. Un verde intermedio no llegaba a AA sobre tertiaryFixedDim." }
+              ]},
+              { name: "JuguitoTertiaryDim", hex: "#8FCFCB", roles: [
+                { role: "tertiaryFixedDim", use: "Versión un poco más intensa del verde fijo, todavía clara." }
+              ]}
+            ]
+          },
+          {
+            title: "Error",
+            items: [
+              { name: "ErrorRed", alias: "Constante compartida", hex: "#BA1A1A", roles: [
+                { role: "error", use: "Mensajes de error y acciones destructivas.", against: "#F9F4E8", againstName: "background" }
+              ]},
+              { name: "LightErrorContainer", alias: "Compartido con Pastel", hex: "#F6D5CE", roles: [
+                { role: "errorContainer", use: "Fondo de error en diálogos y en estadísticas." }
+              ]},
+              { name: "LightOnErrorContainer", alias: "Compartido con Pastel", hex: "#5C1512", roles: [
+                { role: "onErrorContainer", use: "Texto encima de errorContainer.", against: "#F6D5CE", againstName: "errorContainer" }
+              ]}
+            ]
+          },
+          {
+            title: "Bordes e inverso",
+            items: [
+              { name: "JuguitoOutline", hex: "#7A6456", roles: [
+                { role: "outline", use: "Borde con énfasis y anillo cuando un marcador no trae color." }
+              ]},
+              { name: "JuguitoOutlineVariant", hex: "#C0AA90", roles: [
+                { role: "outlineVariant", use: "Divisores de listas, ajustes, ficha, registro y top bar." }
+              ]},
+              { name: "JuguitoInverseSurface", hex: "#2C241C", roles: [
+                { role: "inverseSurface", use: "Fondo del snackbar. Marrón oscuro, de la misma familia que el crema." }
+              ]}
+            ]
+          },
+          {
+            title: "Cromo de las barras",
+            hint: "No son roles de colorScheme. chromeIconColor() y chromeNavInactiveColor() eligen el color comparando el hex de background. Juguito es la rama else: cualquier fondo que no sea Pastel, Oscuro o Alto contraste cae aquí.",
+            items: [
+              { name: "JuguitoIcon", hex: "#4B4543", roles: [
+                { role: "chromeIconColor()", use: "Icono de navegación y acciones de la top bar, y un icono de la ficha del libro." }
+              ]},
+              { name: "JuguitoNavInactive", hex: "#8C8176", roles: [
+                { role: "chromeNavInactiveColor()", use: "Icono y texto del destino no seleccionado en la barra inferior. El destino seleccionado es primary." }
+              ]}
+            ]
+          }
+        ]
+      },
+      pastel: {
+        theme: "AppTheme.PASTEL",
+        factory: "lightColorScheme",
+        scheme: "PastelColorScheme",
+        lede: "Tema claro rosado. El scheme ya tiene contenedores, bordes, snackbar y el coral como terciario de verdad, no el rosa del baseline.",
+        preview: {
+          bg: "#FFF9FB", ink: "#4A444B", card: "#EFD4DE", muted: "#5C4E56", border: "#BE96A6",
+          primary: "#F48FB1", onPrimary: "#4A2434",
+          primaryContainer: "#FCE4EC", onPrimaryContainer: "#4A444B",
+          secondary: "#CE93D8", onSecondary: "#3E2A44",
+          tertiary: "#FFAB91", onTertiary: "#6A3A2E",
+          error: "#BA1A1A", icon: "#4A444B", nav: "#9A8B93"
+        },
+        legend: [
+          ["Fondo", "background", "PastelBackground", "#FFF9FB"],
+          ["Tarjeta", "surfaceVariant", "PastelSurfaceVariant", "#EFD4DE"],
+          ["Título", "onSurface", "PastelText", "#4A444B"],
+          ["Autor", "onSurfaceVariant", "PastelOnSurfaceVariant", "#5C4E56"],
+          ["Botón Seguir", "primary / onPrimary", "PastelPink · PastelOnPrimary", "#F48FB1"],
+          ["Botón tonal", "primaryContainer / onPrimaryContainer", "PastelPinkContainer · PastelText", "#FCE4EC"],
+          ["Pastilla secundaria", "secondary / onSecondary", "PastelPurple · PastelOnSecondary", "#CE93D8"],
+          ["Pastilla terciaria", "tertiary / onTertiary", "PastelCoral · PastelOnTertiary", "#FFAB91"],
+          ["Aviso", "error", "ErrorRed", "#BA1A1A"],
+          ["Borde de la tarjeta", "outlineVariant", "PastelOutlineVariant", "#BE96A6"],
+          ["Icono de la top bar", "chromeIconColor()", "PastelIcon", "#4A444B"],
+          ["Destino inactivo", "chromeNavInactiveColor()", "PastelNavInactive", "#9A8B93"]
+        ],
+        groups: [
+          {
+            title: "Principal",
+            items: [
+              { name: "PastelPink", alias: "Rosa pastel", hex: "#F48FB1", extra: "Además es el marcador rosa (BookmarkColor.PINK).", roles: [
+                { role: "primary", use: "Botón principal, control activo y destino seleccionado de la barra." }
+              ]},
+              { name: "PastelOnPrimary", hex: "#4A2434", roles: [
+                { role: "onPrimary", use: "Texto e icono encima del rosa. El blanco se quedaba en 2.2:1.", against: "#F48FB1", againstName: "primary" },
+                { role: "onPrimaryFixed", use: "La misma tinta sobre el rosa fijo." }
+              ]},
+              { name: "PastelOnSecondary", hex: "#3E2A44", roles: [
+                { role: "onSecondary", use: "Texto e icono encima del lavanda. El blanco se quedaba en 2.4:1.", against: "#CE93D8", againstName: "secondary" },
+                { role: "onSecondaryFixedVariant", use: "Tinta de menor énfasis del secundario fijo." }
+              ]},
+              { name: "PastelPinkContainer", hex: "#FCE4EC", roles: [
+                { role: "primaryContainer", use: "Relleno suave del rosa: botón tonal, chip seleccionado, bloque destacado." }
+              ]}
+            ]
+          },
+          {
+            title: "Secundario",
+            hint: "Aquí sí hay contenedor. El texto del contenedor es PastelText, no un morado oscuro propio.",
+            items: [
+              { name: "PastelPurple", alias: "Morado, lavanda", hex: "#CE93D8", extra: "Además es el marcador lila (BookmarkColor.LILAC).", roles: [
+                { role: "secondary", use: "Segundo acento: badges y acciones secundarias." }
+              ]},
+              { name: "PastelPurpleContainer", hex: "#F3E5F5", roles: [
+                { role: "secondaryContainer", use: "Fondo del segundo acento: tarjeta de estadísticas y selectores suaves." }
+              ]}
+            ]
+          },
+          {
+            title: "Terciario",
+            hint: "El coral ya tiene contenedor propio. La tarjeta terciaria de estadísticas usa ese melocotón, no el rosa del baseline.",
+            items: [
+              { name: "PastelCoral", alias: "Coral pastel", hex: "#FFAB91", roles: [
+                { role: "tertiary", use: "Tercer acento, para separar un dato del rosa y del lavanda." },
+                { role: "tertiaryFixedDim", use: "Versión atenuada del terciario fijo. Mismo val." }
+              ]},
+              { name: "PastelOnTertiary", hex: "#6A3A2E", roles: [
+                { role: "onTertiary", use: "Texto encima del coral.", against: "#FFAB91", againstName: "tertiary" },
+                { role: "onTertiaryFixedVariant", use: "Tinta de menor énfasis sobre el coral fijo." }
+              ]},
+              { name: "PastelTertiaryContainer", hex: "#FFD8CC", roles: [
+                { role: "tertiaryContainer", use: "Tarjeta terciaria de estadísticas y pastilla de la cuadrícula." },
+                { role: "tertiaryFixed", use: "El mismo melocotón como terciario fijo." }
+              ]},
+              { name: "PastelOnTertiaryContainer", hex: "#5C2E24", roles: [
+                { role: "onTertiaryContainer", use: "Texto encima del contenedor coral.", against: "#FFD8CC", againstName: "tertiaryContainer" },
+                { role: "onTertiaryFixed", use: "La misma tinta sobre tertiaryFixed." }
+              ]}
+            ]
+          },
+          {
+            title: "Texto",
+            items: [
+              { name: "PastelText", hex: "#4A444B", roles: [
+                { role: "onPrimaryContainer", use: "Texto sobre el contenedor rosa.", against: "#FCE4EC", againstName: "primaryContainer" },
+                { role: "onSecondaryContainer", use: "Texto sobre el contenedor lavanda.", against: "#F3E5F5", againstName: "secondaryContainer" },
+                { role: "onBackground", use: "Texto sobre el fondo rosado.", against: "#FFF9FB", againstName: "background" },
+                { role: "onSurface", use: "Títulos y texto principal. surface y background comparten hex.", against: "#FFF9FB", againstName: "surface" }
+              ]},
+              { name: "PastelOnSurfaceVariant", hex: "#5C4E56", roles: [
+                { role: "onSurfaceVariant", use: "Metadatos, placeholders e iconos de apoyo. Malva oscuro, en la familia del texto.", against: "#FFF9FB", againstName: "background" }
+              ]}
+            ]
+          },
+          {
+            title: "Fondo y superficie",
+            items: [
+              { name: "PastelBackground", alias: "Blanco rosado", hex: "#FFF9FB", roles: [
+                { role: "background", use: "Fondo de la pantalla." },
+                { role: "surface", use: "Diálogos, drawer y hojas. Mismo hex que el fondo." },
+                { role: "inverseOnSurface", use: "Texto del snackbar." }
+              ]},
+              { name: "PastelSurfaceVariant", alias: "Rubor", hex: "#EFD4DE", roles: [
+                { role: "surfaceVariant", use: "Campos y bloques de apoyo. Sustituye al lavanda al 50 %, que casi no se veía." }
+              ]},
+              { name: "Color.White", alias: "Blanco", hex: "#FFFFFF", roles: [
+                { role: "surfaceContainerLowest", use: "Tarjeta de cada marcador." },
+                { role: "surfaceBright", use: "Extremo claro de la escala." },
+                { role: "onError", use: "Texto del botón de error.", against: "#BA1A1A", againstName: "error" }
+              ]},
+              { name: "PastelSurfaceDim", hex: "#E4C9D4", roles: [
+                { role: "surfaceDim", use: "Extremo más oscuro de la escala." }
+              ]}
+            ]
+          },
+          {
+            title: "Error, bordes e inverso",
+            items: [
+              { name: "ErrorRed", alias: "Constante compartida", hex: "#BA1A1A", roles: [
+                { role: "error", use: "Mensajes y acciones destructivas.", against: "#FFF9FB", againstName: "background" }
+              ]},
+              { name: "LightErrorContainer", alias: "Compartido con Juguito", hex: "#F6D5CE", roles: [
+                { role: "errorContainer", use: "Fondo de error en diálogos y estadísticas." }
+              ]},
+              { name: "LightOnErrorContainer", alias: "Compartido con Juguito", hex: "#5C1512", roles: [
+                { role: "onErrorContainer", use: "Texto encima de errorContainer.", against: "#F6D5CE", againstName: "errorContainer" }
+              ]},
+              { name: "PastelOutline", hex: "#8D7582", roles: [
+                { role: "outline", use: "Bordes con énfasis y anillos." }
+              ]},
+              { name: "PastelOutlineVariant", hex: "#BE96A6", roles: [
+                { role: "outlineVariant", use: "Divisores. Malva, no el gris lavanda del baseline." }
+              ]},
+              { name: "PastelInverseSurface", hex: "#3A2C32", roles: [
+                { role: "inverseSurface", use: "Fondo del snackbar, ciruela oscura." }
+              ]}
+            ]
+          },
+          {
+            title: "Escala de contenedores",
+            hint: "surfaceContainerHigh es la tarjeta de libro. El peldaño más claro es blanco y vive en la ficha de fondo.",
+            layout: "ramp",
+            items: [
+              { name: "PastelSurfaceContainerLow", hex: "#FFF3F7", roles: [
+                { role: "surfaceContainerLow", use: "Primer rosa sobre el fondo." }
+              ]},
+              { name: "PastelSurfaceContainer", hex: "#FBE8EF", roles: [
+                { role: "surfaceContainer", use: "Peldaño medio." }
+              ]},
+              { name: "PastelSurfaceContainerHigh", hex: "#F4DCE6", roles: [
+                { role: "surfaceContainerHigh", use: "Tarjetas de libro, lomo de carpeta y menú del marcador." }
+              ]},
+              { name: "PastelSurfaceContainerHighest", hex: "#EBD0DC", roles: [
+                { role: "surfaceContainerHighest", use: "Peldaño más alto." }
+              ]}
+            ]
+          },
+          {
+            title: "Cromo de las barras",
+            hint: "Se elige porque background es PastelBackground. PastelIcon y PastelText son el mismo hex, con dos nombres.",
+            items: [
+              { name: "PastelIcon", hex: "#4A444B", same: "Mismo hex que PastelText.", roles: [
+                { role: "chromeIconColor()", use: "Iconos de la top bar." }
+              ]},
+              { name: "PastelNavInactive", hex: "#9A8B93", roles: [
+                { role: "chromeNavInactiveColor()", use: "Destino no seleccionado de la barra inferior." }
+              ]}
+            ]
+          }
+        ]
+      },
+      oscuro: {
+        theme: "AppTheme.DARK",
+        factory: "darkColorScheme",
+        scheme: "ClassicDarkColorScheme",
+        lede: "Classic Dark, la noche editorial cálida. Este scheme sí está rellenado: acentos, superficies, error, bordes, inversos y roles fixed. Cubre todos los roles que las pantallas leen hoy.",
+        preview: {
+          bg: "#111316", ink: "#E2E2E6", card: "#282A2D", muted: "#DEC0B7", border: "#57423B",
+          primary: "#FFB59C", onPrimary: "#5C1900",
+          primaryContainer: "#E36F46", onPrimaryContainer: "#511500",
+          secondary: "#FFB95F", onSecondary: "#472A00",
+          tertiary: "#61D7E0", onTertiary: "#00373A",
+          error: "#FFB4AB", icon: "#E2E2E6", nav: "#A58B83"
+        },
+        legend: [
+          ["Fondo", "background", "DarkBackground", "#111316"],
+          ["Tarjeta", "surfaceContainerHigh", "DarkSurfaceContainerHigh", "#282A2D"],
+          ["Título", "onSurface", "DarkOnSurface", "#E2E2E6"],
+          ["Autor", "onSurfaceVariant", "DarkOnSurfaceVariant", "#DEC0B7"],
+          ["Botón Seguir", "primary / onPrimary", "DarkPrimary · DarkOnPrimary", "#FFB59C"],
+          ["Botón tonal", "primaryContainer / onPrimaryContainer", "DarkPrimaryContainer · DarkOnPrimaryContainer", "#E36F46"],
+          ["Pastilla secundaria", "secondary / onSecondary", "DarkSecondary · DarkOnSecondary", "#FFB95F"],
+          ["Pastilla terciaria", "tertiary / onTertiary", "DarkTertiary · DarkOnTertiary", "#61D7E0"],
+          ["Aviso", "error", "DarkError", "#FFB4AB"],
+          ["Borde de la tarjeta", "outlineVariant", "DarkOutlineVariant", "#57423B"],
+          ["Icono de la top bar", "chromeIconColor()", "DarkIcon", "#E2E2E6"],
+          ["Destino inactivo", "chromeNavInactiveColor()", "DarkNavInactive", "#A58B83"]
+        ],
+        groups: [
+          {
+            title: "Principal",
+            items: [
+              { name: "DarkPrimary", hex: "#FFB59C", roles: [
+                { role: "primary", use: "Botón principal, control activo y destino seleccionado." }
+              ]},
+              { name: "DarkOnPrimary", hex: "#5C1900", roles: [
+                { role: "onPrimary", use: "Texto e icono encima de primary.", against: "#FFB59C", againstName: "primary" }
+              ]},
+              { name: "DarkPrimaryContainer", hex: "#E36F46", roles: [
+                { role: "primaryContainer", use: "Relleno de menor énfasis del coral oscuro." }
+              ]},
+              { name: "DarkOnPrimaryContainer", hex: "#511500", roles: [
+                { role: "onPrimaryContainer", use: "Texto e icono encima de primaryContainer.", against: "#E36F46", againstName: "primaryContainer" }
+              ]},
+              { name: "DarkInversePrimary", hex: "#A23F1A", roles: [
+                { role: "inversePrimary", use: "Acento pensado para ir sobre inverseSurface. Las snackbars de la app pintan la acción con primary, así que este rol está definido y hoy no se lee." }
+              ]},
+              { name: "DarkSurfaceTint", hex: "#FFB59C", same: "Mismo hex que DarkPrimary.", roles: [
+                { role: "surfaceTint", use: "Tinte de elevación de Material. Definido, y ninguna pantalla lo lee directo." }
+              ]}
+            ]
+          },
+          {
+            title: "Secundario",
+            items: [
+              { name: "DarkSecondary", hex: "#FFB95F", roles: [
+                { role: "secondary", use: "Segundo acento, ámbar." }
+              ]},
+              { name: "DarkOnSecondary", hex: "#472A00", roles: [
+                { role: "onSecondary", use: "Texto encima de secondary.", against: "#FFB95F", againstName: "secondary" }
+              ]},
+              { name: "DarkSecondaryContainer", hex: "#EE9800", roles: [
+                { role: "secondaryContainer", use: "Contenedor del ámbar: tarjeta de estadísticas y fondos de selectores." }
+              ]},
+              { name: "DarkOnSecondaryContainer", hex: "#5B3800", roles: [
+                { role: "onSecondaryContainer", use: "Texto encima de secondaryContainer.", against: "#EE9800", againstName: "secondaryContainer" }
+              ]}
+            ]
+          },
+          {
+            title: "Terciario",
+            hint: "Las pantallas leen sobre todo tertiaryContainer. El rol tertiary está asignado por si un componente pide el acento suelto.",
+            items: [
+              { name: "DarkTertiary", hex: "#61D7E0", roles: [
+                { role: "tertiary", use: "Tercer acento, cian, para separarlo del coral y del ámbar." }
+              ]},
+              { name: "DarkOnTertiary", hex: "#00373A", roles: [
+                { role: "onTertiary", use: "Texto encima de tertiary.", against: "#61D7E0", againstName: "tertiary" }
+              ]},
+              { name: "DarkTertiaryContainer", hex: "#0AA0A8", roles: [
+                { role: "tertiaryContainer", use: "Tarjeta terciaria de estadísticas y pastilla de algunos libros en cuadrícula." }
+              ]},
+              { name: "DarkOnTertiaryContainer", hex: "#002F32", roles: [
+                { role: "onTertiaryContainer", use: "Texto encima de tertiaryContainer.", against: "#0AA0A8", againstName: "tertiaryContainer" }
+              ]}
+            ]
+          },
+          {
+            title: "Error",
+            hint: "Alto contraste reutiliza estos cuatro vals. No tiene error propio.",
+            items: [
+              { name: "DarkError", hex: "#FFB4AB", roles: [
+                { role: "error", use: "Mensajes y acciones destructivas sobre el fondo oscuro.", against: "#111316", againstName: "background" }
+              ]},
+              { name: "DarkOnError", hex: "#690005", roles: [
+                { role: "onError", use: "Texto del botón de error.", against: "#FFB4AB", againstName: "error" }
+              ]},
+              { name: "DarkErrorContainer", hex: "#93000A", roles: [
+                { role: "errorContainer", use: "Fondo de error en diálogos y estadísticas." }
+              ]},
+              { name: "DarkOnErrorContainer", hex: "#FFDAD6", roles: [
+                { role: "onErrorContainer", use: "Texto encima de errorContainer.", against: "#93000A", againstName: "errorContainer" }
+              ]}
+            ]
+          },
+          {
+            title: "Fondo y tinta",
+            items: [
+              { name: "DarkBackground", also: ["DarkSurface", "DarkSurfaceDim"], hex: "#111316", roles: [
+                { role: "background", use: "Fondo de la pantalla." },
+                { role: "surface", use: "Diálogos, drawer y hojas. Mismo hex que el fondo: la separación la dan los contenedores." },
+                { role: "surfaceDim", use: "Extremo oscuro de la escala de superficie. Aquí coincide con el fondo." }
+              ]},
+              { name: "DarkOnSurface", hex: "#E2E2E6", roles: [
+                { role: "onSurface", use: "Títulos y texto principal.", against: "#111316", againstName: "surface" },
+                { role: "onBackground", use: "El mismo texto cuando se apoya en background.", against: "#111316", againstName: "background" }
+              ]},
+              { name: "DarkOnSurfaceVariant", hex: "#DEC0B7", roles: [
+                { role: "onSurfaceVariant", use: "Metadatos e iconos de apoyo. Es un gris cálido, no un gris neutro.", against: "#111316", againstName: "surface" }
+              ]},
+              { name: "DarkSurfaceVariant", hex: "#333538", same: "Mismo hex que DarkSurfaceContainerHighest.", roles: [
+                { role: "surfaceVariant", use: "Campos y superficies de apoyo." }
+              ]},
+              { name: "DarkSurfaceBright", hex: "#37393D", roles: [
+                { role: "surfaceBright", use: "Extremo claro de la escala. Un paso por encima del contenedor más alto." }
+              ]}
+            ]
+          },
+          {
+            title: "Escala de contenedores",
+            hint: "De más hundido a más alto. Las pantallas piden surfaceContainerHigh y surfaceContainerLowest. Los peldaños low y container están definidos y hoy no se leen.",
+            layout: "ramp",
+            items: [
+              { name: "DarkSurfaceContainerLowest", hex: "#0C0E11", roles: [
+                { role: "surfaceContainerLowest", use: "Tarjeta de cada marcador. Un pelín más oscura que el fondo." }
+              ]},
+              { name: "DarkSurfaceContainerLow", hex: "#1A1C1F", roles: [
+                { role: "surfaceContainerLow", use: "Peldaño bajo. Definido, sin lecturas en pantallas." }
+              ]},
+              { name: "DarkSurfaceContainer", hex: "#1E2023", roles: [
+                { role: "surfaceContainer", use: "Peldaño medio. Definido, sin lecturas directas." }
+              ]},
+              { name: "DarkSurfaceContainerHigh", hex: "#282A2D", roles: [
+                { role: "surfaceContainerHigh", use: "Tarjetas de libro, lomo de carpeta y menú del marcador." }
+              ]},
+              { name: "DarkSurfaceContainerHighest", hex: "#333538", roles: [
+                { role: "surfaceContainerHighest", use: "Peldaño más alto. Mismo hex que surfaceVariant." }
+              ]}
+            ]
+          },
+          {
+            title: "Bordes",
+            items: [
+              { name: "DarkOutline", hex: "#A58B83", roles: [
+                { role: "outline", use: "Bordes con énfasis y anillos." }
+              ]},
+              { name: "DarkOutlineVariant", hex: "#57423B", roles: [
+                { role: "outlineVariant", use: "Divisores de listas, ajustes, ficha, registro y top bar." }
+              ]}
+            ]
+          },
+          {
+            title: "Inverso",
+            hint: "El snackbar. inverseSurface comparte hex con la tinta, así que la barra se lee como una pastilla clara sobre la noche.",
+            items: [
+              { name: "DarkInverseSurface", hex: "#E2E2E6", same: "Mismo hex que DarkOnSurface.", roles: [
+                { role: "inverseSurface", use: "Fondo del snackbar." }
+              ]},
+              { name: "DarkInverseOnSurface", hex: "#2F3034", roles: [
+                { role: "inverseOnSurface", use: "Texto del snackbar.", against: "#E2E2E6", againstName: "inverseSurface" }
+              ]}
+            ]
+          },
+          {
+            title: "Acentos fijos",
+            hint: "Pensados para verse igual si el componente no cambia entre claro y oscuro. Ninguna pantalla los lee ahora. primaryFixedDim, secondaryFixedDim y tertiaryFixedDim repiten el hex del acento suelto.",
+            items: [
+              { name: "DarkPrimaryFixed", hex: "#FFDBCF", roles: [{ role: "primaryFixed", use: "Versión clara del primario." }]},
+              { name: "DarkPrimaryFixedDim", hex: "#FFB59C", same: "Mismo hex que DarkPrimary.", roles: [{ role: "primaryFixedDim", use: "Versión atenuada de primaryFixed." }]},
+              { name: "DarkOnPrimaryFixed", hex: "#390C00", roles: [{ role: "onPrimaryFixed", use: "Texto sobre primaryFixed.", against: "#FFDBCF", againstName: "primaryFixed" }]},
+              { name: "DarkOnPrimaryFixedVariant", hex: "#812803", roles: [{ role: "onPrimaryFixedVariant", use: "Texto de menor énfasis sobre primaryFixed.", against: "#FFDBCF", againstName: "primaryFixed" }]},
+              { name: "DarkSecondaryFixed", hex: "#FFDDB8", roles: [{ role: "secondaryFixed", use: "Versión clara del secundario." }]},
+              { name: "DarkSecondaryFixedDim", hex: "#FFB95F", same: "Mismo hex que DarkSecondary.", roles: [{ role: "secondaryFixedDim", use: "Versión atenuada de secondaryFixed." }]},
+              { name: "DarkOnSecondaryFixed", hex: "#2A1700", roles: [{ role: "onSecondaryFixed", use: "Texto sobre secondaryFixed.", against: "#FFDDB8", againstName: "secondaryFixed" }]},
+              { name: "DarkOnSecondaryFixedVariant", hex: "#653E00", roles: [{ role: "onSecondaryFixedVariant", use: "Texto de menor énfasis sobre secondaryFixed.", against: "#FFDDB8", againstName: "secondaryFixed" }]},
+              { name: "DarkTertiaryFixed", hex: "#80F4FC", roles: [{ role: "tertiaryFixed", use: "Versión clara del terciario." }]},
+              { name: "DarkTertiaryFixedDim", hex: "#61D7E0", same: "Mismo hex que DarkTertiary.", roles: [{ role: "tertiaryFixedDim", use: "Versión atenuada de tertiaryFixed." }]},
+              { name: "DarkOnTertiaryFixed", hex: "#002022", roles: [{ role: "onTertiaryFixed", use: "Texto sobre tertiaryFixed.", against: "#80F4FC", againstName: "tertiaryFixed" }]},
+              { name: "DarkOnTertiaryFixedVariant", hex: "#004F53", roles: [{ role: "onTertiaryFixedVariant", use: "Texto de menor énfasis sobre tertiaryFixed.", against: "#80F4FC", againstName: "tertiaryFixed" }]}
+            ]
+          },
+          {
+            title: "Cromo de las barras",
+            hint: "Alias, no colores nuevos. Se eligen porque background es DarkBackground.",
+            items: [
+              { name: "DarkIcon", hex: "#E2E2E6", same: "Apunta a DarkOnSurface.", roles: [
+                { role: "chromeIconColor()", use: "Iconos de la top bar." }
+              ]},
+              { name: "DarkNavInactive", hex: "#A58B83", same: "Apunta a DarkOutline.", roles: [
+                { role: "chromeNavInactiveColor()", use: "Destino no seleccionado de la barra inferior." }
+              ]}
+            ]
+          }
+        ]
+      },
+      contraste: {
+        theme: "AppTheme.HIGH_CONTRAST",
+        factory: "darkColorScheme",
+        scheme: "HighContrastDarkColorScheme",
+        lede: "Acentos neón sobre negro. El error no tiene vals propios: el scheme reutiliza DarkError y los tres compañeros de Oscuro.",
+        note: "Los roles fixed e inversePrimary no están asignados. Ninguna pantalla los lee. Si un componente los pidiera, saldrían del baseline oscuro: lavanda claro sobre este negro.",
+        preview: {
+          bg: "#000000", ink: "#E6E6E6", card: "#242424", muted: "#C8C8C8", border: "#5C5C5C",
+          primary: "#65AFFF", onPrimary: "#003258",
+          primaryContainer: "#1565C0", onPrimaryContainer: "#FFFFFF",
+          secondary: "#9C6DCE", onSecondary: "#381563",
+          tertiary: "#F56476", onTertiary: "#410015",
+          error: "#FFB4AB", icon: "#E6E6E6", nav: "#BDBDBD"
+        },
+        legend: [
+          ["Fondo", "background", "NeonBackground", "#000000"],
+          ["Tarjeta", "surfaceContainerHigh", "NeonSurfaceContainerHigh", "#242424"],
+          ["Título", "onSurface", "NeonText", "#E6E6E6"],
+          ["Autor", "onSurfaceVariant", "NeonOnSurfaceVariant", "#C8C8C8"],
+          ["Botón Seguir", "primary / onPrimary", "NeonPrimary · NeonOnPrimary", "#65AFFF"],
+          ["Botón tonal", "primaryContainer / onPrimaryContainer", "NeonPrimaryContainer · blanco", "#1565C0"],
+          ["Pastilla secundaria", "secondary / onSecondary", "NeonSecondary · NeonOnSecondary", "#9C6DCE"],
+          ["Pastilla terciaria", "tertiary / onTertiary", "NeonTertiary · NeonOnTertiary", "#F56476"],
+          ["Aviso", "error", "DarkError", "#FFB4AB"],
+          ["Borde de la tarjeta", "outlineVariant", "NeonOutlineVariant", "#5C5C5C"],
+          ["Icono de la top bar", "chromeIconColor()", "NeonIcon", "#E6E6E6"],
+          ["Destino inactivo", "chromeNavInactiveColor()", "NeonNavInactive", "#BDBDBD"]
+        ],
+        groups: [
+          {
+            title: "Principal",
+            items: [
+              { name: "NeonPrimary", hex: "#65AFFF", extra: "Además es el marcador azul (BookmarkColor.BLUE).", roles: [
+                { role: "primary", use: "Acento principal: botones, controles activos y destino seleccionado." },
+                { role: "surfaceTint", use: "Tinte de elevación. Mismo val que el primario." }
+              ]},
+              { name: "NeonOnPrimary", hex: "#003258", roles: [
+                { role: "onPrimary", use: "Texto e icono encima del azul neón.", against: "#65AFFF", againstName: "primary" }
+              ]},
+              { name: "NeonPrimaryContainer", hex: "#1565C0", roles: [
+                { role: "primaryContainer", use: "Azul más cerrado, para un relleno que no brille tanto como primary." }
+              ]},
+              { name: "NeonOnPrimaryContainer", hex: "#FFFFFF", roles: [
+                { role: "onPrimaryContainer", use: "Texto blanco encima del contenedor azul.", against: "#1565C0", againstName: "primaryContainer" }
+              ]}
+            ]
+          },
+          {
+            title: "Secundario",
+            items: [
+              { name: "NeonSecondary", hex: "#9C6DCE", roles: [
+                { role: "secondary", use: "Segundo acento, violeta." }
+              ]},
+              { name: "NeonOnSecondary", hex: "#381563", roles: [
+                { role: "onSecondary", use: "Texto encima de secondary.", against: "#9C6DCE", againstName: "secondary" }
+              ]},
+              { name: "NeonSecondaryContainer", hex: "#7E57C2", roles: [
+                { role: "secondaryContainer", use: "Contenedor violeta." }
+              ]},
+              { name: "NeonOnSecondaryContainer", hex: "#FFFFFF", roles: [
+                { role: "onSecondaryContainer", use: "Texto blanco encima del contenedor violeta.", against: "#7E57C2", againstName: "secondaryContainer" }
+              ]}
+            ]
+          },
+          {
+            title: "Terciario",
+            items: [
+              { name: "NeonTertiary", hex: "#F56476", roles: [
+                { role: "tertiary", use: "Tercer acento, rosa neón." }
+              ]},
+              { name: "NeonOnTertiary", hex: "#410015", roles: [
+                { role: "onTertiary", use: "Texto encima de tertiary.", against: "#F56476", againstName: "tertiary" }
+              ]},
+              { name: "NeonTertiaryContainer", hex: "#D81B60", roles: [
+                { role: "tertiaryContainer", use: "Contenedor del rosa. Es el que usan la tarjeta de estadísticas y alguna pastilla de la cuadrícula." }
+              ]},
+              { name: "NeonOnTertiaryContainer", hex: "#FFFFFF", roles: [
+                { role: "onTertiaryContainer", use: "Texto blanco encima del contenedor rosa.", against: "#D81B60", againstName: "tertiaryContainer" }
+              ]}
+            ]
+          },
+          {
+            title: "Error",
+            hint: "Tomados de Oscuro. En este tema el botón de error y el fondo de error se ven igual que en Classic Dark.",
+            items: [
+              { name: "DarkError", hex: "#FFB4AB", roles: [
+                { role: "error", use: "Mensajes y acciones destructivas.", against: "#000000", againstName: "background" }
+              ]},
+              { name: "DarkOnError", hex: "#690005", roles: [
+                { role: "onError", use: "Texto del botón de error.", against: "#FFB4AB", againstName: "error" }
+              ]},
+              { name: "DarkErrorContainer", hex: "#93000A", roles: [
+                { role: "errorContainer", use: "Fondo de los bloques de error." }
+              ]},
+              { name: "DarkOnErrorContainer", hex: "#FFDAD6", roles: [
+                { role: "onErrorContainer", use: "Texto sobre errorContainer.", against: "#93000A", againstName: "errorContainer" }
+              ]}
+            ]
+          },
+          {
+            title: "Fondo y tinta",
+            items: [
+              { name: "NeonBackground", also: ["NeonSurface", "NeonSurfaceContainerLowest"], hex: "#000000", roles: [
+                { role: "background", use: "Fondo negro." },
+                { role: "surface", use: "Diálogos y hojas. También negro." },
+                { role: "surfaceDim", use: "Extremo oscuro. También negro." },
+                { role: "surfaceContainerLowest", use: "Tarjeta de marcador. En este tema no se separa del fondo: es el mismo negro." }
+              ]},
+              { name: "NeonText", hex: "#E6E6E6", roles: [
+                { role: "onBackground", use: "Texto sobre el negro.", against: "#000000", againstName: "background" },
+                { role: "onSurface", use: "Títulos y texto principal.", against: "#000000", againstName: "surface" }
+              ]},
+              { name: "NeonOnSurfaceVariant", hex: "#C8C8C8", roles: [
+                { role: "onSurfaceVariant", use: "Metadatos e iconos de apoyo.", against: "#000000", againstName: "surface" }
+              ]},
+              { name: "NeonSurfaceVariant", hex: "#1C1C1C", roles: [
+                { role: "surfaceVariant", use: "Campos y superficies de apoyo, un gris apenas separado del negro." }
+              ]},
+              { name: "NeonSurfaceBright", hex: "#2C2C2C", same: "Un pelo más oscuro que NeonSurfaceContainerHighest (#2E2E2E). El nombre bright no implica que sea el paso más claro.", roles: [
+                { role: "surfaceBright", use: "Extremo claro de la escala, según el rol de Material." }
+              ]}
+            ]
+          },
+          {
+            title: "Escala de contenedores",
+            hint: "El orden es el del rol. surfaceContainerLowest es negro y vive en la ficha de fondo. surfaceBright no entra en esta rampa porque no es más claro que el último peldaño.",
+            layout: "ramp",
+            items: [
+              { name: "NeonSurfaceContainerLow", hex: "#121212", roles: [
+                { role: "surfaceContainerLow", use: "Primer gris sobre el negro. Definido, sin lecturas directas." }
+              ]},
+              { name: "NeonSurfaceContainer", hex: "#1A1A1A", roles: [
+                { role: "surfaceContainer", use: "Peldaño medio. Definido, sin lecturas directas." }
+              ]},
+              { name: "NeonSurfaceContainerHigh", hex: "#242424", roles: [
+                { role: "surfaceContainerHigh", use: "Tarjetas de libro, lomo de carpeta y menú del marcador." }
+              ]},
+              { name: "NeonSurfaceContainerHighest", hex: "#2E2E2E", roles: [
+                { role: "surfaceContainerHighest", use: "Peldaño más alto de la escala." }
+              ]}
+            ]
+          },
+          {
+            title: "Bordes",
+            items: [
+              { name: "NeonOutline", hex: "#BDBDBD", roles: [
+                { role: "outline", use: "Bordes con énfasis. Sobre negro se lee claro, que es lo que busca el contraste." }
+              ]},
+              { name: "NeonOutlineVariant", hex: "#5C5C5C", roles: [
+                { role: "outlineVariant", use: "Divisores, más discretos que outline y todavía visibles sobre negro." }
+              ]}
+            ]
+          },
+          {
+            title: "Inverso",
+            items: [
+              { name: "NeonInverseSurface", hex: "#E6E6E6", same: "Mismo hex que NeonText.", roles: [
+                { role: "inverseSurface", use: "Fondo del snackbar, una pastilla clara sobre el negro." }
+              ]},
+              { name: "NeonInverseOnSurface", hex: "#1A1A1A", roles: [
+                { role: "inverseOnSurface", use: "Texto del snackbar.", against: "#E6E6E6", againstName: "inverseSurface" }
+              ]}
+            ]
+          },
+          {
+            title: "Cromo de las barras",
+            hint: "Alias. Se eligen porque background es NeonBackground, el negro puro. Oscuro es #111316, así que no chocan.",
+            items: [
+              { name: "NeonIcon", hex: "#E6E6E6", same: "Apunta a NeonText.", roles: [
+                { role: "chromeIconColor()", use: "Iconos de la top bar." }
+              ]},
+              { name: "NeonNavInactive", hex: "#BDBDBD", same: "Apunta a NeonOutline.", roles: [
+                { role: "chromeNavInactiveColor()", use: "Destino no seleccionado de la barra inferior." }
+              ]}
+            ]
+          }
+        ],
+        foreign: {
+          summary: "Roles fixed e inversePrimary, sin asignar",
+          hint: "ColorDarkTokens de Material 3 1.4.0. Son colores claros de la paleta lavanda por defecto. Encima de este negro desentonarían, y hoy nadie los pide.",
+          items: [
+            ["inversePrimary", "#6750A4", "ColorDarkTokens.InversePrimary", "Acento sobre inverseSurface si alguien lo pidiera."],
+            ["primaryFixed", "#EADDFF", "ColorDarkTokens.PrimaryFixed", "Primario fijo del baseline."],
+            ["primaryFixedDim", "#D0BCFF", "ColorDarkTokens.PrimaryFixedDim", "Primario fijo atenuado."],
+            ["onPrimaryFixed", "#21005D", "ColorDarkTokens.OnPrimaryFixed", "Texto sobre primaryFixed."],
+            ["onPrimaryFixedVariant", "#4F378B", "ColorDarkTokens.OnPrimaryFixedVariant", "Texto de menor énfasis sobre primaryFixed."],
+            ["secondaryFixed", "#E8DEF8", "ColorDarkTokens.SecondaryFixed", "Secundario fijo del baseline."],
+            ["secondaryFixedDim", "#CCC2DC", "ColorDarkTokens.SecondaryFixedDim", "Secundario fijo atenuado."],
+            ["onSecondaryFixed", "#1D192B", "ColorDarkTokens.OnSecondaryFixed", "Texto sobre secondaryFixed."],
+            ["onSecondaryFixedVariant", "#4A4458", "ColorDarkTokens.OnSecondaryFixedVariant", "Texto de menor énfasis sobre secondaryFixed."],
+            ["tertiaryFixed", "#FFD8E4", "ColorDarkTokens.TertiaryFixed", "Terciario fijo del baseline."],
+            ["tertiaryFixedDim", "#EFB8C8", "ColorDarkTokens.TertiaryFixedDim", "Terciario fijo atenuado."],
+            ["onTertiaryFixed", "#31111D", "ColorDarkTokens.OnTertiaryFixed", "Texto sobre tertiaryFixed."],
+            ["onTertiaryFixedVariant", "#633B48", "ColorDarkTokens.OnTertiaryFixedVariant", "Texto de menor énfasis sobre tertiaryFixed."]
+          ]
+        }
+      },
+      comunes: {
+        theme: "Color.kt",
+        factory: "fuera de los cuatro schemes",
+        scheme: "constantes de soporte",
+        lede: "No son un tema. Son vals sueltos al final de Color.kt. Los que un scheme usa también están en la pestaña de ese tema, con su rol. Aquí quedan reunidos, más los dos que no entran en ningún colorScheme.",
+        groups: [
+          {
+            title: "Enganchados a un scheme",
+            items: [
+              { name: "ErrorRed", hex: "#BA1A1A", roles: [
+                { role: "error", use: "En Juguito y en Pastel. Oscuro y Alto contraste usan DarkError (#FFB4AB) en su lugar." }
+              ]},
+              { name: "LightErrorContainer", hex: "#F6D5CE", roles: [
+                { role: "errorContainer", use: "Fondo de error de Juguito y Pastel." }
+              ]},
+              { name: "LightOnErrorContainer", hex: "#5C1512", roles: [
+                { role: "onErrorContainer", use: "Texto de ese fondo. Compartido por los dos temas claros." }
+              ]}
+            ]
+          },
+          {
+            title: "Fuera del colorScheme",
+            items: [
+              { name: "SuccessGreen", hex: "#2E7D32", extra: "Color del marcador verde (BookmarkColor.GREEN). No está asignado a ningún rol.", roles: [
+                { role: "BookmarkColor.swatch()", use: "Se pinta el punto del marcador, no un componente de Material." }
+              ]},
+              { name: "DeepNavy", hex: "#1A1C1E", same: "Mismo hex que JuguitoOnBackground. No hay más referencias: el scheme usa JuguitoOnBackground, no este val.", roles: [
+                { role: "sin rol", use: "Declarado y sin uso. Si lo buscas para tinta, el nombre vivo es JuguitoOnBackground." }
+              ]}
+            ]
+          },
+          {
+            title: "Marcadores",
+            hint: "BookmarkColor.swatch() reutiliza colores de las paletas. Cambiar el acento del tema cambia también el punto del marcador.",
+            items: [
+              { name: "JuguitoSecondary", alias: "BookmarkColor.AMBER", hex: "#FFB347", roles: [{ role: "secondary en Juguito", use: "Ámbar del marcador y secundario del tema Juguito." }]},
+              { name: "SuccessGreen", alias: "BookmarkColor.GREEN", hex: "#2E7D32", roles: [{ role: "sin colorScheme", use: "Verde del marcador." }]},
+              { name: "NeonPrimary", alias: "BookmarkColor.BLUE", hex: "#65AFFF", roles: [{ role: "primary en Alto contraste", use: "Azul del marcador y primario neón." }]},
+              { name: "PastelPink", alias: "BookmarkColor.PINK", hex: "#F48FB1", roles: [{ role: "primary en Pastel", use: "Rosa del marcador y primario pastel." }]},
+              { name: "PastelPurple", alias: "BookmarkColor.LILAC", hex: "#CE93D8", roles: [{ role: "secondary en Pastel", use: "Lila del marcador y secundario pastel." }]}
+            ]
+          }
+        ]
+      }
+    };
+
+    let typeGround = "paper";
+
+    function esc(value) {
+      return String(value).replace(/[&<>"']/g, (ch) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[ch]);
+    }
+
+    function channel(c) {
+      const s = c / 255;
+      return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    }
+
+    function lum(hex) {
+      const n = parseInt(hex.slice(1), 16);
+      const r = (n >> 16) & 255;
+      const g = (n >> 8) & 255;
+      const b = n & 255;
+      return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+    }
+
+    function contrast(a, b) {
+      const hi = Math.max(lum(a), lum(b));
+      const lo = Math.min(lum(a), lum(b));
+      return (hi + 0.05) / (lo + 0.05);
+    }
+
+    function grade(ratio) {
+      if (ratio >= 7) return "AAA";
+      if (ratio >= 4.5) return "AA";
+      if (ratio >= 3) return "AA texto grande";
+      return "por debajo de AA";
+    }
+
+    function inkOn(hex) {
+      return contrast(hex, "#FFFFFF") >= contrast(hex, "#1A1C1E") ? "#FFFFFF" : "#1A1C1E";
+    }
+
+    function namesOf(item) {
+      return [item.name, ...(item.also || [])].map(esc).join("<br>");
+    }
+
+    function ratioLine(fill, role) {
+      if (!role.against) return "";
+      const value = contrast(fill, role.against);
+      return `<p class="ratio">${value.toFixed(1)}:1 sobre ${esc(role.againstName)} · ${grade(value)}</p>`;
+    }
+
+    function roleCode(role) {
+      return /^[a-z][A-Za-z]*$/.test(role) ? "colorScheme." + role : role;
+    }
+
+    function card(item) {
+      const fill = item.swatch || item.hex;
+      const ink = inkOn(fill);
+      const roles = item.roles.map((role) => `
+        <li>
+          <code>${esc(roleCode(role.role))}</code>
+          <p>${esc(role.use)}</p>
+          ${ratioLine(fill, role)}
+        </li>`).join("");
+      return `<article class="card">
+        <button type="button" class="chip" style="background:${fill};color:${ink}" data-copy="${esc(fill)}" aria-label="Copiar ${esc(fill)}">
+          <span class="chip-hex">${esc(fill)}</span>
+        </button>
+        <div class="card-body">
+          <h3>${namesOf(item)}</h3>
+          ${item.alias ? `<p class="alias">${esc(item.alias)}</p>` : ""}
+          ${item.same ? `<p class="same">${esc(item.same)}</p>` : ""}
+          ${item.alpha ? `<p class="same">${esc(item.alpha)}</p>` : ""}
+          <ul class="roles">${roles}</ul>
+          ${item.extra ? `<p class="extra">${esc(item.extra)}</p>` : ""}
+        </div>
+      </article>`;
+    }
+
+    function ramp(item) {
+      const fill = item.swatch || item.hex;
+      const ink = inkOn(fill);
+      const roles = item.roles.map((role) => esc(role.role)).join(" · ");
+      const use = item.roles.map((role) => esc(role.use)).join(" ");
+      return `<button type="button" class="ramp-cell" style="background:${fill};color:${ink}" data-copy="${esc(item.hex)}" aria-label="Copiar ${esc(item.hex)}">
+        <strong>${namesOf(item)}</strong>
+        <code>${roles}</code>
+        <em>${esc(item.hex)}</em>
+        <span>${use}</span>
+      </button>`;
+    }
+
+    function stage(palette) {
+      const s = palette.preview;
+      if (!s) return "";
+      const tertiary = s.tertiary
+        ? `<span class="pill" style="background:${s.tertiary};color:${s.onTertiary || inkOn(s.tertiary)}">${s.onTertiary ? "Terciario" : "Terciario"}</span>`
+        : "";
+      const legend = palette.legend.map(([label, role, name, hex]) => `
+        <li>
+          <i style="background:${hex}"></i>
+          <b>${esc(label)}</b>
+          <span><code>${esc(role)}</code> · ${esc(name)}</span>
+        </li>`).join("");
+      return `<div class="stage-row">
+        <div class="stage" style="background:${s.bg};color:${s.ink}">
+          <div class="stage-bar">
+            <span class="mark" style="background:${s.icon}"></span>
+            <strong>Biblioteca</strong>
+          </div>
+          <article class="stage-card" style="background:${s.card};color:${s.ink};border:1px solid ${s.border || "transparent"}">
+            <h3>Título del libro</h3>
+            <p style="color:${s.muted}">Nombre del autor</p>
+            <div class="pills">
+              <span class="pill" style="background:${s.primary};color:${s.onPrimary}">Seguir</span>
+              <span class="pill" style="background:${s.primaryContainer};color:${s.onPrimaryContainer}">Tonal</span>
+              <span class="pill" style="background:${s.secondary};color:${s.onSecondary}">Secundario</span>
+              ${tertiary}
+            </div>
+          </article>
+          <p class="stage-error" style="color:${s.error}">Revisa este campo</p>
+          <nav class="stage-nav" style="border-top:1px solid ${s.muted}">
+            <span style="color:${s.primary}">Inicio</span>
+            <span style="color:${s.nav}">Biblioteca</span>
+            <span style="color:${s.nav}">Ajustes</span>
+          </nav>
+        </div>
+        <ul class="legend">${legend}</ul>
+      </div>`;
+    }
+
+    function foreign(block) {
+      if (!block) return "";
+      const items = block.items.map(([role, hex, token, use]) => `
+        <article class="card">
+          <button type="button" class="chip" style="background:${hex};color:${inkOn(hex)}" data-copy="${hex}" aria-label="Copiar ${hex}">
+            <span class="chip-hex">${hex}</span>
+          </button>
+          <div class="card-body">
+            <h3>colorScheme.${esc(role)}</h3>
+            <p class="alias">${esc(token)}</p>
+            <p>${esc(use)}</p>
+          </div>
+        </article>`).join("");
+      return `<details class="foreign">
+        <summary>${esc(block.summary)}</summary>
+        <p class="hint">${esc(block.hint)}</p>
+        <div class="grid">${items}</div>
+      </details>`;
+    }
+
+    function palettePanel(palette) {
+      const groups = palette.groups.map((group) => {
+        const body = group.layout === "ramp"
+          ? `<div class="ramp">${group.items.map(ramp).join("")}</div>`
+          : `<div class="grid">${group.items.map(card).join("")}</div>`;
+        return `<section>
+          <h3 class="group">${esc(group.title)}</h3>
+          ${group.hint ? `<p class="hint">${esc(group.hint)}</p>` : ""}
+          ${body}
+        </section>`;
+      }).join("");
+      return `<header class="panel-head">
+          <p class="kicker">${esc(palette.theme)} · ${esc(palette.factory)}</p>
+          <h2>${esc(TABS.find((tab) => PALETTES[tab[0]] === palette)?.[1] || "")}</h2>
+          <p class="lede">${esc(palette.lede)}</p>
+          <p class="scheme">${esc(palette.scheme)}</p>
+        </header>
+        ${palette.note ? `<p class="warn">${esc(palette.note)}</p>` : ""}
+        ${stage(palette)}
+        ${groups}
+        ${foreign(palette.foreign)}`;
+    }
+
+    function typePanel() {
+      const ground = GROUNDS[typeGround];
+      const grounds = Object.entries(GROUNDS).map(([id, item]) => `
+        <button type="button" data-ground="${id}" aria-pressed="${id === typeGround}">${esc(item.label)}</button>`).join("");
+      const rows = TYPE.map(([name, family, weight, weightName, size, line, track, use, badge]) => {
+        const stack = family === "Lora" ? "var(--serif)" : "var(--sans)";
+        return `<article class="type-row">
+          <div class="type-meta">
+            <code>${esc(name)}</code>
+            <p>${esc(family)} · ${esc(weightName)}</p>
+            <p>${size} / ${line} · ${track} sp</p>
+            <p class="badge">${esc(badge)}</p>
+            <p>${esc(use)}</p>
+          </div>
+          <p style="margin:0;font-family:${stack};font-weight:${weight};font-size:${size}px;line-height:${line}px;letter-spacing:${track}px;color:${ground.ink}">
+            ${name.startsWith("label") ? "Etiqueta" : name.startsWith("body") ? "Una frase de cuerpo para ver la fuente en su tamaño." : "La lectura de esta tarde"}
+          </p>
+        </article>`;
+      }).join("");
+      return `<header class="panel-head">
+          <p class="kicker">Typography · común a los cuatro temas</p>
+          <h2>Tipografía</h2>
+          <p class="lede">JuguitoReaderTheme siempre pasa el mismo Typography. Display, headline y title van en Lora. Body y label van en Plus Jakarta Sans. Los tamaños de abajo son los que quedan después de Type.kt, en sp, pintados aquí 1:1 en px.</p>
+        </header>
+        <div class="families">
+          <article class="family">
+            <h3>Lora</h3>
+            <p class="specimen" style="font-family:var(--serif);font-weight:700">Lora, para los títulos</p>
+            <p>Serif embebida, <code>res/font/lora.ttf</code>, variable. La familia registra 400, 500 y 700. No tiene itálica: un <code>FontStyle.Italic</code> sobre Lora no encuentra corte propio.</p>
+            <p style="font-family:var(--serif);font-weight:400">Regular 400</p>
+            <p style="font-family:var(--serif);font-weight:500">Medium 500</p>
+            <p style="font-family:var(--serif);font-weight:700">Bold 700</p>
+          </article>
+          <article class="family">
+            <h3>Plus Jakarta Sans</h3>
+            <p class="specimen" style="font-family:var(--sans)">Jakarta, para el cuerpo</p>
+            <p>Sans descargada en el dispositivo con el proveedor de Google Fonts. La familia trae 400, 400 itálica, 500, 600 y 700. Ningún estilo de Typography usa el 600 ni la itálica por su cuenta.</p>
+            <p style="font-family:var(--sans);font-weight:400">Regular 400</p>
+            <p style="font-family:var(--sans);font-weight:400;font-style:italic">Itálica 400</p>
+            <p style="font-family:var(--sans);font-weight:500">Medium 500</p>
+            <p style="font-family:var(--sans);font-weight:600">SemiBold 600, en la familia y fuera de la escala</p>
+            <p style="font-family:var(--sans);font-weight:700">Bold 700</p>
+          </article>
+        </div>
+        <div class="probeta" style="background:${ground.bg};color:${ground.ink}">
+          <div class="grounds" role="group" aria-label="Fondo de la escala">${grounds}</div>
+          ${rows}
+        </div>`;
+    }
+
+    function titleFor(id) {
+      return TABS.find((tab) => tab[0] === id)[1];
+    }
+
+    function render(id) {
+      document.querySelectorAll(".tabs button").forEach((button) => {
+        const on = button.dataset.tab === id;
+        button.setAttribute("aria-selected", on ? "true" : "false");
+        button.tabIndex = on ? 0 : -1;
+      });
+      const panel = document.getElementById("panel");
+      panel.innerHTML = id === "tipo" ? typePanel() : palettePanel(PALETTES[id]);
+      if (id !== "tipo") {
+        const heading = panel.querySelector("h2");
+        if (heading) heading.textContent = titleFor(id);
+      }
+    }
+
+    function show(id) {
+      if (!TABS.some((tab) => tab[0] === id)) id = "juguito";
+      history.replaceState(null, "", "#" + id);
+      render(id);
+    }
+
+    document.getElementById("tabs").innerHTML = TABS.map(([id, label]) =>
+      `<button type="button" role="tab" data-tab="${id}" aria-selected="false">${label}</button>`
+    ).join("");
+
+    document.body.addEventListener("click", async (event) => {
+      const ground = event.target.closest("[data-ground]");
+      if (ground) {
+        typeGround = ground.dataset.ground;
+        render("tipo");
+        return;
+      }
+      const tab = event.target.closest("[data-tab]");
+      if (tab) {
+        show(tab.dataset.tab);
+        return;
+      }
+      const copy = event.target.closest("[data-copy]");
+      if (!copy) return;
+      const text = copy.dataset.copy;
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (error) {
+        const area = document.createElement("textarea");
+        area.value = text;
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand("copy");
+        area.remove();
+      }
+      const label = copy.querySelector(".chip-hex, em");
+      if (!label) return;
+      const previous = label.textContent;
+      label.textContent = "Copiado";
+      setTimeout(() => { label.textContent = previous; }, 800);
+    });
+
+    show((location.hash || "#juguito").slice(1));
+  </script>
+</body>
+</html>
