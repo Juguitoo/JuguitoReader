@@ -31,3 +31,5 @@ Los menús de la barra de Biblioteca y de Registro, y el de la ficha, son un blo
 ## Resolución
 
 Los menús de libro dejan de ser el desplegable de Material 3. En Inicio las acciones son una fila de iconos. En la biblioteca, una hoja muestra el título, el estado en una sola línea y el borrado con deshacer. En la ficha el borrado sigue pidiendo confirmación. Los menús de las barras de Biblioteca, Registro y la ficha usan el mismo bloque propio.
+
+Commits: `5818147`
