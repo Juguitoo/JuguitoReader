@@ -1,6 +1,7 @@
 package com.juguito.juguitoreader.ui.library
 
 import com.juguito.juguitoreader.domain.enums.BookStatus
+import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.BookCriteria
 import com.juguito.juguitoreader.domain.model.Folder
 
@@ -11,4 +12,7 @@ sealed interface LibraryEvent {
     data class OnLayoutModeChanged(val layoutMode: Int): LibraryEvent
     data class OnCriteriaChanged(val criteria: BookCriteria): LibraryEvent
     data object OnClearFilters: LibraryEvent
+    data class OnDeleteBookClick(val book: Book): LibraryEvent
+    data class OnUndoDeleteClick(val bookId: Int): LibraryEvent
+    data class OnDeleteConfirmed(val bookId: Int): LibraryEvent
 }

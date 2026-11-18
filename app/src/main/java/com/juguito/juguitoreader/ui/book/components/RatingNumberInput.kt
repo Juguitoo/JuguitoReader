@@ -35,6 +35,7 @@ import com.juguito.juguitoreader.ui.components.JuguitoDialog
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import java.text.NumberFormat
 import java.util.Locale
+import androidx.compose.ui.platform.LocalLocale
 
 @Composable
 fun RatingNumberInput(
@@ -43,7 +44,7 @@ fun RatingNumberInput(
     modifier: Modifier = Modifier
 ) {
     var showPicker by remember { mutableStateOf(false) }
-    val locale = Locale.getDefault()
+    val locale = LocalLocale.current.platformLocale
     val valueText = if (rating == 0f) {
         stringResource(R.string.rating_out_of, stringResource(R.string.em_dash))
     } else {

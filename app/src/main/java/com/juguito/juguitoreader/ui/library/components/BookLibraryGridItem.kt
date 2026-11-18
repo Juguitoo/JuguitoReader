@@ -13,13 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.StarBorder
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -31,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,15 +36,15 @@ import coil.compose.AsyncImage
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
-import com.juguito.juguitoreader.ui.common.toUiText
 import com.juguito.juguitoreader.ui.home.components.CoverSpineScrim
 
 @Composable
 fun BookLibraryGridItem(
     book: Book,
     onClick: () -> Unit,
-    onDetailClick: () -> Unit,
-    onStatusChange: (BookStatus) -> Unit
+    onDetails: () -> Unit,
+    onStatusChange: (BookStatus) -> Unit,
+    onDelete: () -> Unit,
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
@@ -141,13 +134,15 @@ fun BookLibraryGridItem(
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
 
-            BookLibraryActionsMenu(
-                expanded = showMenu,
-                book = book,
-                onDismiss = { showMenu = false },
-                onDetails = onDetailClick,
-                onStatusChange = onStatusChange
-            )
+            if (showMenu) {
+                BookLibraryActionsSheet(
+                    book = book,
+                    onDismiss = { showMenu = false },
+                    onDetails = onDetails,
+                    onStatusChange = onStatusChange,
+                    onDelete = onDelete
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(10.dp))

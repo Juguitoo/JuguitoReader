@@ -1,5 +1,6 @@
 package com.juguito.juguitoreader.ui.settings.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -38,7 +39,8 @@ fun SettingsSection(
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
             ),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            border = BorderStroke(1.dp, color = MaterialTheme.colorScheme.outlineVariant)
         ) {
             Column {
                 content()

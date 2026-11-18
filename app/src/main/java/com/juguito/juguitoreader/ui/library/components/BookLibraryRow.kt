@@ -55,6 +55,7 @@ fun BookLibraryRow(
     onOpen: () -> Unit,
     onDetails: () -> Unit,
     onStatusChange: (BookStatus) -> Unit,
+    onDelete: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var showMenu by remember { mutableStateOf(false) }
@@ -131,13 +132,15 @@ fun BookLibraryRow(
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
-                                BookLibraryActionsMenu(
-                                    expanded = showMenu,
-                                    book = book,
-                                    onDismiss = { showMenu = false },
-                                    onDetails = onDetails,
-                                    onStatusChange = onStatusChange
-                                )
+                                if (showMenu) {
+                                    BookLibraryActionsSheet(
+                                        book = book,
+                                        onDismiss = { showMenu = false },
+                                        onDetails = onDetails,
+                                        onStatusChange = onStatusChange,
+                                        onDelete = onDelete
+                                    )
+                                }
                             }
                         }
                     }

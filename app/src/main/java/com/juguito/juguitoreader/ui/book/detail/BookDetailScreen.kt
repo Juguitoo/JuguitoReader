@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -31,9 +29,6 @@ import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarOutline
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -59,20 +54,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.juguito.juguitoreader.R
-import com.juguito.juguitoreader.ui.common.components.JuguitoTopBar
-import com.juguito.juguitoreader.ui.theme.LoraFontFamily
-import com.juguito.juguitoreader.ui.theme.chromeIconColor
+import com.juguito.juguitoreader.ui.book.components.BookDetailsMenu
 import com.juguito.juguitoreader.ui.book.components.BookHero
 import com.juguito.juguitoreader.ui.book.components.BookInfoTab
 import com.juguito.juguitoreader.ui.book.components.CatalogSummary
 import com.juguito.juguitoreader.ui.book.components.ReadingJournal
 import com.juguito.juguitoreader.ui.common.ObserveAsEvents
 import com.juguito.juguitoreader.ui.common.components.DialogOptionCard
+import com.juguito.juguitoreader.ui.common.components.JuguitoDatePickerDialog
+import com.juguito.juguitoreader.ui.common.components.JuguitoTopBar
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.components.ErrorView
 import com.juguito.juguitoreader.ui.components.JuguitoDialog
-import com.juguito.juguitoreader.ui.common.components.JuguitoDatePickerDialog
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
+import com.juguito.juguitoreader.ui.theme.chromeIconColor
 import com.juguito.juguitoreader.utils.FileUtils
 import java.io.File
 
@@ -96,7 +91,6 @@ fun BookDetailScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookDetailContent(
     state: BookDetailUiState,
@@ -112,7 +106,7 @@ fun BookDetailContent(
     var showEndDatePicker by remember { mutableStateOf(false) }
     var showImageSourceDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
-    var showOverflowMenu by remember { mutableStateOf(false) }
+    var showMenu by remember { mutableStateOf(false) }
     var tempCameraFile by remember { mutableStateOf<File?>(null) }
 
     DisposableEffect(Unit) {
@@ -313,38 +307,20 @@ fun BookDetailContent(
                                             }
                                         )
                                     }
-                                    IconButton(onClick = { showOverflowMenu = true }) {
+
+                                    IconButton(onClick = { showMenu = true }) {
                                         Icon(
                                             imageVector = Icons.Default.MoreVert,
                                             contentDescription = stringResource(R.string.options)
                                         )
                                     }
-                                    DropdownMenu(
-                                        expanded = showOverflowMenu,
-                                        onDismissRequest = { showOverflowMenu = false }
-                                    ) {
-                                        DropdownMenuItem(
-                                            text = { Text(stringResource(R.string.edit_book)) },
-                                            onClick = {
-                                                showOverflowMenu = false
-                                                onEvent(BookDetailEvent.OnEditModeChanged(true))
-                                            }
-                                        )
-                                        DropdownMenuItem(
-                                            text = { Text(stringResource(R.string.delete)) },
-                                            onClick = {
-                                                showOverflowMenu = false
-                                                showDeleteDialog = true
-                                            },
-                                            leadingIcon = {
-                                                Icon(
-                                                    Icons.Default.Delete,
-                                                    contentDescription = null,
-                                                    tint = MaterialTheme.colorScheme.error
-                                                )
-                                            }
-                                        )
-                                    }
+
+                                    BookDetailsMenu(
+                                        expanded = showMenu,
+                                        onDismiss = { showMenu = false },
+                                        onDelete = { showDeleteDialog = true },
+                                        onEvent = onEvent
+                                    )
                                 }
                             }
                         }

@@ -5,21 +5,32 @@ import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
+import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
 import com.juguito.juguitoreader.domain.model.BookCriteria
+import com.juguito.juguitoreader.domain.model.DeletedBookSnapshot
 import com.juguito.juguitoreader.domain.model.Folder
+import com.juguito.juguitoreader.domain.usecase.bookmark.GetBookBookmarksUseCase
+import com.juguito.juguitoreader.domain.usecase.book.DeleteBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
+import com.juguito.juguitoreader.domain.usecase.book.RestoreDeletedBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
+import com.juguito.juguitoreader.domain.usecase.dailyReading.GetBookDailyReadingsUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
 import com.juguito.juguitoreader.domain.usecase.library.GetLibraryLayoutModeUseCase
 import com.juguito.juguitoreader.domain.usecase.library.SaveLibraryLayoutModeUseCase
+import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgressByIdUseCase
+import com.juguito.juguitoreader.ui.common.UiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
+import com.juguito.juguitoreader.utils.FileUtils
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.unmockkAll
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -46,6 +57,11 @@ class LibraryViewModelTest {
     private val importBookFromUriUseCase = mockk<ImportBookFromUriUseCase>()
     private val getLibraryLayoutModeUseCase = mockk<GetLibraryLayoutModeUseCase>()
     private val saveLibraryLayoutModeUseCase = mockk<SaveLibraryLayoutModeUseCase>()
+    private val getBookDailyReadingsUseCase = mockk<GetBookDailyReadingsUseCase>()
+    private val getReadingProgressByIdUseCase = mockk<GetReadingProgressByIdUseCase>()
+    private val getBookBookmarksUseCase = mockk<GetBookBookmarksUseCase>()
+    private val deleteBookUseCase = mockk<DeleteBookUseCase>()
+    private val restoreDeletedBookUseCase = mockk<RestoreDeletedBookUseCase>()
     private val layoutMode = MutableStateFlow(0)
 
     @Before
@@ -54,9 +70,15 @@ class LibraryViewModelTest {
         every { getFoldersUseCase() } returns flowOf(emptyList())
         every { getBooksUseCase() } returns flowOf(emptyList())
         every { getLibraryLayoutModeUseCase() } returns layoutMode
+        every { getBookDailyReadingsUseCase(any()) } returns flowOf(emptyList())
+        every { getBookBookmarksUseCase(any()) } returns flowOf(emptyList())
+        coEvery { getReadingProgressByIdUseCase(any()) } returns null
         coEvery { saveLibraryLayoutModeUseCase(any()) } coAnswers {
             layoutMode.value = firstArg()
         }
+        mockkObject(FileUtils)
+        every { FileUtils.deleteReaderCache(any(), any()) } returns true
+        every { FileUtils.deleteFileFromInternalStorage(any(), any()) } returns Unit
 
         viewModel = createViewModel()
     }
@@ -64,6 +86,7 @@ class LibraryViewModelTest {
     @After
     fun teardown() {
         Dispatchers.resetMain()
+        unmockkAll()
     }
 
     private fun createViewModel(
@@ -76,6 +99,11 @@ class LibraryViewModelTest {
         importBookFromUriUseCase,
         getLibraryLayoutModeUseCase,
         saveLibraryLayoutModeUseCase,
+        getBookDailyReadingsUseCase,
+        getReadingProgressByIdUseCase,
+        getBookBookmarksUseCase,
+        deleteBookUseCase,
+        restoreDeletedBookUseCase,
         savedStateHandle,
     )
 
@@ -275,6 +303,49 @@ class LibraryViewModelTest {
         } finally {
             latch.complete(Result.success(Unit))
         }
+    }
+
+    @Test
+    fun `onEvent OnDeleteBookClick snapshots the book and exposes pending undo`() = runTest {
+        val book = Book(id = 1, title = "T", author = "A", isPhysical = false, coverUrl = "c", localFilePath = "l")
+        coEvery { deleteBookUseCase(1) } returns Result.success(Unit)
+
+        viewModel.onEvent(LibraryEvent.OnDeleteBookClick(book))
+
+        coVerify { deleteBookUseCase(1) }
+        assertThat(viewModel.pendingUndoBookId.value).isEqualTo(1)
+    }
+
+    @Test
+    fun `onEvent OnUndoDeleteClick restores the snapshot`() = runTest {
+        val book = Book(id = 1, title = "T", author = "A", isPhysical = false)
+        val expected = DeletedBookSnapshot(book = book, dailyReadings = emptyList(), readingProgress = null)
+        coEvery { deleteBookUseCase(1) } returns Result.success(Unit)
+        coEvery { restoreDeletedBookUseCase(any()) } returns Result.success(Unit)
+
+        viewModel.effect.test {
+            viewModel.onEvent(LibraryEvent.OnDeleteBookClick(book))
+            viewModel.onEvent(LibraryEvent.OnUndoDeleteClick(1))
+
+            coVerify { restoreDeletedBookUseCase(expected) }
+            assertThat(viewModel.pendingUndoBookId.value).isNull()
+            val effect = awaitItem() as UiEffect.ShowSnackbar
+            assertThat((effect.message as UiText.StringResource).resId).isEqualTo(R.string.book_restored)
+        }
+    }
+
+    @Test
+    fun `onEvent OnDeleteConfirmed deletes cover epub and reader cache`() = runTest {
+        val book = Book(id = 1, title = "T", author = "A", isPhysical = false, coverUrl = "c", localFilePath = "l")
+        coEvery { deleteBookUseCase(1) } returns Result.success(Unit)
+
+        viewModel.onEvent(LibraryEvent.OnDeleteBookClick(book))
+        viewModel.onEvent(LibraryEvent.OnDeleteConfirmed(1))
+
+        coVerify { FileUtils.deleteFileFromInternalStorage(any(), "c") }
+        coVerify { FileUtils.deleteFileFromInternalStorage(any(), "l") }
+        coVerify { FileUtils.deleteReaderCache(any(), 1) }
+        assertThat(viewModel.pendingUndoBookId.value).isNull()
     }
 
     @Test

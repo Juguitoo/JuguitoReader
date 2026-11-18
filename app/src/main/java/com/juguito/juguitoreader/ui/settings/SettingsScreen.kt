@@ -374,6 +374,9 @@ fun SettingsScreen(
                             }
                         }
                     )
+
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
                     SettingsActionRow(
                         icon = Icons.Default.Info,
                         title = stringResource(R.string.about),
@@ -383,6 +386,8 @@ fun SettingsScreen(
                            onNavigateToAbout()
                         }
                     )
+
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
 
                     SettingsActionRow(
                         icon = Icons.Default.Coffee,

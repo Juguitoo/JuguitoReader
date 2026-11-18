@@ -110,6 +110,7 @@ import com.juguito.juguitoreader.ui.common.components.juguitoTopBarTextFieldColo
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
 import com.juguito.juguitoreader.ui.common.toUiText
 import com.juguito.juguitoreader.ui.components.ErrorView
+import com.juguito.juguitoreader.ui.registry.components.RegistryMenu
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import kotlinx.coroutines.flow.Flow
 import java.text.SimpleDateFormat
@@ -229,7 +230,9 @@ fun RegistryContent(
                             value = state.criteria.searchText,
                             onValueChange = { onEvent(RegistryEvent.OnSearchTextChanged(it)) },
                             placeholder = { Text(stringResource(R.string.search_registry_hint), fontSize = 14.sp) },
-                            modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .focusRequester(focusRequester),
                             colors = juguitoTopBarTextFieldColors(),
                             singleLine = true,
                             textStyle = MaterialTheme.typography.bodyLarge
@@ -272,25 +275,13 @@ fun RegistryContent(
                     IconButton(onClick = { showMenu = true }) {
                         Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.options))
                     }
-                    DropdownMenu(
+                    RegistryMenu(
                         expanded = showMenu,
-                        onDismissRequest = { showMenu = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.import_book_title)) },
-                            onClick = {
-                                showMenu = false
-                                documentPickerLauncher.launch(arrayOf("application/epub+zip"))
-                            },
-                            enabled = !isImporting
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.content_manager)) },
-                            onClick = {
-                                onNavigateToContentManager()
-                            }
-                        )
-                    }
+                        isImporting = isImporting,
+                        onDismiss = { showMenu = false },
+                        onNavigateToContentManager = onNavigateToContentManager,
+                        onImport = { documentPickerLauncher.launch(arrayOf("application/epub+zip")) }
+                    )
                 }
             )
         },

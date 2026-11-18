@@ -6,11 +6,6 @@ Al cerrar una tarea, quita la línea de aquí. En la ficha, `estado: hecho` y la
 
 ## En curso
 
-- [ ] TAR-73 Mejorar menús emergentes de biblioteca, inicio...
-  - version: v1.3.1
-  - tipo: enhance
-  - ref: tasks/TAR-73.md
-
 ## Pendiente
 
 ### v1.3.1

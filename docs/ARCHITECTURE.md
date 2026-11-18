@@ -154,11 +154,13 @@ El archivo es un ZIP (`JuguitoReader-backup-YYYYMMDD.zip`) con `manifest.json`, 
 ### Borrado con undo
 
 ```
-HomeViewModel → DeleteBookUseCase (BD inmediato)
+HomeViewModel / LibraryViewModel → DeleteBookUseCase (BD inmediato)
   → pendingUndoBookId (StateFlow) → Snackbar en LaunchedEffect
   → nuevo delete: confirmPending del anterior (ficheros) + sustituye pending
   → confirm: borra archivos (cover, EPUB, cache/reader); undo: RestoreDeletedBookUseCase
 ```
+
+Inicio y Biblioteca tienen cada uno su `ActionUndoManager`. La ficha sigue borrando con diálogo, sin esta ventana.
 
 El undo de delete es estado (ventana viva), no `UiEffect` one-shot. Ver `common/ActionUndoManager.kt`.
 

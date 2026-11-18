@@ -33,8 +33,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,8 +40,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -84,6 +84,7 @@ import com.juguito.juguitoreader.ui.library.components.BookLibraryGridItem
 import com.juguito.juguitoreader.ui.library.components.BookLibraryRow
 import com.juguito.juguitoreader.ui.library.components.EmptySearchPlaceholder
 import com.juguito.juguitoreader.ui.library.components.FolderSelectorRow
+import com.juguito.juguitoreader.ui.library.components.LibraryMenu
 import com.juguito.juguitoreader.ui.theme.LoraFontFamily
 import kotlinx.coroutines.flow.Flow
 
@@ -97,6 +98,7 @@ fun LibraryScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val isImporting by viewModel.isImporting.collectAsState()
+    val pendingUndoBookId by viewModel.pendingUndoBookId.collectAsState()
     var isSearchVisible by remember { mutableStateOf(false) }
     var showAllFoldersSheet by remember { mutableStateOf(false) }
 
@@ -114,7 +116,8 @@ fun LibraryScreen(
         onEvent = viewModel::onEvent,
         onImportBook = viewModel::importBook,
         onDismissError = viewModel::dismissError,
-        effect = viewModel.effect
+        effect = viewModel.effect,
+        pendingUndoBookId = pendingUndoBookId
     )
 }
 
@@ -133,7 +136,8 @@ fun LibraryContent(
     onEvent: (LibraryEvent) -> Unit,
     onImportBook: (Uri) -> Unit,
     onDismissError: () -> Unit,
-    effect: Flow<UiEffect>
+    effect: Flow<UiEffect>,
+    pendingUndoBookId: Int? = null,
 ) {
     val context = LocalContext.current
     val currentSelectedFolder = when (state) {
@@ -210,6 +214,24 @@ fun LibraryContent(
     }
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val bookDeletedMessage = stringResource(R.string.book_deleted)
+    val undoLabel = stringResource(R.string.undo)
+
+    LaunchedEffect(pendingUndoBookId) {
+        val bookId = pendingUndoBookId ?: return@LaunchedEffect
+
+        val result = snackbarHostState.showSnackbar(
+            message = bookDeletedMessage,
+            actionLabel = undoLabel,
+            duration = SnackbarDuration.Short
+        )
+
+        when (result) {
+            SnackbarResult.ActionPerformed -> onEvent(LibraryEvent.OnUndoDeleteClick(bookId))
+            SnackbarResult.Dismissed -> onEvent(LibraryEvent.OnDeleteConfirmed(bookId))
+        }
+    }
+
     ObserveAsEvents(effect) { uiEffect ->
         when (uiEffect) {
             is UiEffect.ShowSnackbar -> {
@@ -240,7 +262,9 @@ fun LibraryContent(
                             value = currentSearchText,
                             onValueChange = { onEvent(OnSearchTextChanged(it)) },
                             placeholder = { Text(stringResource(R.string.search_library_hint), fontSize = 14.sp) },
-                            modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .focusRequester(focusRequester),
                             colors = juguitoTopBarTextFieldColors(),
                             singleLine = true,
                             textStyle = MaterialTheme.typography.bodyLarge
@@ -285,37 +309,16 @@ fun LibraryContent(
                     IconButton(onClick = { showMenu = true }) {
                         Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.options))
                     }
-                    DropdownMenu(
+
+                    LibraryMenu(
                         expanded = showMenu,
-                        onDismissRequest = { showMenu = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.import_book_title)) },
-                            onClick = {
-                                showMenu = false
-                                documentPickerLauncher.launch(arrayOf("application/epub+zip"))
-                            },
-                            enabled = !isImporting
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.content_manager)) },
-                            onClick = {
-                                onNavigateToContentManager()
-                            }
-                        )
-                        if (state is LibraryUiState.Success) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(if (state.layoutMode == 0) R.string.library_rows else R.string.library_grid)) },
-                                onClick = {
-                                    when (state.layoutMode) {
-                                        0 -> onEvent(LibraryEvent.OnLayoutModeChanged(1))
-                                        1 -> onEvent(LibraryEvent.OnLayoutModeChanged(0))
-                                    }
-                                    showMenu = false
-                                }
-                            )
-                        }
-                    }
+                        isImporting = isImporting,
+                        layoutMode = if (state is LibraryUiState.Success) state.layoutMode else 0,
+                        onDismiss = { showMenu = false },
+                        onNavigateToContentManager = onNavigateToContentManager,
+                        onImport = { documentPickerLauncher.launch(arrayOf("application/epub+zip")) },
+                        onEvent = onEvent
+                    )
                 }
             )
         },
@@ -408,7 +411,7 @@ fun LibraryContent(
                                                                             book.id
                                                                         )
                                                                     },
-                                                                    onDetailClick = {
+                                                                    onDetails = {
                                                                         onNavigateToBookDetail(
                                                                             book.id
                                                                         )
@@ -420,6 +423,9 @@ fun LibraryContent(
                                                                                 newStatus
                                                                             )
                                                                         )
+                                                                    },
+                                                                    onDelete = {
+                                                                        onEvent(LibraryEvent.OnDeleteBookClick(book))
                                                                     }
                                                                 )
                                                             }
@@ -459,6 +465,9 @@ fun LibraryContent(
                                                                     newStatus
                                                                 )
                                                             )
+                                                        },
+                                                        onDelete = {
+                                                            onEvent(LibraryEvent.OnDeleteBookClick(book))
                                                         }
                                                     )
                                                 }

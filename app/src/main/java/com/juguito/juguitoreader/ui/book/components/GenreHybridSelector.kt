@@ -3,7 +3,6 @@ package com.juguito.juguitoreader.ui.book.components
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Genre
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun GenreHybridSelector(
     availableGenres: List<Genre>,

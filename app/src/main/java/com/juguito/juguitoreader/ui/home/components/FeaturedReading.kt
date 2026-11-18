@@ -18,11 +18,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -128,30 +130,50 @@ fun FeaturedReading(
                         .padding(vertical = 2.dp),
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Column(
-                        modifier = Modifier.combinedClickable(
-                            onClick = onOpen,
-                            onLongClick = { showMenu = true },
-                            onClickLabel = actionLabel,
-                            onLongClickLabel = stringResource(R.string.options),
-                            role = Role.Button
-                        )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(
-                            text = book.title,
-                            style = homeSerif(size = 18.sp, lineHeight = 22.sp),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = book.author,
-                            modifier = Modifier.padding(top = 2.dp),
-                            style = homeSans(size = 12.sp),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                        Column {
+                            Text(
+                                text = book.title,
+                                style = homeSerif(size = 18.sp, lineHeight = 22.sp),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = book.author,
+                                modifier = Modifier.padding(top = 2.dp),
+                                style = homeSans(size = 12.sp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+
+                        Box {
+                            IconButton(
+                                onClick = { showMenu = true },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = stringResource(R.string.options),
+                                    modifier = Modifier.size(20.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            BookHomeActionsMenu(
+                                expanded = showMenu,
+                                book = book,
+                                onDismiss = { showMenu = false },
+                                onRead = onRead,
+                                onDetails = onDetails,
+                                onDelete = onDelete
+                            )
+                        }
                     }
 
                     if (canRead) {
@@ -234,14 +256,5 @@ fun FeaturedReading(
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.22f)
             )
         }
-
-        BookHomeActionsMenu(
-            expanded = showMenu,
-            book = book,
-            onDismiss = { showMenu = false },
-            onRead = onRead,
-            onDetails = onDetails,
-            onDelete = onDelete
-        )
     }
 }

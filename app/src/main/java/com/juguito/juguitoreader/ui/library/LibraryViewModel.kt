@@ -5,18 +5,27 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.juguito.juguitoreader.R
+import com.juguito.juguitoreader.common.ActionUndoManager
 import com.juguito.juguitoreader.domain.enums.BookStatus
 import com.juguito.juguitoreader.domain.model.Book
+import com.juguito.juguitoreader.domain.model.DeletedBookSnapshot
 import com.juguito.juguitoreader.domain.model.Folder
 import com.juguito.juguitoreader.domain.model.copy
+import com.juguito.juguitoreader.domain.usecase.bookmark.GetBookBookmarksUseCase
+import com.juguito.juguitoreader.domain.usecase.book.DeleteBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.GetBooksUseCase
 import com.juguito.juguitoreader.domain.usecase.book.ImportBookFromUriUseCase
+import com.juguito.juguitoreader.domain.usecase.book.RestoreDeletedBookUseCase
 import com.juguito.juguitoreader.domain.usecase.book.UpdateBookUseCase
+import com.juguito.juguitoreader.domain.usecase.dailyReading.GetBookDailyReadingsUseCase
 import com.juguito.juguitoreader.domain.usecase.folder.GetFoldersUseCase
 import com.juguito.juguitoreader.domain.usecase.library.GetLibraryLayoutModeUseCase
 import com.juguito.juguitoreader.domain.usecase.library.SaveLibraryLayoutModeUseCase
+import com.juguito.juguitoreader.domain.usecase.readingProgress.GetReadingProgressByIdUseCase
 import com.juguito.juguitoreader.ui.common.UiText
+import com.juguito.juguitoreader.ui.common.asUiText
 import com.juguito.juguitoreader.ui.common.interfaces.UiEffect
+import com.juguito.juguitoreader.utils.FileUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import androidx.lifecycle.SavedStateHandle
@@ -30,6 +39,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -43,6 +53,11 @@ class LibraryViewModel @Inject constructor(
     private val importBookFromUriUseCase: ImportBookFromUriUseCase,
     private val getLibraryLayoutModeUseCase: GetLibraryLayoutModeUseCase,
     private val saveLibraryLayoutModeUseCase: SaveLibraryLayoutModeUseCase,
+    private val getBookDailyReadingsUseCase: GetBookDailyReadingsUseCase,
+    private val getReadingProgressByIdUseCase: GetReadingProgressByIdUseCase,
+    private val getBookBookmarksUseCase: GetBookBookmarksUseCase,
+    private val deleteBookUseCase: DeleteBookUseCase,
+    private val restoreDeletedBookUseCase: RestoreDeletedBookUseCase,
     savedStateHandle: SavedStateHandle = SavedStateHandle(),
 ) : ViewModel() {
     private val _selectedFolder = MutableStateFlow<Folder?>(null)
@@ -55,6 +70,10 @@ class LibraryViewModel @Inject constructor(
 
     private val _effect = Channel<UiEffect>()
     val effect = _effect.receiveAsFlow()
+
+    private val bookUndoManager = ActionUndoManager<DeletedBookSnapshot>()
+    private val _pendingUndoBookId = MutableStateFlow<Int?>(null)
+    val pendingUndoBookId: StateFlow<Int?> = _pendingUndoBookId.asStateFlow()
 
     init {
         loadData()
@@ -149,6 +168,21 @@ class LibraryViewModel @Inject constructor(
             LibraryEvent.OnClearFilters -> {
                 updateCriteria(BookCriteria())
             }
+            is LibraryEvent.OnDeleteBookClick -> deleteBook(event.book)
+            is LibraryEvent.OnDeleteConfirmed -> {
+                viewModelScope.launch {
+                    if (_pendingUndoBookId.value != event.bookId) return@launch
+                    _pendingUndoBookId.value = null
+                    bookUndoManager.confirmPendingIf { it.book.id == event.bookId }
+                }
+            }
+            is LibraryEvent.OnUndoDeleteClick -> {
+                viewModelScope.launch {
+                    if (_pendingUndoBookId.value != event.bookId) return@launch
+                    _pendingUndoBookId.value = null
+                    bookUndoManager.undoPendingIf { it.book.id == event.bookId }
+                }
+            }
         }
     }
 
@@ -184,6 +218,52 @@ class LibraryViewModel @Inject constructor(
 
     fun dismissError() {
         loadData()
+    }
+
+    private fun deleteBook(book: Book) {
+        viewModelScope.launch {
+            val snapshot = DeletedBookSnapshot(
+                book,
+                getBookDailyReadingsUseCase(book.id).first(),
+                getReadingProgressByIdUseCase(book.id),
+                getBookBookmarksUseCase(book.id).first()
+            )
+            bookUndoManager.executeAction(
+                item = snapshot,
+                immediateAction = { deleted ->
+                    val result = deleteBookUseCase(deleted.book.id)
+                    result.fold(
+                        onSuccess = {
+                            _pendingUndoBookId.value = deleted.book.id
+                            true
+                        },
+                        onFailure = { error ->
+                            _pendingUndoBookId.value = null
+                            _effect.send(UiEffect.ShowSnackbar(message = error.asUiText()))
+                            false
+                        }
+                    )
+                },
+                onConfirm = {
+                    it.book.coverUrl?.let { path ->
+                        FileUtils.deleteFileFromInternalStorage(context, path)
+                    }
+                    it.book.localFilePath?.let { path ->
+                        FileUtils.deleteFileFromInternalStorage(context, path)
+                    }
+                    FileUtils.deleteReaderCache(context, it.book.id)
+                },
+                onUndo = {
+                    restoreDeletedBookUseCase(it)
+                        .onSuccess {
+                            _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.book_restored)))
+                        }
+                        .onFailure {
+                            _effect.send(UiEffect.ShowSnackbar(UiText.StringResource(R.string.error_restore_book)))
+                        }
+                }
+            )
+        }
     }
 }
 

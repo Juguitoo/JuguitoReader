@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -40,7 +39,6 @@ import androidx.core.graphics.toColorInt
 import com.juguito.juguitoreader.R
 import com.juguito.juguitoreader.domain.model.Folder
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun FolderMultiSelector(
     availableFolders: List<Folder>,
